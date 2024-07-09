@@ -12,9 +12,10 @@ link_directories(dist)
 
 file(GLOB AST_FILES "parser/*.cpp")
 file(GLOB SOURCE_FILES
-        "src/*.cpp"
-        "src/Context/*")
+        "src/*")
 
-add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
+add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES}
+        src/RiddleVisitor.cpp
+        src/RiddleVisitor.h)
 
 target_link_libraries(Riddle_Language antlr4-runtime)
