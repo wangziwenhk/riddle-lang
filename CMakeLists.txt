@@ -1,11 +1,17 @@
 cmake_minimum_required(VERSION 3.28)
 project(Riddle_Language)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories(parser)
-link_directories(dist)
+include_directories(LLVM-lib)
+include_directories(antlr4-runtime)
 
-add_executable(Riddle_Language src/main.cpp)
+link_directories(${PROJECT_SOURCE_DIR}/dist)
+
+file(GLOB AST_FILES "Parser/*.cpp")
+file(GLOB SOURCE_FILES "src/*.cpp")
+
+add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
 target_link_libraries(Riddle_Language antlr4-runtime)

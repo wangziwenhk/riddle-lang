@@ -72,8 +72,8 @@ whileStatment
     ;
 
 ifStatment returns [bool hasElse]
-    : If LeftBracket cond=expression RightBracket body=statment_ed {$hasElse=false}
-    | If LeftBracket cond=expression RightBracket body=statment_ed Else elseBody=statment_ed {$hasElse=true}
+    : If LeftBracket cond=expression RightBracket body=statment_ed {$hasElse=false;}
+    | If LeftBracket cond=expression RightBracket body=statment_ed Else elseBody=statment_ed {$hasElse=true;}
     ;
 
 returnStatment

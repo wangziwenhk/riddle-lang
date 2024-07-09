@@ -1636,7 +1636,7 @@ RiddleParser::IfStatmentContext* RiddleParser::ifStatment() {
       match(RiddleParser::RightBracket);
       setState(162);
       antlrcpp::downCast<IfStatmentContext *>(_localctx)->body = statment_ed();
-      _localctx->hasElse=false
+      antlrcpp::downCast<IfStatmentContext *>(_localctx)->hasElse = false;
       break;
     }
 
@@ -1656,7 +1656,7 @@ RiddleParser::IfStatmentContext* RiddleParser::ifStatment() {
       match(RiddleParser::Else);
       setState(171);
       antlrcpp::downCast<IfStatmentContext *>(_localctx)->elseBody = statment_ed();
-      _localctx->hasElse=true
+      antlrcpp::downCast<IfStatmentContext *>(_localctx)->hasElse = true;
       break;
     }
 
