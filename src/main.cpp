@@ -1,11 +1,10 @@
-#include "RiddleParser.h"
 #include "RiddleLexer.h"
-#include <iostream>
-using namespace std;
+#include "RiddleParser.h"
 using namespace antlr4;
-int main(){
-    ANTLRInputStream input("");
-    RiddleLexer lexer(&input);
+int main(int argv,char *argc[]){
+    if(argv<2)return 0;
+    ANTLRInputStream stream(argc[1]);
+    RiddleLexer lexer(&stream);
     CommonTokenStream tokens(&lexer);
     RiddleParser parser(&tokens);
 

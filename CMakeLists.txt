@@ -11,7 +11,9 @@ include_directories(antlr4-runtime)
 link_directories(dist)
 
 file(GLOB AST_FILES "parser/*.cpp")
-file(GLOB SOURCE_FILES "src/*.cpp")
+file(GLOB SOURCE_FILES
+        "src/*.cpp"
+        "src/Context/*")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
