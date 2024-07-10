@@ -18,10 +18,10 @@ public:
     RightCurly = 18, Colon = 19, Semi = 20, Comma = 21, Equal = 22, Assign = 23, 
     Greater = 24, Less = 25, LeftLeft = 26, RightRight = 27, Add = 28, Sub = 29, 
     Star = 30, Div = 31, Mod = 32, Not = 33, And = 34, Or = 35, Xor = 36, 
-    Dot = 37, Endl = 38, Identifier = 39, Hexadecimal = 40, Decimal = 41, 
-    Octal = 42, Binary = 43, IntegerSequence = 44, HEX_DIGIT = 45, OCTAL_DIGIT = 46, 
-    BINARY_DIGIT = 47, DIGIT = 48, LINE_COMMENT = 49, BLOCK_COMMENT = 50, 
-    WHITESPACE = 51
+    Dot = 37, DoubleQuotes = 38, Quotes = 39, Endl = 40, Identifier = 41, 
+    Hexadecimal = 42, Decimal = 43, Octal = 44, Binary = 45, Float = 46, 
+    IntegerSequence = 47, HEX_DIGIT = 48, OCTAL_DIGIT = 49, BINARY_DIGIT = 50, 
+    DIGIT = 51, LINE_COMMENT = 52, BLOCK_COMMENT = 53, WHITESPACE = 54
   };
 
   enum {
@@ -29,7 +29,7 @@ public:
     RuleImportStatment = 4, RuleVarStatment = 5, RuleFuncExpr = 6, RuleArgsExpr = 7, 
     RuleDefineArgs = 8, RuleFuncDefine = 9, RuleForStatment = 10, RuleWhileStatment = 11, 
     RuleIfStatment = 12, RuleReturnStatment = 13, RuleExpression = 14, RuleId = 15, 
-    RuleNumber = 16
+    RuleNumber = 16, RuleString = 17, RuleFloat = 18, RuleInteger = 19
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -67,7 +67,10 @@ public:
   class ReturnStatmentContext;
   class ExpressionContext;
   class IdContext;
-  class NumberContext; 
+  class NumberContext;
+  class StringContext;
+  class FloatContext;
+  class IntegerContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
@@ -564,6 +567,17 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  StringExprContext : public ExpressionContext {
+  public:
+    StringExprContext(ExpressionContext *ctx);
+
+    StringContext *string();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  GreaterExprContext : public ExpressionContext {
   public:
     GreaterExprContext(ExpressionContext *ctx);
@@ -978,12 +992,61 @@ public:
 
   class  NumberContext : public antlr4::ParserRuleContext {
   public:
+    NumberContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IntegerContext *integer();
+    FloatContext *float_();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  NumberContext* number();
+
+  class  StringContext : public antlr4::ParserRuleContext {
+  public:
+    StringContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<antlr4::tree::TerminalNode *> DoubleQuotes();
+    antlr4::tree::TerminalNode* DoubleQuotes(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  StringContext* string();
+
+  class  FloatContext : public antlr4::ParserRuleContext {
+  public:
+    double value;
+    antlr4::Token *floatToken = nullptr;
+    FloatContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *Float();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  FloatContext* float_();
+
+  class  IntegerContext : public antlr4::ParserRuleContext {
+  public:
     int value;
     antlr4::Token *decimalToken = nullptr;
     antlr4::Token *hexadecimalToken = nullptr;
     antlr4::Token *binaryToken = nullptr;
     antlr4::Token *octalToken = nullptr;
-    NumberContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    IntegerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Decimal();
     antlr4::tree::TerminalNode *Hexadecimal();
@@ -997,7 +1060,7 @@ public:
    
   };
 
-  NumberContext* number();
+  IntegerContext* integer();
 
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

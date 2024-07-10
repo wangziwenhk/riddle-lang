@@ -18,10 +18,10 @@ public:
     RightCurly = 18, Colon = 19, Semi = 20, Comma = 21, Equal = 22, Assign = 23, 
     Greater = 24, Less = 25, LeftLeft = 26, RightRight = 27, Add = 28, Sub = 29, 
     Star = 30, Div = 31, Mod = 32, Not = 33, And = 34, Or = 35, Xor = 36, 
-    Dot = 37, Endl = 38, Identifier = 39, Hexadecimal = 40, Decimal = 41, 
-    Octal = 42, Binary = 43, IntegerSequence = 44, HEX_DIGIT = 45, OCTAL_DIGIT = 46, 
-    BINARY_DIGIT = 47, DIGIT = 48, LINE_COMMENT = 49, BLOCK_COMMENT = 50, 
-    WHITESPACE = 51
+    Dot = 37, DoubleQuotes = 38, Quotes = 39, Endl = 40, Identifier = 41, 
+    Hexadecimal = 42, Decimal = 43, Octal = 44, Binary = 45, Float = 46, 
+    IntegerSequence = 47, HEX_DIGIT = 48, OCTAL_DIGIT = 49, BINARY_DIGIT = 50, 
+    DIGIT = 51, STRING = 52, LINE_COMMENT = 53, BLOCK_COMMENT = 54, WHITESPACE = 55
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

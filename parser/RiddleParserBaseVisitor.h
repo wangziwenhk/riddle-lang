@@ -123,6 +123,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitStringExpr(RiddleParser::StringExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -232,6 +236,18 @@ public:
   }
 
   virtual std::any visitNumber(RiddleParser::NumberContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitString(RiddleParser::StringContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFloat(RiddleParser::FloatContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitInteger(RiddleParser::IntegerContext *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -39,6 +39,8 @@ And:            '&';
 Or:             '|';
 Xor:            '^';
 Dot:            '.';
+DoubleQuotes:   '"';
+Quotes:         '\'';
 
 Endl:'\n';
 //标识符
@@ -51,12 +53,20 @@ Decimal: '0' | [1-9] DIGIT*;
 Octal: '0' [1-7] OCTAL_DIGIT*;
 //二进制
 Binary: '0b' '1' BINARY_DIGIT*;
+Float: Decimal Dot IntegerSequence;
 
 IntegerSequence: DIGIT+;
 HEX_DIGIT: [0-9A-F];
 OCTAL_DIGIT: [0-7];
 BINARY_DIGIT: [0-1];
 DIGIT: [0-9];
+STRING
+    : '"' (ESC | ~["\\\r\n])* '"'
+    ;
+
+fragment ESC
+    : '\\' (["\\/bfnrt] | [A-Za-z])
+    ;
 
 LINE_COMMENT : '//' ~[\r\n]* -> skip ;
 BLOCK_COMMENT : '/*' .*? '*/' -> skip ;

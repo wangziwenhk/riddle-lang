@@ -95,6 +95,9 @@ public:
   virtual void enterOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) = 0;
   virtual void exitOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) = 0;
 
+  virtual void enterStringExpr(RiddleParser::StringExprContext *ctx) = 0;
+  virtual void exitStringExpr(RiddleParser::StringExprContext *ctx) = 0;
+
   virtual void enterGreaterExpr(RiddleParser::GreaterExprContext *ctx) = 0;
   virtual void exitGreaterExpr(RiddleParser::GreaterExprContext *ctx) = 0;
 
@@ -178,6 +181,15 @@ public:
 
   virtual void enterNumber(RiddleParser::NumberContext *ctx) = 0;
   virtual void exitNumber(RiddleParser::NumberContext *ctx) = 0;
+
+  virtual void enterString(RiddleParser::StringContext *ctx) = 0;
+  virtual void exitString(RiddleParser::StringContext *ctx) = 0;
+
+  virtual void enterFloat(RiddleParser::FloatContext *ctx) = 0;
+  virtual void exitFloat(RiddleParser::FloatContext *ctx) = 0;
+
+  virtual void enterInteger(RiddleParser::IntegerContext *ctx) = 0;
+  virtual void exitInteger(RiddleParser::IntegerContext *ctx) = 0;
 
 
 };

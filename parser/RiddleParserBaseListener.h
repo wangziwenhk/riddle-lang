@@ -97,6 +97,9 @@ public:
   virtual void enterOrAssignExpr(RiddleParser::OrAssignExprContext * /*ctx*/) override { }
   virtual void exitOrAssignExpr(RiddleParser::OrAssignExprContext * /*ctx*/) override { }
 
+  virtual void enterStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
+  virtual void exitStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
+
   virtual void enterGreaterExpr(RiddleParser::GreaterExprContext * /*ctx*/) override { }
   virtual void exitGreaterExpr(RiddleParser::GreaterExprContext * /*ctx*/) override { }
 
@@ -180,6 +183,15 @@ public:
 
   virtual void enterNumber(RiddleParser::NumberContext * /*ctx*/) override { }
   virtual void exitNumber(RiddleParser::NumberContext * /*ctx*/) override { }
+
+  virtual void enterString(RiddleParser::StringContext * /*ctx*/) override { }
+  virtual void exitString(RiddleParser::StringContext * /*ctx*/) override { }
+
+  virtual void enterFloat(RiddleParser::FloatContext * /*ctx*/) override { }
+  virtual void exitFloat(RiddleParser::FloatContext * /*ctx*/) override { }
+
+  virtual void enterInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
+  virtual void exitInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

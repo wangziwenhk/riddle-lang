@@ -119,13 +119,29 @@ expression
     | left=expression Xor Assign right=expression           #xorAssignExpr          // x^=y
     | left=expression LeftLeft Assign right=expression      #leftLeftAssignExpr     // x<<=y
     | left=expression RightRight Assign right=expression    #rightRightAssignExpr   // x>>=y
+    | string                                                #stringExpr
     | number                                                #numberExpr
     | id                                                    #objectExpr
     ;
 
 id: Identifier (Dot Identifier)*;
 
-number returns [int value]
+number
+    : integer
+    | float
+    ;
+
+string
+    : STRING
+    ;
+
+float returns [double value]
+    : Float{
+        $value = stod($Float.text);
+    }
+    ;
+
+integer returns [int value]
     : Decimal{
         $value = stoi($Decimal.text);
     }

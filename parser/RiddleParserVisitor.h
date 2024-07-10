@@ -73,6 +73,8 @@ public:
 
     virtual std::any visitOrAssignExpr(RiddleParser::OrAssignExprContext *context) = 0;
 
+    virtual std::any visitStringExpr(RiddleParser::StringExprContext *context) = 0;
+
     virtual std::any visitGreaterExpr(RiddleParser::GreaterExprContext *context) = 0;
 
     virtual std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *context) = 0;
@@ -128,6 +130,12 @@ public:
     virtual std::any visitId(RiddleParser::IdContext *context) = 0;
 
     virtual std::any visitNumber(RiddleParser::NumberContext *context) = 0;
+
+    virtual std::any visitString(RiddleParser::StringContext *context) = 0;
+
+    virtual std::any visitFloat(RiddleParser::FloatContext *context) = 0;
+
+    virtual std::any visitInteger(RiddleParser::IntegerContext *context) = 0;
 
 
 };
