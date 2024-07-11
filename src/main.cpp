@@ -1,7 +1,7 @@
 #include "RiddleLexer.h"
 #include "RiddleParser.h"
-#include "GenVisitor.h"
-#include <iostream>
+#include "Visitors/GenVisitor.h"
+
 using namespace std;
 using namespace antlr4;
 int main(int argv,char *argc[]){
