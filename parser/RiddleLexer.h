@@ -12,16 +12,16 @@
 class  RiddleLexer : public antlr4::Lexer {
 public:
   enum {
-    Var = 1, For = 2, While = 3, If = 4, Else = 5, Func = 6, Return = 7, 
-    Import = 8, Package = 9, Class = 10, Public = 11, Protected = 12, Private = 13, 
-    Override = 14, LeftBracket = 15, RightBracket = 16, LeftCurly = 17, 
-    RightCurly = 18, Colon = 19, Semi = 20, Comma = 21, Equal = 22, Assign = 23, 
-    Greater = 24, Less = 25, LeftLeft = 26, RightRight = 27, Add = 28, Sub = 29, 
-    Star = 30, Div = 31, Mod = 32, Not = 33, And = 34, Or = 35, Xor = 36, 
-    Dot = 37, DoubleQuotes = 38, Quotes = 39, Endl = 40, Identifier = 41, 
-    Hexadecimal = 42, Decimal = 43, Octal = 44, Binary = 45, Float = 46, 
-    IntegerSequence = 47, HEX_DIGIT = 48, OCTAL_DIGIT = 49, BINARY_DIGIT = 50, 
-    DIGIT = 51, STRING = 52, LINE_COMMENT = 53, BLOCK_COMMENT = 54, WHITESPACE = 55
+    Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
+    Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
+    Override = 15, LeftBracket = 16, RightBracket = 17, LeftCurly = 18, 
+    RightCurly = 19, Colon = 20, Semi = 21, Comma = 22, Equal = 23, Assign = 24, 
+    Greater = 25, Less = 26, LeftLeft = 27, RightRight = 28, Add = 29, Sub = 30, 
+    Star = 31, Div = 32, Mod = 33, Not = 34, And = 35, Or = 36, Xor = 37, 
+    Dot = 38, DoubleQuotes = 39, Quotes = 40, Endl = 41, Identifier = 42, 
+    Hexadecimal = 43, Decimal = 44, Octal = 45, Binary = 46, Float = 47, 
+    IntegerSequence = 48, HEX_DIGIT = 49, OCTAL_DIGIT = 50, BINARY_DIGIT = 51, 
+    DIGIT = 52, STRING = 53, LINE_COMMENT = 54, BLOCK_COMMENT = 55, WHITESPACE = 56
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

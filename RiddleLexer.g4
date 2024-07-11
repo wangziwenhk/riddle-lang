@@ -1,11 +1,12 @@
 lexer grammar RiddleLexer;
 //关键字
-Var:'var';
+Var:'var';  //可变变量
+Val:'val';  //不可变变量
 For:'for';
 While:'while';
 If:'if';
 Else:'else';
-Func:'func';
+Func:'fun'; //函数定义
 Return: 'return' ;
 Import: 'import' ;
 Package: 'package';
@@ -65,7 +66,7 @@ STRING
     ;
 
 fragment ESC
-    : '\\' (["\\/bfnrt] | [A-Za-z])
+    : '\\' (["\\/] | [A-Za-z])
     ;
 
 LINE_COMMENT : '//' ~[\r\n]* -> skip ;
