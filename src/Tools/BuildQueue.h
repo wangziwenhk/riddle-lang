@@ -1,19 +1,18 @@
 #ifndef RIDDLE_LANGUAGE_BUILDQUEUE_H
 #define RIDDLE_LANGUAGE_BUILDQUEUE_H
 #include <llvm/IR/Module.h>
-namespace Riddle{
+namespace Riddle {
     /// \brief 用于随时调整编译队列
-    class BuildQueue{
+    class BuildQueue {
     private:
-        struct Unit{
-
+        struct Unit {
         };
-    public:
-        void addModule(llvm::Module* module){
 
+    public:
+        void addModule(llvm::Module *module) {
         }
     };
 
-} // Riddle
+}// namespace Riddle
 
-#endif //RIDDLE_LANGUAGE_BUILDQUEUE_H
+#endif//RIDDLE_LANGUAGE_BUILDQUEUE_H

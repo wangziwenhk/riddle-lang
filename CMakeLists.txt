@@ -18,7 +18,11 @@ message(STATUS "Found Antlr4: ${ANTLR4CPP_INCLUDE_DIRS}")
 link_directories(dist)
 
 file(GLOB AST_FILES "parser/*.cpp" "parser/*.h")
-file(GLOB SOURCE_FILES "src/*")
+file(GLOB SOURCE_FILES
+        "src/*"
+        "src/Tools/*"
+        "src/Types/*"
+        "src/Visitors/*")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
