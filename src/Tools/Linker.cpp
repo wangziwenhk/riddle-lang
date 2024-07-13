@@ -80,4 +80,11 @@ namespace Riddle {
         }
         return "UNKNOWN";
     }
+    std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath) {
+        std::string sp = findSourceLib(libPackName,sourcePath);
+        if(sp!="UNKNOWN")return sp;
+        sp = findSystemLib(libPackName);
+        if(sp!="UNKNOWN")return sp;
+        return "UNKNOWN";
+    }
 }// namespace Riddle
