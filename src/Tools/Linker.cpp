@@ -32,9 +32,9 @@ namespace Riddle {
         SystemLibPaths.emplace_back("lib");
 #endif
     }
-    std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath) {
+    std::string Linker::findSourceLib(const std::string &libPackName, const std::string &sourcePath) {
         std::string libName= getLibName(libPackName);
-        //Source File Path
+
         auto files= Files::getTreeSource(sourcePath);
         for(int i= (int)files.size() - 1; i >= 0; i--) {
             fs::path filePath(files[i]);
@@ -53,7 +53,31 @@ namespace Riddle {
                     return sourcePath;
             }
         }
+        return "UNKNOWN";
+    }
+    std::string Linker::findSystemLib(const std::string &libPackName) {
+        std::string libName= getLibName(libPackName);
 
-        return {};
+        for(const auto &path: SystemLibPaths) {
+            auto files= Files::getTreeSource(path);
+            for(int i= (int)files.size() - 1; i >= 0; i--) {
+                fs::path filePath(files[i]);
+                std::string name= filePath.filename().string();
+                name= name.substr(0, name.size() - 4);
+                if(name != libName) continue;
+
+                auto statement= Files::getFileFirstLine(files[i]);
+                std::smatch matches;
+                std::regex pattern("package ([a-zA-Z.]+);");
+                if(std::regex_search(statement, matches, pattern)) {
+                    if(matches.size() <= 1) continue;
+
+                    std::string thisPackageName= matches[1].str();
+                    if(thisPackageName == libPackName)
+                        return path;
+                }
+            }
+        }
+        return "UNKNOWN";
     }
 }// namespace Riddle
