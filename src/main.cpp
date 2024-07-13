@@ -1,7 +1,8 @@
 #include "RiddleLexer.h"
 #include "RiddleParser.h"
-#include "Tools/Setup.h"
+#include "Tools/BuildQueue.h"
 #include "Visitors/GenVisitor.h"
+#include "Types/Unit.h"
 using namespace std;
 using namespace antlr4;
 int main(int argv, char *argc[]) {
@@ -12,10 +13,10 @@ int main(int argv, char *argc[]) {
     CommonTokenStream tokens(&lexer);
     RiddleParser parser(&tokens);
 
-    tree::ParseTree *p= parser.program();
+    tree::ParseTree *p = parser.program();
     //按理来说这里一个有一个优化的，但是还没写
 
-    GenVisitor visitor;
+    Riddle::GenVisitor visitor;
     visitor.visit(p);
     return 0;
 }
