@@ -2,7 +2,6 @@
 #include "Files.h"
 #include <ext/rope>
 #include <filesystem>
-#include <iostream>
 #include <regex>
 namespace fs= std::filesystem;
 
@@ -80,10 +79,17 @@ namespace Riddle {
         }
         return "UNKNOWN";
     }
-    std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath) {
-        std::string sp = findSourceLib(libPackName,sourcePath);
+    std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath,const std::string&packName) {
+        std::string sp;
+        //source
+        sp = findSourceLib(libPackName,sourcePath);
         if(sp!="UNKNOWN")return sp;
+        sp = findSourceLib(packName+'.'+libPackName,sourcePath);
+        if(sp!="UNKNOWN")return sp;
+        //system
         sp = findSystemLib(libPackName);
+        if(sp!="UNKNOWN")return sp;
+        sp = findSystemLib(packName+'.'+libPackName);
         if(sp!="UNKNOWN")return sp;
         return "UNKNOWN";
     }

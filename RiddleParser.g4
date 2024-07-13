@@ -34,11 +34,11 @@ statement
     ;
 
 packStatement
-    : Package id
+    : Package packName=id
     ;
 
 importStatement
-    : Import id
+    : Import libName=id
     ;
 
 varStatement
@@ -48,7 +48,7 @@ varStatement
     ;
 
 funcExpr
-    : id LeftBracket arge=argsExpr RightBracket
+    : funcName=id LeftBracket arge=argsExpr RightBracket
     ;
 
 argsExpr

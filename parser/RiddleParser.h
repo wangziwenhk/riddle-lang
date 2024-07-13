@@ -136,6 +136,7 @@ public:
 
   class  PackStatementContext : public antlr4::ParserRuleContext {
   public:
+    RiddleParser::IdContext *packName = nullptr;
     PackStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Package();
@@ -152,6 +153,7 @@ public:
 
   class  ImportStatementContext : public antlr4::ParserRuleContext {
   public:
+    RiddleParser::IdContext *libName = nullptr;
     ImportStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Import();
@@ -191,12 +193,13 @@ public:
 
   class  FuncExprContext : public antlr4::ParserRuleContext {
   public:
+    RiddleParser::IdContext *funcName = nullptr;
     RiddleParser::ArgsExprContext *arge = nullptr;
     FuncExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    IdContext *id();
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
+    IdContext *id();
     ArgsExprContext *argsExpr();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;

@@ -12,3 +12,8 @@ package SourceName
 3. 系统默认的库加载路径
    1. `Path` (Windows)
    2. `usr\lib` | `\lib` (Unix \ Linux)
+
+## 处理包
+有两种情况导入一个包：
+1. 绝对包名
+2. 相对包名

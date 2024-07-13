@@ -28,4 +28,16 @@ namespace Riddle {
     size_t Unit::getImportSize() {
         return imports.size();
     }
+    void Unit::setPackName(std::string name) {
+        this->packName= std::move(name);
+    }
+    std::string Unit::getPackName() {
+        return packName;
+    }
+    std::string Unit::getSelfPath() {
+        return selfPath;
+    }
+    void Unit::setSelfPath(std::string path) {
+        selfPath= std::move(path);
+    }
 }// namespace Riddle

@@ -4,7 +4,7 @@
 #include "Types/Unit.h"
 #include <llvm/IR/Module.h>
 namespace Riddle {
-    /// \brief 用于随时调整编译队列
+    /// @brief 用于随时调整编译队列
     class BuildQueue {
 
     public:

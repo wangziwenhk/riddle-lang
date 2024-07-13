@@ -1,8 +1,6 @@
 #include "RiddleLexer.h"
 #include "RiddleParser.h"
 #include "Tools/BuildQueue.h"
-#include "Tools/Linker.h"
-#include "Types/Unit.h"
 #include "Visitors/GenVisitor.h"
 using namespace std;
 using namespace antlr4;

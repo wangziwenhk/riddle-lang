@@ -722,7 +722,7 @@ RiddleParser::PackStatementContext* RiddleParser::packStatement() {
     setState(76);
     match(RiddleParser::Package);
     setState(77);
-    id();
+    antlrcpp::downCast<PackStatementContext *>(_localctx)->packName = id();
    
   }
   catch (RecognitionException &e) {
@@ -789,7 +789,7 @@ RiddleParser::ImportStatementContext* RiddleParser::importStatement() {
     setState(79);
     match(RiddleParser::Import);
     setState(80);
-    id();
+    antlrcpp::downCast<ImportStatementContext *>(_localctx)->libName = id();
    
   }
   catch (RecognitionException &e) {
@@ -934,16 +934,16 @@ RiddleParser::FuncExprContext::FuncExprContext(ParserRuleContext *parent, size_t
   : ParserRuleContext(parent, invokingState) {
 }
 
-RiddleParser::IdContext* RiddleParser::FuncExprContext::id() {
-  return getRuleContext<RiddleParser::IdContext>(0);
-}
-
 tree::TerminalNode* RiddleParser::FuncExprContext::LeftBracket() {
   return getToken(RiddleParser::LeftBracket, 0);
 }
 
 tree::TerminalNode* RiddleParser::FuncExprContext::RightBracket() {
   return getToken(RiddleParser::RightBracket, 0);
+}
+
+RiddleParser::IdContext* RiddleParser::FuncExprContext::id() {
+  return getRuleContext<RiddleParser::IdContext>(0);
 }
 
 RiddleParser::ArgsExprContext* RiddleParser::FuncExprContext::argsExpr() {
@@ -989,7 +989,7 @@ RiddleParser::FuncExprContext* RiddleParser::funcExpr() {
   try {
     enterOuterAlt(_localctx, 1);
     setState(98);
-    id();
+    antlrcpp::downCast<FuncExprContext *>(_localctx)->funcName = id();
     setState(99);
     match(RiddleParser::LeftBracket);
     setState(100);
