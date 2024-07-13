@@ -54,11 +54,12 @@ namespace Riddle {
         }
         return "UNKNOWN";
     }
+    /// @warning 这个函数非常不稳定，不建议使用
     std::string Linker::findSystemLib(const std::string &libPackName) {
         std::string libName= getLibName(libPackName);
 
         for(const auto &path: SystemLibPaths) {
-            auto files= Files::getTreeSource(path);
+            auto files= Files::getSources(path);
             for(int i= (int)files.size() - 1; i >= 0; i--) {
                 fs::path filePath(files[i]);
                 std::string name= filePath.filename().string();
@@ -86,11 +87,12 @@ namespace Riddle {
         if(sp!="UNKNOWN")return sp;
         sp = findSourceLib(packName+'.'+libPackName,sourcePath);
         if(sp!="UNKNOWN")return sp;
+        /// @note 由于这一部分非常不稳定，所以不实现
         //system
-        sp = findSystemLib(libPackName);
-        if(sp!="UNKNOWN")return sp;
-        sp = findSystemLib(packName+'.'+libPackName);
-        if(sp!="UNKNOWN")return sp;
+//        sp = findSystemLib(libPackName);
+//        if(sp!="UNKNOWN")return sp;
+//        sp = findSystemLib(packName+'.'+libPackName);
+//        if(sp!="UNKNOWN")return sp;
         return "UNKNOWN";
     }
 }// namespace Riddle

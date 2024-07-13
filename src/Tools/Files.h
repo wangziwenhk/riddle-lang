@@ -15,6 +15,8 @@ namespace Riddle {
         /// @param path 路径
         /// @return 路径下的所有源文件
         static std::vector<std::string> getTreeSource(const std::string& path);
+        static std::vector<std::string> getFiles(const std::string& path);
+        static std::vector<std::string> getSources(const std::string& path);
         static std::vector<std::string> getFileTextLine(const std::string& path);
         static std::string getFileFirstLine(const std::string& path);
         static bool isFileEmpty(const std::string& path);

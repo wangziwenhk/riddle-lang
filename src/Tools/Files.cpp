@@ -75,4 +75,31 @@ namespace Riddle {
         // 如果文件大小为0，则文件为空
         return fileSize == 0;
     }
+    std::vector<std::string> Files::getFiles(const std::string &path) {
+        std::vector<std::string> files;
+        try {
+            for(const auto &entry: fs::directory_iterator(path)) {
+                if(entry.is_regular_file()) {
+                    files.push_back(entry.path().string());
+                }
+            }
+        } catch(const std::exception &e) {
+            std::cerr << "Error accessing directory: " << e.what() << std::endl;
+        }
+        return files;
+    }
+    std::vector<std::string> Files::getSources(const std::string &path) {
+        auto files= getFiles(path);
+        std::vector<std::string> sourceFiles;
+        while(!files.empty()) {
+            auto i= files.back();
+            fs::path filepath(i);
+            //判断源文件后缀
+            if(filepath.extension().string() == ".red") {
+                sourceFiles.push_back(i);
+            }
+            files.pop_back();
+        }
+        return sourceFiles;
+    }
 }// namespace Riddle

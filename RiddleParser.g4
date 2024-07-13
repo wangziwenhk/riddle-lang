@@ -77,7 +77,7 @@ ifStatement returns [bool hasElse]
     ;
 
 returnStatement
-    : Return statement_ed
+    : Return result=statement_ed
     ;
 
 expression
@@ -126,6 +126,7 @@ expression
 
 id: Identifier (Dot Identifier)*;
 
+//这里是指常量
 number
     : integer
     | float
