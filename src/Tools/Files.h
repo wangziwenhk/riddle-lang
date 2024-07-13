@@ -17,6 +17,7 @@ namespace Riddle {
         static std::vector<std::string> getTreeSource(const std::string& path);
         static std::vector<std::string> getFileTextLine(const std::string& path);
         static std::string getFileFirstLine(const std::string& path);
+        static bool isFileEmpty(const std::string& path);
     };
 }// namespace Riddle
 
