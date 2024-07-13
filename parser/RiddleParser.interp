@@ -118,19 +118,19 @@ WHITESPACE
 
 rule names:
 program
-statment_ed
-statment
-packStatment
-importStatment
-varStatment
+statement_ed
+statement
+packStatement
+importStatement
+varStatement
 funcExpr
 argsExpr
 defineArgs
 funcDefine
-forStatment
-whileStatment
-ifStatment
-returnStatment
+forStatement
+whileStatement
+ifStatement
+returnStatement
 expression
 id
 number

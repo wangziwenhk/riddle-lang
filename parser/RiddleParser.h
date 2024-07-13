@@ -25,11 +25,11 @@ public:
   };
 
   enum {
-    RuleProgram = 0, RuleStatment_ed = 1, RuleStatment = 2, RulePackStatment = 3, 
-    RuleImportStatment = 4, RuleVarStatment = 5, RuleFuncExpr = 6, RuleArgsExpr = 7, 
-    RuleDefineArgs = 8, RuleFuncDefine = 9, RuleForStatment = 10, RuleWhileStatment = 11, 
-    RuleIfStatment = 12, RuleReturnStatment = 13, RuleExpression = 14, RuleId = 15, 
-    RuleNumber = 16, RuleString = 17, RuleFloat = 18, RuleInteger = 19
+    RuleProgram = 0, RuleStatement_ed = 1, RuleStatement = 2, RulePackStatement = 3, 
+    RuleImportStatement = 4, RuleVarStatement = 5, RuleFuncExpr = 6, RuleArgsExpr = 7, 
+    RuleDefineArgs = 8, RuleFuncDefine = 9, RuleForStatement = 10, RuleWhileStatement = 11, 
+    RuleIfStatement = 12, RuleReturnStatement = 13, RuleExpression = 14, 
+    RuleId = 15, RuleNumber = 16, RuleString = 17, RuleFloat = 18, RuleInteger = 19
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -52,19 +52,19 @@ public:
 
 
   class ProgramContext;
-  class Statment_edContext;
-  class StatmentContext;
-  class PackStatmentContext;
-  class ImportStatmentContext;
-  class VarStatmentContext;
+  class Statement_edContext;
+  class StatementContext;
+  class PackStatementContext;
+  class ImportStatementContext;
+  class VarStatementContext;
   class FuncExprContext;
   class ArgsExprContext;
   class DefineArgsContext;
   class FuncDefineContext;
-  class ForStatmentContext;
-  class WhileStatmentContext;
-  class IfStatmentContext;
-  class ReturnStatmentContext;
+  class ForStatementContext;
+  class WhileStatementContext;
+  class IfStatementContext;
+  class ReturnStatementContext;
   class ExpressionContext;
   class IdContext;
   class NumberContext;
@@ -76,8 +76,8 @@ public:
   public:
     ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<Statment_edContext *> statment_ed();
-    Statment_edContext* statment_ed(size_t i);
+    std::vector<Statement_edContext *> statement_ed();
+    Statement_edContext* statement_ed(size_t i);
     antlr4::tree::TerminalNode *EOF();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -89,11 +89,11 @@ public:
 
   ProgramContext* program();
 
-  class  Statment_edContext : public antlr4::ParserRuleContext {
+  class  Statement_edContext : public antlr4::ParserRuleContext {
   public:
-    Statment_edContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    Statement_edContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    StatmentContext *statment();
+    StatementContext *statement();
     antlr4::tree::TerminalNode *Semi();
     antlr4::tree::TerminalNode *Endl();
 
@@ -104,26 +104,26 @@ public:
    
   };
 
-  Statment_edContext* statment_ed();
+  Statement_edContext* statement_ed();
 
-  class  StatmentContext : public antlr4::ParserRuleContext {
+  class  StatementContext : public antlr4::ParserRuleContext {
   public:
-    StatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    PackStatmentContext *packStatment();
-    ImportStatmentContext *importStatment();
+    PackStatementContext *packStatement();
+    ImportStatementContext *importStatement();
     FuncDefineContext *funcDefine();
     FuncExprContext *funcExpr();
-    VarStatmentContext *varStatment();
-    ForStatmentContext *forStatment();
-    WhileStatmentContext *whileStatment();
-    IfStatmentContext *ifStatment();
-    ReturnStatmentContext *returnStatment();
+    VarStatementContext *varStatement();
+    ForStatementContext *forStatement();
+    WhileStatementContext *whileStatement();
+    IfStatementContext *ifStatement();
+    ReturnStatementContext *returnStatement();
     ExpressionContext *expression();
     antlr4::tree::TerminalNode *LeftCurly();
     antlr4::tree::TerminalNode *RightCurly();
-    std::vector<Statment_edContext *> statment_ed();
-    Statment_edContext* statment_ed(size_t i);
+    std::vector<Statement_edContext *> statement_ed();
+    Statement_edContext* statement_ed(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -132,11 +132,11 @@ public:
    
   };
 
-  StatmentContext* statment();
+  StatementContext* statement();
 
-  class  PackStatmentContext : public antlr4::ParserRuleContext {
+  class  PackStatementContext : public antlr4::ParserRuleContext {
   public:
-    PackStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    PackStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Package();
     IdContext *id();
@@ -148,11 +148,11 @@ public:
    
   };
 
-  PackStatmentContext* packStatment();
+  PackStatementContext* packStatement();
 
-  class  ImportStatmentContext : public antlr4::ParserRuleContext {
+  class  ImportStatementContext : public antlr4::ParserRuleContext {
   public:
-    ImportStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    ImportStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Import();
     IdContext *id();
@@ -164,14 +164,14 @@ public:
    
   };
 
-  ImportStatmentContext* importStatment();
+  ImportStatementContext* importStatement();
 
-  class  VarStatmentContext : public antlr4::ParserRuleContext {
+  class  VarStatementContext : public antlr4::ParserRuleContext {
   public:
     antlr4::Token *name = nullptr;
     antlr4::Token *type = nullptr;
     RiddleParser::ExpressionContext *value = nullptr;
-    VarStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    VarStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Var();
     antlr4::tree::TerminalNode *Colon();
@@ -187,7 +187,7 @@ public:
    
   };
 
-  VarStatmentContext* varStatment();
+  VarStatementContext* varStatement();
 
   class  FuncExprContext : public antlr4::ParserRuleContext {
   public:
@@ -276,23 +276,23 @@ public:
 
   FuncDefineContext* funcDefine();
 
-  class  ForStatmentContext : public antlr4::ParserRuleContext {
+  class  ForStatementContext : public antlr4::ParserRuleContext {
   public:
-    RiddleParser::VarStatmentContext *init = nullptr;
+    RiddleParser::VarStatementContext *init = nullptr;
     RiddleParser::ExpressionContext *termCond = nullptr;
-    RiddleParser::StatmentContext *selfVar = nullptr;
-    RiddleParser::Statment_edContext *body = nullptr;
-    ForStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    RiddleParser::StatementContext *selfVar = nullptr;
+    RiddleParser::Statement_edContext *body = nullptr;
+    ForStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *For();
     antlr4::tree::TerminalNode *LeftBracket();
     std::vector<antlr4::tree::TerminalNode *> Semi();
     antlr4::tree::TerminalNode* Semi(size_t i);
     antlr4::tree::TerminalNode *RightBracket();
-    Statment_edContext *statment_ed();
-    VarStatmentContext *varStatment();
+    Statement_edContext *statement_ed();
+    VarStatementContext *varStatement();
     ExpressionContext *expression();
-    StatmentContext *statment();
+    StatementContext *statement();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -301,19 +301,19 @@ public:
    
   };
 
-  ForStatmentContext* forStatment();
+  ForStatementContext* forStatement();
 
-  class  WhileStatmentContext : public antlr4::ParserRuleContext {
+  class  WhileStatementContext : public antlr4::ParserRuleContext {
   public:
     RiddleParser::ExpressionContext *runCond = nullptr;
-    RiddleParser::Statment_edContext *body = nullptr;
-    WhileStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    RiddleParser::Statement_edContext *body = nullptr;
+    WhileStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *While();
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
     ExpressionContext *expression();
-    Statment_edContext *statment_ed();
+    Statement_edContext *statement_ed();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -322,22 +322,22 @@ public:
    
   };
 
-  WhileStatmentContext* whileStatment();
+  WhileStatementContext* whileStatement();
 
-  class  IfStatmentContext : public antlr4::ParserRuleContext {
+  class  IfStatementContext : public antlr4::ParserRuleContext {
   public:
     bool hasElse;
     RiddleParser::ExpressionContext *cond = nullptr;
-    RiddleParser::Statment_edContext *body = nullptr;
-    RiddleParser::Statment_edContext *elseBody = nullptr;
-    IfStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    RiddleParser::Statement_edContext *body = nullptr;
+    RiddleParser::Statement_edContext *elseBody = nullptr;
+    IfStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *If();
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
     ExpressionContext *expression();
-    std::vector<Statment_edContext *> statment_ed();
-    Statment_edContext* statment_ed(size_t i);
+    std::vector<Statement_edContext *> statement_ed();
+    Statement_edContext* statement_ed(size_t i);
     antlr4::tree::TerminalNode *Else();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -347,14 +347,14 @@ public:
    
   };
 
-  IfStatmentContext* ifStatment();
+  IfStatementContext* ifStatement();
 
-  class  ReturnStatmentContext : public antlr4::ParserRuleContext {
+  class  ReturnStatementContext : public antlr4::ParserRuleContext {
   public:
-    ReturnStatmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    ReturnStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Return();
-    Statment_edContext *statment_ed();
+    Statement_edContext *statement_ed();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -363,7 +363,7 @@ public:
    
   };
 
-  ReturnStatmentContext* returnStatment();
+  ReturnStatementContext* returnStatement();
 
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:

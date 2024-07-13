@@ -19,20 +19,20 @@ public:
   virtual void enterProgram(RiddleParser::ProgramContext * /*ctx*/) override { }
   virtual void exitProgram(RiddleParser::ProgramContext * /*ctx*/) override { }
 
-  virtual void enterStatment_ed(RiddleParser::Statment_edContext * /*ctx*/) override { }
-  virtual void exitStatment_ed(RiddleParser::Statment_edContext * /*ctx*/) override { }
+  virtual void enterStatement_ed(RiddleParser::Statement_edContext * /*ctx*/) override { }
+  virtual void exitStatement_ed(RiddleParser::Statement_edContext * /*ctx*/) override { }
 
-  virtual void enterStatment(RiddleParser::StatmentContext * /*ctx*/) override { }
-  virtual void exitStatment(RiddleParser::StatmentContext * /*ctx*/) override { }
+  virtual void enterStatement(RiddleParser::StatementContext * /*ctx*/) override { }
+  virtual void exitStatement(RiddleParser::StatementContext * /*ctx*/) override { }
 
-  virtual void enterPackStatment(RiddleParser::PackStatmentContext * /*ctx*/) override { }
-  virtual void exitPackStatment(RiddleParser::PackStatmentContext * /*ctx*/) override { }
+  virtual void enterPackStatement(RiddleParser::PackStatementContext * /*ctx*/) override { }
+  virtual void exitPackStatement(RiddleParser::PackStatementContext * /*ctx*/) override { }
 
-  virtual void enterImportStatment(RiddleParser::ImportStatmentContext * /*ctx*/) override { }
-  virtual void exitImportStatment(RiddleParser::ImportStatmentContext * /*ctx*/) override { }
+  virtual void enterImportStatement(RiddleParser::ImportStatementContext * /*ctx*/) override { }
+  virtual void exitImportStatement(RiddleParser::ImportStatementContext * /*ctx*/) override { }
 
-  virtual void enterVarStatment(RiddleParser::VarStatmentContext * /*ctx*/) override { }
-  virtual void exitVarStatment(RiddleParser::VarStatmentContext * /*ctx*/) override { }
+  virtual void enterVarStatement(RiddleParser::VarStatementContext * /*ctx*/) override { }
+  virtual void exitVarStatement(RiddleParser::VarStatementContext * /*ctx*/) override { }
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
   virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
@@ -46,17 +46,17 @@ public:
   virtual void enterFuncDefine(RiddleParser::FuncDefineContext * /*ctx*/) override { }
   virtual void exitFuncDefine(RiddleParser::FuncDefineContext * /*ctx*/) override { }
 
-  virtual void enterForStatment(RiddleParser::ForStatmentContext * /*ctx*/) override { }
-  virtual void exitForStatment(RiddleParser::ForStatmentContext * /*ctx*/) override { }
+  virtual void enterForStatement(RiddleParser::ForStatementContext * /*ctx*/) override { }
+  virtual void exitForStatement(RiddleParser::ForStatementContext * /*ctx*/) override { }
 
-  virtual void enterWhileStatment(RiddleParser::WhileStatmentContext * /*ctx*/) override { }
-  virtual void exitWhileStatment(RiddleParser::WhileStatmentContext * /*ctx*/) override { }
+  virtual void enterWhileStatement(RiddleParser::WhileStatementContext * /*ctx*/) override { }
+  virtual void exitWhileStatement(RiddleParser::WhileStatementContext * /*ctx*/) override { }
 
-  virtual void enterIfStatment(RiddleParser::IfStatmentContext * /*ctx*/) override { }
-  virtual void exitIfStatment(RiddleParser::IfStatmentContext * /*ctx*/) override { }
+  virtual void enterIfStatement(RiddleParser::IfStatementContext * /*ctx*/) override { }
+  virtual void exitIfStatement(RiddleParser::IfStatementContext * /*ctx*/) override { }
 
-  virtual void enterReturnStatment(RiddleParser::ReturnStatmentContext * /*ctx*/) override { }
-  virtual void exitReturnStatment(RiddleParser::ReturnStatmentContext * /*ctx*/) override { }
+  virtual void enterReturnStatement(RiddleParser::ReturnStatementContext * /*ctx*/) override { }
+  virtual void exitReturnStatement(RiddleParser::ReturnStatementContext * /*ctx*/) override { }
 
   virtual void enterStarExpr(RiddleParser::StarExprContext * /*ctx*/) override { }
   virtual void exitStarExpr(RiddleParser::StarExprContext * /*ctx*/) override { }

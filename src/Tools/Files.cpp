@@ -1,5 +1,6 @@
 #include "Files.h"
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 namespace fs = std::filesystem;
 namespace Riddle {
@@ -35,5 +36,26 @@ namespace Riddle {
             files.pop_back();
         }
         return files;
+    }
+    std::vector<std::string> Files::getFileTextLine(const std::string &path) {
+        std::ifstream file(path);
+        if(!file.is_open()){
+            throw std::runtime_error("File \""+path+"\" can't open.");
+        }
+        std::vector<std::string> result;
+        std::string line;
+        while (std::getline(file, line)) {
+            result.emplace_back(line);
+        }
+        return result;
+    }
+    std::string Files::getFileFirstLine(const std::string &path) {
+        std::ifstream file(path);
+        if(!file.is_open()){
+            throw std::runtime_error("File \""+path+"\" can't open.");
+        }
+        std::string line;
+        std::getline(file, line);
+        return line;
     }
 }// namespace Riddle

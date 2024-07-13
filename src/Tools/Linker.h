@@ -1,8 +1,10 @@
 #ifndef RIDDLE_LANGUAGE_LINKER_H
 #define RIDDLE_LANGUAGE_LINKER_H
 
+#include <algorithm>
 #include <string>
 #include <vector>
+
 namespace Riddle{
     /// \brief 用于寻找库的全局工具
     class Linker{

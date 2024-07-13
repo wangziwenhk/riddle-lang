@@ -19,23 +19,23 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitStatment_ed(RiddleParser::Statment_edContext *ctx) override {
+  virtual std::any visitStatement_ed(RiddleParser::Statement_edContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitStatment(RiddleParser::StatmentContext *ctx) override {
+  virtual std::any visitStatement(RiddleParser::StatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitPackStatment(RiddleParser::PackStatmentContext *ctx) override {
+  virtual std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitImportStatment(RiddleParser::ImportStatmentContext *ctx) override {
+  virtual std::any visitImportStatement(RiddleParser::ImportStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVarStatment(RiddleParser::VarStatmentContext *ctx) override {
+  virtual std::any visitVarStatement(RiddleParser::VarStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -55,19 +55,19 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitForStatment(RiddleParser::ForStatmentContext *ctx) override {
+  virtual std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitWhileStatment(RiddleParser::WhileStatmentContext *ctx) override {
+  virtual std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitIfStatment(RiddleParser::IfStatmentContext *ctx) override {
+  virtual std::any visitIfStatement(RiddleParser::IfStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitReturnStatment(RiddleParser::ReturnStatmentContext *ctx) override {
+  virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 

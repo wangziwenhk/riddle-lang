@@ -21,15 +21,15 @@ public:
    */
     virtual std::any visitProgram(RiddleParser::ProgramContext *context) = 0;
 
-    virtual std::any visitStatment_ed(RiddleParser::Statment_edContext *context) = 0;
+    virtual std::any visitStatement_ed(RiddleParser::Statement_edContext *context) = 0;
 
-    virtual std::any visitStatment(RiddleParser::StatmentContext *context) = 0;
+    virtual std::any visitStatement(RiddleParser::StatementContext *context) = 0;
 
-    virtual std::any visitPackStatment(RiddleParser::PackStatmentContext *context) = 0;
+    virtual std::any visitPackStatement(RiddleParser::PackStatementContext *context) = 0;
 
-    virtual std::any visitImportStatment(RiddleParser::ImportStatmentContext *context) = 0;
+    virtual std::any visitImportStatement(RiddleParser::ImportStatementContext *context) = 0;
 
-    virtual std::any visitVarStatment(RiddleParser::VarStatmentContext *context) = 0;
+    virtual std::any visitVarStatement(RiddleParser::VarStatementContext *context) = 0;
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
 
@@ -39,13 +39,13 @@ public:
 
     virtual std::any visitFuncDefine(RiddleParser::FuncDefineContext *context) = 0;
 
-    virtual std::any visitForStatment(RiddleParser::ForStatmentContext *context) = 0;
+    virtual std::any visitForStatement(RiddleParser::ForStatementContext *context) = 0;
 
-    virtual std::any visitWhileStatment(RiddleParser::WhileStatmentContext *context) = 0;
+    virtual std::any visitWhileStatement(RiddleParser::WhileStatementContext *context) = 0;
 
-    virtual std::any visitIfStatment(RiddleParser::IfStatmentContext *context) = 0;
+    virtual std::any visitIfStatement(RiddleParser::IfStatementContext *context) = 0;
 
-    virtual std::any visitReturnStatment(RiddleParser::ReturnStatmentContext *context) = 0;
+    virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) = 0;
 
     virtual std::any visitStarExpr(RiddleParser::StarExprContext *context) = 0;
 

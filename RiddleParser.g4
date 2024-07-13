@@ -11,37 +11,37 @@ options {
 }
 
 program
-    : statment_ed*
+    : statement_ed*
     | EOF
     ;
 
-statment_ed
-    : statment Semi? Endl?
+statement_ed
+    : statement Semi? Endl?
     ;
 
-statment
-    : packStatment
-    | importStatment
+statement
+    : packStatement
+    | importStatement
     | funcDefine
     | funcExpr
-    | varStatment
-    | forStatment
-    | whileStatment
-    | ifStatment
-    | returnStatment
+    | varStatement
+    | forStatement
+    | whileStatement
+    | ifStatement
+    | returnStatement
     | expression
-    | LeftCurly statment_ed* RightCurly
+    | LeftCurly statement_ed* RightCurly
     ;
 
-packStatment
+packStatement
     : Package id
     ;
 
-importStatment
+importStatement
     : Import id
     ;
 
-varStatment
+varStatement
     : Var name=Identifier Colon type=Identifier
     | Var name=Identifier Assign value=expression
     | Var name=Identifier Colon type=Identifier Assign value=expression
@@ -63,21 +63,21 @@ funcDefine
     : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=id)? LeftCurly body=program RightCurly
     ;
 
-forStatment
-    : For LeftBracket (init=varStatment)? Semi (termCond=expression)? Semi (selfVar=statment)? RightBracket body=statment_ed
+forStatement
+    : For LeftBracket (init=varStatement)? Semi (termCond=expression)? Semi (selfVar=statement)? RightBracket body=statement_ed
     ;
 
-whileStatment
-    : While LeftBracket runCond=expression RightBracket body=statment_ed
+whileStatement
+    : While LeftBracket runCond=expression RightBracket body=statement_ed
     ;
 
-ifStatment returns [bool hasElse]
-    : If LeftBracket cond=expression RightBracket body=statment_ed {$hasElse=false;}
-    | If LeftBracket cond=expression RightBracket body=statment_ed Else elseBody=statment_ed {$hasElse=true;}
+ifStatement returns [bool hasElse]
+    : If LeftBracket cond=expression RightBracket body=statement_ed {$hasElse=false;}
+    | If LeftBracket cond=expression RightBracket body=statement_ed Else elseBody=statement_ed {$hasElse=true;}
     ;
 
-returnStatment
-    : Return statment_ed
+returnStatement
+    : Return statement_ed
     ;
 
 expression

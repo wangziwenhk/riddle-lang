@@ -17,20 +17,20 @@ public:
   virtual void enterProgram(RiddleParser::ProgramContext *ctx) = 0;
   virtual void exitProgram(RiddleParser::ProgramContext *ctx) = 0;
 
-  virtual void enterStatment_ed(RiddleParser::Statment_edContext *ctx) = 0;
-  virtual void exitStatment_ed(RiddleParser::Statment_edContext *ctx) = 0;
+  virtual void enterStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
+  virtual void exitStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
 
-  virtual void enterStatment(RiddleParser::StatmentContext *ctx) = 0;
-  virtual void exitStatment(RiddleParser::StatmentContext *ctx) = 0;
+  virtual void enterStatement(RiddleParser::StatementContext *ctx) = 0;
+  virtual void exitStatement(RiddleParser::StatementContext *ctx) = 0;
 
-  virtual void enterPackStatment(RiddleParser::PackStatmentContext *ctx) = 0;
-  virtual void exitPackStatment(RiddleParser::PackStatmentContext *ctx) = 0;
+  virtual void enterPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
+  virtual void exitPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
 
-  virtual void enterImportStatment(RiddleParser::ImportStatmentContext *ctx) = 0;
-  virtual void exitImportStatment(RiddleParser::ImportStatmentContext *ctx) = 0;
+  virtual void enterImportStatement(RiddleParser::ImportStatementContext *ctx) = 0;
+  virtual void exitImportStatement(RiddleParser::ImportStatementContext *ctx) = 0;
 
-  virtual void enterVarStatment(RiddleParser::VarStatmentContext *ctx) = 0;
-  virtual void exitVarStatment(RiddleParser::VarStatmentContext *ctx) = 0;
+  virtual void enterVarStatement(RiddleParser::VarStatementContext *ctx) = 0;
+  virtual void exitVarStatement(RiddleParser::VarStatementContext *ctx) = 0;
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
   virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
@@ -44,17 +44,17 @@ public:
   virtual void enterFuncDefine(RiddleParser::FuncDefineContext *ctx) = 0;
   virtual void exitFuncDefine(RiddleParser::FuncDefineContext *ctx) = 0;
 
-  virtual void enterForStatment(RiddleParser::ForStatmentContext *ctx) = 0;
-  virtual void exitForStatment(RiddleParser::ForStatmentContext *ctx) = 0;
+  virtual void enterForStatement(RiddleParser::ForStatementContext *ctx) = 0;
+  virtual void exitForStatement(RiddleParser::ForStatementContext *ctx) = 0;
 
-  virtual void enterWhileStatment(RiddleParser::WhileStatmentContext *ctx) = 0;
-  virtual void exitWhileStatment(RiddleParser::WhileStatmentContext *ctx) = 0;
+  virtual void enterWhileStatement(RiddleParser::WhileStatementContext *ctx) = 0;
+  virtual void exitWhileStatement(RiddleParser::WhileStatementContext *ctx) = 0;
 
-  virtual void enterIfStatment(RiddleParser::IfStatmentContext *ctx) = 0;
-  virtual void exitIfStatment(RiddleParser::IfStatmentContext *ctx) = 0;
+  virtual void enterIfStatement(RiddleParser::IfStatementContext *ctx) = 0;
+  virtual void exitIfStatement(RiddleParser::IfStatementContext *ctx) = 0;
 
-  virtual void enterReturnStatment(RiddleParser::ReturnStatmentContext *ctx) = 0;
-  virtual void exitReturnStatment(RiddleParser::ReturnStatmentContext *ctx) = 0;
+  virtual void enterReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
+  virtual void exitReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
 
   virtual void enterStarExpr(RiddleParser::StarExprContext *ctx) = 0;
   virtual void exitStarExpr(RiddleParser::StarExprContext *ctx) = 0;
