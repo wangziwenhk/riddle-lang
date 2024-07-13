@@ -55,7 +55,9 @@ namespace Riddle {
             throw std::runtime_error("File \""+path+"\" can't open.");
         }
         std::string line;
-        std::getline(file, line);
+        while(line.empty()){
+            std::getline(file, line);
+        }
         return line;
     }
 }// namespace Riddle

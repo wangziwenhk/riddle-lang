@@ -1,5 +1,5 @@
 <p style="text-align: center;">
-  <img src="./resources/logo.svg" alt="Logo" width="400" height="400">
+  <img src="https://github.com/wangziwenhk/Riddle-Language/blob/master/resources/logo.svg" alt="Logo" width="400" height="400">
 </p>
 
 
