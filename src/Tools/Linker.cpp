@@ -2,6 +2,8 @@
 #include "Files.h"
 #include <ext/rope>
 #include <filesystem>
+#include <iostream>
+#include <regex>
 namespace fs= std::filesystem;
 
 std::string getLibName(std::string PackageName) {
@@ -11,12 +13,7 @@ std::string getLibName(std::string PackageName) {
 
 namespace Riddle {
     std::vector<std::string> Linker::SystemLibPaths;
-    bool Linker::isDef= false;
     Linker::Linker() {
-        if(isDef) {
-            throw std::logic_error("Linker is defined multiple times");
-        }
-        isDef= true;
         //对不同系统区分搜索
 #ifdef WIN32
         std::string systemPaths= std::getenv("PATH");
@@ -35,16 +32,28 @@ namespace Riddle {
         SystemLibPaths.emplace_back("lib");
 #endif
     }
-    std::string Linker::findLib(const std::string &libName, const std::string &sourcePath) {
-        std::string name= getLibName(libName);
+    std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath) {
+        std::string libName= getLibName(libPackName);
         //Source File Path
         auto files= Files::getTreeSource(sourcePath);
         for(int i= (int)files.size() - 1; i >= 0; i--) {
             fs::path filePath(files[i]);
-            if(filePath.filename() == name) {
-                // todo 写完找库的逻辑
+            std::string name= filePath.filename().string();
+            name= name.substr(0, name.size() - 4);
+            if(name != libName) continue;
+
+            auto statement= Files::getFileFirstLine(files[i]);
+            std::smatch matches;
+            std::regex pattern("package ([a-zA-Z.]+);");
+            if(std::regex_search(statement, matches, pattern)) {
+                if(matches.size() <= 1) continue;
+
+                std::string thisPackageName= matches[1].str();
+                if(thisPackageName == libPackName)
+                    return sourcePath;
             }
         }
+
         return {};
     }
 }// namespace Riddle

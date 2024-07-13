@@ -33,7 +33,7 @@ namespace Riddle {
             }
             files.pop_back();
         }
-        return files;
+        return sourceFiles;
     }
     std::vector<std::string> Files::getFileTextLine(const std::string &path) {
         std::ifstream file(path);
