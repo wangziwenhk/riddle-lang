@@ -7,11 +7,10 @@ namespace Riddle {
         return RiddleParserBaseVisitor::visitPackStatement(ctx);
     }
     std::any PackageVisitor::visitImportStatement(RiddleParser::ImportStatementContext *ctx) {
-        std::filesystem::path path(unit.getSelfPath());
-        unit.addImports(linker.findLib(ctx->libName->getText(),path.parent_path().string(),unit.getPackName()));
+        unit.addImports(ctx->libName->getText());
         return RiddleParserBaseVisitor::visitImportStatement(ctx);
     }
     PackageVisitor::PackageVisitor(std::string sourcePath) {
-        unit.setSelfPath(sourcePath);
+        unit.setDirectoryPath(sourcePath);
     }
 }// namespace Riddle

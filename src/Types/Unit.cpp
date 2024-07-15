@@ -8,8 +8,8 @@
 #include <utility>
 
 namespace Riddle {
-    Unit::Unit(const std::string &selfPath) {
-        this->selfPath= selfPath;
+    Unit::Unit(const Path &selfPath) {
+        this->directoryPath= selfPath;
     }
     void Unit::addImports(const std::vector<std::string> &libs) {
         for(const auto &i: libs) {
@@ -31,13 +31,22 @@ namespace Riddle {
     void Unit::setPackName(std::string name) {
         this->packName= std::move(name);
     }
-    std::string Unit::getPackName() {
+    std::string Unit::getPackName()const {
         return packName;
     }
-    std::string Unit::getSelfPath() {
-        return selfPath;
+    std::string Unit::getDirectoryPath() const {
+        return directoryPath;
     }
-    void Unit::setSelfPath(std::string path) {
-        selfPath= std::move(path);
+    void Unit::setDirectoryPath(Path path) {
+        directoryPath= std::move(path);
+    }
+    void Unit::setFilePath(Path path) {
+        this->filePath= path;
+    }
+    std::string Unit::getFilePath() const {
+        return filePath;
+    }
+    std::vector<std::string> Unit::getImports() const {
+        return imports;
     }
 }// namespace Riddle

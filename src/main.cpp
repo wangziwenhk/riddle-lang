@@ -12,9 +12,5 @@ int main(int argv, char *argc[]) {
     RiddleParser parser(&tokens);
 
     tree::ParseTree *p = parser.program();
-
-    Riddle::PackageVisitor visitor(argc[1]);
-    visitor.visit(p);
-    std::cout<<visitor.unit.getImportSize();
     return 0;
 }

@@ -1,14 +1,15 @@
 #include "BuildQueue.h"
-#include <iostream>
+
+
 
 namespace Riddle {
     void BuildQueue::push(const Unit& unit) {
-        queue.push_back(unit);
+        libSource[unit.getPackName()].push_back(unit.getFilePath());
+        for(auto i:unit.getImports()){
+            libGraph[i].push_back(unit.getPackName());
+        }
     }
     void BuildQueue::start() {
-        std::sort(queue.begin(), queue.end());
-        for(auto i:queue){
-            //检查文件是否存在？
-        }
+        //拓扑排序后处理
     }
 }// namespace Riddle
