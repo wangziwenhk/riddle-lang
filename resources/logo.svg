@@ -1,12 +1,10 @@
-<svg width="215" height="215" xmlns="http://www.w3.org/2000/svg">
- <g>
-  <Path transform="rotate(180 107.5 128)" stroke-dasharray="2,2" stroke="#000" id="svg_4" d="m25.5,210.5l82,-165l82,165l-163.99999,0z" fill="#FFF5FF"/>
-  <line stroke-width="5" id="svg_9" y2="123.83348" x2="74.835" y1="70.83348" x1="95.835" stroke="#000" fill="none"/>
-  <line stroke="#000" stroke-width="5" id="svg_10" y2="69.83348" x2="118.835" y1="69.83348" x1="93.835" fill="none"/>
-  <line id="svg_12" y2="100.83348" x2="121.835" y1="70.83348" x1="97.835" stroke-width="5" stroke="#000" fill="none"/>
-  <line id="svg_13" y2="100.83348" x2="121.835" y1="70.83348" x1="97.835" stroke-width="5" stroke="#000" fill="none"/>
-  <line id="svg_14" y2="99.83348" x2="140.835" y1="69.83348" x1="116.835" stroke-width="5" stroke="#000" fill="none"/>
-  <ellipse ry="18.5" rx="18.5" id="svg_15" cy="115.33348" cx="109.335" stroke-width="5" stroke="#000" fill="#CE7975"/>
- </g>
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
 
+ <g>
+  <line fill="none" stroke="#000" x1="38.19912" y1="16.45763" x2="17.19912" y2="69.45763" id="svg_9" stroke-width="5"/>
+  <line fill="none" x1="36" y1="18" x2="61" y2="18" id="svg_10" stroke-width="5" stroke="#000"/>
+  <line fill="none" stroke="#000" stroke-width="5" x1="39.58042" y1="19.83916" x2="63.58042" y2="49.83916" id="svg_12"/>
+  <line fill="none" stroke="#000" stroke-width="5" x1="59.13986" y1="17.16084" x2="83.13986" y2="47.16084" id="svg_14"/>
+  <ellipse fill="#CE7975" stroke="#000" stroke-width="5" cx="51.5" cy="63.5" id="svg_15" rx="18.5" ry="18.5"/>
+ </g>
 </svg>

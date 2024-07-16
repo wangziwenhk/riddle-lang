@@ -22,7 +22,6 @@ namespace Riddle {
         /// @param packName 源文件的包名
         /// @return 返回库源文件的绝对路径
         std::string findLib(const std::string &libPackName, const std::string &sourcePath);
-        /// @brief 解析某个库
     };
     static Linker linker;
 }// namespace Riddle

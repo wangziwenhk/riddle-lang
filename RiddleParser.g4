@@ -7,7 +7,7 @@ options {
 @Header{
 }
 
-@parser::members {
+@Parser::members {
 }
 
 program
@@ -85,10 +85,10 @@ expression
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
     | Sub expr=expression                                   #negativeExpr   // -x
-    | Add Add expr=expression                               #selfAddLeftExpr // ++x
-    | expr=expression Add Add                               #selfAddRightExpr // x++
-    | Sub Sub expr=expression                               #selfSubLeftExpr // ++x
-    | expr=expression Sub Sub                               #selfSubRightExpr // x++
+    | Add Add expr=objectExpr                               #selfAddLeftExpr // ++x
+    | expr=objectExpr Add Add                               #selfAddRightExpr // x++
+    | Sub Sub expr=objectExpr                               #selfSubLeftExpr // ++x
+    | expr=objectExpr Sub Sub                               #selfSubRightExpr // x++
     | left=expression Star right=expression                 #starExpr       // x*y
     | left=expression Div  right=expression                 #divExpr        // x/y
     | left=expression Mod right=expression                  #modExpr        // x%y
@@ -107,21 +107,25 @@ expression
     | left=expression Or right=expression                   #bitOrExpr      // x|y
     | left=expression And And right=expression              #andExpr        // x&&y
     | left=expression Or Or right=expression                #orExpr         // x||y
-    | left=expression Assign right=expression               #assignExpr     // x=y
-    | left=expression Add Assign right=expression           #addAssignExpr     // x+=y
-    | left=expression Sub Assign right=expression           #subAssignExpr     // x-=y
-    | left=expression Star Assign right=expression          #starAssignExpr    // x*=y
-    | left=expression Div Assign right=expression           #divAssignExpr     // x/=y
-    | left=expression Mod Assign right=expression           #modAssignExpr     // x%=y
-    | left=expression Add Assign right=expression           #addAssignExpr     // x+=y
-    | left=expression And Assign right=expression           #andAssignExpr          // x&=y
-    | left=expression Or  Assign right=expression           #orAssignExpr           // x|=y
-    | left=expression Xor Assign right=expression           #xorAssignExpr          // x^=y
-    | left=expression LeftLeft Assign right=expression      #leftLeftAssignExpr     // x<<=y
-    | left=expression RightRight Assign right=expression    #rightRightAssignExpr   // x>>=y
+    | left=objectExpr Assign right=expression               #assignExpr     // x=y
+    | left=objectExpr Add Assign right=expression           #addAssignExpr     // x+=y
+    | left=objectExpr Sub Assign right=expression           #subAssignExpr     // x-=y
+    | left=objectExpr Star Assign right=expression          #starAssignExpr    // x*=y
+    | left=objectExpr Div Assign right=expression           #divAssignExpr     // x/=y
+    | left=objectExpr Mod Assign right=expression           #modAssignExpr     // x%=y
+    | left=objectExpr Add Assign right=expression           #addAssignExpr     // x+=y
+    | left=objectExpr And Assign right=expression           #andAssignExpr          // x&=y
+    | left=objectExpr Or  Assign right=expression           #orAssignExpr           // x|=y
+    | left=objectExpr Xor Assign right=expression           #xorAssignExpr          // x^=y
+    | left=objectExpr LeftLeft Assign right=expression      #leftLeftAssignExpr     // x<<=y
+    | left=objectExpr RightRight Assign right=expression    #rightRightAssignExpr   // x>>=y
     | string                                                #stringExpr
     | number                                                #numberExpr
-    | id                                                    #objectExpr
+    | objectExpr                                            #objExpr
+    ;
+
+objectExpr
+    : id
     ;
 
 id: Identifier (Dot Identifier)*;

@@ -3,9 +3,9 @@
 
 #include <string>
 #include <vector>
-
+#include <antlr4-runtime.h>
+typedef std::string Path;
 namespace Riddle {
-    typedef std::string Path;
     class Unit {
     private:
         /// @brief 当前单元的包名
@@ -21,26 +21,28 @@ namespace Riddle {
         Unit()= default;
         explicit Unit(const Path &selfPath);
         /// @brief 设置包名，通过 PackageVisitor 获取
-        inline void setPackName(Path name);
+        void setPackName(Path name);
         /// @brief 获取包名
-        inline Path getPackName()const;
+        Path getPackName()const;
         /// @brief 设置编译单元目录的路径
-        inline void setDirectoryPath(Path path);
+        void setDirectoryPath(Path path);
         /// @brief 获取编译单元目录的路径
-        inline Path getDirectoryPath() const;
+        Path getDirectoryPath() const;
         /// @brief 设置源文件的完整路径
-        inline void setFilePath(Path path);
+        void setFilePath(Path path);
         /// @brief 获取源文件的完整路径
-        inline Path getFilePath() const;
+        Path getFilePath() const;
         /// @brief 添加库相关
         /// @param lib 包名
-        inline void addImports(const std::string &lib);
-        inline void addImports(const std::vector<std::string> &libs);
-        inline std::vector<std::string> getImports()const;
-        inline size_t getImportSize();
+        void addImports(const std::string &lib);
+        void addImports(const std::vector<std::string> &libs);
+        std::vector<std::string> getImports()const;
+        size_t getImportSize();
         /// @brief 添加优先级比较
-        inline bool operator>(const Unit &x);
-        inline bool operator<(const Unit &x);
+        bool operator>(const Unit &x);
+        bool operator<(const Unit &x);
+        /// @brief 解析树
+        antlr4::tree::ParseTree* parseTree;
     };
 
 }// namespace Riddle
