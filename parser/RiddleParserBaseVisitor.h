@@ -55,6 +55,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitFuncBody(RiddleParser::FuncBodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override {
     return visitChildren(ctx);
   }

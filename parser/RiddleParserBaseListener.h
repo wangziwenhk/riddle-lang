@@ -46,6 +46,9 @@ public:
   virtual void enterFuncDefine(RiddleParser::FuncDefineContext * /*ctx*/) override { }
   virtual void exitFuncDefine(RiddleParser::FuncDefineContext * /*ctx*/) override { }
 
+  virtual void enterFuncBody(RiddleParser::FuncBodyContext * /*ctx*/) override { }
+  virtual void exitFuncBody(RiddleParser::FuncBodyContext * /*ctx*/) override { }
+
   virtual void enterForStatement(RiddleParser::ForStatementContext * /*ctx*/) override { }
   virtual void exitForStatement(RiddleParser::ForStatementContext * /*ctx*/) override { }
 

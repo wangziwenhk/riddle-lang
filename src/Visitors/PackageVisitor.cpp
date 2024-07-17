@@ -13,6 +13,7 @@ namespace Riddle {
     PackageVisitor::PackageVisitor(std::string sourcePath, antlr4::tree::ParseTree *tree) {
         unit.parseTree = tree;
         unit.setDirectoryPath(sourcePath);
+        unit.setFilePath(sourcePath);
         this->visit(tree);
     }
 }// namespace Riddle

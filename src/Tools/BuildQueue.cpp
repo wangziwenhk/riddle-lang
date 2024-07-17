@@ -26,12 +26,13 @@ namespace Riddle {
     // 目前只做了main的解析
     void BuildQueue::Parser(std::string filePath) {
         std::ifstream stream(filePath);
-        antlr4::ANTLRInputStream input(stream);
-        RiddleLexer lexer(&input);
-        antlr4::CommonTokenStream tokens(&lexer);
-        RiddleParser parser(&tokens);
-        antlr4::tree::ParseTree* p = parser.program();
+        auto input = new antlr4::ANTLRInputStream(stream);
+        auto lexer = new RiddleLexer(input);
+        auto tokens = new antlr4::CommonTokenStream(lexer);
+        auto *parser = new RiddleParser(tokens);
+        antlr4::tree::ParseTree* p = parser->program();
         PackageVisitor visitor(filePath, p);
         push(visitor.unit);
+        return;
     }
 }// namespace Riddle

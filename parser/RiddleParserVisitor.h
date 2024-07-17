@@ -39,6 +39,8 @@ public:
 
     virtual std::any visitFuncDefine(RiddleParser::FuncDefineContext *context) = 0;
 
+    virtual std::any visitFuncBody(RiddleParser::FuncBodyContext *context) = 0;
+
     virtual std::any visitForStatement(RiddleParser::ForStatementContext *context) = 0;
 
     virtual std::any visitWhileStatement(RiddleParser::WhileStatementContext *context) = 0;

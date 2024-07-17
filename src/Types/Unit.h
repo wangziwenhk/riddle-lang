@@ -18,7 +18,7 @@ namespace Riddle {
         Path filePath;
 
     public:
-        Unit()= default;
+        Unit():parseTree(nullptr){};
         explicit Unit(const Path &selfPath);
         /// @brief 设置包名，通过 PackageVisitor 获取
         void setPackName(Path name);

@@ -44,6 +44,9 @@ public:
   virtual void enterFuncDefine(RiddleParser::FuncDefineContext *ctx) = 0;
   virtual void exitFuncDefine(RiddleParser::FuncDefineContext *ctx) = 0;
 
+  virtual void enterFuncBody(RiddleParser::FuncBodyContext *ctx) = 0;
+  virtual void exitFuncBody(RiddleParser::FuncBodyContext *ctx) = 0;
+
   virtual void enterForStatement(RiddleParser::ForStatementContext *ctx) = 0;
   virtual void exitForStatement(RiddleParser::ForStatementContext *ctx) = 0;
 

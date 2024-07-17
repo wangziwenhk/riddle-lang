@@ -61,7 +61,11 @@ defineArgs
     ;
 
 funcDefine
-    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=id)? LeftCurly body=program RightCurly
+    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=id)? LeftCurly body=funcBody RightCurly
+    ;
+
+funcBody
+    : statement_ed*
     ;
 
 forStatement

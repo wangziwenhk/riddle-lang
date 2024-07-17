@@ -5,10 +5,15 @@
 #include "GenVisitor.h"
 #include <llvm/ADT/APInt.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/TargetSelect.h>
 
 namespace Riddle{
     GenVisitor::GenVisitor(std::string moduleName):Builder(globalContext){
-        module = new llvm::Module(moduleName,globalContext);
+        module = new llvm::Module(moduleName, globalContext);
 #ifdef TEST
         // print 函数
         auto printType = llvm::FunctionType::get(
@@ -31,7 +36,8 @@ namespace Riddle{
         return value;
     }
     std::any GenVisitor::visitPrint(RiddleParser::PrintContext *ctx) {
-        llvm::Value *formatStr = Builder.CreateGlobalStringPtr(ctx->value->getText());
+        //todo 等函数写好吧
+        llvm::Value *formatStr = Builder.CreateGlobalStringPtr("OOOO");
         Builder.CreateCall(FuncCalls["print"], {formatStr});
         return RiddleParserBaseVisitor::visitPrint(ctx);
     }
@@ -40,8 +46,13 @@ namespace Riddle{
         module->print(llvm::outs(), nullptr);
         return ret;
     }
-    std::any GenVisitor::visit(antlr4::tree::ParseTree * parseTree) {
-        return AbstractParseTreeVisitor::visit(parseTree);
+    std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
+        // todo 实现返回值
+        llvm::FunctionType *funcType = llvm::FunctionType::get(Builder.getInt32Ty(), false);
+        llvm::Function *Func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText() , *module);
+        llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", Func);
+        Builder.SetInsertPoint(entry);
+        return nullptr;
     }
 }
 
