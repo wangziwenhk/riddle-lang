@@ -20,7 +20,8 @@ statement_ed
     ;
 
 statement
-    : packStatement
+    : print
+    | packStatement
     | importStatement
     | funcDefine
     | funcExpr
@@ -159,4 +160,9 @@ integer returns [int value]
     | Octal{
         $value = stoi($Octal.text.substr(2),nullptr,8);
     }
+    ;
+
+// 测试用
+print
+    : Print '(' value=expression ')'
     ;

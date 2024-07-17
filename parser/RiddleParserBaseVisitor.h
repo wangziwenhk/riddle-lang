@@ -71,7 +71,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitStarExpr(RiddleParser::StarExprContext *ctx) override {
+  virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -79,11 +79,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override {
+  virtual std::any visitStarExpr(RiddleParser::StarExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -99,6 +95,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitObjExpr(RiddleParser::ObjExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -111,15 +111,15 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual std::any visitOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -231,6 +231,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitId(RiddleParser::IdContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -248,6 +252,10 @@ public:
   }
 
   virtual std::any visitInteger(RiddleParser::IntegerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPrint(RiddleParser::PrintContext *ctx) override {
     return visitChildren(ctx);
   }
 

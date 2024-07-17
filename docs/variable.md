@@ -1,15 +1,8 @@
-//
-// Created by wangz on 24-7-17.
-//
-
-#ifndef RIDDLE_LANGUAGE_VARIABLE_H
-#define RIDDLE_LANGUAGE_VARIABLE_H
-
-#include <string>
-#include <llvm/IR/Value.h>
-namespace Riddle {
-
-    class Variable {
+# 变量
+每一个变量内存储的都是一个类的实例，包括 int,float 等基本类型
+每个变量被 Variable 所表示
+```c++
+class Variable {
     public:
         const std::string name;
         std::string type;
@@ -20,6 +13,4 @@ namespace Riddle {
         Variable(const std::string& name,const std::string& type,const bool& isConst):name(name),type(type),isConst(isConst){};
     };
 
-}// namespace Riddle
-
-#endif//RIDDLE_LANGUAGE_VARIABLE_H
+```

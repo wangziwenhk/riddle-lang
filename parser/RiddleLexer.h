@@ -14,14 +14,14 @@ public:
   enum {
     Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
     Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, LeftBracket = 16, RightBracket = 17, LeftCurly = 18, 
-    RightCurly = 19, Colon = 20, Semi = 21, Comma = 22, Equal = 23, Assign = 24, 
-    Greater = 25, Less = 26, LeftLeft = 27, RightRight = 28, Add = 29, Sub = 30, 
-    Star = 31, Div = 32, Mod = 33, Not = 34, And = 35, Or = 36, Xor = 37, 
-    Dot = 38, DoubleQuotes = 39, Quotes = 40, Endl = 41, Identifier = 42, 
-    Hexadecimal = 43, Decimal = 44, Octal = 45, Binary = 46, Float = 47, 
-    IntegerSequence = 48, HEX_DIGIT = 49, OCTAL_DIGIT = 50, BINARY_DIGIT = 51, 
-    DIGIT = 52, STRING = 53, LINE_COMMENT = 54, BLOCK_COMMENT = 55, WHITESPACE = 56
+    Override = 15, Print = 16, LeftBracket = 17, RightBracket = 18, LeftCurly = 19, 
+    RightCurly = 20, Colon = 21, Semi = 22, Comma = 23, Equal = 24, Assign = 25, 
+    Greater = 26, Less = 27, LeftLeft = 28, RightRight = 29, Add = 30, Sub = 31, 
+    Star = 32, Div = 33, Mod = 34, Not = 35, And = 36, Or = 37, Xor = 38, 
+    Dot = 39, DoubleQuotes = 40, Quotes = 41, Endl = 42, Identifier = 43, 
+    Hexadecimal = 44, Decimal = 45, Octal = 46, Binary = 47, Float = 48, 
+    IntegerSequence = 49, HEX_DIGIT = 50, OCTAL_DIGIT = 51, BINARY_DIGIT = 52, 
+    DIGIT = 53, STRING = 54, LINE_COMMENT = 55, BLOCK_COMMENT = 56, WHITESPACE = 57
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

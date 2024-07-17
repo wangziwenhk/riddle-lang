@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Riddle_Language)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("Current operating system: ${CMAKE_SYSTEM_NAME}")
@@ -27,6 +27,11 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
 
+include_directories(src)
+include_directories(${ANTLR4_INCLUDE_DIR})
+include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(parser)
+
 file(GLOB AST_FILES "parser/*.cpp" "parser/*.h")
 file(GLOB SOURCE_FILES
         "src/*"
@@ -35,13 +40,12 @@ file(GLOB SOURCE_FILES
         "src/Visitors/*")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
-
-target_include_directories(Riddle_Language PRIVATE src)
-target_include_directories(Riddle_Language PRIVATE ${ANTLR4_INCLUDE_DIR})
-target_include_directories(Riddle_Language PRIVATE ${LLVM_INCLUDE_DIRS})
-target_include_directories(Riddle_Language PRIVATE parser)
+add_executable(TEST ${SOURCE_FILES} ${AST_FILES})
 
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
+target_compile_definitions(TEST PRIVATE ${PLATFORM_DEFINES} "-DTEST")
 
 target_link_libraries(Riddle_Language LLVMCore)
 target_link_libraries(Riddle_Language antlr4_shared)
+target_link_libraries(TEST LLVMCore)
+target_link_libraries(TEST antlr4_shared)

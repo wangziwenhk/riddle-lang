@@ -58,17 +58,14 @@ public:
   virtual void enterReturnStatement(RiddleParser::ReturnStatementContext * /*ctx*/) override { }
   virtual void exitReturnStatement(RiddleParser::ReturnStatementContext * /*ctx*/) override { }
 
-  virtual void enterStarExpr(RiddleParser::StarExprContext * /*ctx*/) override { }
-  virtual void exitStarExpr(RiddleParser::StarExprContext * /*ctx*/) override { }
+  virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
+  virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
 
   virtual void enterAndAssignExpr(RiddleParser::AndAssignExprContext * /*ctx*/) override { }
   virtual void exitAndAssignExpr(RiddleParser::AndAssignExprContext * /*ctx*/) override { }
 
-  virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
-  virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
-
-  virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
-  virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
+  virtual void enterStarExpr(RiddleParser::StarExprContext * /*ctx*/) override { }
+  virtual void exitStarExpr(RiddleParser::StarExprContext * /*ctx*/) override { }
 
   virtual void enterModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
   virtual void exitModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
@@ -79,6 +76,9 @@ public:
   virtual void enterNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
   virtual void exitNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
 
+  virtual void enterObjExpr(RiddleParser::ObjExprContext * /*ctx*/) override { }
+  virtual void exitObjExpr(RiddleParser::ObjExprContext * /*ctx*/) override { }
+
   virtual void enterXorAssignExpr(RiddleParser::XorAssignExprContext * /*ctx*/) override { }
   virtual void exitXorAssignExpr(RiddleParser::XorAssignExprContext * /*ctx*/) override { }
 
@@ -88,14 +88,14 @@ public:
   virtual void enterGreaterEqualExpr(RiddleParser::GreaterEqualExprContext * /*ctx*/) override { }
   virtual void exitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext * /*ctx*/) override { }
 
-  virtual void enterBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
-  virtual void exitBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
-
   virtual void enterAddAssignExpr(RiddleParser::AddAssignExprContext * /*ctx*/) override { }
   virtual void exitAddAssignExpr(RiddleParser::AddAssignExprContext * /*ctx*/) override { }
 
   virtual void enterOrAssignExpr(RiddleParser::OrAssignExprContext * /*ctx*/) override { }
   virtual void exitOrAssignExpr(RiddleParser::OrAssignExprContext * /*ctx*/) override { }
+
+  virtual void enterBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
+  virtual void exitBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
 
   virtual void enterStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
   virtual void exitStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
@@ -178,6 +178,9 @@ public:
   virtual void enterAndExpr(RiddleParser::AndExprContext * /*ctx*/) override { }
   virtual void exitAndExpr(RiddleParser::AndExprContext * /*ctx*/) override { }
 
+  virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
+  virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
+
   virtual void enterId(RiddleParser::IdContext * /*ctx*/) override { }
   virtual void exitId(RiddleParser::IdContext * /*ctx*/) override { }
 
@@ -192,6 +195,9 @@ public:
 
   virtual void enterInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
   virtual void exitInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
+
+  virtual void enterPrint(RiddleParser::PrintContext * /*ctx*/) override { }
+  virtual void exitPrint(RiddleParser::PrintContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

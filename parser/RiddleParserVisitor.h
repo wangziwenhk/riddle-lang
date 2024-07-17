@@ -47,13 +47,11 @@ public:
 
     virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) = 0;
 
-    virtual std::any visitStarExpr(RiddleParser::StarExprContext *context) = 0;
+    virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *context) = 0;
 
     virtual std::any visitAndAssignExpr(RiddleParser::AndAssignExprContext *context) = 0;
 
-    virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *context) = 0;
-
-    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
+    virtual std::any visitStarExpr(RiddleParser::StarExprContext *context) = 0;
 
     virtual std::any visitModExpr(RiddleParser::ModExprContext *context) = 0;
 
@@ -61,17 +59,19 @@ public:
 
     virtual std::any visitNumberExpr(RiddleParser::NumberExprContext *context) = 0;
 
+    virtual std::any visitObjExpr(RiddleParser::ObjExprContext *context) = 0;
+
     virtual std::any visitXorAssignExpr(RiddleParser::XorAssignExprContext *context) = 0;
 
     virtual std::any visitSubExpr(RiddleParser::SubExprContext *context) = 0;
 
     virtual std::any visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *context) = 0;
 
-    virtual std::any visitBitXorExpr(RiddleParser::BitXorExprContext *context) = 0;
-
     virtual std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *context) = 0;
 
     virtual std::any visitOrAssignExpr(RiddleParser::OrAssignExprContext *context) = 0;
+
+    virtual std::any visitBitXorExpr(RiddleParser::BitXorExprContext *context) = 0;
 
     virtual std::any visitStringExpr(RiddleParser::StringExprContext *context) = 0;
 
@@ -127,6 +127,8 @@ public:
 
     virtual std::any visitAndExpr(RiddleParser::AndExprContext *context) = 0;
 
+    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
+
     virtual std::any visitId(RiddleParser::IdContext *context) = 0;
 
     virtual std::any visitNumber(RiddleParser::NumberContext *context) = 0;
@@ -136,6 +138,8 @@ public:
     virtual std::any visitFloat(RiddleParser::FloatContext *context) = 0;
 
     virtual std::any visitInteger(RiddleParser::IntegerContext *context) = 0;
+
+    virtual std::any visitPrint(RiddleParser::PrintContext *context) = 0;
 
 
 };

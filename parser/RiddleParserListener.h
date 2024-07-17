@@ -56,17 +56,14 @@ public:
   virtual void enterReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
   virtual void exitReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
 
-  virtual void enterStarExpr(RiddleParser::StarExprContext *ctx) = 0;
-  virtual void exitStarExpr(RiddleParser::StarExprContext *ctx) = 0;
+  virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
+  virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
 
   virtual void enterAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) = 0;
   virtual void exitAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) = 0;
 
-  virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
-  virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
-
-  virtual void enterObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
-  virtual void exitObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
+  virtual void enterStarExpr(RiddleParser::StarExprContext *ctx) = 0;
+  virtual void exitStarExpr(RiddleParser::StarExprContext *ctx) = 0;
 
   virtual void enterModExpr(RiddleParser::ModExprContext *ctx) = 0;
   virtual void exitModExpr(RiddleParser::ModExprContext *ctx) = 0;
@@ -77,6 +74,9 @@ public:
   virtual void enterNumberExpr(RiddleParser::NumberExprContext *ctx) = 0;
   virtual void exitNumberExpr(RiddleParser::NumberExprContext *ctx) = 0;
 
+  virtual void enterObjExpr(RiddleParser::ObjExprContext *ctx) = 0;
+  virtual void exitObjExpr(RiddleParser::ObjExprContext *ctx) = 0;
+
   virtual void enterXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) = 0;
   virtual void exitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) = 0;
 
@@ -86,14 +86,14 @@ public:
   virtual void enterGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) = 0;
   virtual void exitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) = 0;
 
-  virtual void enterBitXorExpr(RiddleParser::BitXorExprContext *ctx) = 0;
-  virtual void exitBitXorExpr(RiddleParser::BitXorExprContext *ctx) = 0;
-
   virtual void enterAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) = 0;
   virtual void exitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) = 0;
 
   virtual void enterOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) = 0;
   virtual void exitOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) = 0;
+
+  virtual void enterBitXorExpr(RiddleParser::BitXorExprContext *ctx) = 0;
+  virtual void exitBitXorExpr(RiddleParser::BitXorExprContext *ctx) = 0;
 
   virtual void enterStringExpr(RiddleParser::StringExprContext *ctx) = 0;
   virtual void exitStringExpr(RiddleParser::StringExprContext *ctx) = 0;
@@ -176,6 +176,9 @@ public:
   virtual void enterAndExpr(RiddleParser::AndExprContext *ctx) = 0;
   virtual void exitAndExpr(RiddleParser::AndExprContext *ctx) = 0;
 
+  virtual void enterObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
+  virtual void exitObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
+
   virtual void enterId(RiddleParser::IdContext *ctx) = 0;
   virtual void exitId(RiddleParser::IdContext *ctx) = 0;
 
@@ -190,6 +193,9 @@ public:
 
   virtual void enterInteger(RiddleParser::IntegerContext *ctx) = 0;
   virtual void exitInteger(RiddleParser::IntegerContext *ctx) = 0;
+
+  virtual void enterPrint(RiddleParser::PrintContext *ctx) = 0;
+  virtual void exitPrint(RiddleParser::PrintContext *ctx) = 0;
 
 
 };

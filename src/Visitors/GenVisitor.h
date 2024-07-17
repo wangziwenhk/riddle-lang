@@ -1,7 +1,8 @@
 #ifndef RIDDLE_LANGUAGE_GENVISITOR_H
 #define RIDDLE_LANGUAGE_GENVISITOR_H
 
-#include "RiddleParserBaseVisitor.h"
+#include <RiddleParserBaseVisitor.h>
+#include "Tools/VarManager.h"
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -12,8 +13,12 @@ namespace Riddle{
         llvm::Module *module;
         llvm::LLVMContext globalContext;
         llvm::IRBuilder<> Builder;
+        VarManager varManager;
+        std::unordered_map<std::string,llvm::FunctionCallee>FuncCalls;
     public:
         GenVisitor(std::string moduleName);
+        std::any visit(antlr4::tree::ParseTree* parseTree)override;
+        std::any visitProgram(RiddleParser::ProgramContext *ctx) override;
         /// @brief 用于生成一个显式的 int 常量
         /// @param ctx IntegerContext
         /// @return llvm::Value*
@@ -27,6 +32,8 @@ namespace Riddle{
         /// @param ctx ObjectExprContext
         /// @returns llvm::Value*
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
+        /// @brief 测试用
+        std::any visitPrint(RiddleParser::PrintContext *ctx) override;
     };
 }
 
