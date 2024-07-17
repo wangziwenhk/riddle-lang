@@ -22,7 +22,11 @@ namespace Riddle{
         /// @param ctx FloatContext
         /// @return llvm::Value*
         std::any visitFloat(RiddleParser::FloatContext *ctx) override;
-
+        /// @brief 用于获取当前作用域下的某个对象或变量的值
+        /// @warning 这里只有该源文件的当前作用域的变量可能被调用，且需要使用全限定名
+        /// @param ctx ObjectExprContext
+        /// @returns llvm::Value*
+        std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
     };
 }
 

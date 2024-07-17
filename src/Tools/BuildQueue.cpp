@@ -15,7 +15,7 @@ namespace Riddle {
         // todo 实现解析包相关的东西
         // 暂时还不写，先完成编译
         if(libSource.count("main")){
-            GenVisitor visitor(std::string());
+            GenVisitor visitor("main");
             visitor.visit(libSource["main"].front().parseTree);
         }
         else{

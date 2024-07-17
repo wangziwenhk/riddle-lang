@@ -7,14 +7,17 @@
 #include <llvm/IR/IRBuilder.h>
 
 namespace Riddle{
+    GenVisitor::GenVisitor(std::string moduleName):Builder(globalContext){
+        module = new llvm::Module(moduleName,globalContext);
+    }
     std::any GenVisitor::visitInteger(RiddleParser::IntegerContext *ctx){
         return llvm::ConstantInt::get(globalContext, llvm::APInt(32,ctx->value));
     }
     std::any GenVisitor::visitFloat(RiddleParser::FloatContext *ctx){
         return llvm::ConstantFP::get(globalContext, llvm::APFloat(ctx->value));
     }
-    GenVisitor::GenVisitor(std::string moduleName):Builder(globalContext){
-        module = new llvm::Module(moduleName,globalContext);
+    std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
+        return RiddleParserBaseVisitor::visitObjectExpr(ctx);
     }
 }
 
