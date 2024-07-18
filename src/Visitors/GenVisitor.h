@@ -43,7 +43,7 @@ namespace Riddle{
         /// @param ctx ObjectExprContext*
         /// @returns llvm::Value*
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
-        /// @brief 测试用
+        /// @brief 输出数值的函数
         std::any visitPrint(RiddleParser::PrintContext *ctx) override;
     };
 }
