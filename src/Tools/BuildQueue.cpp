@@ -13,7 +13,7 @@ namespace Riddle {
     }
     void BuildQueue::start() {
         // todo 实现解析包相关的东西
-        // 暂时还不写，先完成编译
+        // 暂时还不写，先完成编译main
         if(libSource.count("main")){
             GenVisitor visitor("main");
             visitor.visit(libSource["main"].front().parseTree);

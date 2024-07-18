@@ -34,6 +34,10 @@ namespace Riddle{
         /// @param ctx FloatContext*
         /// @return llvm::Value*
         std::any visitFloat(RiddleParser::FloatContext *ctx) override;
+        /// @brief 用于生成一个显式的 string 常量
+        /// @param ctx StringContext
+        /// @returns llvm::Value*
+        std::any visitString(RiddleParser::StringContext *ctx) override;
         /// @brief 用于获取当前作用域下的某个对象或变量的值
         /// @warning 这里只有该源文件的当前作用域的变量可能被调用，且需要使用全限定名
         /// @param ctx ObjectExprContext*
