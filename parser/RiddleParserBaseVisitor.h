@@ -99,7 +99,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitObjExpr(RiddleParser::ObjExprContext *ctx) override {
+  virtual std::any visitObjValExpr(RiddleParser::ObjValExprContext *ctx) override {
     return visitChildren(ctx);
   }
 

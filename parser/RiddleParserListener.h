@@ -77,8 +77,8 @@ public:
   virtual void enterNumberExpr(RiddleParser::NumberExprContext *ctx) = 0;
   virtual void exitNumberExpr(RiddleParser::NumberExprContext *ctx) = 0;
 
-  virtual void enterObjExpr(RiddleParser::ObjExprContext *ctx) = 0;
-  virtual void exitObjExpr(RiddleParser::ObjExprContext *ctx) = 0;
+  virtual void enterObjValExpr(RiddleParser::ObjValExprContext *ctx) = 0;
+  virtual void exitObjValExpr(RiddleParser::ObjValExprContext *ctx) = 0;
 
   virtual void enterXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) = 0;
   virtual void exitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) = 0;

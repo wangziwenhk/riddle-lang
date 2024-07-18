@@ -175,7 +175,7 @@ void riddleparserParserInitialize() {
   	15,6,271,286,1,0,0,0,272,273,3,32,16,0,273,274,5,28,0,0,274,275,5,25,
   	0,0,275,276,3,30,15,5,276,286,1,0,0,0,277,278,3,32,16,0,278,279,5,29,
   	0,0,279,280,5,25,0,0,280,281,3,30,15,4,281,286,1,0,0,0,282,286,3,38,19,
-  	0,283,286,3,36,18,0,284,286,3,32,16,0,285,198,1,0,0,0,285,203,1,0,0,0,
+  	0,283,286,3,36,18,0,284,286,3,34,17,0,285,198,1,0,0,0,285,203,1,0,0,0,
   	285,205,1,0,0,0,285,207,1,0,0,0,285,209,1,0,0,0,285,212,1,0,0,0,285,216,
   	1,0,0,0,285,219,1,0,0,0,285,223,1,0,0,0,285,227,1,0,0,0,285,232,1,0,0,
   	0,285,237,1,0,0,0,285,242,1,0,0,0,285,247,1,0,0,0,285,252,1,0,0,0,285,
@@ -2033,28 +2033,28 @@ std::any RiddleParser::NumberExprContext::accept(tree::ParseTreeVisitor *visitor
   else
     return visitor->visitChildren(this);
 }
-//----------------- ObjExprContext ------------------------------------------------------------------
+//----------------- ObjValExprContext ------------------------------------------------------------------
 
-RiddleParser::ObjectExprContext* RiddleParser::ObjExprContext::objectExpr() {
-  return getRuleContext<RiddleParser::ObjectExprContext>(0);
+RiddleParser::IdContext* RiddleParser::ObjValExprContext::id() {
+  return getRuleContext<RiddleParser::IdContext>(0);
 }
 
-RiddleParser::ObjExprContext::ObjExprContext(ExpressionContext *ctx) { copyFrom(ctx); }
+RiddleParser::ObjValExprContext::ObjValExprContext(ExpressionContext *ctx) { copyFrom(ctx); }
 
-void RiddleParser::ObjExprContext::enterRule(tree::ParseTreeListener *listener) {
+void RiddleParser::ObjValExprContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<RiddleParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterObjExpr(this);
+    parserListener->enterObjValExpr(this);
 }
-void RiddleParser::ObjExprContext::exitRule(tree::ParseTreeListener *listener) {
+void RiddleParser::ObjValExprContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<RiddleParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitObjExpr(this);
+    parserListener->exitObjValExpr(this);
 }
 
-std::any RiddleParser::ObjExprContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any RiddleParser::ObjValExprContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<RiddleParserVisitor*>(visitor))
-    return parserVisitor->visitObjExpr(this);
+    return parserVisitor->visitObjValExpr(this);
   else
     return visitor->visitChildren(this);
 }
@@ -3512,11 +3512,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
     }
 
     case 23: {
-      _localctx = _tracker.createInstance<ObjExprContext>(_localctx);
+      _localctx = _tracker.createInstance<ObjValExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
       setState(284);
-      objectExpr();
+      id();
       break;
     }
 

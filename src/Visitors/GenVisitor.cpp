@@ -77,7 +77,7 @@ namespace Riddle {
         return p;
     }
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        llvm::Value *value= varManager.getVar(ctx->id()->getText()).value;
+        llvm::AllocaInst *value= varManager.getVar(ctx->id()->getText()).value;
         return value;
     }
     std::any GenVisitor::visitPrint(RiddleParser::PrintContext *ctx) {
@@ -130,9 +130,6 @@ namespace Riddle {
             varManager.DefineVar(name, false,value,type);
         }
         return nullptr;
-    }
-    GenVisitor::~GenVisitor() {
-
     }
 
 }// namespace Riddle

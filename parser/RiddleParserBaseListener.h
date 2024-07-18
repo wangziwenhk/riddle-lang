@@ -79,8 +79,8 @@ public:
   virtual void enterNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
   virtual void exitNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
 
-  virtual void enterObjExpr(RiddleParser::ObjExprContext * /*ctx*/) override { }
-  virtual void exitObjExpr(RiddleParser::ObjExprContext * /*ctx*/) override { }
+  virtual void enterObjValExpr(RiddleParser::ObjValExprContext * /*ctx*/) override { }
+  virtual void exitObjValExpr(RiddleParser::ObjValExprContext * /*ctx*/) override { }
 
   virtual void enterXorAssignExpr(RiddleParser::XorAssignExprContext * /*ctx*/) override { }
   virtual void exitXorAssignExpr(RiddleParser::XorAssignExprContext * /*ctx*/) override { }

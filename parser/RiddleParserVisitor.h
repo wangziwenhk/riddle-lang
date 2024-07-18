@@ -61,7 +61,7 @@ public:
 
     virtual std::any visitNumberExpr(RiddleParser::NumberExprContext *context) = 0;
 
-    virtual std::any visitObjExpr(RiddleParser::ObjExprContext *context) = 0;
+    virtual std::any visitObjValExpr(RiddleParser::ObjValExprContext *context) = 0;
 
     virtual std::any visitXorAssignExpr(RiddleParser::XorAssignExprContext *context) = 0;
 

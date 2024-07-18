@@ -486,11 +486,11 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  ObjExprContext : public ExpressionContext {
+  class  ObjValExprContext : public ExpressionContext {
   public:
-    ObjExprContext(ExpressionContext *ctx);
+    ObjValExprContext(ExpressionContext *ctx);
 
-    ObjectExprContext *objectExpr();
+    IdContext *id();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
