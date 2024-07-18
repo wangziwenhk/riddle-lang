@@ -1,7 +1,3 @@
-//
-// Created by wangz on 24-7-9.
-//
-
 #include "GenVisitor.h"
 #include "llvm/IR/PassManager.h"
 #include <llvm/Bitcode/BitcodeWriter.h>
@@ -14,26 +10,48 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/Bitcode/BitcodeWriterPass.h>
 #include <system_error>
 
 std::string getValueStr(llvm::Value* value){
-    if (llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(value)) {
+        if (auto *CI = llvm::dyn_cast<llvm::ConstantInt>(value)) {
         llvm::APInt intValue = CI->getValue();
         int intVal = intValue.getSExtValue();
+        delete CI;
         return std::to_string(intVal);
-    } else if (llvm::ConstantFP *CFP = llvm::dyn_cast<llvm::ConstantFP>(value)) {
+    } else if (auto *CFP = llvm::dyn_cast<llvm::ConstantFP>(value)) {
         llvm::APFloat floatValue = CFP->getValueAPF();
         double floatVal = floatValue.convertToDouble();
+        delete CFP;
         return std::to_string(floatVal);
-    } else if (llvm::ConstantDataSequential *CDS = llvm::dyn_cast<llvm::ConstantDataSequential>(value)) {
-        if (CDS->isString()) {
+    } else if (auto *CDS = llvm::dyn_cast<llvm::ConstantDataArray>(value)) {
+        if (CDS->getElementType()->isIntegerTy(8)) {
             std::string strValue = CDS->getAsCString().str();
+            delete CDS;
             return strValue;
         }
-        else return "???";
+        else{
+            delete CDS;
+            return "???";
+        }
     }
     return "???";
+}
+
+bool isStringConstant(llvm::Value *value) {
+    if (auto globalVar = llvm::dyn_cast<llvm::GlobalVariable>(value)) {
+        if (globalVar->isConstant()) {
+            if (auto constArray = llvm::dyn_cast<llvm::ConstantDataArray>(globalVar->getInitializer())) {
+                if (constArray->getElementType()->isIntegerTy(8)) {
+                    return true;
+                }
+            } else if (auto constZero = llvm::dyn_cast<llvm::ConstantAggregateZero>(globalVar->getInitializer())) {
+                if (constZero->getType()->getArrayElementType()->isIntegerTy(8)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 namespace Riddle{
@@ -58,15 +76,24 @@ namespace Riddle{
         llvm::Value* p = llvm::ConstantFP::get(globalContext, llvm::APFloat(ctx->value));
         return p;
     }
+    std::any GenVisitor::visitString(RiddleParser::StringContext *ctx) {
+        auto str = ctx->STRING()->getText();
+        str = str.substr(1,str.size()-2);
+        llvm::Value* p = Builder.CreateGlobalString(str);
+        return p;
+    }
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
         llvm::Value* value = varManager.getVar(ctx->id()->getText()).value;
         return value;
     }
     std::any GenVisitor::visitPrint(RiddleParser::PrintContext *ctx) {
         auto value = any_cast<llvm::Value*>(visit(ctx->value));
-        llvm::Value *formatStr = Builder.CreateGlobalStringPtr(getValueStr(value));
+        llvm::Value *formatStr = nullptr;
+        if(isStringConstant(value)) formatStr = value;
+        else Builder.CreateGlobalString(getValueStr(value));
+
         Builder.CreateCall(FuncCalls["print"], {formatStr});
-        return RiddleParserBaseVisitor::visitPrint(ctx);
+        return nullptr;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
         auto ret = RiddleParserBaseVisitor::visitProgram(ctx);
