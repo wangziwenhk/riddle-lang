@@ -126,7 +126,7 @@ expression
     | left=objectExpr RightRight Assign right=expression    #rightRightAssignExpr   // x>>=y
     | string                                                #stringExpr
     | number                                                #numberExpr
-    | objectExpr                                            #objExpr
+    | id                                                    #objValExpr
     ;
 
 objectExpr
