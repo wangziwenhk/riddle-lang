@@ -105,7 +105,15 @@ namespace Riddle {
         llvm::BasicBlock *entry= llvm::BasicBlock::Create(globalContext, "entry", Func);
         Builder.SetInsertPoint(entry);
         visit(ctx->funcBody());
-        Builder.CreateRet(Builder.getInt32(0));
         return nullptr;
     }
+    std::any GenVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
+        llvm::Value* p = any_cast<llvm::Value*>(visit(ctx->result));
+        Builder.CreateRet(p);
+        return nullptr;
+    }
+    std::any GenVisitor::visitStatement_ed(RiddleParser::Statement_edContext *ctx) {
+        return visit(ctx->children[0]);
+    }
+
 }// namespace Riddle
