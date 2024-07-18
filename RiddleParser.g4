@@ -25,7 +25,7 @@ statement
     | importStatement
     | funcDefine
     | funcExpr
-    | varStatement
+    | varDefineStatement
     | forStatement
     | whileStatement
     | ifStatement
@@ -42,7 +42,7 @@ importStatement
     : Import libName=id
     ;
 
-varStatement
+varDefineStatement
     : Var name=Identifier Colon type=Identifier
     | Var name=Identifier Assign value=expression
     | Var name=Identifier Colon type=Identifier Assign value=expression
@@ -69,7 +69,7 @@ funcBody
     ;
 
 forStatement
-    : For LeftBracket (init=varStatement)? Semi (termCond=expression)? Semi (selfVar=statement)? RightBracket body=statement_ed
+    : For LeftBracket (init=varDefineStatement)? Semi (termCond=expression)? Semi (selfVar=statement)? RightBracket body=statement_ed
     ;
 
 whileStatement

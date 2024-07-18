@@ -8,7 +8,7 @@
 #include <string>
 #include <llvm/IR/Value.h>
 namespace Riddle {
-
+    const std::string Null= "null";
     class Variable {
     public:
         const std::string name;
@@ -16,8 +16,10 @@ namespace Riddle {
         llvm::Value* value;
         const bool isConst;
         Variable() = delete;
-        Variable(const std::string& name,const std::string& type):name(name),type(type),isConst(false){};
-        Variable(const std::string& name,const std::string& type,const bool& isConst):name(name),type(type),isConst(isConst){};
+        Variable(const std::string& name,
+                 llvm::Value* value,
+                 const std::string& type=Null,
+                 const bool isConst=false):name(name),value(value),type(type),isConst(isConst){};
     };
 
 }// namespace Riddle

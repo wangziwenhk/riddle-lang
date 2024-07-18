@@ -124,7 +124,7 @@ statement_ed
 statement
 packStatement
 importStatement
-varStatement
+varDefineStatement
 funcExpr
 argsExpr
 defineArgs

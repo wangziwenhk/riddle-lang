@@ -54,7 +54,7 @@ void riddleparserParserInitialize() {
   auto staticData = std::make_unique<RiddleParserStaticData>(
     std::vector<std::string>{
       "program", "statement_ed", "statement", "packStatement", "importStatement", 
-      "varStatement", "funcExpr", "argsExpr", "defineArgs", "funcDefine", 
+      "varDefineStatement", "funcExpr", "argsExpr", "defineArgs", "funcDefine", 
       "funcBody", "forStatement", "whileStatement", "ifStatement", "returnStatement", 
       "expression", "objectExpr", "id", "number", "string", "float", "integer", 
       "print"
@@ -477,8 +477,8 @@ RiddleParser::FuncExprContext* RiddleParser::StatementContext::funcExpr() {
   return getRuleContext<RiddleParser::FuncExprContext>(0);
 }
 
-RiddleParser::VarStatementContext* RiddleParser::StatementContext::varStatement() {
-  return getRuleContext<RiddleParser::VarStatementContext>(0);
+RiddleParser::VarDefineStatementContext* RiddleParser::StatementContext::varDefineStatement() {
+  return getRuleContext<RiddleParser::VarDefineStatementContext>(0);
 }
 
 RiddleParser::ForStatementContext* RiddleParser::StatementContext::forStatement() {
@@ -596,7 +596,7 @@ RiddleParser::StatementContext* RiddleParser::statement() {
     case 6: {
       enterOuterAlt(_localctx, 6);
       setState(67);
-      varStatement();
+      varDefineStatement();
       break;
     }
 
@@ -803,64 +803,64 @@ RiddleParser::ImportStatementContext* RiddleParser::importStatement() {
   return _localctx;
 }
 
-//----------------- VarStatementContext ------------------------------------------------------------------
+//----------------- VarDefineStatementContext ------------------------------------------------------------------
 
-RiddleParser::VarStatementContext::VarStatementContext(ParserRuleContext *parent, size_t invokingState)
+RiddleParser::VarDefineStatementContext::VarDefineStatementContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* RiddleParser::VarStatementContext::Var() {
+tree::TerminalNode* RiddleParser::VarDefineStatementContext::Var() {
   return getToken(RiddleParser::Var, 0);
 }
 
-tree::TerminalNode* RiddleParser::VarStatementContext::Colon() {
+tree::TerminalNode* RiddleParser::VarDefineStatementContext::Colon() {
   return getToken(RiddleParser::Colon, 0);
 }
 
-std::vector<tree::TerminalNode *> RiddleParser::VarStatementContext::Identifier() {
+std::vector<tree::TerminalNode *> RiddleParser::VarDefineStatementContext::Identifier() {
   return getTokens(RiddleParser::Identifier);
 }
 
-tree::TerminalNode* RiddleParser::VarStatementContext::Identifier(size_t i) {
+tree::TerminalNode* RiddleParser::VarDefineStatementContext::Identifier(size_t i) {
   return getToken(RiddleParser::Identifier, i);
 }
 
-tree::TerminalNode* RiddleParser::VarStatementContext::Assign() {
+tree::TerminalNode* RiddleParser::VarDefineStatementContext::Assign() {
   return getToken(RiddleParser::Assign, 0);
 }
 
-RiddleParser::ExpressionContext* RiddleParser::VarStatementContext::expression() {
+RiddleParser::ExpressionContext* RiddleParser::VarDefineStatementContext::expression() {
   return getRuleContext<RiddleParser::ExpressionContext>(0);
 }
 
 
-size_t RiddleParser::VarStatementContext::getRuleIndex() const {
-  return RiddleParser::RuleVarStatement;
+size_t RiddleParser::VarDefineStatementContext::getRuleIndex() const {
+  return RiddleParser::RuleVarDefineStatement;
 }
 
-void RiddleParser::VarStatementContext::enterRule(tree::ParseTreeListener *listener) {
+void RiddleParser::VarDefineStatementContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<RiddleParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterVarStatement(this);
+    parserListener->enterVarDefineStatement(this);
 }
 
-void RiddleParser::VarStatementContext::exitRule(tree::ParseTreeListener *listener) {
+void RiddleParser::VarDefineStatementContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<RiddleParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitVarStatement(this);
+    parserListener->exitVarDefineStatement(this);
 }
 
 
-std::any RiddleParser::VarStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any RiddleParser::VarDefineStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<RiddleParserVisitor*>(visitor))
-    return parserVisitor->visitVarStatement(this);
+    return parserVisitor->visitVarDefineStatement(this);
   else
     return visitor->visitChildren(this);
 }
 
-RiddleParser::VarStatementContext* RiddleParser::varStatement() {
-  VarStatementContext *_localctx = _tracker.createInstance<VarStatementContext>(_ctx, getState());
-  enterRule(_localctx, 10, RiddleParser::RuleVarStatement);
+RiddleParser::VarDefineStatementContext* RiddleParser::varDefineStatement() {
+  VarDefineStatementContext *_localctx = _tracker.createInstance<VarDefineStatementContext>(_ctx, getState());
+  enterRule(_localctx, 10, RiddleParser::RuleVarDefineStatement);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -878,11 +878,11 @@ RiddleParser::VarStatementContext* RiddleParser::varStatement() {
       setState(89);
       match(RiddleParser::Var);
       setState(90);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->name = match(RiddleParser::Identifier);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = match(RiddleParser::Identifier);
       setState(91);
       match(RiddleParser::Colon);
       setState(92);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->type = match(RiddleParser::Identifier);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->type = match(RiddleParser::Identifier);
       break;
     }
 
@@ -891,11 +891,11 @@ RiddleParser::VarStatementContext* RiddleParser::varStatement() {
       setState(93);
       match(RiddleParser::Var);
       setState(94);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->name = match(RiddleParser::Identifier);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = match(RiddleParser::Identifier);
       setState(95);
       match(RiddleParser::Assign);
       setState(96);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->value = expression(0);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->value = expression(0);
       break;
     }
 
@@ -904,15 +904,15 @@ RiddleParser::VarStatementContext* RiddleParser::varStatement() {
       setState(97);
       match(RiddleParser::Var);
       setState(98);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->name = match(RiddleParser::Identifier);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = match(RiddleParser::Identifier);
       setState(99);
       match(RiddleParser::Colon);
       setState(100);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->type = match(RiddleParser::Identifier);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->type = match(RiddleParser::Identifier);
       setState(101);
       match(RiddleParser::Assign);
       setState(102);
-      antlrcpp::downCast<VarStatementContext *>(_localctx)->value = expression(0);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->value = expression(0);
       break;
     }
 
@@ -1452,8 +1452,8 @@ RiddleParser::Statement_edContext* RiddleParser::ForStatementContext::statement_
   return getRuleContext<RiddleParser::Statement_edContext>(0);
 }
 
-RiddleParser::VarStatementContext* RiddleParser::ForStatementContext::varStatement() {
-  return getRuleContext<RiddleParser::VarStatementContext>(0);
+RiddleParser::VarDefineStatementContext* RiddleParser::ForStatementContext::varDefineStatement() {
+  return getRuleContext<RiddleParser::VarDefineStatementContext>(0);
 }
 
 RiddleParser::ExpressionContext* RiddleParser::ForStatementContext::expression() {
@@ -1513,7 +1513,7 @@ RiddleParser::ForStatementContext* RiddleParser::forStatement() {
     _la = _input->LA(1);
     if (_la == RiddleParser::Var) {
       setState(157);
-      antlrcpp::downCast<ForStatementContext *>(_localctx)->init = varStatement();
+      antlrcpp::downCast<ForStatementContext *>(_localctx)->init = varDefineStatement();
     }
     setState(160);
     match(RiddleParser::Semi);

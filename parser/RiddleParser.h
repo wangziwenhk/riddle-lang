@@ -26,11 +26,12 @@ public:
 
   enum {
     RuleProgram = 0, RuleStatement_ed = 1, RuleStatement = 2, RulePackStatement = 3, 
-    RuleImportStatement = 4, RuleVarStatement = 5, RuleFuncExpr = 6, RuleArgsExpr = 7, 
-    RuleDefineArgs = 8, RuleFuncDefine = 9, RuleFuncBody = 10, RuleForStatement = 11, 
-    RuleWhileStatement = 12, RuleIfStatement = 13, RuleReturnStatement = 14, 
-    RuleExpression = 15, RuleObjectExpr = 16, RuleId = 17, RuleNumber = 18, 
-    RuleString = 19, RuleFloat = 20, RuleInteger = 21, RulePrint = 22
+    RuleImportStatement = 4, RuleVarDefineStatement = 5, RuleFuncExpr = 6, 
+    RuleArgsExpr = 7, RuleDefineArgs = 8, RuleFuncDefine = 9, RuleFuncBody = 10, 
+    RuleForStatement = 11, RuleWhileStatement = 12, RuleIfStatement = 13, 
+    RuleReturnStatement = 14, RuleExpression = 15, RuleObjectExpr = 16, 
+    RuleId = 17, RuleNumber = 18, RuleString = 19, RuleFloat = 20, RuleInteger = 21, 
+    RulePrint = 22
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -55,7 +56,7 @@ public:
   class StatementContext;
   class PackStatementContext;
   class ImportStatementContext;
-  class VarStatementContext;
+  class VarDefineStatementContext;
   class FuncExprContext;
   class ArgsExprContext;
   class DefineArgsContext;
@@ -117,7 +118,7 @@ public:
     ImportStatementContext *importStatement();
     FuncDefineContext *funcDefine();
     FuncExprContext *funcExpr();
-    VarStatementContext *varStatement();
+    VarDefineStatementContext *varDefineStatement();
     ForStatementContext *forStatement();
     WhileStatementContext *whileStatement();
     IfStatementContext *ifStatement();
@@ -171,12 +172,12 @@ public:
 
   ImportStatementContext* importStatement();
 
-  class  VarStatementContext : public antlr4::ParserRuleContext {
+  class  VarDefineStatementContext : public antlr4::ParserRuleContext {
   public:
     antlr4::Token *name = nullptr;
     antlr4::Token *type = nullptr;
     RiddleParser::ExpressionContext *value = nullptr;
-    VarStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    VarDefineStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Var();
     antlr4::tree::TerminalNode *Colon();
@@ -192,7 +193,7 @@ public:
    
   };
 
-  VarStatementContext* varStatement();
+  VarDefineStatementContext* varDefineStatement();
 
   class  FuncExprContext : public antlr4::ParserRuleContext {
   public:
@@ -300,7 +301,7 @@ public:
 
   class  ForStatementContext : public antlr4::ParserRuleContext {
   public:
-    RiddleParser::VarStatementContext *init = nullptr;
+    RiddleParser::VarDefineStatementContext *init = nullptr;
     RiddleParser::ExpressionContext *termCond = nullptr;
     RiddleParser::StatementContext *selfVar = nullptr;
     RiddleParser::Statement_edContext *body = nullptr;
@@ -312,7 +313,7 @@ public:
     antlr4::tree::TerminalNode* Semi(size_t i);
     antlr4::tree::TerminalNode *RightBracket();
     Statement_edContext *statement_ed();
-    VarStatementContext *varStatement();
+    VarDefineStatementContext *varDefineStatement();
     ExpressionContext *expression();
     StatementContext *statement();
 

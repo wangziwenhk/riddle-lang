@@ -35,7 +35,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVarStatement(RiddleParser::VarStatementContext *ctx) override {
+  virtual std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 

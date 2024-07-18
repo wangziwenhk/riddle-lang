@@ -31,8 +31,8 @@ public:
   virtual void enterImportStatement(RiddleParser::ImportStatementContext * /*ctx*/) override { }
   virtual void exitImportStatement(RiddleParser::ImportStatementContext * /*ctx*/) override { }
 
-  virtual void enterVarStatement(RiddleParser::VarStatementContext * /*ctx*/) override { }
-  virtual void exitVarStatement(RiddleParser::VarStatementContext * /*ctx*/) override { }
+  virtual void enterVarDefineStatement(RiddleParser::VarDefineStatementContext * /*ctx*/) override { }
+  virtual void exitVarDefineStatement(RiddleParser::VarDefineStatementContext * /*ctx*/) override { }
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
   virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }

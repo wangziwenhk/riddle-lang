@@ -1,5 +1,6 @@
 package main;
 fun main(){
-    print("Hello World!");
+    var a:int = 1;
+    print(a);
     return 0;
 }

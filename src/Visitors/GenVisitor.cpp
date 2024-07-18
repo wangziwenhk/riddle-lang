@@ -5,6 +5,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Support/FileSystem.h>
@@ -16,20 +17,16 @@ std::string getValueStr(llvm::Value *value) {
     if(auto *CI= llvm::dyn_cast<llvm::ConstantInt>(value)) {
         llvm::APInt intValue= CI->getValue();
         int intVal= intValue.getSExtValue();
-        delete CI;
         return std::to_string(intVal);
     } else if(auto *CFP= llvm::dyn_cast<llvm::ConstantFP>(value)) {
         llvm::APFloat floatValue= CFP->getValueAPF();
         double floatVal= floatValue.convertToDouble();
-        delete CFP;
         return std::to_string(floatVal);
     } else if(auto *CDS= llvm::dyn_cast<llvm::ConstantDataArray>(value)) {
         if(CDS->getElementType()->isIntegerTy(8)) {
             std::string strValue= CDS->getAsCString().str();
-            delete CDS;
             return strValue;
         } else {
-            delete CDS;
             throw std::logic_error("This thing cannot be implicitly converted to a string");
         }
     }
@@ -61,7 +58,7 @@ namespace Riddle {
                 Builder.getInt32Ty(),
                 llvm::PointerType::get(Builder.getInt8Ty(), 0),
                 true);
-        llvm::FunctionCallee printfFunc= module->getOrInsertFunction("printf", printType);
+        llvm::FunctionCallee printfFunc=module->getOrInsertFunction("printf", printType);
         FuncCalls["print"]= printfFunc;
     }
     std::any GenVisitor::visitInteger(RiddleParser::IntegerContext *ctx) {
@@ -87,14 +84,15 @@ namespace Riddle {
         auto value= any_cast<llvm::Value *>(visit(ctx->value));
         llvm::Value *formatStr= nullptr;
         //判断是不是字符串，如果不是的话就不用额外加了
-        if(isStringConstant(value)) formatStr= value;
-        else
-            Builder.CreateGlobalString(getValueStr(value));
+        if(isStringConstant(value)) formatStr = value;
+        else formatStr = Builder.CreateGlobalString(getValueStr(value));
         Builder.CreateCall(FuncCalls["print"], {formatStr});
         return nullptr;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
+        varManager.push();
         auto ret= RiddleParserBaseVisitor::visitProgram(ctx);
+        varManager.pop();
         module->print(llvm::outs(), nullptr);
         return ret;
     }
@@ -104,6 +102,7 @@ namespace Riddle {
         llvm::Function *Func= llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
         llvm::BasicBlock *entry= llvm::BasicBlock::Create(globalContext, "entry", Func);
         Builder.SetInsertPoint(entry);
+        FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
         visit(ctx->funcBody());
         return nullptr;
     }
@@ -114,6 +113,26 @@ namespace Riddle {
     }
     std::any GenVisitor::visitStatement_ed(RiddleParser::Statement_edContext *ctx) {
         return visit(ctx->children[0]);
+    }
+    std::any GenVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
+        std::string name = ctx->name->getText();
+        if(ctx->type == nullptr){   //需要类型推断
+            auto value = any_cast<llvm::Value*>(visit(ctx->value));
+            throw std::logic_error("没实现");
+        }
+        else if(ctx->value== nullptr){ //声明
+            std::string type = ctx->type->getText();
+            varManager.DefineVar(name,false,nullptr,type);
+        }
+        else{   //完整的定义
+            std::string type = ctx->type->getText();
+            auto value = any_cast<llvm::Value*>(visit(ctx->value));
+            varManager.DefineVar(name, false,value,type);
+        }
+        return nullptr;
+    }
+    GenVisitor::~GenVisitor() {
+
     }
 
 }// namespace Riddle

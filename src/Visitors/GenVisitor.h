@@ -10,14 +10,14 @@ namespace Riddle {
     /// @brief 用于实现生成 IR 的类
     class GenVisitor : public RiddleParserBaseVisitor {
     private:
-        llvm::Module *module;
-        llvm::LLVMContext globalContext;
-        llvm::IRBuilder<> Builder;
-        VarManager varManager;
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
-
+        VarManager varManager;
+        llvm::IRBuilder<> Builder;
+        llvm::LLVMContext globalContext;
+        llvm::Module *module;
     public:
         GenVisitor(std::string moduleName);
+        ~GenVisitor() override;
         /// @brief 程序的根节点
         /// @param ctx ProgramContext*
         /// @returns null
@@ -56,6 +56,10 @@ namespace Riddle {
         /// @param ctx PrintContext*
         /// @returns nullptr
         std::any visitPrint(RiddleParser::PrintContext *ctx) override;
+        /// @brief 定义/声明一个变量
+        /// @param ctx VarDefineStatementContext
+        /// @returns nullptr
+        std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) override;
     };
 }// namespace Riddle
 

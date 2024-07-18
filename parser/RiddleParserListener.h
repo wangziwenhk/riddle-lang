@@ -29,8 +29,8 @@ public:
   virtual void enterImportStatement(RiddleParser::ImportStatementContext *ctx) = 0;
   virtual void exitImportStatement(RiddleParser::ImportStatementContext *ctx) = 0;
 
-  virtual void enterVarStatement(RiddleParser::VarStatementContext *ctx) = 0;
-  virtual void exitVarStatement(RiddleParser::VarStatementContext *ctx) = 0;
+  virtual void enterVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) = 0;
+  virtual void exitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) = 0;
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
   virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;

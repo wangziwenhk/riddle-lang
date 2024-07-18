@@ -29,7 +29,7 @@ public:
 
     virtual std::any visitImportStatement(RiddleParser::ImportStatementContext *context) = 0;
 
-    virtual std::any visitVarStatement(RiddleParser::VarStatementContext *context) = 0;
+    virtual std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *context) = 0;
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
 
