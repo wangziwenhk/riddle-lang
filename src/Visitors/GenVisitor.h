@@ -15,6 +15,7 @@ namespace Riddle {
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
         llvm::Module *module;
+
     public:
         GenVisitor(std::string moduleName);
         /// @brief 程序的根节点

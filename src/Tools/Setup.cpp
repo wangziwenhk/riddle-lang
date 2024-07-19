@@ -2,13 +2,13 @@
 #include <filesystem>
 #include <string>
 
-namespace Riddle{
-    std::string Setup::getWorkPath(){
+namespace Riddle {
+    std::string Setup::getWorkPath() {
         return workPath;
     }
 
-    Setup::Setup(){
+    Setup::Setup() {
         std::filesystem::path currentPath = std::filesystem::current_path();
         workPath = currentPath.string();
     }
-} // Riddle
+}// namespace Riddle

@@ -14,6 +14,7 @@ namespace Riddle {
         /// @param sourcePath 主动导入该库的源文件的绝对路径
         /// @return 返回库源文件的绝对路径
         std::string findSourceLib(const std::string &libPackName, const std::string &sourcePath);
+
     public:
         Linker();
         /// @brief 从多个路径寻找库

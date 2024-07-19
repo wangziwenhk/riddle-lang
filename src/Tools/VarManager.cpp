@@ -3,7 +3,7 @@
 
 namespace Riddle {
     bool VarManager::isDefined(std::string name) {
-        auto it= NamedVar.find(name);
+        auto it = NamedVar.find(name);
         if(it == NamedVar.end()) return false;
         else if(it->second.empty())
             return false;
@@ -26,8 +26,8 @@ namespace Riddle {
         if(Defined.top().count(name)) {
             throw std::logic_error("The variable has been defined multiple times");
         }
-        NamedVar[name].push(Variable(name,value,type,isConst));
-        Defined.top()[name]= true;
+        NamedVar[name].push(Variable(name, value, type, isConst));
+        Defined.top()[name] = true;
     }
     Variable VarManager::getVar(const std::string &name) {
         if(!isDefined(name))

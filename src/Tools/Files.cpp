@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-namespace fs= std::filesystem;
+namespace fs = std::filesystem;
 namespace Riddle {
     std::vector<std::string> Files::getTreeFile(const std::string &path) {// NOLINT(*-no-recursion)
         std::vector<std::string> files;
@@ -11,7 +11,7 @@ namespace Riddle {
                 if(entry.is_regular_file()) {
                     files.push_back(entry.path().string());
                 } else if(entry.is_directory()) {
-                    std::vector<std::string> child= getTreeFile(entry.path().string());
+                    std::vector<std::string> child = getTreeFile(entry.path().string());
                     files.insert(files.end(), child.begin(), child.end());
                 }
             }
@@ -22,10 +22,10 @@ namespace Riddle {
     }
 
     std::vector<std::string> Files::getTreeSource(const std::string &path) {
-        auto files= getTreeFile(path);
+        auto files = getTreeFile(path);
         std::vector<std::string> sourceFiles;
         while(!files.empty()) {
-            auto i= files.back();
+            auto i = files.back();
             fs::path filepath(i);
             //判断源文件后缀
             if(filepath.extension().string() == ".red") {
@@ -71,7 +71,7 @@ namespace Riddle {
             throw std::runtime_error("File \"" + path + "\" can't open.");
         }
         // 获取文件大小
-        std::streampos fileSize= file.tellg();
+        std::streampos fileSize = file.tellg();
         // 如果文件大小为0，则文件为空
         return fileSize == 0;
     }
@@ -89,10 +89,10 @@ namespace Riddle {
         return files;
     }
     std::vector<std::string> Files::getSources(const std::string &path) {
-        auto files= getFiles(path);
+        auto files = getFiles(path);
         std::vector<std::string> sourceFiles;
         while(!files.empty()) {
-            auto i= files.back();
+            auto i = files.back();
             fs::path filepath(i);
             //判断源文件后缀
             if(filepath.extension().string() == ".red") {

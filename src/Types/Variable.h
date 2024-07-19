@@ -9,18 +9,18 @@
 #include <llvm/IR/Value.h>
 #include <string>
 namespace Riddle {
-    const std::string Null= "null";
+    const std::string Null = "null";
     class Variable {
     public:
         const std::string name;
         std::string type;
-        llvm::AllocaInst* value;
+        llvm::AllocaInst *value;
         const bool isConst;
         Variable() = delete;
-        Variable(const std::string& name,
-                 llvm::AllocaInst* value,
-                 const std::string& type=Null,
-                 const bool isConst=false):name(name),value(value),type(type),isConst(isConst){};
+        Variable(const std::string &name,
+                 llvm::AllocaInst *value,
+                 const std::string &type = Null,
+                 const bool isConst = false): name(name), value(value), type(type), isConst(isConst){};
     };
 
 }// namespace Riddle

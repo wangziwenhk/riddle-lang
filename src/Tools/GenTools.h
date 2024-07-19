@@ -4,9 +4,9 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 #include <string>
-namespace Riddle{
+namespace Riddle {
     std::string getValueStr(llvm::Value *value);
     llvm::AllocaInst *InitAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder, llvm::LLVMContext &Context);
-}
+}// namespace Riddle
 
 #endif//RIDDLE_LANGUAGE_GENTOOLS_H

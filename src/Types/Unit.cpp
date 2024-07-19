@@ -5,7 +5,7 @@
 
 namespace Riddle {
     Unit::Unit(const Path &selfPath) {
-        this->directoryPath= selfPath;
+        this->directoryPath = selfPath;
     }
     void Unit::addImports(const std::vector<std::string> &libs) {
         for(const auto &i: libs) {
@@ -25,19 +25,19 @@ namespace Riddle {
         return imports.size();
     }
     void Unit::setPackName(std::string name) {
-        this->packName= std::move(name);
+        this->packName = std::move(name);
     }
-    std::string Unit::getPackName()const {
+    std::string Unit::getPackName() const {
         return packName;
     }
     std::string Unit::getDirectoryPath() const {
         return directoryPath;
     }
     void Unit::setDirectoryPath(Path path) {
-        directoryPath= std::move(path);
+        directoryPath = std::move(path);
     }
     void Unit::setFilePath(Path path) {
-        this->filePath= path;
+        this->filePath = path;
     }
     std::string Unit::getFilePath() const {
         return filePath;
