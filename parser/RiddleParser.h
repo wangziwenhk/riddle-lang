@@ -14,14 +14,15 @@ public:
   enum {
     Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
     Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, Printf = 16, LeftBracket = 17, RightBracket = 18, LeftCurly = 19, 
-    RightCurly = 20, Colon = 21, Semi = 22, Comma = 23, Equal = 24, Assign = 25, 
-    Greater = 26, Less = 27, LeftLeft = 28, RightRight = 29, Add = 30, Sub = 31, 
-    Star = 32, Div = 33, Mod = 34, Not = 35, And = 36, Or = 37, Xor = 38, 
-    Dot = 39, DoubleQuotes = 40, Quotes = 41, Endl = 42, Identifier = 43, 
-    Hexadecimal = 44, Decimal = 45, Octal = 46, Binary = 47, Float = 48, 
-    IntegerSequence = 49, HEX_DIGIT = 50, OCTAL_DIGIT = 51, BINARY_DIGIT = 52, 
-    DIGIT = 53, STRING = 54, LINE_COMMENT = 55, BLOCK_COMMENT = 56, WHITESPACE = 57
+    Override = 15, Printf = 16, True = 17, False = 18, LeftBracket = 19, 
+    RightBracket = 20, LeftCurly = 21, RightCurly = 22, Colon = 23, Semi = 24, 
+    Comma = 25, Equal = 26, Assign = 27, Greater = 28, Less = 29, LeftLeft = 30, 
+    RightRight = 31, Add = 32, Sub = 33, Star = 34, Div = 35, Mod = 36, 
+    Not = 37, And = 38, Or = 39, Xor = 40, Dot = 41, DoubleQuotes = 42, 
+    Quotes = 43, Endl = 44, Identifier = 45, Hexadecimal = 46, Decimal = 47, 
+    Octal = 48, Binary = 49, Float = 50, IntegerSequence = 51, HEX_DIGIT = 52, 
+    OCTAL_DIGIT = 53, BINARY_DIGIT = 54, DIGIT = 55, STRING = 56, LINE_COMMENT = 57, 
+    BLOCK_COMMENT = 58, WHITESPACE = 59
   };
 
   enum {
@@ -30,8 +31,8 @@ public:
     RuleArgsExpr = 7, RuleDefineArgs = 8, RuleFuncDefine = 9, RuleFuncBody = 10, 
     RuleForStatement = 11, RuleWhileStatement = 12, RuleIfStatement = 13, 
     RuleReturnStatement = 14, RuleExpression = 15, RuleObjectExpr = 16, 
-    RuleId = 17, RuleNumber = 18, RuleString = 19, RuleFloat = 20, RuleInteger = 21, 
-    RulePrintf = 22
+    RuleId = 17, RuleNumber = 18, RuleBoolean = 19, RuleString = 20, RuleFloat = 21, 
+    RuleInteger = 22, RulePrintf = 23
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -70,6 +71,7 @@ public:
   class ObjectExprContext;
   class IdContext;
   class NumberContext;
+  class BooleanContext;
   class StringContext;
   class FloatContext;
   class IntegerContext;
@@ -768,6 +770,17 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  BooleanExprContext : public ExpressionContext {
+  public:
+    BooleanExprContext(ExpressionContext *ctx);
+
+    BooleanContext *boolean();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  LessExprContext : public ExpressionContext {
   public:
     LessExprContext(ExpressionContext *ctx);
@@ -1044,6 +1057,23 @@ public:
   };
 
   NumberContext* number();
+
+  class  BooleanContext : public antlr4::ParserRuleContext {
+  public:
+    bool value;
+    BooleanContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *True();
+    antlr4::tree::TerminalNode *False();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  BooleanContext* boolean();
 
   class  StringContext : public antlr4::ParserRuleContext {
   public:

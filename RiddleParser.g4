@@ -126,6 +126,7 @@ expression
     | left=objectExpr RightRight Assign right=expression    #rightRightAssignExpr   // x>>=y
     | string                                                #stringExpr
     | number                                                #numberExpr
+    | boolean                                               #booleanExpr
     | id                                                    #objValExpr
     ;
 
@@ -139,6 +140,11 @@ id: Identifier (Dot Identifier)*;
 number
     : integer
     | float
+    ;
+
+boolean returns [bool value]
+    : True {$value=true;}
+    | False {$value=false;}
     ;
 
 string

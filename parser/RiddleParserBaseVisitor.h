@@ -175,6 +175,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitBooleanExpr(RiddleParser::BooleanExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -244,6 +248,10 @@ public:
   }
 
   virtual std::any visitNumber(RiddleParser::NumberContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBoolean(RiddleParser::BooleanContext *ctx) override {
     return visitChildren(ctx);
   }
 

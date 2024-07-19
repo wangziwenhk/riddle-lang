@@ -62,7 +62,9 @@ namespace Riddle {
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", Func);
         Builder.SetInsertPoint(entry);
         FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
+        FuncStack.push(Func);
         visit(ctx->funcBody());
+        FuncStack.pop();
         return nullptr;
     }
     std::any GenVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
@@ -80,12 +82,12 @@ namespace Riddle {
             throw std::logic_error("没实现");
         } else if(ctx->value == nullptr) {//声明
             std::string type = ctx->type->getText();
-            llvm::AllocaInst *Alloca = InitAlloca(name, type, Builder, globalContext);
+            llvm::AllocaInst *Alloca = InitAlloca(name, type, Builder);
             varManager.DefineVar(name, false, Alloca, type);
         } else {//完整的定义
             std::string type = ctx->type->getText();
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            llvm::AllocaInst *Alloca = InitAlloca(name, type, Builder, globalContext);
+            llvm::AllocaInst *Alloca = InitAlloca(name, type, Builder);
             Builder.CreateStore(value, Alloca);
             varManager.DefineVar(name, false, Alloca, type);
         }
@@ -93,8 +95,35 @@ namespace Riddle {
     }
     std::any GenVisitor::visitObjValExpr(RiddleParser::ObjValExprContext *ctx) {
         llvm::AllocaInst *var = varManager.getVar(ctx->id()->getText()).value;
-        llvm::Value *LoadedValue = Builder.CreateLoad(var->getType(), var, "tempVar");
+        llvm::Value *LoadedValue = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
         return LoadedValue;
+    }
+    std::any GenVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {
+        auto cond = any_cast<llvm::Value *>(visit(ctx->cond));
+        //        if(!isBooleanTy(cond)) {
+        //            llvm::Value *Zero = llvm::ConstantInt::get(cond->getType(), 1);
+        //            cond = Builder.CreateICmpEQ(Zero, cond, "isEqual");
+        //        }
+        llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(globalContext, "if.then", FuncStack.top());
+        llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(globalContext, "if.else", FuncStack.top());
+        llvm::BasicBlock *endBlock = llvm::BasicBlock::Create(globalContext, "if.end", FuncStack.top());
+        Builder.CreateCondBr(cond, thenBlock, elseBlock);
+
+        Builder.SetInsertPoint(thenBlock);
+        visit(ctx->body);
+        Builder.CreateBr(endBlock);
+
+        Builder.SetInsertPoint(elseBlock);
+        if(ctx->elseBody != nullptr) visit(ctx->elseBody);
+        Builder.CreateBr(endBlock);
+
+        Builder.SetInsertPoint(endBlock);
+        return nullptr;
+    }
+    std::any GenVisitor::visitBoolean(RiddleParser::BooleanContext *ctx) {
+        llvm::Value *p;
+        p = Builder.getInt1(ctx->value);
+        return p;
     }
 
 }// namespace Riddle

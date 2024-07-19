@@ -11,6 +11,7 @@ namespace Riddle {
     class GenVisitor : public RiddleParserBaseVisitor {
     private:
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
+        std::stack<llvm::Function *> FuncStack;
         VarManager varManager;
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
@@ -62,9 +63,18 @@ namespace Riddle {
         /// @returns nullptr
         std::any visitPrintf(RiddleParser::PrintfContext *ctx) override;
         /// @brief 定义/声明一个变量
-        /// @param ctx VarDefineStatementContext
+        /// @param ctx VarDefineStatementContext*
         /// @returns nullptr
         std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) override;
+        /// @brief 判断语句 ( 控制流 )
+        /// @param ctx IfStatementContext*
+        /// @returns nullptr
+        /// @todo 预计改为有表达式的类型
+        std::any visitIfStatement(RiddleParser::IfStatementContext *ctx) override;
+        /// @brief 布尔类型的常量
+        /// @param ctx BooleanContext
+        /// @returns llvm::Value*
+        std::any visitBoolean(RiddleParser::BooleanContext *ctx) override;
     };
 }// namespace Riddle
 

@@ -136,6 +136,9 @@ public:
   virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
   virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
 
+  virtual void enterBooleanExpr(RiddleParser::BooleanExprContext * /*ctx*/) override { }
+  virtual void exitBooleanExpr(RiddleParser::BooleanExprContext * /*ctx*/) override { }
+
   virtual void enterLessExpr(RiddleParser::LessExprContext * /*ctx*/) override { }
   virtual void exitLessExpr(RiddleParser::LessExprContext * /*ctx*/) override { }
 
@@ -189,6 +192,9 @@ public:
 
   virtual void enterNumber(RiddleParser::NumberContext * /*ctx*/) override { }
   virtual void exitNumber(RiddleParser::NumberContext * /*ctx*/) override { }
+
+  virtual void enterBoolean(RiddleParser::BooleanContext * /*ctx*/) override { }
+  virtual void exitBoolean(RiddleParser::BooleanContext * /*ctx*/) override { }
 
   virtual void enterString(RiddleParser::StringContext * /*ctx*/) override { }
   virtual void exitString(RiddleParser::StringContext * /*ctx*/) override { }

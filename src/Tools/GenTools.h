@@ -5,8 +5,8 @@
 #include <llvm/IR/Value.h>
 #include <string>
 namespace Riddle {
-    std::string getValueStr(llvm::Value *value);
-    llvm::AllocaInst *InitAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder, llvm::LLVMContext &Context);
+    llvm::AllocaInst *InitAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder);
+    bool isBooleanTy(llvm::Value *value);
 }// namespace Riddle
 
 #endif//RIDDLE_LANGUAGE_GENTOOLS_H

@@ -99,6 +99,8 @@ public:
 
     virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *context) = 0;
 
+    virtual std::any visitBooleanExpr(RiddleParser::BooleanExprContext *context) = 0;
+
     virtual std::any visitLessExpr(RiddleParser::LessExprContext *context) = 0;
 
     virtual std::any visitOrExpr(RiddleParser::OrExprContext *context) = 0;
@@ -134,6 +136,8 @@ public:
     virtual std::any visitId(RiddleParser::IdContext *context) = 0;
 
     virtual std::any visitNumber(RiddleParser::NumberContext *context) = 0;
+
+    virtual std::any visitBoolean(RiddleParser::BooleanContext *context) = 0;
 
     virtual std::any visitString(RiddleParser::StringContext *context) = 0;
 
