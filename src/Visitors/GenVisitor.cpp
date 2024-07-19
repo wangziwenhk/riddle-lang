@@ -94,7 +94,7 @@ namespace Riddle {
     }
     std::any GenVisitor::visitObjValExpr(RiddleParser::ObjValExprContext *ctx) {
         llvm::AllocaInst *var= varManager.getVar(ctx->id()->getText()).value;
-        llvm::Value *LoadedValue= Builder.CreateLoad(var->getType(), var, "loadedVar");
+        llvm::Value *LoadedValue= Builder.CreateLoad(var->getType(), var, "tempVar");
         return LoadedValue;
     }
 

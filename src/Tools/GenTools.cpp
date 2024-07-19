@@ -1,7 +1,7 @@
 #include "GenTools.h"
 #include <llvm/IR/Constants.h>
 
-namespace Riddle{
+namespace Riddle {
     std::string getValueStr(llvm::Value *value) {
         if(auto *CI= llvm::dyn_cast<llvm::ConstantInt>(value)) {
             llvm::APInt intValue= CI->getValue();
@@ -28,8 +28,10 @@ namespace Riddle{
             Alloca= Builder.CreateAlloca(llvm::Type::getInt32Ty(Context), nullptr, name);
         } else if(type == "float") {
             Alloca= Builder.CreateAlloca(llvm::Type::getDoubleTy(Context), nullptr, name);
+        } else if(type == "char") {
+            Alloca= Builder.CreateAlloca(llvm::Type::getInt8Ty(Context), nullptr, name);
         }
         return Alloca;
     }
 
-}
+}// namespace Riddle

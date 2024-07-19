@@ -1,6 +1,6 @@
 package main;
 fun main(){
-    var a:int = 1;
-    printf("%d",a);
+    var a:char = 97;
+    printf("%c",a);
     return 0;
 }
