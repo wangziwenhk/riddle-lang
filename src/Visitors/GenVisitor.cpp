@@ -50,6 +50,16 @@ bool isStringConstant(llvm::Value *value) {
     return false;
 }
 
+llvm::AllocaInst *InitAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder, llvm::LLVMContext &Context) {
+    llvm::AllocaInst *Alloca= nullptr;
+    if(type == "int") {
+        Alloca= Builder.CreateAlloca(llvm::Type::getInt32Ty(Context), nullptr, name);
+    } else if(type == "float") {
+        Alloca= Builder.CreateAlloca(llvm::Type::getDoubleTy(Context), nullptr, name);
+    }
+    return Alloca;
+}
+
 namespace Riddle {
     GenVisitor::GenVisitor(std::string moduleName): Builder(globalContext) {
         module= new llvm::Module(moduleName, globalContext);
@@ -58,7 +68,7 @@ namespace Riddle {
                 Builder.getInt32Ty(),
                 llvm::PointerType::get(Builder.getInt8Ty(), 0),
                 true);
-        llvm::FunctionCallee printfFunc=module->getOrInsertFunction("printf", printType);
+        llvm::FunctionCallee printfFunc= module->getOrInsertFunction("printf", printType);
         FuncCalls["print"]= printfFunc;
     }
     std::any GenVisitor::visitInteger(RiddleParser::IntegerContext *ctx) {
@@ -80,13 +90,10 @@ namespace Riddle {
         llvm::AllocaInst *value= varManager.getVar(ctx->id()->getText()).value;
         return value;
     }
-    std::any GenVisitor::visitPrint(RiddleParser::PrintContext *ctx) {
+    std::any GenVisitor::visitPrintf(RiddleParser::PrintfContext *ctx) {
         auto value= any_cast<llvm::Value *>(visit(ctx->value));
-        llvm::Value *formatStr= nullptr;
-        //判断是不是字符串，如果不是的话就不用额外加了
-        if(isStringConstant(value)) formatStr = value;
-        else formatStr = Builder.CreateGlobalString(getValueStr(value));
-        Builder.CreateCall(FuncCalls["print"], {formatStr});
+        auto format = any_cast<llvm::Value*>(visit(ctx->format));
+        Builder.CreateCall(FuncCalls["print"], {format,value});
         return nullptr;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -102,12 +109,12 @@ namespace Riddle {
         llvm::Function *Func= llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
         llvm::BasicBlock *entry= llvm::BasicBlock::Create(globalContext, "entry", Func);
         Builder.SetInsertPoint(entry);
-        FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
+        FuncCalls[ctx->funcName->getText()]= module->getOrInsertFunction(ctx->funcName->getText(), funcType);
         visit(ctx->funcBody());
         return nullptr;
     }
     std::any GenVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
-        llvm::Value* p = any_cast<llvm::Value*>(visit(ctx->result));
+        llvm::Value *p= any_cast<llvm::Value *>(visit(ctx->result));
         Builder.CreateRet(p);
         return nullptr;
     }
@@ -115,21 +122,27 @@ namespace Riddle {
         return visit(ctx->children[0]);
     }
     std::any GenVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
-        std::string name = ctx->name->getText();
-        if(ctx->type == nullptr){   //需要类型推断
-            auto value = any_cast<llvm::Value*>(visit(ctx->value));
+        std::string name= ctx->name->getText();
+        if(ctx->type == nullptr) {//需要类型推断
+            auto value= any_cast<llvm::Value *>(visit(ctx->value));
             throw std::logic_error("没实现");
-        }
-        else if(ctx->value== nullptr){ //声明
-            std::string type = ctx->type->getText();
-            varManager.DefineVar(name,false,nullptr,type);
-        }
-        else{   //完整的定义
-            std::string type = ctx->type->getText();
-            auto value = any_cast<llvm::Value*>(visit(ctx->value));
-            varManager.DefineVar(name, false,value,type);
+        } else if(ctx->value == nullptr) {//声明
+            std::string type= ctx->type->getText();
+            llvm::AllocaInst *Alloca= InitAlloca(name,type,Builder,globalContext);
+            varManager.DefineVar(name, false, Alloca, type);
+        } else {//完整的定义
+            std::string type= ctx->type->getText();
+            auto value= any_cast<llvm::Value *>(visit(ctx->value));
+            llvm::AllocaInst *Alloca= InitAlloca(name,type,Builder,globalContext);
+            Builder.CreateStore(value,Alloca);
+            varManager.DefineVar(name, false, Alloca, type);
         }
         return nullptr;
+    }
+    std::any GenVisitor::visitObjValExpr(RiddleParser::ObjValExprContext *ctx) {
+        llvm::AllocaInst *var= varManager.getVar(ctx->id()->getText()).value;
+        llvm::Value *LoadedValue = Builder.CreateLoad(var->getType(),var, "loadedVar");
+        return LoadedValue;
     }
 
 }// namespace Riddle

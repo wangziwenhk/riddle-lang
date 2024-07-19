@@ -20,7 +20,7 @@ statement_ed
     ;
 
 statement
-    : print
+    : printf
     | packStatement
     | importStatement
     | funcDefine
@@ -167,6 +167,6 @@ integer returns [int value]
     ;
 
 // 测试用
-print
-    : Print '(' value=expression ')'
+printf
+    : Printf '(' format=string ',' value=expression ')'
     ;

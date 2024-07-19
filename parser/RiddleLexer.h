@@ -14,7 +14,7 @@ public:
   enum {
     Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
     Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, Print = 16, LeftBracket = 17, RightBracket = 18, LeftCurly = 19, 
+    Override = 15, Printf = 16, LeftBracket = 17, RightBracket = 18, LeftCurly = 19, 
     RightCurly = 20, Colon = 21, Semi = 22, Comma = 23, Equal = 24, Assign = 25, 
     Greater = 26, Less = 27, LeftLeft = 28, RightRight = 29, Add = 30, Sub = 31, 
     Star = 32, Div = 33, Mod = 34, Not = 35, And = 36, Or = 37, Xor = 38, 

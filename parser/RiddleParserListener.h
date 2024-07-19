@@ -197,8 +197,8 @@ public:
   virtual void enterInteger(RiddleParser::IntegerContext *ctx) = 0;
   virtual void exitInteger(RiddleParser::IntegerContext *ctx) = 0;
 
-  virtual void enterPrint(RiddleParser::PrintContext *ctx) = 0;
-  virtual void exitPrint(RiddleParser::PrintContext *ctx) = 0;
+  virtual void enterPrintf(RiddleParser::PrintfContext *ctx) = 0;
+  virtual void exitPrintf(RiddleParser::PrintfContext *ctx) = 0;
 
 
 };

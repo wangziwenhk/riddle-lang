@@ -259,7 +259,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitPrint(RiddleParser::PrintContext *ctx) override {
+  virtual std::any visitPrintf(RiddleParser::PrintfContext *ctx) override {
     return visitChildren(ctx);
   }
 

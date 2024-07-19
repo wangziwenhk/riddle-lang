@@ -199,8 +199,8 @@ public:
   virtual void enterInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
   virtual void exitInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
 
-  virtual void enterPrint(RiddleParser::PrintContext * /*ctx*/) override { }
-  virtual void exitPrint(RiddleParser::PrintContext * /*ctx*/) override { }
+  virtual void enterPrintf(RiddleParser::PrintfContext * /*ctx*/) override { }
+  virtual void exitPrintf(RiddleParser::PrintfContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

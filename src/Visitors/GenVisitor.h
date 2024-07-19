@@ -59,7 +59,7 @@ namespace Riddle {
         /// @brief 输出数值的函数
         /// @param ctx PrintContext*
         /// @returns nullptr
-        std::any visitPrint(RiddleParser::PrintContext *ctx) override;
+        std::any visitPrintf(RiddleParser::PrintfContext *ctx) override;
         /// @brief 定义/声明一个变量
         /// @param ctx VarDefineStatementContext
         /// @returns nullptr

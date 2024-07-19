@@ -14,7 +14,7 @@ public:
   enum {
     Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
     Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, Print = 16, LeftBracket = 17, RightBracket = 18, LeftCurly = 19, 
+    Override = 15, Printf = 16, LeftBracket = 17, RightBracket = 18, LeftCurly = 19, 
     RightCurly = 20, Colon = 21, Semi = 22, Comma = 23, Equal = 24, Assign = 25, 
     Greater = 26, Less = 27, LeftLeft = 28, RightRight = 29, Add = 30, Sub = 31, 
     Star = 32, Div = 33, Mod = 34, Not = 35, And = 36, Or = 37, Xor = 38, 
@@ -31,7 +31,7 @@ public:
     RuleForStatement = 11, RuleWhileStatement = 12, RuleIfStatement = 13, 
     RuleReturnStatement = 14, RuleExpression = 15, RuleObjectExpr = 16, 
     RuleId = 17, RuleNumber = 18, RuleString = 19, RuleFloat = 20, RuleInteger = 21, 
-    RulePrint = 22
+    RulePrintf = 22
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -73,7 +73,7 @@ public:
   class StringContext;
   class FloatContext;
   class IntegerContext;
-  class PrintContext; 
+  class PrintfContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
@@ -113,7 +113,7 @@ public:
   public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    PrintContext *print();
+    PrintfContext *printf();
     PackStatementContext *packStatement();
     ImportStatementContext *importStatement();
     FuncDefineContext *funcDefine();
@@ -1100,14 +1100,17 @@ public:
 
   IntegerContext* integer();
 
-  class  PrintContext : public antlr4::ParserRuleContext {
+  class  PrintfContext : public antlr4::ParserRuleContext {
   public:
+    RiddleParser::StringContext *format = nullptr;
     RiddleParser::ExpressionContext *value = nullptr;
-    PrintContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    PrintfContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Print();
+    antlr4::tree::TerminalNode *Printf();
     antlr4::tree::TerminalNode *LeftBracket();
+    antlr4::tree::TerminalNode *Comma();
     antlr4::tree::TerminalNode *RightBracket();
+    StringContext *string();
     ExpressionContext *expression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1117,7 +1120,7 @@ public:
    
   };
 
-  PrintContext* print();
+  PrintfContext* printf();
 
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

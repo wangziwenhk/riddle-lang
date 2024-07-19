@@ -141,7 +141,7 @@ public:
 
     virtual std::any visitInteger(RiddleParser::IntegerContext *context) = 0;
 
-    virtual std::any visitPrint(RiddleParser::PrintContext *context) = 0;
+    virtual std::any visitPrintf(RiddleParser::PrintfContext *context) = 0;
 
 
 };

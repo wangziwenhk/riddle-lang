@@ -15,7 +15,7 @@ Public: 'public';
 Protected: 'protected';
 Private: 'Private' ;
 Override: 'override';
-Print:'print';
+Printf:'printf';
 //可见字符
 //基本运算符
 LeftBracket:    '(';
