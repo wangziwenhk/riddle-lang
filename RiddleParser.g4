@@ -7,7 +7,7 @@ options {
 @Header{
 }
 
-@Parser::members {
+@parserFile::members {
 }
 
 program

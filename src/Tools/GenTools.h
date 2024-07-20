@@ -6,10 +6,10 @@
 #include <llvm/IR/Value.h>
 #include <string>
 namespace Riddle {
-    llvm::Type *GetType(std::string type, llvm::IRBuilder<> &Builder);
-    std::vector<llvm::Type *> GetTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder);
+    llvm::Type *getType(std::string type, llvm::IRBuilder<> &Builder);
+    std::vector<llvm::Type *> getTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder);
 
-    llvm::AllocaInst *InitAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder);
+    llvm::AllocaInst *initAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder);
     bool isBooleanTy(llvm::Value *value);
     bool isTerminalNode(antlr4::tree::ParseTree *tree);
     bool isIdentifier(antlr4::tree::ParseTree *tree);

@@ -80,19 +80,19 @@ namespace Riddle {
     std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
         // todo 实现自定义的返回值
         auto args = any_cast<DefineArgsType>(visit(ctx->args));
-        auto argsTypes = GetTypes(args.typeNames,Builder);
+        auto argsTypes = getTypes(args.typeNames, Builder);
 
         llvm::FunctionType *funcType = llvm::FunctionType::get(Builder.getInt32Ty(), argsTypes, false);
-        llvm::Function *Func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
-        llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", Func);
+        llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
+        llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", func);
         Builder.SetInsertPoint(entry);
         FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
-        FuncStack.push(Func);
+        FuncStack.push(func);
         varManager.push();
 
         for(int i = 0; i < args.names.size(); i++) {
-            llvm::AllocaInst *Alloca = InitAlloca(args.names[i], args.typeNames[i], Builder);
-            varManager.DefineVar(args.names[i], false, Alloca, args.typeNames[i]);
+            llvm::AllocaInst *Alloca = initAlloca(args.names[i], args.typeNames[i], Builder);
+            varManager.defineVar(args.names[i], false, Alloca, args.typeNames[i]);
         }
 
         visit(ctx->funcBody());
@@ -115,14 +115,14 @@ namespace Riddle {
             throw std::logic_error("没实现");
         } else if(ctx->value == nullptr) {//声明
             std::string type = ctx->type->getText();
-            llvm::AllocaInst *Alloca = InitAlloca(name, type, Builder);
-            varManager.DefineVar(name, false, Alloca, type);
+            llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
+            varManager.defineVar(name, false, Alloca, type);
         } else {//完整的定义
             std::string type = ctx->type->getText();
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            llvm::AllocaInst *Alloca = InitAlloca(name, type, Builder);
+            llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
             Builder.CreateStore(value, Alloca);
-            varManager.DefineVar(name, false, Alloca, type);
+            varManager.defineVar(name, false, Alloca, type);
         }
         return nullptr;
     }

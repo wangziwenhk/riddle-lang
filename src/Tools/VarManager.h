@@ -24,7 +24,7 @@ namespace Riddle {
         /// @param name 变量名
         /// @param type 类型，当类型为 null 时说明在下一次赋值时判断，在被引用之前必须有类型
         /// @param isConst 是否不变
-        void DefineVar(const std::string &name, const bool &isConst, llvm::AllocaInst *value = nullptr, const std::string &type = "null");
+        void defineVar(const std::string &name, const bool &isConst, llvm::AllocaInst *value = nullptr, const std::string &type = "null");
         /// @brief 获取一个变量的属性
         /// @param name 变量名
         /// @returns 变量的属性

@@ -23,7 +23,7 @@ namespace Riddle {
         }
     }
     // 目前只做了main的解析
-    void BuildQueue::Parser(std::string filePath) {
+    void BuildQueue::parserFile(std::string filePath) {
         std::ifstream stream(filePath);
         auto input = new antlr4::ANTLRInputStream(stream);
         auto lexer = new RiddleLexer(input);

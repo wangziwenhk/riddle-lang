@@ -3,9 +3,9 @@
 #include <llvm/IR/Constants.h>
 
 namespace Riddle {
-    llvm::AllocaInst *InitAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder) {
+    llvm::AllocaInst *initAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder) {
         llvm::AllocaInst *Alloca = nullptr;
-        Alloca = Builder.CreateAlloca(GetType(type,Builder), nullptr, name);
+        Alloca = Builder.CreateAlloca(getType(type, Builder), nullptr, name);
         return Alloca;
     }
     bool isBooleanTy(llvm::Value *value) {
@@ -29,7 +29,7 @@ namespace Riddle {
         }
         return false;
     }
-    llvm::Type *GetType(std::string type, llvm::IRBuilder<> &Builder) {
+    llvm::Type *getType(std::string type, llvm::IRBuilder<> &Builder) {
         if(type=="int")
             return Builder.getInt32Ty();
         else if(type=="float")
@@ -42,10 +42,10 @@ namespace Riddle {
             return Builder.getInt8Ty();
         throw std::logic_error("There is no such type");
     }
-    std::vector<llvm::Type *> GetTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder) {
+    std::vector<llvm::Type *> getTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder) {
         std::vector<llvm::Type *> result;
         for(auto i:type){
-            result.push_back(GetType(i,Builder));
+            result.push_back(getType(i, Builder));
         }
         return result;
     }
