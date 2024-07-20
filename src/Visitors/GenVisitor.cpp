@@ -100,10 +100,6 @@ namespace Riddle {
     }
     std::any GenVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {
         auto cond = any_cast<llvm::Value *>(visit(ctx->cond));
-        //        if(!isBooleanTy(cond)) {
-        //            llvm::Value *Zero = llvm::ConstantInt::get(cond->getType(), 1);
-        //            cond = Builder.CreateICmpEQ(Zero, cond, "isEqual");
-        //        }
         llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(globalContext, "if.then", FuncStack.top());
         llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(globalContext, "if.else", FuncStack.top());
         llvm::BasicBlock *endBlock = llvm::BasicBlock::Create(globalContext, "if.end", FuncStack.top());
@@ -125,5 +121,30 @@ namespace Riddle {
         p = Builder.getInt1(ctx->value);
         return p;
     }
+    std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        Builder.CreateStore(value, var);
+        return value;
+    }
+    std::any GenVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
+        llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(globalContext, "while.cond", FuncStack.top());
+        llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(globalContext, "while.loop", FuncStack.top());
+        llvm::BasicBlock *AfterBlock = llvm::BasicBlock::Create(globalContext, "while.end", FuncStack.top());
+
+        Builder.CreateBr(condBlock);
+        Builder.SetInsertPoint(condBlock);
+        auto Cond = any_cast<llvm::Value *>(visit(ctx->runCond));
+        Builder.CreateCondBr(Cond, loopBlock, AfterBlock);
+
+        Builder.SetInsertPoint(loopBlock);
+        visit(ctx->body);
+        Builder.CreateBr(condBlock);
+
+        Builder.SetInsertPoint(AfterBlock);
+
+        return nullptr;
+    }
+
 
 }// namespace Riddle

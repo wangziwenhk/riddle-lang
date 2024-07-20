@@ -1,11 +1,10 @@
 package main;
 fun main(){
-    var a:bool = true;
-    if(a){
-        printf("%d",1);
-    }
-    else{
-        printf("%d",2);
+    var a:bool;
+    a = true;
+    while(a){
+        a = false
+        printf("%d",2)
     }
     return 0;
 }

@@ -75,6 +75,14 @@ namespace Riddle {
         /// @param ctx BooleanContext
         /// @returns llvm::Value*
         std::any visitBoolean(RiddleParser::BooleanContext *ctx) override;
+        /// @brief 赋值语句
+        /// @param ctx AssignExprContext*
+        /// @returns llvm::Value,返回的是变量当前的值
+        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override;
+        /// @brief while 语句 ( 控制流 )
+        /// @param ctx WhileStatementContext*
+        /// @returns nullptr
+        std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override;
     };
 }// namespace Riddle
 
