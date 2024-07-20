@@ -55,15 +55,48 @@ namespace Riddle {
         module->print(llvm::outs(), nullptr);
         return ret;
     }
+    std::any GenVisitor::visitDefineArgs(RiddleParser::DefineArgsContext *ctx) {
+        std::vector<std::string> types;
+        std::vector<std::string> names;
+        std::string type, name;
+        for(auto i: ctx->children) {
+            if(!isIdentifier(i)) continue;
+
+            if(name.empty())
+                name = i->getText();
+            else if(type.empty())
+                type = i->getText();
+            else {
+                types.push_back(type);
+                names.push_back(name);
+            }
+        }
+        if(!type.empty()) {
+            types.push_back(type);
+            names.push_back(name);
+        }
+        return DefineArgsType{types, names};
+    }
     std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
         // todo 实现自定义的返回值
-        llvm::FunctionType *funcType = llvm::FunctionType::get(Builder.getInt32Ty(), false);
+        auto args = any_cast<DefineArgsType>(visit(ctx->args));
+        auto argsTypes = GetTypes(args.typeNames,Builder);
+
+        llvm::FunctionType *funcType = llvm::FunctionType::get(Builder.getInt32Ty(), argsTypes, false);
         llvm::Function *Func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", Func);
         Builder.SetInsertPoint(entry);
         FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
         FuncStack.push(Func);
+        varManager.push();
+
+        for(int i = 0; i < args.names.size(); i++) {
+            llvm::AllocaInst *Alloca = InitAlloca(args.names[i], args.typeNames[i], Builder);
+            varManager.DefineVar(args.names[i], false, Alloca, args.typeNames[i]);
+        }
+
         visit(ctx->funcBody());
+        varManager.pop();
         FuncStack.pop();
         return nullptr;
     }
@@ -142,7 +175,6 @@ namespace Riddle {
         Builder.CreateBr(condBlock);
 
         Builder.SetInsertPoint(AfterBlock);
-
         return nullptr;
     }
 

@@ -1,10 +1,5 @@
 package main;
 fun main(){
-    var a:bool;
-    a = true;
-    while(a){
-        a = false
-        printf("%d",2)
-    }
+    printf("%d",a);
     return 0;
 }

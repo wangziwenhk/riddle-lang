@@ -62,6 +62,10 @@ namespace Riddle {
         /// @param ctx PrintContext*
         /// @returns nullptr
         std::any visitPrintf(RiddleParser::PrintfContext *ctx) override;
+        /// @brief 获取参数列表
+        /// @param ctx ArgsExprContext*
+        /// @returns std::vector\<llvm::Type*\>
+        std::any visitDefineArgs(RiddleParser::DefineArgsContext *ctx) override;
         /// @brief 定义/声明一个变量
         /// @param ctx VarDefineStatementContext*
         /// @returns nullptr
