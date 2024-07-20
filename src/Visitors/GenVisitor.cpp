@@ -110,14 +110,14 @@ namespace Riddle {
     }
     std::any GenVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
         std::string name = ctx->name->getText();
-        if(ctx->type == nullptr) {//需要类型推断
+        if(ctx->type == nullptr) {
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
             throw std::logic_error("没实现");
-        } else if(ctx->value == nullptr) {//声明
+        } else if(ctx->value == nullptr) {
             std::string type = ctx->type->getText();
             llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
             varManager.defineVar(name, false, Alloca, type);
-        } else {//完整的定义
+        } else {
             std::string type = ctx->type->getText();
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
             llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
@@ -163,18 +163,43 @@ namespace Riddle {
     std::any GenVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
         llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(globalContext, "while.cond", FuncStack.top());
         llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(globalContext, "while.loop", FuncStack.top());
-        llvm::BasicBlock *AfterBlock = llvm::BasicBlock::Create(globalContext, "while.end", FuncStack.top());
+        llvm::BasicBlock *afterBlock = llvm::BasicBlock::Create(globalContext, "while.end", FuncStack.top());
 
         Builder.CreateBr(condBlock);
         Builder.SetInsertPoint(condBlock);
         auto Cond = any_cast<llvm::Value *>(visit(ctx->runCond));
-        Builder.CreateCondBr(Cond, loopBlock, AfterBlock);
+        Builder.CreateCondBr(Cond, loopBlock, afterBlock);
+
+        varManager.push();
+        Builder.SetInsertPoint(loopBlock);
+        visit(ctx->body);
+        Builder.CreateBr(condBlock);
+        varManager.pop();
+
+        Builder.SetInsertPoint(afterBlock);
+        return nullptr;
+    }
+    std::any GenVisitor::visitForStatement(RiddleParser::ForStatementContext *ctx) {
+        llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(globalContext, "for.cond", FuncStack.top());
+        llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(globalContext, "for.loop", FuncStack.top());
+        llvm::BasicBlock *afterBlock = llvm::BasicBlock::Create(globalContext, "for.end", FuncStack.top());
+
+        //这里我们认为这个变量的作用域在 for 里面，但是实际上是在 for 的外面，但是外面获取不到这个变量的信息
+        varManager.push();
+        if(ctx->init){
+            visit(ctx->init);
+        }
+        Builder.CreateBr(condBlock);
+        Builder.SetInsertPoint(condBlock);
+        auto Cond = any_cast<llvm::Value *>(visit(ctx->termCond));
+        Builder.CreateCondBr(Cond, loopBlock, afterBlock);
 
         Builder.SetInsertPoint(loopBlock);
         visit(ctx->body);
         Builder.CreateBr(condBlock);
 
-        Builder.SetInsertPoint(AfterBlock);
+        Builder.SetInsertPoint(afterBlock);
+        varManager.pop();
         return nullptr;
     }
 

@@ -87,6 +87,10 @@ namespace Riddle {
         /// @param ctx WhileStatementContext*
         /// @returns nullptr
         std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override;
+        /// @brief for 语句 ( 控制流 )
+        /// @param ctx ForStatementContext*
+        /// @returns nullptr
+        std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override;
     };
 }// namespace Riddle
 
