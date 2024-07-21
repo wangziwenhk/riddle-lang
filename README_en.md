@@ -1,11 +1,11 @@
+```markdown
 <p style="text-align: center;">
   <img src="./resources/logo.svg" alt="Logo" width="400" height="400">
 </p>
 
-
 # Riddle Language
 
-[简体中文](./README.md) | English
+简体中文 | [English](./README_en.md)
 
 ![Static Badge](https://img.shields.io/badge/C%2B%2B-20-green?logo=C%2B%2B)
 ![Static Badge](https://img.shields.io/badge/LLVM-18.1.8-purple?logo=LLVm)
@@ -17,7 +17,7 @@ Riddle Language is a memory-safe programming language designed to replace Rust.
 
 ## Note
 
-Riddle is still incomplete and is in the early stages of development.
+Riddle is still incomplete and is currently in the early stages of development.
 
 ## Features
 
@@ -41,9 +41,21 @@ Riddle is still incomplete and is in the early stages of development.
 - [![Static Badge](https://img.shields.io/badge/LLVM-8A2BE2?logo=llvm)](https://github.com/llvm/llvm-project)
 - [![Static Badge](https://img.shields.io/badge/Antlr4-red)](https://github.com/antlr/antlr4)
 
-This project uses the [**Apache License 2.0**](https://www.apache.org/licenses/LICENSE-2.0.html) for open-source code.
-This license requires **retaining the original copyright notice, license notice, and disclaimer when modifying and
-distributing the software**; it allows users to freely use, modify, copy, and distribute Apache-licensed software for
-both commercial and non-commercial purposes; it allows users to release modified products or derivatives under different
-licenses, but the unmodified parts must retain the Apache License; the Apache License provides no warranty of any kind,
-and users are solely responsible for any damages resulting from the use of the software.
+## Main Developers
+
+This project is developed by the [Third-tier-Tuning](https://github.com/Third-tier-Tuning) laboratory.
+
+## License
+
+This project is open-sourced under the [**Apache License 2.0**](https://www.apache.org/licenses/LICENSE-2.0.html). This
+license requires:
+
+- **Retention of the original copyright notice, license statement, and disclaimer when modifying and distributing the
+  software**;
+- Allows users to freely use, modify, copy, and distribute software licensed under Apache, whether for commercial or
+  non-commercial purposes;
+- Allows users to release modified or derivative products under different licenses, but the unmodified parts must retain
+  the Apache License;
+- The Apache License does not provide any form of warranty, and users are fully responsible for any damages caused by
+  using the software.
+```
