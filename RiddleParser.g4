@@ -100,8 +100,8 @@ expression
     | left=expression Add right=expression                  #addExpr        // x+y
     | left=expression Sub right=expression                  #subExpr        // x-y
     | left=expression LeftLeft right=expression             #shlExpr        // x<<y
-    | left=expression RightRight right=expression           #ashrExpr  // x>>y
-    | left=expression RightRightRight right=expression      #lshrExpr  // x>>>y
+    | left=expression RightRight right=expression           #aShrExpr  // x>>y
+    | left=expression RightRightRight right=expression      #lShrExpr  // x>>>y
     | left=expression Greater right=expression              #greaterExpr    // x>y
     | left=expression Less   right=expression               #lessExpr       // x<y
     | left=expression Greater Assign right=expression       #greaterEqualExpr // x>=y

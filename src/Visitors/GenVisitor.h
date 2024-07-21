@@ -25,6 +25,7 @@ namespace Riddle {
         /// @returns llvm::Value*
         llvm::Value* binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op);
     public:
+        [[maybe_unused]]
         GenVisitor(std::string moduleName);
         /// @brief 程序的根节点
         /// @returns null
@@ -101,10 +102,10 @@ namespace Riddle {
         std::any visitShlExpr(RiddleParser::ShlExprContext *ctx) override;
         /// @brief 有符号右移操作
         /// @returns llvm::Value*
-        std::any visitAshrExpr(RiddleParser::AshrExprContext *ctx) override;
+        std::any visitAShrExpr(RiddleParser::AShrExprContext *ctx) override;
         /// @brief 无符号右移操作
         /// @returns llvm::Value*
-        std::any visitLshrExpr(RiddleParser::LshrExprContext *ctx) override;
+        std::any visitLShrExpr(RiddleParser::LShrExprContext *ctx) override;
         /// @brief 异或操作
         /// @returns llvm::Value*
         std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override;
@@ -114,6 +115,12 @@ namespace Riddle {
         /// @brief 按位或操作
         /// @returns llvm::Value*
         std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override;
+        /// @brief 大于操作
+        /// @returns llvm::Value*
+        std::any visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) override;
+        /// @brief 小于操作
+        /// @returns llvm::Value*
+        std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override;
     };
 }// namespace Riddle
 

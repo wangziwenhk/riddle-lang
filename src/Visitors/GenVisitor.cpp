@@ -13,6 +13,7 @@
 #include <system_error>
 
 namespace Riddle {
+    [[maybe_unused]]
     GenVisitor::GenVisitor(std::string moduleName): Builder(globalContext) {
         module = new llvm::Module(moduleName, globalContext);
         // print 函数
@@ -201,33 +202,33 @@ namespace Riddle {
         return visit(ctx->expr);
     }
     llvm::Value *GenVisitor::binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op) {
+        static const std::unordered_map<std::string, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>> opMap = {
+                {"+", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAdd(v1, v2, "AddV"); }},
+                {"-", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateSub(v1, v2, "SubV"); }},
+                {"*", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateMul(v1, v2, "MulV"); }},
+                {"/", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateFDiv(v1, v2, "DivV"); }},
+                {"<<", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateShl(v1, v2, "ShlV"); }},
+                {">>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAShr(v1, v2, "AShrV"); }},
+                {">>>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateLShr(v1, v2, "LShrV"); }},
+                {"^", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateXor(v1, v2, "XorV"); }},
+                {"&", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAnd(v1, v2, "AndV"); }},
+                {"|", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateOr(v1, v2, "OrV"); }},
+                {">", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSGT(v1, v2, "cmpV"); }},
+                {">=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSGE(v1, v2, "cmpV"); }},
+                {"<", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLT(v1, v2, "cmpV"); }},
+                {"<=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLE(v1, v2, "cmpV"); }}};
+
         std::string typeName = getTypeName(value1->getType());
         // todo 实现类的二元运算符
         if(value1->getType()->isStructTy()) {
             throw std::logic_error("还没实现");
         } else {//基本类型处理
-            if(op == "+") {
-                return Builder.CreateAdd(value1, value2, "AddV");
-            } else if(op == "-") {
-                return Builder.CreateSub(value1, value2, "SubV");
-            } else if(op == "*") {
-                return Builder.CreateMul(value1, value2, "MulV");
-            } else if(op == "/") {
-                return Builder.CreateFDiv(value1, value2, "DivV");
-            } else if(op == "<<") {
-                return Builder.CreateShl(value1, value2, "ShlV");
-            } else if(op == ">>") {//有符号右移
-                return Builder.CreateAShr(value1, value2, "AShrV");
-            } else if(op == ">>>") {//无符号右移
-                return Builder.CreateLShr(value1, value2, "LShrV");
-            } else if(op == "^") {
-                return Builder.CreateXor(value1, value2, "XorV");
-            } else if(op == "&") {
-                return Builder.CreateAnd(value1, value2, "AndV");
-            } else if(op == "|") {
-                return Builder.CreateOr(value1, value2, "OrV");
+            auto it = opMap.find(op);
+            if(it != opMap.end()) {
+                return it->second(Builder, value1, value2);
             }
         }
+
         return nullptr;
     }
     std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
@@ -261,12 +262,12 @@ namespace Riddle {
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
         return binaryOperator(value1, value2, "<<");
     }
-    std::any GenVisitor::visitAshrExpr(RiddleParser::AshrExprContext *ctx) {
+    std::any GenVisitor::visitAShrExpr(RiddleParser::AShrExprContext *ctx) {
         auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
         return binaryOperator(value1, value2, ">>");
     }
-    std::any GenVisitor::visitLshrExpr(RiddleParser::LshrExprContext *ctx) {
+    std::any GenVisitor::visitLShrExpr(RiddleParser::LShrExprContext *ctx) {
         auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
         return binaryOperator(value1, value2, ">>>");
@@ -285,6 +286,16 @@ namespace Riddle {
         auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
         return binaryOperator(value1, value2, "|");
+    }
+    std::any GenVisitor::visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, ">");
+    }
+    std::any GenVisitor::visitLessExpr(RiddleParser::LessExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "<");
     }
 
 

@@ -59,15 +59,15 @@ void riddlelexerLexerInitialize() {
     std::vector<std::string>{
       "Var", "Val", "For", "While", "If", "Else", "Func", "Return", "Import", 
       "Package", "Class", "Public", "Protected", "Private", "Override", 
-      "Printf", "True", "False", "LeftBracket", "RightBracket", "LeftCurly", 
-      "RightCurly", "Colon", "Semi", "Comma", "Equal", "Assign", "Greater",
+      "Printf", "True", "False", "LeftBracket", "RightBracket", "LeftCurly",
+                  "RightCurly", "Colon", "Semi", "Comma", "Equal", "Assign", "Greater",
                   "Less", "LeftLeft", "RightRight", "RightRightRight", "Add", "Sub",
                   "Star", "Div", "Mod", "Not", "And", "Or", "Xor", "Dot", "DoubleQuotes",
                   "Quotes", "Endl", "Identifier", "Hexadecimal", "Decimal", "Octal",
                   "Binary", "Float", "IntegerSequence", "HEX_DIGIT", "OCTAL_DIGIT",
                   "BINARY_DIGIT", "DIGIT", "STRING", "ESC", "LINE_COMMENT", "BLOCK_COMMENT",
                   "WHITESPACE"},
-    std::vector<std::string>{
+          std::vector<std::string>{
       "DEFAULT_TOKEN_CHANNEL", "HIDDEN"
     },
     std::vector<std::string>{
@@ -76,26 +76,25 @@ void riddlelexerLexerInitialize() {
     std::vector<std::string>{
       "", "'var'", "'val'", "'for'", "'while'", "'if'", "'else'", "'fun'", 
       "'return'", "'import'", "'package'", "'class'", "'public'", "'protected'", 
-      "'Private'", "'override'", "'printf'", "'true'", "'false'", "'('", 
-      "')'", "'{'", "'}'", "':'", "';'", "','", "'=='", "'='", "'>'", "'<'",
+      "'Private'", "'override'", "'printf'", "'true'", "'false'", "'('",
+                  "')'", "'{'", "'}'", "':'", "';'", "','", "'=='", "'='", "'>'", "'<'",
                   "'<<'", "'>>'", "'>>>'", "'+'", "'-'", "'*'", "'/'", "'%'", "'!'",
                   "'&'", "'|'", "'^'", "'.'", "'\"'", "'''", "'\\n'"},
-    std::vector<std::string>{
+          std::vector<std::string>{
       "", "Var", "Val", "For", "While", "If", "Else", "Func", "Return", 
       "Import", "Package", "Class", "Public", "Protected", "Private", "Override", 
-      "Printf", "True", "False", "LeftBracket", "RightBracket", "LeftCurly", 
-      "RightCurly", "Colon", "Semi", "Comma", "Equal", "Assign", "Greater",
+      "Printf", "True", "False", "LeftBracket", "RightBracket", "LeftCurly",
+                  "RightCurly", "Colon", "Semi", "Comma", "Equal", "Assign", "Greater",
                   "Less", "LeftLeft", "RightRight", "RightRightRight", "Add", "Sub",
                   "Star", "Div", "Mod", "Not", "And", "Or", "Xor", "Dot", "DoubleQuotes",
                   "Quotes", "Endl", "Identifier", "Hexadecimal", "Decimal", "Octal",
                   "Binary", "Float", "IntegerSequence", "HEX_DIGIT", "OCTAL_DIGIT",
                   "BINARY_DIGIT", "DIGIT", "STRING", "LINE_COMMENT", "BLOCK_COMMENT",
-                  "WHITESPACE"}
-  );
+                  "WHITESPACE"});
   static const int32_t serializedATNSegment[] = {
           4, 0, 60, 400, 6, -1, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7,
-          6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,
-  	7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,
+          6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14,
+          7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,
   	7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,
   	7,28,2,29,7,29,2,30,7,30,2,31,7,31,2,32,7,32,2,33,7,33,2,34,7,34,2,35,
   	7,35,2,36,7,36,2,37,7,37,2,38,7,38,2,39,7,39,2,40,7,40,2,41,7,41,2,42,

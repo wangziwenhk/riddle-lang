@@ -68,6 +68,9 @@ public:
   virtual void enterModExpr(RiddleParser::ModExprContext *ctx) = 0;
   virtual void exitModExpr(RiddleParser::ModExprContext *ctx) = 0;
 
+  virtual void enterLShrExpr(RiddleParser::LShrExprContext *ctx) = 0;
+  virtual void exitLShrExpr(RiddleParser::LShrExprContext *ctx) = 0;
+
   virtual void enterNegativeExpr(RiddleParser::NegativeExprContext *ctx) = 0;
   virtual void exitNegativeExpr(RiddleParser::NegativeExprContext *ctx) = 0;
 
@@ -97,9 +100,6 @@ public:
 
   virtual void enterBitXorExpr(RiddleParser::BitXorExprContext *ctx) = 0;
   virtual void exitBitXorExpr(RiddleParser::BitXorExprContext *ctx) = 0;
-
-  virtual void enterAshrExpr(RiddleParser::AshrExprContext *ctx) = 0;
-  virtual void exitAshrExpr(RiddleParser::AshrExprContext *ctx) = 0;
 
   virtual void enterStringExpr(RiddleParser::StringExprContext *ctx) = 0;
   virtual void exitStringExpr(RiddleParser::StringExprContext *ctx) = 0;
@@ -140,6 +140,9 @@ public:
   virtual void enterBooleanExpr(RiddleParser::BooleanExprContext *ctx) = 0;
   virtual void exitBooleanExpr(RiddleParser::BooleanExprContext *ctx) = 0;
 
+  virtual void enterAShrExpr(RiddleParser::AShrExprContext *ctx) = 0;
+  virtual void exitAShrExpr(RiddleParser::AShrExprContext *ctx) = 0;
+
   virtual void enterLessExpr(RiddleParser::LessExprContext *ctx) = 0;
   virtual void exitLessExpr(RiddleParser::LessExprContext *ctx) = 0;
 
@@ -148,9 +151,6 @@ public:
 
   virtual void enterSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext *ctx) = 0;
   virtual void exitSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext *ctx) = 0;
-
-  virtual void enterLshrExpr(RiddleParser::LshrExprContext *ctx) = 0;
-  virtual void exitLshrExpr(RiddleParser::LshrExprContext *ctx) = 0;
 
   virtual void enterLshrAssignExpr(RiddleParser::LshrAssignExprContext *ctx) = 0;
   virtual void exitLshrAssignExpr(RiddleParser::LshrAssignExprContext *ctx) = 0;

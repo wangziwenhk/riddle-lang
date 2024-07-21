@@ -70,6 +70,9 @@ public:
   virtual void enterModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
   virtual void exitModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
 
+  virtual void enterLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override {}
+  virtual void exitLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override {}
+
   virtual void enterNegativeExpr(RiddleParser::NegativeExprContext * /*ctx*/) override { }
   virtual void exitNegativeExpr(RiddleParser::NegativeExprContext * /*ctx*/) override { }
 
@@ -99,9 +102,6 @@ public:
 
   virtual void enterBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
   virtual void exitBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
-
-  virtual void enterAshrExpr(RiddleParser::AshrExprContext * /*ctx*/) override {}
-  virtual void exitAshrExpr(RiddleParser::AshrExprContext * /*ctx*/) override {}
 
   virtual void enterStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
   virtual void exitStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
@@ -142,6 +142,9 @@ public:
   virtual void enterBooleanExpr(RiddleParser::BooleanExprContext * /*ctx*/) override { }
   virtual void exitBooleanExpr(RiddleParser::BooleanExprContext * /*ctx*/) override { }
 
+  virtual void enterAShrExpr(RiddleParser::AShrExprContext * /*ctx*/) override {}
+  virtual void exitAShrExpr(RiddleParser::AShrExprContext * /*ctx*/) override {}
+
   virtual void enterLessExpr(RiddleParser::LessExprContext * /*ctx*/) override { }
   virtual void exitLessExpr(RiddleParser::LessExprContext * /*ctx*/) override { }
 
@@ -150,9 +153,6 @@ public:
 
   virtual void enterSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext * /*ctx*/) override { }
   virtual void exitSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext * /*ctx*/) override { }
-
-  virtual void enterLshrExpr(RiddleParser::LshrExprContext * /*ctx*/) override {}
-  virtual void exitLshrExpr(RiddleParser::LshrExprContext * /*ctx*/) override {}
 
   virtual void enterLshrAssignExpr(RiddleParser::LshrAssignExprContext * /*ctx*/) override {}
   virtual void exitLshrAssignExpr(RiddleParser::LshrAssignExprContext * /*ctx*/) override {}
