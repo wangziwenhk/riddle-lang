@@ -9,14 +9,17 @@ namespace Riddle {
     llvm::Type *getType(std::string type, llvm::IRBuilder<> &Builder);
     std::vector<llvm::Type *> getTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder);
 
+    /// @brief 获取类型名称 (可能的?)
+    std::string getTypeName(llvm::Type *type);
+
     llvm::AllocaInst *initAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder);
-    bool isBooleanTy(llvm::Value *value);
     bool isTerminalNode(antlr4::tree::ParseTree *tree);
     bool isIdentifier(antlr4::tree::ParseTree *tree);
     struct DefineArgsType {
         std::vector<std::string> typeNames;
         std::vector<std::string> names;
     };
+
 }// namespace Riddle
 
 #endif//RIDDLE_LANGUAGE_GENTOOLS_H

@@ -154,12 +154,7 @@ namespace Riddle {
         p = Builder.getInt1(ctx->value);
         return p;
     }
-    std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
-        auto value = any_cast<llvm::Value *>(visit(ctx->right));
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
-        Builder.CreateStore(value, var);
-        return value;
-    }
+
     std::any GenVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
         llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(globalContext, "while.cond", FuncStack.top());
         llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(globalContext, "while.loop", FuncStack.top());
@@ -186,7 +181,7 @@ namespace Riddle {
 
         //这里我们认为这个变量的作用域在 for 里面，但是实际上是在 for 的外面，但是外面获取不到这个变量的信息
         varManager.push();
-        if(ctx->init){
+        if(ctx->init) {
             visit(ctx->init);
         }
         Builder.CreateBr(condBlock);
@@ -201,6 +196,31 @@ namespace Riddle {
         Builder.SetInsertPoint(afterBlock);
         varManager.pop();
         return nullptr;
+    }
+    std::any GenVisitor::visitBracketExpr(RiddleParser::BracketExprContext *ctx) {
+        return visit(ctx->expr);
+    }
+    llvm::Value* GenVisitor::binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op) {
+        std::string typeName = getTypeName(value1->getType());
+        // todo 实现类的二元运算符
+        if(value1->getType()->isStructTy()) {
+            throw std::logic_error("还没实现");
+        } else {//基本类型处理
+            if(op == "+") {
+                return Builder.CreateAdd(value1, value2, "sum");
+            }
+        }
+    }
+    std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        Builder.CreateStore(value, var);
+        return value;
+    }
+    std::any GenVisitor::visitAddExpr(RiddleParser::AddExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1,value2,"+");
     }
 
 
