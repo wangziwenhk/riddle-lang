@@ -200,16 +200,35 @@ namespace Riddle {
     std::any GenVisitor::visitBracketExpr(RiddleParser::BracketExprContext *ctx) {
         return visit(ctx->expr);
     }
-    llvm::Value* GenVisitor::binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op) {
+    llvm::Value *GenVisitor::binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op) {
         std::string typeName = getTypeName(value1->getType());
         // todo 实现类的二元运算符
         if(value1->getType()->isStructTy()) {
             throw std::logic_error("还没实现");
         } else {//基本类型处理
             if(op == "+") {
-                return Builder.CreateAdd(value1, value2, "sum");
+                return Builder.CreateAdd(value1, value2, "AddV");
+            } else if(op == "-") {
+                return Builder.CreateSub(value1, value2, "SubV");
+            } else if(op == "*") {
+                return Builder.CreateMul(value1, value2, "MulV");
+            } else if(op == "/") {
+                return Builder.CreateFDiv(value1, value2, "DivV");
+            } else if(op == "<<") {
+                return Builder.CreateShl(value1, value2, "ShlV");
+            } else if(op == ">>") {//有符号右移
+                return Builder.CreateAShr(value1, value2, "AShrV");
+            } else if(op == ">>>") {//无符号右移
+                return Builder.CreateLShr(value1, value2, "LShrV");
+            } else if(op == "^") {
+                return Builder.CreateXor(value1, value2, "XorV");
+            } else if(op == "&") {
+                return Builder.CreateAnd(value1, value2, "AndV");
+            } else if(op == "|") {
+                return Builder.CreateOr(value1, value2, "OrV");
             }
         }
+        return nullptr;
     }
     std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
@@ -220,7 +239,52 @@ namespace Riddle {
     std::any GenVisitor::visitAddExpr(RiddleParser::AddExprContext *ctx) {
         auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
-        return binaryOperator(value1,value2,"+");
+        return binaryOperator(value1, value2, "+");
+    }
+    std::any GenVisitor::visitSubExpr(RiddleParser::SubExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "-");
+    }
+    std::any GenVisitor::visitMulExpr(RiddleParser::MulExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "*");
+    }
+    std::any GenVisitor::visitDivExpr(RiddleParser::DivExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "/");
+    }
+    std::any GenVisitor::visitShlExpr(RiddleParser::ShlExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "<<");
+    }
+    std::any GenVisitor::visitAshrExpr(RiddleParser::AshrExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, ">>");
+    }
+    std::any GenVisitor::visitLshrExpr(RiddleParser::LshrExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, ">>>");
+    }
+    std::any GenVisitor::visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "^");
+    }
+    std::any GenVisitor::visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "&");
+    }
+    std::any GenVisitor::visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "|");
     }
 
 

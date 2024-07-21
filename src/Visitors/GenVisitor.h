@@ -87,6 +87,33 @@ namespace Riddle {
         /// @brief 相加操作
         /// @returns llvm::Value*
         std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override;
+        /// @brief 相减操作
+        /// @returns llvm::Value*
+        std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override;
+        /// @brief 相乘操作
+        /// @returns llvm::Value*
+        std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override;
+        /// @brief 相除操作
+        /// @returns llvm::Value*
+        std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override;
+        /// @brief 左移操作
+        /// @returns llvm::Value*
+        std::any visitShlExpr(RiddleParser::ShlExprContext *ctx) override;
+        /// @brief 有符号右移操作
+        /// @returns llvm::Value*
+        std::any visitAshrExpr(RiddleParser::AshrExprContext *ctx) override;
+        /// @brief 无符号右移操作
+        /// @returns llvm::Value*
+        std::any visitLshrExpr(RiddleParser::LshrExprContext *ctx) override;
+        /// @brief 异或操作
+        /// @returns llvm::Value*
+        std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override;
+        /// @brief 按位与操作
+        /// @returns llvm::Value*
+        std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override;
+        /// @brief 按位或操作
+        /// @returns llvm::Value*
+        std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override;
     };
 }// namespace Riddle
 

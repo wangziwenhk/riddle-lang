@@ -94,13 +94,14 @@ expression
     | expr=objectExpr Add Add                               #selfAddRightExpr // x++
     | Sub Sub expr=objectExpr                               #selfSubLeftExpr // ++x
     | expr=objectExpr Sub Sub                               #selfSubRightExpr // x++
-    | left=expression Star right=expression                 #starExpr       // x*y
+    | left=expression Star right=expression                 #mulExpr        // x*y
     | left=expression Div  right=expression                 #divExpr        // x/y
     | left=expression Mod right=expression                  #modExpr        // x%y
     | left=expression Add right=expression                  #addExpr        // x+y
     | left=expression Sub right=expression                  #subExpr        // x-y
-    | left=expression LeftLeft right=expression             #leftLeftExpr   // x<<y
-    | left=expression RightRight right=expression           #rightRightExpr // x>>y
+    | left=expression LeftLeft right=expression             #shlExpr        // x<<y
+    | left=expression RightRight right=expression           #ashrExpr  // x>>y
+    | left=expression RightRightRight right=expression      #lshrExpr  // x>>>y
     | left=expression Greater right=expression              #greaterExpr    // x>y
     | left=expression Less   right=expression               #lessExpr       // x<y
     | left=expression Greater Assign right=expression       #greaterEqualExpr // x>=y
@@ -115,15 +116,16 @@ expression
     | left=objectExpr Assign right=expression               #assignExpr     // x=y
     | left=objectExpr Add Assign right=expression           #addAssignExpr     // x+=y
     | left=objectExpr Sub Assign right=expression           #subAssignExpr     // x-=y
-    | left=objectExpr Star Assign right=expression          #starAssignExpr    // x*=y
+    | left=objectExpr Star Assign right=expression          #mulAssignExpr    // x*=y
     | left=objectExpr Div Assign right=expression           #divAssignExpr     // x/=y
     | left=objectExpr Mod Assign right=expression           #modAssignExpr     // x%=y
     | left=objectExpr Add Assign right=expression           #addAssignExpr     // x+=y
     | left=objectExpr And Assign right=expression           #andAssignExpr          // x&=y
     | left=objectExpr Or  Assign right=expression           #orAssignExpr           // x|=y
     | left=objectExpr Xor Assign right=expression           #xorAssignExpr          // x^=y
-    | left=objectExpr LeftLeft Assign right=expression      #leftLeftAssignExpr     // x<<=y
-    | left=objectExpr RightRight Assign right=expression    #rightRightAssignExpr   // x>>=y
+    | left=objectExpr LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
+    | left=objectExpr RightRight Assign right=expression    #ashrAssignExpr   // x>>=y
+    | left=objectExpr RightRightRight Assign right=expression    #lshrAssignExpr   // x>>>=y
     | string                                                #stringExpr
     | number                                                #numberExpr
     | boolean                                               #booleanExpr
