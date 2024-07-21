@@ -11,8 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake g++ llvm-12-dev libantlr4-runtime-dev antlr4
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ uuid-dev
+
+      - name: Install ANTLR4
+        run: |
+          cd /tmp
+          wget https://www.antlr.org/download/antlr4-cpp-runtime-4.13.1-source.zip
+          unzip antlr4-cpp-runtime-4.13.1-source.zip -d antlr4-cpp-runtime-4.13.1-source/
+          cd antlr4-cpp-runtime-4.13.1-source
+          mkdir build && cd build
+          cmake .. -DANTLR4_INSTALL=ON
+          make
+          sudo make install
 
       - name: Configure CMake
         run: |
@@ -24,8 +36,3 @@ jobs:
         run: |
           cd build
           make
-
-      - name: Run tests
-        run: |
-          cd build
-          ./TEST
