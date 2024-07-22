@@ -213,11 +213,18 @@ namespace Riddle {
                 {">>>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateLShr(v1, v2, "LShrV"); }},
                 {"^", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateXor(v1, v2, "XorV"); }},
                 {"&", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAnd(v1, v2, "AndV"); }},
+                {"&&", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAnd(v1, v2, "LAndV"); }},
                 {"|", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateOr(v1, v2, "OrV"); }},
+                {"||", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateOr(v1, v2, "LOrV"); }},
                 {">", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSGT(v1, v2, "cmpV"); }},
                 {">=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSGE(v1, v2, "cmpV"); }},
                 {"<", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLT(v1, v2, "cmpV"); }},
-                {"<=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLE(v1, v2, "cmpV"); }}};
+                {"<=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLE(v1, v2, "cmpV"); }},
+                {"!=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) {
+                     if(v1->getType()->isFloatingPointTy()) return builder.CreateFCmpUNE(v1, v2, "fne");
+                     else
+                         return builder.CreateICmpNE(v1, v2, "ne");
+                 }}};
 
         std::string typeName = getTypeName(value1->getType());
         // todo 实现类的二元运算符
@@ -316,6 +323,21 @@ namespace Riddle {
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
         return binaryOperator(value1, value2, ">=");
     }
+    std::any GenVisitor::visitAndExpr(RiddleParser::AndExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "&&");
+    }
+    std::any GenVisitor::visitOrExpr(RiddleParser::OrExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "||");
+    }
+    std::any GenVisitor::visitNotEqualExpr(RiddleParser::NotEqualExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "!=");
+    }
     // endregion
     // region 赋值的双目运算
     std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
@@ -379,7 +401,5 @@ namespace Riddle {
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "^=");
     }
-
-
     // endregion
 }// namespace Riddle

@@ -107,7 +107,7 @@ expression
     | left=expression Greater Assign right=expression       #greaterEqualExpr // x>=y
     | left=expression Less Assign right=expression          #lessEqualExpr  // x<=y
     | left=expression Equal  right=expression               #equalExpr      // x==y
-    | left=expression Not Equal right=expression            #notEqualExpr   // x!=y
+    | left=expression Not Assign right=expression           #notEqualExpr   // x!=y
     | left=expression And right=expression                  #bitAndExpr     // x&y
     | left=expression Xor right=expression                  #bitXorExpr     // x^y
     | left=expression Or right=expression                   #bitOrExpr      // x|y

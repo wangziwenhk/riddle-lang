@@ -671,7 +671,7 @@ public:
     RiddleParser::ExpressionContext *left = nullptr;
     RiddleParser::ExpressionContext *right = nullptr;
     antlr4::tree::TerminalNode *Not();
-    antlr4::tree::TerminalNode *Equal();
+    antlr4::tree::TerminalNode *Assign();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;

@@ -137,6 +137,15 @@ namespace Riddle {
         /// @brief 大于等于操作
         /// @returns llvm::Value*
         std::any visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) override;
+        /// @brief 逻辑与运算
+        /// @returns llvm::Value*
+        std::any visitAndExpr(RiddleParser::AndExprContext *ctx) override;
+        /// @brief 逻辑或运算
+        /// @returns llvm::Value*
+        std::any visitOrExpr(RiddleParser::OrExprContext *ctx) override;
+        /// @brief 不等于运算
+        /// @returns llvm::Value*
+        std::any visitNotEqualExpr(RiddleParser::NotEqualExprContext *ctx) override;
         // endregion
         // region 赋值的双目运算
         /// @brief 赋值语句

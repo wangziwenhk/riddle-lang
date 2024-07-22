@@ -196,8 +196,8 @@ void riddleparserParserInitialize() {
   	324,325,10,26,0,0,325,326,5,28,0,0,326,327,5,27,0,0,327,357,3,30,15,27,
   	328,329,10,25,0,0,329,330,5,29,0,0,330,331,5,27,0,0,331,357,3,30,15,26,
   	332,333,10,24,0,0,333,334,5,26,0,0,334,357,3,30,15,25,335,336,10,23,0,
-  	0,336,337,5,38,0,0,337,338,5,26,0,0,338,357,3,30,15,24,339,340,10,22,
-  	0,0,340,341,5,39,0,0,341,357,3,30,15,23,342,343,10,21,0,0,343,344,5,41,
+          0, 336, 337, 5, 38, 0, 0, 337, 338, 5, 27, 0, 0, 338, 357, 3, 30, 15, 24, 339, 340, 10, 22,
+          0,0,340,341,5,39,0,0,341,357,3,30,15,23,342,343,10,21,0,0,343,344,5,41,
   	0,0,344,357,3,30,15,22,345,346,10,20,0,0,346,347,5,40,0,0,347,357,3,30,
   	15,21,348,349,10,19,0,0,349,350,5,39,0,0,350,351,5,39,0,0,351,357,3,30,
   	15,20,352,353,10,18,0,0,353,354,5,40,0,0,354,355,5,40,0,0,355,357,3,30,
@@ -2443,8 +2443,8 @@ tree::TerminalNode* RiddleParser::NotEqualExprContext::Not() {
   return getToken(RiddleParser::Not, 0);
 }
 
-tree::TerminalNode* RiddleParser::NotEqualExprContext::Equal() {
-  return getToken(RiddleParser::Equal, 0);
+tree::TerminalNode *RiddleParser::NotEqualExprContext::Assign() {
+    return getToken(RiddleParser::Assign, 0);
 }
 
 std::vector<RiddleParser::ExpressionContext *> RiddleParser::NotEqualExprContext::expression() {
@@ -3864,7 +3864,7 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           setState(336);
           match(RiddleParser::Not);
           setState(337);
-          match(RiddleParser::Equal);
+          match(RiddleParser::Assign);
           setState(338);
           antlrcpp::downCast<NotEqualExprContext *>(_localctx)->right = expression(24);
           break;
