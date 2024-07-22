@@ -16,14 +16,21 @@ namespace Riddle {
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
         llvm::Module *module;
-
-    public:// 工具
+        // region 工具
+    public:
         /// @brief 用于处理二元操作
-        /// @param value1 需要进行二元操作的变量
-        /// @param value2 值
+        /// @param value1 值1
+        /// @param value2 值2
         /// @param op 二元操作符
         /// @returns llvm::Value*
-        llvm::Value* binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op);
+        llvm::Value *binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op);
+        /// @brief 用于处理赋值的二元操作
+        /// @param var 变量
+        /// @param value 值
+        /// @param op 操作符
+        /// @returns llvm::Value*
+        llvm::Value *assignBinaryOp(llvm::AllocaInst *var, llvm::Value *value, std::string op);
+        // endregion
     public:
         [[maybe_unused]]
         GenVisitor(std::string moduleName);
@@ -42,6 +49,7 @@ namespace Riddle {
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override;
         /// @brief 结束一个函数
         /// @returns nullptr
+        // region 常量
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override;
         /// @brief 用于生成一个显式的 int 常量
         /// @return llvm::Value*
@@ -52,6 +60,10 @@ namespace Riddle {
         /// @brief 用于生成一个显式的 string 常量
         /// @returns llvm::Value*
         std::any visitString(RiddleParser::StringContext *ctx) override;
+        /// @brief 用于生成一个显式的 boolean 常量
+        /// @returns llvm::Value*
+        std::any visitBoolean(RiddleParser::BooleanContext *ctx) override;
+        // endregion
         /// @brief 用于获取当前作用域下的某个对象或变量
         /// @warning 这里只有该源文件的当前作用域的变量可能被调用，且需要使用全限定名
         /// @returns llvm::AllocaInst*
@@ -73,18 +85,13 @@ namespace Riddle {
         /// @returns nullptr
         /// @todo 预计改为有表达式的类型
         std::any visitIfStatement(RiddleParser::IfStatementContext *ctx) override;
-        /// @brief 布尔类型的常量
-        /// @returns llvm::Value*
-        std::any visitBoolean(RiddleParser::BooleanContext *ctx) override;
-        /// @brief 赋值语句
-        /// @returns llvm::Value,返回的是变量当前的值
-        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override;
         /// @brief while 语句 ( 控制流 )
         /// @returns nullptr
         std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override;
         /// @brief for 语句 ( 控制流 )
         /// @returns nullptr
         std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override;
+        // region 非赋值的双目运算
         /// @brief 相加操作
         /// @returns llvm::Value*
         std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override;
@@ -121,6 +128,54 @@ namespace Riddle {
         /// @brief 小于操作
         /// @returns llvm::Value*
         std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override;
+        /// @brief 模运算
+        /// @returns llvm::Value*
+        std::any visitModExpr(RiddleParser::ModExprContext *ctx) override;
+        /// @brief 小于等于操作
+        /// @returns llvm::Value*
+        std::any visitLessEqualExpr(RiddleParser::LessEqualExprContext *ctx) override;
+        /// @brief 大于等于操作
+        /// @returns llvm::Value*
+        std::any visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) override;
+        // endregion
+        // region 赋值的双目运算
+        /// @brief 赋值语句
+        /// @returns llvm::Value*
+        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override;
+        /// @brief 相加并赋值
+        /// @returns llvm::Value*
+        std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override;
+        /// @brief 相减并赋值
+        /// @returns llvm::Value*
+        std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) override;
+        /// @brief 相乘并赋值
+        /// @returns llvm::Value*
+        std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) override;
+        /// @brief 相除并赋值
+        /// @returns llvm::Value*
+        std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) override;
+        /// @brief 模运算并赋值
+        /// @returns llvm::Value*
+        std::any visitModAssignExpr(RiddleParser::ModAssignExprContext *ctx) override;
+        /// @brief 左移并赋值
+        /// @returns llvm::Value*
+        std::any visitShlAssignExpr(RiddleParser::ShlAssignExprContext *ctx) override;
+        /// @brief 有符号右移并赋值
+        /// @returns llvm::Value*
+        std::any visitAShrAssignExpr(RiddleParser::AShrAssignExprContext *ctx) override;
+        /// @brief 无符号右移并赋值
+        /// @returns llvm::Value*
+        std::any visitLShrAssignExpr(RiddleParser::LShrAssignExprContext *ctx) override;
+        /// @brief 与运算并赋值
+        /// @returns llvm::Value*
+        std::any visitAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) override;
+        /// @brief 或运算并赋值
+        /// @returns llvm::Value*
+        std::any visitOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) override;
+        /// @brief 异或运算并赋值
+        /// @returns llvm::Value*
+        std::any visitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) override;
+        // endregion
     };
 }// namespace Riddle
 

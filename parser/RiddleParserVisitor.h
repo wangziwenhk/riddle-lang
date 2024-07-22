@@ -111,15 +111,15 @@ public:
 
     virtual std::any visitSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext *context) = 0;
 
-    virtual std::any visitLshrAssignExpr(RiddleParser::LshrAssignExprContext *context) = 0;
+    virtual std::any visitLShrAssignExpr(RiddleParser::LShrAssignExprContext *context) = 0;
 
     virtual std::any visitLessEqualExpr(RiddleParser::LessEqualExprContext *context) = 0;
+
+    virtual std::any visitAShrAssignExpr(RiddleParser::AShrAssignExprContext *context) = 0;
 
     virtual std::any visitBitOrExpr(RiddleParser::BitOrExprContext *context) = 0;
 
     virtual std::any visitNotExpr(RiddleParser::NotExprContext *context) = 0;
-
-    virtual std::any visitAshrAssignExpr(RiddleParser::AshrAssignExprContext *context) = 0;
 
     virtual std::any visitAddExpr(RiddleParser::AddExprContext *context) = 0;
 

@@ -124,8 +124,8 @@ expression
     | left=objectExpr Or  Assign right=expression           #orAssignExpr           // x|=y
     | left=objectExpr Xor Assign right=expression           #xorAssignExpr          // x^=y
     | left=objectExpr LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
-    | left=objectExpr RightRight Assign right=expression    #ashrAssignExpr   // x>>=y
-    | left=objectExpr RightRightRight Assign right=expression    #lshrAssignExpr   // x>>>=y
+    | left=objectExpr RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
+    | left=objectExpr RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
     | string                                                #stringExpr
     | number                                                #numberExpr
     | boolean                                               #booleanExpr

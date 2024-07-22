@@ -10,6 +10,7 @@
 ![Static Badge](https://img.shields.io/badge/LLVM-18.1.8-purple?logo=LLVm)
 [![Build](https://github.com/wangziwenhk/Riddle-Language/actions/workflows/main.yml/badge.svg)](https://github.com/wangziwenhk/Riddle-Language/actions/workflows/main.yml)
 
+![](https://starchart.cc/wangziwenhk/Riddle-Language.svg)
 轻便，灵活，现代化的编程语言。
 
 Riddle Language 是一个内存安全的编程语音，用于取代 Rust 而出现。

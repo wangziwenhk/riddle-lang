@@ -207,6 +207,7 @@ namespace Riddle {
                 {"-", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateSub(v1, v2, "SubV"); }},
                 {"*", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateMul(v1, v2, "MulV"); }},
                 {"/", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateFDiv(v1, v2, "DivV"); }},
+                {"%", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateSRem(v1, v2, "ModV"); }},
                 {"<<", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateShl(v1, v2, "ShlV"); }},
                 {">>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAShr(v1, v2, "AShrV"); }},
                 {">>>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateLShr(v1, v2, "LShrV"); }},
@@ -228,15 +229,18 @@ namespace Riddle {
                 return it->second(Builder, value1, value2);
             }
         }
-
         return nullptr;
     }
-    std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
-        auto value = any_cast<llvm::Value *>(visit(ctx->right));
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
-        Builder.CreateStore(value, var);
-        return value;
+    llvm::Value *GenVisitor::assignBinaryOp(llvm::AllocaInst *var, llvm::Value *value, std::string op) {
+        auto loadValue = Builder.CreateLoad(var->getAllocatedType(), var);
+        // 删除后面的等于号
+        auto opt = op;
+        opt.pop_back();
+        auto result = binaryOperator(loadValue, value, opt);
+        Builder.CreateStore(result, var);
+        return result;
     }
+    // region 非赋值的双目运算
     std::any GenVisitor::visitAddExpr(RiddleParser::AddExprContext *ctx) {
         auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
@@ -297,6 +301,85 @@ namespace Riddle {
         auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
         return binaryOperator(value1, value2, "<");
     }
+    std::any GenVisitor::visitModExpr(RiddleParser::ModExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "%");
+    }
+    std::any GenVisitor::visitLessEqualExpr(RiddleParser::LessEqualExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, "<=");
+    }
+    std::any GenVisitor::visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) {
+        auto value1 = any_cast<llvm::Value *>(visit(ctx->left));
+        auto value2 = any_cast<llvm::Value *>(visit(ctx->right));
+        return binaryOperator(value1, value2, ">=");
+    }
+    // endregion
+    // region 赋值的双目运算
+    std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        Builder.CreateStore(value, var);
+        return value;
+    }
+    std::any GenVisitor::visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "+=");
+    }
+    std::any GenVisitor::visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "-=");
+    }
+    std::any GenVisitor::visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "*=");
+    }
+    std::any GenVisitor::visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "/=");
+    }
+    std::any GenVisitor::visitModAssignExpr(RiddleParser::ModAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "%=");
+    }
+    std::any GenVisitor::visitShlAssignExpr(RiddleParser::ShlAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "<<=");
+    }
+    std::any GenVisitor::visitAShrAssignExpr(RiddleParser::AShrAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, ">>=");
+    }
+    std::any GenVisitor::visitLShrAssignExpr(RiddleParser::LShrAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, ">>>=");
+    }
+    std::any GenVisitor::visitAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "&=");
+    }
+    std::any GenVisitor::visitOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "|=");
+    }
+    std::any GenVisitor::visitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) {
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto value = any_cast<llvm::Value *>(visit(ctx->right));
+        return assignBinaryOp(var, value, "^=");
+    }
 
 
+    // endregion
 }// namespace Riddle
