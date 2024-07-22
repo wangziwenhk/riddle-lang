@@ -1,6 +1,7 @@
 #ifndef RIDDLE_LANGUAGE_GENVISITOR_H
 #define RIDDLE_LANGUAGE_GENVISITOR_H
 
+#include "Tools/Setup.h"
 #include "Tools/VarManager.h"
 #include <RiddleParserBaseVisitor.h>
 #include <llvm/IR/IRBuilder.h>
@@ -10,6 +11,7 @@ namespace Riddle {
     /// @brief 用于实现生成 IR 的类
     class GenVisitor : public RiddleParserBaseVisitor {
     private:
+        implicitTy cast;
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
         std::stack<llvm::Function *> FuncStack;
         VarManager varManager;
@@ -33,7 +35,7 @@ namespace Riddle {
         // endregion
     public:
         [[maybe_unused]]
-        GenVisitor(std::string moduleName);
+        GenVisitor(std::string builder);
         /// @brief 程序的根节点
         /// @returns null
         std::any visitProgram(RiddleParser::ProgramContext *ctx) override;

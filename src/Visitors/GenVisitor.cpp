@@ -23,6 +23,8 @@ namespace Riddle {
                 true);
         llvm::FunctionCallee printfFunc = module->getOrInsertFunction("printf", printType);
         FuncCalls["print"] = printfFunc;
+
+        cast = implicitTemplate;
     }
     std::any GenVisitor::visitInteger(RiddleParser::IntegerContext *ctx) {
         llvm::Value *p = Builder.getInt32(ctx->value);
@@ -202,31 +204,6 @@ namespace Riddle {
         return visit(ctx->expr);
     }
     llvm::Value *GenVisitor::binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op) {
-        static const std::unordered_map<std::string, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>> opMap = {
-                {"+", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAdd(v1, v2, "AddV"); }},
-                {"-", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateSub(v1, v2, "SubV"); }},
-                {"*", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateMul(v1, v2, "MulV"); }},
-                {"/", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateFDiv(v1, v2, "DivV"); }},
-                {"%", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateSRem(v1, v2, "ModV"); }},
-                {"<<", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateShl(v1, v2, "ShlV"); }},
-                {">>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAShr(v1, v2, "AShrV"); }},
-                {">>>", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateLShr(v1, v2, "LShrV"); }},
-                {"^", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateXor(v1, v2, "XorV"); }},
-                {"&", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAnd(v1, v2, "AndV"); }},
-                {"&&", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAnd(v1, v2, "LAndV"); }},
-                {"|", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateOr(v1, v2, "OrV"); }},
-                {"||", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateOr(v1, v2, "LOrV"); }},
-                {">", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSGT(v1, v2, "cmpV"); }},
-                {">=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSGE(v1, v2, "cmpV"); }},
-                {"<", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLT(v1, v2, "cmpV"); }},
-                {"<=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateICmpSLE(v1, v2, "cmpV"); }},
-                {"!=", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) {
-                     if(v1->getType()->isFloatingPointTy()) return builder.CreateFCmpUNE(v1, v2, "fne");
-                     else
-                         return builder.CreateICmpNE(v1, v2, "ne");
-                 }}};
-
-        std::string typeName = getTypeName(value1->getType());
         // todo 实现类的二元运算符
         if(value1->getType()->isStructTy()) {
             throw std::logic_error("还没实现");
