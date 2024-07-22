@@ -68,6 +68,9 @@ public:
   virtual void enterModExpr(RiddleParser::ModExprContext *ctx) = 0;
   virtual void exitModExpr(RiddleParser::ModExprContext *ctx) = 0;
 
+  virtual void enterCastExpr(RiddleParser::CastExprContext *ctx) = 0;
+  virtual void exitCastExpr(RiddleParser::CastExprContext *ctx) = 0;
+
   virtual void enterLShrExpr(RiddleParser::LShrExprContext *ctx) = 0;
   virtual void exitLShrExpr(RiddleParser::LShrExprContext *ctx) = 0;
 

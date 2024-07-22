@@ -24,7 +24,7 @@ namespace Riddle {
         llvm::FunctionCallee printfFunc = module->getOrInsertFunction("printf", printType);
         FuncCalls["print"] = printfFunc;
 
-        cast = implicitTemplate;
+        cast = castMapTemplate;
     }
     std::any GenVisitor::visitInteger(RiddleParser::IntegerContext *ctx) {
         llvm::Value *p = Builder.getInt32(ctx->value);
@@ -377,6 +377,13 @@ namespace Riddle {
         auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "^=");
+    }
+    std::any GenVisitor::visitCastExpr(RiddleParser::CastExprContext *ctx) {
+        auto type = ctx->type->getText();
+        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->value));
+        auto value = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
+        auto func = cast[getTypeName(value->getType())][type];
+        return func(Builder, value);
     }
     // endregion
 }// namespace Riddle

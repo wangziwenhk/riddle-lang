@@ -55,6 +55,8 @@ public:
 
     virtual std::any visitModExpr(RiddleParser::ModExprContext *context) = 0;
 
+    virtual std::any visitCastExpr(RiddleParser::CastExprContext *context) = 0;
+
     virtual std::any visitLShrExpr(RiddleParser::LShrExprContext *context) = 0;
 
     virtual std::any visitNegativeExpr(RiddleParser::NegativeExprContext *context) = 0;

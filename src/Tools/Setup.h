@@ -10,8 +10,8 @@
 namespace Riddle {
     typedef std::unordered_map<std::string, std::unordered_map<std::string, std::function<llvm::Value *(
                                                                                     llvm::IRBuilder<> &, llvm::Value *)>>>
-            implicitTy;
-    static implicitTy implicitTemplate = {
+            castMapTy;
+    const static castMapTy castMapTemplate = {
             {"int",
              {
                      {"float", [](llvm::IRBuilder<> &builder, llvm::Value *value) -> llvm::Value * {

@@ -447,6 +447,24 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class CastExprContext : public ExpressionContext {
+  public:
+      CastExprContext(ExpressionContext *ctx);
+
+      RiddleParser::IdContext *type = nullptr;
+      RiddleParser::ObjectExprContext *value = nullptr;
+      antlr4::tree::TerminalNode *Less();
+      antlr4::tree::TerminalNode *Greater();
+      antlr4::tree::TerminalNode *LeftBracket();
+      antlr4::tree::TerminalNode *RightBracket();
+      IdContext *id();
+      ObjectExprContext *objectExpr();
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  LShrExprContext : public ExpressionContext {
   public:
     LShrExprContext(ExpressionContext *ctx);

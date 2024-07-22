@@ -70,6 +70,9 @@ public:
   virtual void enterModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
   virtual void exitModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
 
+  virtual void enterCastExpr(RiddleParser::CastExprContext * /*ctx*/) override {}
+  virtual void exitCastExpr(RiddleParser::CastExprContext * /*ctx*/) override {}
+
   virtual void enterLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
   virtual void exitLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
 

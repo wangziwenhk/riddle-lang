@@ -87,6 +87,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitCastExpr(RiddleParser::CastExprContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
   virtual std::any visitLShrExpr(RiddleParser::LShrExprContext *ctx) override {
     return visitChildren(ctx);
   }

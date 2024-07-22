@@ -11,7 +11,7 @@ namespace Riddle {
     /// @brief 用于实现生成 IR 的类
     class GenVisitor : public RiddleParserBaseVisitor {
     private:
-        implicitTy cast;
+        castMapTy cast;
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
         std::stack<llvm::Function *> FuncStack;
         VarManager varManager;
@@ -187,6 +187,10 @@ namespace Riddle {
         /// @returns llvm::Value*
         std::any visitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) override;
         // endregion
+        /// @brief 类型转换
+        /// @warning 目前类型获取还只能获取基本类型
+        /// @returns llvm::Value*
+        std::any visitCastExpr(RiddleParser::CastExprContext *ctx) override;
     };
 }// namespace Riddle
 

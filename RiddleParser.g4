@@ -86,7 +86,8 @@ returnStatement
     ;
 
 expression
-    : LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
+    : Less type=id Greater LeftBracket value=objectExpr RightBracket #castExpr
+    | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
     | Sub expr=expression                                   #negativeExpr   // -x
