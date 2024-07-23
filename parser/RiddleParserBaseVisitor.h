@@ -39,10 +39,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -179,6 +175,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
   virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -276,10 +276,6 @@ public:
   }
 
   virtual std::any visitInteger(RiddleParser::IntegerContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitPrintf(RiddleParser::PrintfContext *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -22,7 +22,7 @@ namespace Riddle {
                 llvm::PointerType::get(Builder.getInt8Ty(), 0),
                 true);
         llvm::FunctionCallee printfFunc = module->getOrInsertFunction("printf", printType);
-        FuncCalls["print"] = printfFunc;
+        FuncCalls["printf"] = printfFunc;
 
         cast = castMapTemplate;
     }
@@ -44,12 +44,6 @@ namespace Riddle {
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
         llvm::AllocaInst *value = varManager.getVar(ctx->id()->getText()).value;
         return value;
-    }
-    std::any GenVisitor::visitPrintf(RiddleParser::PrintfContext *ctx) {
-        auto value = any_cast<llvm::Value *>(visit(ctx->value));
-        auto format = any_cast<llvm::Value *>(visit(ctx->format));
-        Builder.CreateCall(FuncCalls["print"], {format, value});
-        return nullptr;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
         varManager.push();
@@ -93,8 +87,10 @@ namespace Riddle {
         FuncStack.push(func);
         varManager.push();
 
-        for(int i = 0; i < args.names.size(); i++) {
+        auto argIter = func->args().begin();
+        for(int i = 0; i < args.names.size(); i++, argIter++) {
             llvm::AllocaInst *Alloca = initAlloca(args.names[i], args.typeNames[i], Builder);
+            Builder.CreateStore(argIter, Alloca);
             varManager.defineVar(args.names[i], false, Alloca, args.typeNames[i]);
         }
 
@@ -223,13 +219,10 @@ namespace Riddle {
     }
     llvm::Value *GenVisitor::assignBinaryOp(llvm::AllocaInst *var, llvm::Value *value, std::string op) {
         auto loadValue = Builder.CreateLoad(var->getAllocatedType(), var);
-        // 删除后面的等于号
-        auto opt = op;
-        opt.pop_back();
         if(var->getAllocatedType() != value->getType()) {
             value = cast[getTypeName(var->getAllocatedType())][getTypeName(value->getType())](Builder, value);
         }
-        auto result = binaryOperator(loadValue, value, opt);
+        auto result = binaryOperator(loadValue, value, op.substr(0, op.size() - 1));
         Builder.CreateStore(result, var);
         return result;
     }
@@ -392,6 +385,25 @@ namespace Riddle {
         auto value = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
         auto func = cast[getTypeName(value->getType())][type];
         return func(Builder, value);
+    }
+    std::any GenVisitor::visitFuncExpr(RiddleParser::FuncExprContext *ctx) {
+        auto funcName = ctx->funcName->getText();
+        if(!FuncCalls.count(funcName)) {
+            throw std::logic_error("This function \"" + std::string(funcName) + "\" is undefined");
+        }
+        auto args = any_cast<std::vector<llvm::Value *>>(visit(ctx->args));
+        auto func = FuncCalls[funcName];
+        llvm::Value *result = Builder.CreateCall(func, args);
+        return result;
+    }
+    std::any GenVisitor::visitArgsExpr(RiddleParser::ArgsExprContext *ctx) {
+        std::vector<llvm::Value *> args;
+        for(const auto &i: ctx->children) {
+            if(!isTerminalNode(i)) {
+                args.push_back(any_cast<llvm::Value *>(visit(i)));
+            }
+        }
+        return args;
     }
     // endregion
 }// namespace Riddle

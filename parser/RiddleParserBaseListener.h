@@ -34,9 +34,6 @@ public:
   virtual void enterVarDefineStatement(RiddleParser::VarDefineStatementContext * /*ctx*/) override { }
   virtual void exitVarDefineStatement(RiddleParser::VarDefineStatementContext * /*ctx*/) override { }
 
-  virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
-  virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
-
   virtual void enterArgsExpr(RiddleParser::ArgsExprContext * /*ctx*/) override { }
   virtual void exitArgsExpr(RiddleParser::ArgsExprContext * /*ctx*/) override { }
 
@@ -139,6 +136,9 @@ public:
   virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
   virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
 
+  virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
+  virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
+
   virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
   virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
 
@@ -213,9 +213,6 @@ public:
 
   virtual void enterInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
   virtual void exitInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
-
-  virtual void enterPrintf(RiddleParser::PrintfContext * /*ctx*/) override { }
-  virtual void exitPrintf(RiddleParser::PrintfContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

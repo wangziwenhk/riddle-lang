@@ -32,9 +32,6 @@ public:
   virtual void enterVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) = 0;
   virtual void exitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) = 0;
 
-  virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
-  virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
-
   virtual void enterArgsExpr(RiddleParser::ArgsExprContext *ctx) = 0;
   virtual void exitArgsExpr(RiddleParser::ArgsExprContext *ctx) = 0;
 
@@ -137,6 +134,9 @@ public:
   virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) = 0;
   virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) = 0;
 
+  virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
+  virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
+
   virtual void enterBracketExpr(RiddleParser::BracketExprContext *ctx) = 0;
   virtual void exitBracketExpr(RiddleParser::BracketExprContext *ctx) = 0;
 
@@ -211,9 +211,6 @@ public:
 
   virtual void enterInteger(RiddleParser::IntegerContext *ctx) = 0;
   virtual void exitInteger(RiddleParser::IntegerContext *ctx) = 0;
-
-  virtual void enterPrintf(RiddleParser::PrintfContext *ctx) = 0;
-  virtual void exitPrintf(RiddleParser::PrintfContext *ctx) = 0;
 
 
 };

@@ -13,26 +13,74 @@ class  RiddleParser : public antlr4::Parser {
 public:
   enum {
     Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
-    Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, Printf = 16, True = 17, False = 18, LeftBracket = 19, 
-    RightBracket = 20, LeftCurly = 21, RightCurly = 22, Colon = 23, Semi = 24, 
-    Comma = 25, Equal = 26, Assign = 27, Greater = 28, Less = 29, LeftLeft = 30, 
-    RightRight = 31, RightRightRight = 32, Add = 33, Sub = 34, Star = 35, 
-    Div = 36, Mod = 37, Not = 38, And = 39, Or = 40, Xor = 41, Dot = 42, 
-    DoubleQuotes = 43, Quotes = 44, Endl = 45, Identifier = 46, Hexadecimal = 47, 
-    Decimal = 48, Octal = 49, Binary = 50, Float = 51, IntegerSequence = 52, 
-    HEX_DIGIT = 53, OCTAL_DIGIT = 54, BINARY_DIGIT = 55, DIGIT = 56, STRING = 57, 
-    LINE_COMMENT = 58, BLOCK_COMMENT = 59, WHITESPACE = 60
-  };
+    Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14,
+        Override = 15,
+        True = 16,
+        False = 17,
+        LeftBracket = 18,
+        RightBracket = 19,
+        LeftCurly = 20,
+        RightCurly = 21,
+        Colon = 22,
+        Semi = 23,
+        Comma = 24,
+        Equal = 25,
+        Assign = 26,
+        Greater = 27,
+        Less = 28,
+        LeftLeft = 29,
+        RightRight = 30,
+        RightRightRight = 31,
+        Add = 32,
+        Sub = 33,
+        Star = 34,
+        Div = 35,
+        Mod = 36,
+        Not = 37,
+        And = 38,
+        Or = 39,
+        Xor = 40,
+        Dot = 41,
+        DoubleQuotes = 42,
+        Quotes = 43,
+        Endl = 44,
+        Identifier = 45,
+        Hexadecimal = 46,
+        Decimal = 47,
+        Octal = 48,
+        Binary = 49,
+        Float = 50,
+        IntegerSequence = 51,
+        HEX_DIGIT = 52,
+        OCTAL_DIGIT = 53,
+        BINARY_DIGIT = 54,
+        DIGIT = 55,
+        STRING = 56,
+        LINE_COMMENT = 57,
+        BLOCK_COMMENT = 58,
+        WHITESPACE = 59
+    };
 
   enum {
-    RuleProgram = 0, RuleStatement_ed = 1, RuleStatement = 2, RulePackStatement = 3, 
-    RuleImportStatement = 4, RuleVarDefineStatement = 5, RuleFuncExpr = 6, 
-    RuleArgsExpr = 7, RuleDefineArgs = 8, RuleFuncDefine = 9, RuleFuncBody = 10, 
-    RuleForStatement = 11, RuleWhileStatement = 12, RuleIfStatement = 13, 
-    RuleReturnStatement = 14, RuleExpression = 15, RuleObjectExpr = 16, 
-    RuleId = 17, RuleNumber = 18, RuleBoolean = 19, RuleString = 20, RuleFloat = 21, 
-    RuleInteger = 22, RulePrintf = 23
+    RuleProgram = 0, RuleStatement_ed = 1, RuleStatement = 2, RulePackStatement = 3,
+      RuleImportStatement = 4,
+      RuleVarDefineStatement = 5,
+      RuleArgsExpr = 6,
+      RuleDefineArgs = 7,
+      RuleFuncDefine = 8,
+      RuleFuncBody = 9,
+      RuleForStatement = 10,
+      RuleWhileStatement = 11,
+      RuleIfStatement = 12,
+      RuleReturnStatement = 13,
+      RuleExpression = 14,
+      RuleObjectExpr = 15,
+      RuleId = 16,
+      RuleNumber = 17,
+      RuleBoolean = 18,
+      RuleString = 19,
+      RuleFloat = 20,
+      RuleInteger = 21
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -58,7 +106,6 @@ public:
   class PackStatementContext;
   class ImportStatementContext;
   class VarDefineStatementContext;
-  class FuncExprContext;
   class ArgsExprContext;
   class DefineArgsContext;
   class FuncDefineContext;
@@ -75,7 +122,6 @@ public:
   class StringContext;
   class FloatContext;
   class IntegerContext;
-  class PrintfContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
@@ -115,11 +161,9 @@ public:
   public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    PrintfContext *printf();
     PackStatementContext *packStatement();
     ImportStatementContext *importStatement();
     FuncDefineContext *funcDefine();
-    FuncExprContext *funcExpr();
     VarDefineStatementContext *varDefineStatement();
     ForStatementContext *forStatement();
     WhileStatementContext *whileStatement();
@@ -196,26 +240,6 @@ public:
   };
 
   VarDefineStatementContext* varDefineStatement();
-
-  class  FuncExprContext : public antlr4::ParserRuleContext {
-  public:
-    RiddleParser::IdContext *funcName = nullptr;
-    RiddleParser::ArgsExprContext *arge = nullptr;
-    FuncExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *LeftBracket();
-    antlr4::tree::TerminalNode *RightBracket();
-    IdContext *id();
-    ArgsExprContext *argsExpr();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  FuncExprContext* funcExpr();
 
   class  ArgsExprContext : public antlr4::ParserRuleContext {
   public:
@@ -462,7 +486,7 @@ public:
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
       virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   class  LShrExprContext : public ExpressionContext {
@@ -785,6 +809,22 @@ public:
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class FuncExprContext : public ExpressionContext {
+  public:
+      FuncExprContext(ExpressionContext *ctx);
+
+      RiddleParser::IdContext *funcName = nullptr;
+      RiddleParser::ArgsExprContext *args = nullptr;
+      antlr4::tree::TerminalNode *LeftBracket();
+      antlr4::tree::TerminalNode *RightBracket();
+      IdContext *id();
+      ArgsExprContext *argsExpr();
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   class  BracketExprContext : public ExpressionContext {
@@ -1176,28 +1216,6 @@ public:
   };
 
   IntegerContext* integer();
-
-  class  PrintfContext : public antlr4::ParserRuleContext {
-  public:
-    RiddleParser::StringContext *format = nullptr;
-    RiddleParser::ExpressionContext *value = nullptr;
-    PrintfContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Printf();
-    antlr4::tree::TerminalNode *LeftBracket();
-    antlr4::tree::TerminalNode *Comma();
-    antlr4::tree::TerminalNode *RightBracket();
-    StringContext *string();
-    ExpressionContext *expression();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  PrintfContext* printf();
 
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

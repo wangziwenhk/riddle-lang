@@ -31,8 +31,6 @@ public:
 
     virtual std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *context) = 0;
 
-    virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
-
     virtual std::any visitArgsExpr(RiddleParser::ArgsExprContext *context) = 0;
 
     virtual std::any visitDefineArgs(RiddleParser::DefineArgsContext *context) = 0;
@@ -101,6 +99,8 @@ public:
 
     virtual std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *context) = 0;
 
+    virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
+
     virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *context) = 0;
 
     virtual std::any visitBooleanExpr(RiddleParser::BooleanExprContext *context) = 0;
@@ -150,8 +150,6 @@ public:
     virtual std::any visitFloat(RiddleParser::FloatContext *context) = 0;
 
     virtual std::any visitInteger(RiddleParser::IntegerContext *context) = 0;
-
-    virtual std::any visitPrintf(RiddleParser::PrintfContext *context) = 0;
 
 
 };

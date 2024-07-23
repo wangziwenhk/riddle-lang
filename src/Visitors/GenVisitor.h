@@ -74,9 +74,6 @@ namespace Riddle {
         /// @warning 这里只有该源文件的当前作用域的变量可能被调用，且需要使用全限定名
         /// @returns llvm::Value*
         std::any visitObjValExpr(RiddleParser::ObjValExprContext *ctx) override;
-        /// @brief 输出数值的函数
-        /// @returns nullptr
-        std::any visitPrintf(RiddleParser::PrintfContext *ctx) override;
         /// @brief 获取参数列表
         /// @returns std::vector\<llvm::Type*\>
         std::any visitDefineArgs(RiddleParser::DefineArgsContext *ctx) override;
@@ -191,6 +188,12 @@ namespace Riddle {
         /// @warning 目前类型获取还只能获取基本类型
         /// @returns llvm::Value*
         std::any visitCastExpr(RiddleParser::CastExprContext *ctx) override;
+        /// @brief 函数调用
+        /// @returns llvm::Value*
+        std::any visitFuncExpr(RiddleParser::FuncExprContext *ctx) override;
+        /// @brief 参数获取
+        /// @returns vector<llvm::Value*>
+        std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override;
     };
 }// namespace Riddle
 

@@ -15,7 +15,6 @@ Public: 'public';
 Protected: 'protected';
 Private: 'Private' ;
 Override: 'override';
-Printf:'printf';
 True:'true';
 False:'false';
 //可见字符

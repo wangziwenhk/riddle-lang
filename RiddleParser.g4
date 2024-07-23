@@ -20,11 +20,9 @@ statement_ed
     ;
 
 statement
-    : printf
-    | packStatement
+    : packStatement
     | importStatement
     | funcDefine
-    | funcExpr
     | varDefineStatement
     | forStatement
     | whileStatement
@@ -46,10 +44,6 @@ varDefineStatement
     : Var name=Identifier Colon type=Identifier
     | Var name=Identifier Assign value=expression
     | Var name=Identifier Colon type=Identifier Assign value=expression
-    ;
-
-funcExpr
-    : funcName=id LeftBracket arge=argsExpr RightBracket
     ;
 
 argsExpr
@@ -86,7 +80,8 @@ returnStatement
     ;
 
 expression
-    : Less type=id Greater LeftBracket value=objectExpr RightBracket #castExpr
+    : funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
+    | Less type=id Greater LeftBracket value=objectExpr RightBracket #castExpr
     | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
@@ -173,9 +168,4 @@ integer returns [int value]
     | Octal{
         $value = stoi($Octal.text.substr(2),nullptr,8);
     }
-    ;
-
-// 测试用
-printf
-    : Printf '(' format=string ',' value=expression ')'
     ;
