@@ -61,6 +61,7 @@ namespace Riddle {
              }}};
 
     static const std::unordered_map<std::string, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>> opMap = {
+            {"", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return v2; }},
             {"+", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateAdd(v1, v2, "AddV"); }},
             {"-", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateSub(v1, v2, "SubV"); }},
             {"*", [](llvm::IRBuilder<> &builder, llvm::Value *v1, llvm::Value *v2) { return builder.CreateMul(v1, v2, "MulV"); }},

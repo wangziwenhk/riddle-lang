@@ -124,7 +124,7 @@ namespace Riddle {
             std::string type = ctx->type->getText();
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
             llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
-            Builder.CreateStore(value, Alloca);
+            assignBinaryOp(Alloca, value, "=");
             varManager.defineVar(name, false, Alloca, type);
         }
         return nullptr;
@@ -208,6 +208,15 @@ namespace Riddle {
         if(value1->getType()->isStructTy()) {
             throw std::logic_error("还没实现");
         } else {//基本类型处理
+            // 特判double和int
+            if(value1->getType() != value2->getType()) {
+                if(value1->getType()->isDoubleTy() && value2->getType()->isIntegerTy()) {
+                    value2 = cast[getTypeName(value2->getType())][getTypeName(value1->getType())](Builder, value2);
+                } else if(value1->getType()->isIntegerTy() && value2->getType()->isDoubleTy()) {
+                    value2 = cast[getTypeName(value1->getType())][getTypeName(value2->getType())](Builder, value1);
+                }
+            }
+
             auto it = opMap.find(op);
             if(it != opMap.end()) {
                 return it->second(Builder, value1, value2);
@@ -320,8 +329,7 @@ namespace Riddle {
     std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
         auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
-        Builder.CreateStore(value, var);
-        return value;
+        return assignBinaryOp(var, value, "=");
     }
     std::any GenVisitor::visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) {
         auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
