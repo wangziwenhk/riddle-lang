@@ -115,7 +115,10 @@ namespace Riddle {
         std::string name = ctx->name->getText();
         if(ctx->type == nullptr) {
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            throw std::logic_error("没实现");
+            std::string type = getTypeName(value->getType());
+            llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
+            assignBinaryOp(Alloca, value, "=");
+            varManager.defineVar(name, false, Alloca, type);
         } else if(ctx->value == nullptr) {
             std::string type = ctx->type->getText();
             llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
@@ -208,15 +211,9 @@ namespace Riddle {
         if(value1->getType()->isStructTy()) {
             throw std::logic_error("还没实现");
         } else {//基本类型处理
-            // 特判double和int
             if(value1->getType() != value2->getType()) {
-                if(value1->getType()->isDoubleTy() && value2->getType()->isIntegerTy()) {
-                    value2 = cast[getTypeName(value2->getType())][getTypeName(value1->getType())](Builder, value2);
-                } else if(value1->getType()->isIntegerTy() && value2->getType()->isDoubleTy()) {
-                    value2 = cast[getTypeName(value1->getType())][getTypeName(value2->getType())](Builder, value1);
-                }
+                throw std::logic_error("Type mismatch");
             }
-
             auto it = opMap.find(op);
             if(it != opMap.end()) {
                 return it->second(Builder, value1, value2);
@@ -229,6 +226,9 @@ namespace Riddle {
         // 删除后面的等于号
         auto opt = op;
         opt.pop_back();
+        if(var->getAllocatedType() != value->getType()) {
+            value = cast[getTypeName(var->getAllocatedType())][getTypeName(value->getType())](Builder, value);
+        }
         auto result = binaryOperator(loadValue, value, opt);
         Builder.CreateStore(result, var);
         return result;
