@@ -71,6 +71,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitClassStatement(RiddleParser::ClassStatementContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
+  virtual std::any visitClassBody(RiddleParser::ClassBodyContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
   virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -279,6 +287,16 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitTemplateArg(RiddleParser::TemplateArgContext *ctx) override {
+      return visitChildren(ctx);
+  }
 
+  virtual std::any visitTemplateArgs(RiddleParser::TemplateArgsContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeName(RiddleParser::TypeNameContext *ctx) override {
+      return visitChildren(ctx);
+  }
 };
 

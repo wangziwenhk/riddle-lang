@@ -17,11 +17,14 @@ program
 
 statement_ed
     : statement Semi? Endl?
+    | Semi
+    | Endl
     ;
 
 statement
     : packStatement
     | importStatement
+    | classStatement
     | funcDefine
     | varDefineStatement
     | forStatement
@@ -77,6 +80,14 @@ ifStatement returns [bool hasElse]
 
 returnStatement
     : Return result=statement_ed
+    ;
+
+classStatement
+    : Class className = id LeftCurly body=classBody RightCurly
+    ;
+
+classBody
+    : statement_ed*
     ;
 
 expression
@@ -170,7 +181,17 @@ integer returns [int value]
     }
     ;
 
+templateArg
+    : expression
+    | typeName
+    ;
+
+templateArgs
+    : ((templateArg Comma)* templateArg)?
+    ;
+
 typeName
     : name=id
-    | Less name=id Greater
+    | name=id Less args=templateArgs Greater
+    | baseType=typeName LeftSquare size=expression RightSquare
     ;

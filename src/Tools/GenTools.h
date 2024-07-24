@@ -6,13 +6,13 @@
 #include <llvm/IR/Value.h>
 #include <string>
 namespace Riddle {
-    llvm::Type *getType(std::string type, llvm::IRBuilder<> &Builder);
+    llvm::Type *getSampleType(std::string type, llvm::IRBuilder<> &Builder);
+    bool isSampleType(std::string type);
     std::vector<llvm::Type *> getTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder);
 
     /// @brief 获取类型名称 (可能的?)
     std::string getTypeName(llvm::Type *type);
 
-    llvm::AllocaInst *initAlloca(std::string name, std::string type, llvm::IRBuilder<> &Builder);
     bool isTerminalNode(antlr4::tree::ParseTree *tree);
     bool isIdentifier(antlr4::tree::ParseTree *tree);
     struct DefineArgsType {

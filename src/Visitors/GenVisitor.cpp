@@ -42,7 +42,7 @@ namespace Riddle {
         return p;
     }
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        llvm::AllocaInst *value = varManager.getVar(ctx->id()->getText()).value;
+        llvm::Value *value = varManager.getVar(ctx->id()->getText()).value;
         return value;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -77,11 +77,11 @@ namespace Riddle {
     std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
         auto args = any_cast<DefineArgsType>(visit(ctx->args));
         auto argsTypes = getTypes(args.typeNames, Builder);
-        llvm::Type *resultType = nullptr;
+        llvm::Type *resultType;
         if(ctx->returnType == nullptr) {
             resultType = Builder.getVoidTy();
         } else {
-            resultType = getType(ctx->returnType->getText(), Builder);
+            resultType = getSampleType(ctx->returnType->getText(), Builder);
         }
 
         llvm::FunctionType *funcType = llvm::FunctionType::get(resultType, argsTypes, false);
@@ -95,9 +95,8 @@ namespace Riddle {
         //获取参数列表
         auto argIter = func->args().begin();
         for(int i = 0; i < args.names.size(); i++, argIter++) {
-            llvm::AllocaInst *Alloca = initAlloca(args.names[i], args.typeNames[i], Builder);
-            Builder.CreateStore(argIter, Alloca);
-            varManager.defineVar(args.names[i], false, Alloca, args.typeNames[i]);
+            argIter->setName(args.names[i]);
+            varManager.defineVar(args.names[i], false, argIter, getTypeName(argIter->getType()));
         }
 
         visit(ctx->funcBody());
@@ -117,26 +116,26 @@ namespace Riddle {
         std::string name = ctx->name->getText();
         if(ctx->type == nullptr) {
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            std::string type = getTypeName(value->getType());
-            llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
+            auto type = any_cast<llvm::Type *>(visit(ctx->type));
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, nullptr, name);
             assignBinaryOp(Alloca, value, "=");
-            varManager.defineVar(name, false, Alloca, type);
+            varManager.defineVar(name, false, Alloca, getTypeName(type));
         } else if(ctx->value == nullptr) {
-            std::string type = ctx->type->getText();
-            llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
-            varManager.defineVar(name, false, Alloca, type);
+            auto type = any_cast<llvm::Type *>(visit(ctx->type));
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, nullptr, name);
+            varManager.defineVar(name, false, Alloca, getTypeName(type));
         } else {
-            std::string type = ctx->type->getText();
+            auto type = any_cast<llvm::Type *>(visit(ctx->type));
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            llvm::AllocaInst *Alloca = initAlloca(name, type, Builder);
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, nullptr, name);
             assignBinaryOp(Alloca, value, "=");
-            varManager.defineVar(name, false, Alloca, type);
+            varManager.defineVar(name, false, Alloca, getTypeName(type));
         }
         return nullptr;
     }
     std::any GenVisitor::visitObjValExpr(RiddleParser::ObjValExprContext *ctx) {
-        llvm::AllocaInst *var = varManager.getVar(ctx->id()->getText()).value;
-        llvm::Value *LoadedValue = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
+        llvm::Value *var = varManager.getVar(ctx->id()->getText()).value;
+        llvm::Value *LoadedValue = Builder.CreateLoad(var->getType(), var, "tempVar");
         return LoadedValue;
     }
     std::any GenVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {
@@ -385,6 +384,7 @@ namespace Riddle {
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "^=");
     }
+    // endregion
     std::any GenVisitor::visitCastExpr(RiddleParser::CastExprContext *ctx) {
         auto type = ctx->type->getText();
         auto var = any_cast<llvm::AllocaInst *>(visit(ctx->value));
@@ -411,5 +411,17 @@ namespace Riddle {
         }
         return args;
     }
-    // endregion
+    std::any GenVisitor::visitTypeName(RiddleParser::TypeNameContext *ctx) {
+        if(!ctx->size) {
+            auto name = ctx->name->getText();
+            if(isSampleType(name)) return getSampleType(name, Builder);
+            throw std::logic_error("关于使用自定义类型是未实现的");
+        } else {//数组
+            auto baseType = any_cast<llvm::Type *>(visit(ctx->baseType));
+            auto size = any_cast<llvm::Value *>(visit(ctx->size));
+            //todo 实现判断是否溢出
+            llvm::Type *ptr = llvm::PointerType::get(baseType, 0);
+            return ptr;
+        }
+    }
 }// namespace Riddle

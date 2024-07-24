@@ -86,6 +86,14 @@ namespace Riddle {
                      return builder.CreateICmpNE(v1, v2, "ne");
              }}};
 
+    static const std::unordered_map<std::string, std::function<llvm::Type *(llvm::IRBuilder<> &)>> SampleType = {
+            {"int", [](llvm::IRBuilder<> &Builder) { return Builder.getInt32Ty(); }},
+            {"short", [](llvm::IRBuilder<> &Builder) { return Builder.getInt16Ty(); }},
+            {"char", [](llvm::IRBuilder<> &Builder) { return Builder.getInt8Ty(); }},
+            {"bool", [](llvm::IRBuilder<> &Builder) { return Builder.getInt1Ty(); }},
+            {"double", [](llvm::IRBuilder<> &Builder) { return Builder.getDoubleTy(); }},
+            {"float", [](llvm::IRBuilder<> &Builder) { return Builder.getFloatTy(); }},
+    };
 }// namespace Riddle
 
 #endif//RIDDLE_LANGUAGE_SETUP_H

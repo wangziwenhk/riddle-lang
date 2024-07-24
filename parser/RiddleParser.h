@@ -12,57 +12,67 @@
 class  RiddleParser : public antlr4::Parser {
 public:
   enum {
-    Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
-    Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14,
+    Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8,
+        Import = 9,
+        Package = 10,
+        Class = 11,
+        Public = 12,
+        Protected = 13,
+        Private = 14,
         Override = 15,
         True = 16,
         False = 17,
         LeftBracket = 18,
         RightBracket = 19,
-        LeftCurly = 20,
-        RightCurly = 21,
-        Colon = 22,
-        Semi = 23,
-        Comma = 24,
-        Equal = 25,
-        Assign = 26,
-        Greater = 27,
-        Less = 28,
-        LeftLeft = 29,
-        RightRight = 30,
-        RightRightRight = 31,
-        Add = 32,
-        Sub = 33,
-        Star = 34,
-        Div = 35,
-        Mod = 36,
-        Not = 37,
-        And = 38,
-        Or = 39,
-        Xor = 40,
-        Dot = 41,
-        DoubleQuotes = 42,
-        Quotes = 43,
-        Endl = 44,
-        Identifier = 45,
-        Hexadecimal = 46,
-        Decimal = 47,
-        Octal = 48,
-        Binary = 49,
-        Float = 50,
-        IntegerSequence = 51,
-        HEX_DIGIT = 52,
-        OCTAL_DIGIT = 53,
-        BINARY_DIGIT = 54,
-        DIGIT = 55,
-        STRING = 56,
-        LINE_COMMENT = 57,
-        BLOCK_COMMENT = 58,
-        WHITESPACE = 59
+        LeftSquare = 20,
+        RightSquare = 21,
+        LeftCurly = 22,
+        RightCurly = 23,
+        Colon = 24,
+        Semi = 25,
+        Comma = 26,
+        Equal = 27,
+        Assign = 28,
+        Greater = 29,
+        Less = 30,
+        LeftLeft = 31,
+        RightRight = 32,
+        RightRightRight = 33,
+        Add = 34,
+        Sub = 35,
+        Star = 36,
+        Div = 37,
+        Mod = 38,
+        Not = 39,
+        And = 40,
+        Or = 41,
+        Xor = 42,
+        Dot = 43,
+        DoubleQuotes = 44,
+        Quotes = 45,
+        Endl = 46,
+        Identifier = 47,
+        Hexadecimal = 48,
+        Decimal = 49,
+        Octal = 50,
+        Binary = 51,
+        Float = 52,
+        IntegerSequence = 53,
+        HEX_DIGIT = 54,
+        OCTAL_DIGIT = 55,
+        BINARY_DIGIT = 56,
+        DIGIT = 57,
+        STRING = 58,
+        LINE_COMMENT = 59,
+        BLOCK_COMMENT = 60,
+        WHITESPACE = 61
     };
 
-  enum {
-    RuleProgram = 0, RuleStatement_ed = 1, RuleStatement = 2, RulePackStatement = 3,
+    enum {
+      RuleProgram = 0,
+      RuleStatement_ed = 1,
+      RuleStatement = 2,
+      RulePackStatement = 3,
       RuleImportStatement = 4,
       RuleVarDefineStatement = 5,
       RuleArgsExpr = 6,
@@ -73,14 +83,19 @@ public:
       RuleWhileStatement = 11,
       RuleIfStatement = 12,
       RuleReturnStatement = 13,
-      RuleExpression = 14,
-      RuleObjectExpr = 15,
-      RuleId = 16,
-      RuleNumber = 17,
-      RuleBoolean = 18,
-      RuleString = 19,
-      RuleFloat = 20,
-      RuleInteger = 21
+      RuleClassStatement = 14,
+      RuleClassBody = 15,
+      RuleExpression = 16,
+      RuleObjectExpr = 17,
+      RuleId = 18,
+      RuleNumber = 19,
+      RuleBoolean = 20,
+      RuleString = 21,
+      RuleFloat = 22,
+      RuleInteger = 23,
+      RuleTemplateArg = 24,
+      RuleTemplateArgs = 25,
+      RuleTypeName = 26
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -114,6 +129,8 @@ public:
   class WhileStatementContext;
   class IfStatementContext;
   class ReturnStatementContext;
+  class ClassStatementContext;
+  class ClassBodyContext;
   class ExpressionContext;
   class ObjectExprContext;
   class IdContext;
@@ -122,6 +139,9 @@ public:
   class StringContext;
   class FloatContext;
   class IntegerContext;
+  class TemplateArgContext;
+  class TemplateArgsContext;
+  class TypeNameContext;
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
@@ -163,6 +183,7 @@ public:
     virtual size_t getRuleIndex() const override;
     PackStatementContext *packStatement();
     ImportStatementContext *importStatement();
+    ClassStatementContext *classStatement();
     FuncDefineContext *funcDefine();
     VarDefineStatementContext *varDefineStatement();
     ForStatementContext *forStatement();
@@ -221,14 +242,14 @@ public:
   class  VarDefineStatementContext : public antlr4::ParserRuleContext {
   public:
     antlr4::Token *name = nullptr;
-    antlr4::Token *type = nullptr;
-    RiddleParser::ExpressionContext *value = nullptr;
+      RiddleParser::TypeNameContext *type = nullptr;
+      RiddleParser::ExpressionContext *value = nullptr;
     VarDefineStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Var();
     antlr4::tree::TerminalNode *Colon();
-    std::vector<antlr4::tree::TerminalNode *> Identifier();
-    antlr4::tree::TerminalNode* Identifier(size_t i);
+    antlr4::tree::TerminalNode *Identifier();
+    TypeNameContext *typeName();
     antlr4::tree::TerminalNode *Assign();
     ExpressionContext *expression();
 
@@ -283,7 +304,7 @@ public:
   public:
     antlr4::Token *funcName = nullptr;
     RiddleParser::DefineArgsContext *args = nullptr;
-    RiddleParser::IdContext *returnType = nullptr;
+    RiddleParser::TypeNameContext *returnType = nullptr;
     RiddleParser::FuncBodyContext *body = nullptr;
     FuncDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -296,7 +317,7 @@ public:
     DefineArgsContext *defineArgs();
     FuncBodyContext *funcBody();
     antlr4::tree::TerminalNode *Colon();
-    IdContext *id();
+    TypeNameContext *typeName();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -413,6 +434,41 @@ public:
 
   ReturnStatementContext* returnStatement();
 
+  class ClassStatementContext : public antlr4::ParserRuleContext {
+  public:
+      RiddleParser::IdContext *className = nullptr;
+      RiddleParser::ClassBodyContext *body = nullptr;
+      ClassStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      antlr4::tree::TerminalNode *Class();
+      antlr4::tree::TerminalNode *LeftCurly();
+      antlr4::tree::TerminalNode *RightCurly();
+      IdContext *id();
+      ClassBodyContext *classBody();
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  ClassStatementContext *classStatement();
+
+  class ClassBodyContext : public antlr4::ParserRuleContext {
+  public:
+      ClassBodyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      std::vector<Statement_edContext *> statement_ed();
+      Statement_edContext *statement_ed(size_t i);
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  ClassBodyContext *classBody();
+
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
     ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -475,13 +531,13 @@ public:
   public:
       CastExprContext(ExpressionContext *ctx);
 
-      RiddleParser::IdContext *type = nullptr;
+      RiddleParser::TypeNameContext *type = nullptr;
       RiddleParser::ObjectExprContext *value = nullptr;
       antlr4::tree::TerminalNode *Less();
       antlr4::tree::TerminalNode *Greater();
       antlr4::tree::TerminalNode *LeftBracket();
       antlr4::tree::TerminalNode *RightBracket();
-      IdContext *id();
+      TypeNameContext *typeName();
       ObjectExprContext *objectExpr();
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
       virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1217,10 +1273,68 @@ public:
 
   IntegerContext* integer();
 
+  class TemplateArgContext : public antlr4::ParserRuleContext {
+  public:
+      TemplateArgContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      ExpressionContext *expression();
+      TypeNameContext *typeName();
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  TemplateArgContext *templateArg();
+
+  class TemplateArgsContext : public antlr4::ParserRuleContext {
+  public:
+      TemplateArgsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      std::vector<TemplateArgContext *> templateArg();
+      TemplateArgContext *templateArg(size_t i);
+      std::vector<antlr4::tree::TerminalNode *> Comma();
+      antlr4::tree::TerminalNode *Comma(size_t i);
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  TemplateArgsContext *templateArgs();
+
+  class TypeNameContext : public antlr4::ParserRuleContext {
+  public:
+      RiddleParser::TypeNameContext *baseType = nullptr;
+      RiddleParser::IdContext *name = nullptr;
+      RiddleParser::TemplateArgsContext *args = nullptr;
+      RiddleParser::ExpressionContext *size = nullptr;
+      TypeNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      IdContext *id();
+      antlr4::tree::TerminalNode *Less();
+      antlr4::tree::TerminalNode *Greater();
+      TemplateArgsContext *templateArgs();
+      antlr4::tree::TerminalNode *LeftSquare();
+      antlr4::tree::TerminalNode *RightSquare();
+      TypeNameContext *typeName();
+      ExpressionContext *expression();
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  TypeNameContext *typeName();
+  TypeNameContext *typeName(int precedence);
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
 
   bool expressionSempred(ExpressionContext *_localctx, size_t predicateIndex);
+  bool typeNameSempred(TypeNameContext *_localctx, size_t predicateIndex);
 
   // By default the static state used to implement the parser is lazily initialized during the first
   // call to the constructor. You can call this function if you wish to initialize the static state

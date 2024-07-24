@@ -56,6 +56,12 @@ public:
   virtual void enterReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
   virtual void exitReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
 
+  virtual void enterClassStatement(RiddleParser::ClassStatementContext *ctx) = 0;
+  virtual void exitClassStatement(RiddleParser::ClassStatementContext *ctx) = 0;
+
+  virtual void enterClassBody(RiddleParser::ClassBodyContext *ctx) = 0;
+  virtual void exitClassBody(RiddleParser::ClassBodyContext *ctx) = 0;
+
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
 
@@ -212,6 +218,13 @@ public:
   virtual void enterInteger(RiddleParser::IntegerContext *ctx) = 0;
   virtual void exitInteger(RiddleParser::IntegerContext *ctx) = 0;
 
+  virtual void enterTemplateArg(RiddleParser::TemplateArgContext *ctx) = 0;
+  virtual void exitTemplateArg(RiddleParser::TemplateArgContext *ctx) = 0;
 
+  virtual void enterTemplateArgs(RiddleParser::TemplateArgsContext *ctx) = 0;
+  virtual void exitTemplateArgs(RiddleParser::TemplateArgsContext *ctx) = 0;
+
+  virtual void enterTypeName(RiddleParser::TypeNameContext *ctx) = 0;
+  virtual void exitTypeName(RiddleParser::TypeNameContext *ctx) = 0;
 };
 

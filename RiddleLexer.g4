@@ -21,6 +21,8 @@ False:'false';
 //基本运算符
 LeftBracket:    '(';
 RightBracket:   ')';
+LeftSquare:     '[';
+RightSquare:    ']';
 LeftCurly:      '{';
 RightCurly:     '}';
 Colon:          ':';

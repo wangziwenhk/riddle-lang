@@ -47,6 +47,10 @@ public:
 
     virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) = 0;
 
+    virtual std::any visitClassStatement(RiddleParser::ClassStatementContext *context) = 0;
+
+    virtual std::any visitClassBody(RiddleParser::ClassBodyContext *context) = 0;
+
     virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *context) = 0;
 
     virtual std::any visitAndAssignExpr(RiddleParser::AndAssignExprContext *context) = 0;
@@ -151,6 +155,10 @@ public:
 
     virtual std::any visitInteger(RiddleParser::IntegerContext *context) = 0;
 
+    virtual std::any visitTemplateArg(RiddleParser::TemplateArgContext *context) = 0;
 
+    virtual std::any visitTemplateArgs(RiddleParser::TemplateArgsContext *context) = 0;
+
+    virtual std::any visitTypeName(RiddleParser::TypeNameContext *context) = 0;
 };
 
