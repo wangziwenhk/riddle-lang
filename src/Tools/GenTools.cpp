@@ -32,6 +32,8 @@ namespace Riddle {
             return Builder.getInt1Ty();
         else if(type == "char")
             return Builder.getInt8Ty();
+        else if(type == "array")
+            return Builder.getPtrTy();
         throw std::logic_error("There is no such type");
     }
     std::vector<llvm::Type *> getTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder) {

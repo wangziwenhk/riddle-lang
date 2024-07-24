@@ -40,12 +40,8 @@ file(GLOB SOURCE_FILES
         "src/Visitors/*")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
-add_executable(TEST ${SOURCE_FILES} ${AST_FILES})
 
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
-target_compile_definitions(TEST PRIVATE ${PLATFORM_DEFINES} "-DTEST")
 
 target_link_libraries(Riddle_Language LLVMCore)
 target_link_libraries(Riddle_Language antlr4_shared)
-target_link_libraries(TEST LLVMCore)
-target_link_libraries(TEST antlr4_shared)

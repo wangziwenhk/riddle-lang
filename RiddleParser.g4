@@ -41,9 +41,9 @@ importStatement
     ;
 
 varDefineStatement
-    : Var name=Identifier Colon type=Identifier
+    : Var name=Identifier Colon type=typeName
     | Var name=Identifier Assign value=expression
-    | Var name=Identifier Colon type=Identifier Assign value=expression
+    | Var name=Identifier Colon type=typeName Assign value=expression
     ;
 
 argsExpr
@@ -55,7 +55,7 @@ defineArgs
     ;
 
 funcDefine
-    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=id)? LeftCurly body=funcBody RightCurly
+    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=typeName)? LeftCurly body=funcBody RightCurly
     ;
 
 funcBody
@@ -81,7 +81,7 @@ returnStatement
 
 expression
     : funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
-    | Less type=id Greater LeftBracket value=objectExpr RightBracket #castExpr
+    | Less type=typeName Greater LeftBracket value=objectExpr RightBracket #castExpr
     | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
@@ -168,4 +168,9 @@ integer returns [int value]
     | Octal{
         $value = stoi($Octal.text.substr(2),nullptr,8);
     }
+    ;
+
+typeName
+    : name=id
+    | Less name=id Greater
     ;

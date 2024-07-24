@@ -75,9 +75,14 @@ namespace Riddle {
         return DefineArgsType{types, names};
     }
     std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
-        // todo 实现自定义的返回值
         auto args = any_cast<DefineArgsType>(visit(ctx->args));
         auto argsTypes = getTypes(args.typeNames, Builder);
+        llvm::Type *resultType = nullptr;
+        if(ctx->returnType == nullptr) {
+            resultType = Builder.getVoidTy();
+        } else {
+            resultType = getType(ctx->returnType->getText(), Builder);
+        }
 
         llvm::FunctionType *funcType = llvm::FunctionType::get(Builder.getInt32Ty(), argsTypes, false);
         llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
@@ -87,6 +92,7 @@ namespace Riddle {
         FuncStack.push(func);
         varManager.push();
 
+        //获取参数列表
         auto argIter = func->args().begin();
         for(int i = 0; i < args.names.size(); i++, argIter++) {
             llvm::AllocaInst *Alloca = initAlloca(args.names[i], args.typeNames[i], Builder);
