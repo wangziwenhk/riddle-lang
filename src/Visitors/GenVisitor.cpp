@@ -84,7 +84,7 @@ namespace Riddle {
             resultType = getType(ctx->returnType->getText(), Builder);
         }
 
-        llvm::FunctionType *funcType = llvm::FunctionType::get(Builder.getInt32Ty(), argsTypes, false);
+        llvm::FunctionType *funcType = llvm::FunctionType::get(resultType, argsTypes, false);
         llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", func);
         Builder.SetInsertPoint(entry);
