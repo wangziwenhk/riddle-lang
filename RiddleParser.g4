@@ -54,7 +54,7 @@ argsExpr
     ;
 
 defineArgs
-    : ((Identifier Colon Identifier Comma)* (Identifier Colon Identifier))?
+    : ((Identifier Colon typeName Comma)* (Identifier Colon typeName))?
     ;
 
 funcDefine

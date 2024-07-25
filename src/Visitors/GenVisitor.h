@@ -195,7 +195,7 @@ namespace Riddle {
         /// @returns vector<llvm::Value*>
         std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override;
         /// @brief 获取类型
-        /// @returns llvm::Type*
+        /// @returns std::tuple(llvm::Type*,llvm::Value*)
         std::any visitTypeName(RiddleParser::TypeNameContext *ctx) override;
     };
 }// namespace Riddle

@@ -53,38 +53,36 @@ namespace Riddle {
         return ret;
     }
     std::any GenVisitor::visitDefineArgs(RiddleParser::DefineArgsContext *ctx) {
-        std::vector<std::string> types;
+        std::vector<llvm::Type *> types;
         std::vector<std::string> names;
-        std::string type, name;
+        std::string name;
         for(auto i: ctx->children) {
-            if(!isIdentifier(i)) continue;
-
-            if(name.empty())
+            if(isIdentifier(i))
                 name = i->getText();
-            else if(type.empty())
-                type = i->getText();
-            else {
+            else if(dynamic_cast<RiddleParser::TypeNameContext *>(i) != nullptr) {
+                auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(i));
+                auto [type, size] = tuple;
                 types.push_back(type);
                 names.push_back(name);
+                type = nullptr;
+                name = "";
             }
-        }
-        if(!type.empty()) {
-            types.push_back(type);
-            names.push_back(name);
         }
         return DefineArgsType{types, names};
     }
     std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
+        //fixme 这个问题
         auto args = any_cast<DefineArgsType>(visit(ctx->args));
-        auto argsTypes = getTypes(args.typeNames, Builder);
         llvm::Type *resultType;
         if(ctx->returnType == nullptr) {
             resultType = Builder.getVoidTy();
         } else {
-            resultType = getSampleType(ctx->returnType->getText(), Builder);
+            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->returnType));
+            auto [type, size] = tuple;
+            resultType = type;
         }
 
-        llvm::FunctionType *funcType = llvm::FunctionType::get(resultType, argsTypes, false);
+        llvm::FunctionType *funcType = llvm::FunctionType::get(resultType, args.types, false);
         llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", func);
         Builder.SetInsertPoint(entry);
@@ -116,18 +114,19 @@ namespace Riddle {
         std::string name = ctx->name->getText();
         if(ctx->type == nullptr) {
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            auto type = any_cast<llvm::Type *>(visit(ctx->type));
-            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, nullptr, name);
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(value->getType(), nullptr, name);
             assignBinaryOp(Alloca, value, "=");
-            varManager.defineVar(name, false, Alloca, getTypeName(type));
+            varManager.defineVar(name, false, Alloca, getTypeName(value->getType()));
         } else if(ctx->value == nullptr) {
-            auto type = any_cast<llvm::Type *>(visit(ctx->type));
-            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, nullptr, name);
+            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->type));
+            auto [type, size] = tuple;
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, size, name);
             varManager.defineVar(name, false, Alloca, getTypeName(type));
         } else {
-            auto type = any_cast<llvm::Type *>(visit(ctx->type));
+            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->type));
+            auto [type, size] = tuple;
             auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, nullptr, name);
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, size, name);
             assignBinaryOp(Alloca, value, "=");
             varManager.defineVar(name, false, Alloca, getTypeName(type));
         }
@@ -414,14 +413,16 @@ namespace Riddle {
     std::any GenVisitor::visitTypeName(RiddleParser::TypeNameContext *ctx) {
         if(!ctx->size) {
             auto name = ctx->name->getText();
-            if(isSampleType(name)) return getSampleType(name, Builder);
+            if(isSampleType(name)) {
+                return std::tuple(getSampleType(name, Builder), (llvm::Value *)Builder.getInt32(0));
+            }
             throw std::logic_error("关于使用自定义类型是未实现的");
         } else {//数组
-            auto baseType = any_cast<llvm::Type *>(visit(ctx->baseType));
+            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->baseType));
+            auto [baseType, baseSize] = tuple;
             auto size = any_cast<llvm::Value *>(visit(ctx->size));
-            //todo 实现判断是否溢出
             llvm::Type *ptr = llvm::PointerType::get(baseType, 0);
-            return ptr;
+            return std::tuple(ptr, size);
         }
     }
 }// namespace Riddle

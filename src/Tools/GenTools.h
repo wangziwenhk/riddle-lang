@@ -16,7 +16,7 @@ namespace Riddle {
     bool isTerminalNode(antlr4::tree::ParseTree *tree);
     bool isIdentifier(antlr4::tree::ParseTree *tree);
     struct DefineArgsType {
-        std::vector<std::string> typeNames;
+        std::vector<llvm::Type *> types;
         std::vector<std::string> names;
     };
 
