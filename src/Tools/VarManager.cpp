@@ -22,7 +22,7 @@ namespace Riddle {
         }
         Defined.pop();
     }
-    void VarManager::defineVar(const std::string &name, const bool &isConst, llvm::Value *value, const std::string &type) {
+    void VarManager::defineVar(const std::string &name, const bool &isConst, llvm::AllocaInst *value, const std::string &type) {
         if(Defined.top().count(name)) {
             throw std::logic_error("The variable has been defined multiple times");
         }

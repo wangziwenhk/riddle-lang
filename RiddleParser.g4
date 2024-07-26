@@ -90,18 +90,24 @@ classBody
     : statement_ed*
     ;
 
+// 这一块就是使用
+exprPtr
+    : left=exprPtr LeftSquare right=expression RightSquare #squareExpr     // x[y]
+    | funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
+    | id                                                    #objectExpr
+    ;
+
 expression
-    : funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
-    | Less type=typeName Greater LeftBracket value=objectExpr RightBracket #castExpr
+    : Less type=typeName Greater LeftBracket value=exprPtr RightBracket #castExpr
     | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
     | Sub expr=expression                                   #negativeExpr   // -x
-    | Add Add expr=objectExpr                               #selfAddLeftExpr // ++x
-    | expr=objectExpr Add Add                               #selfAddRightExpr // x++
-    | Sub Sub expr=objectExpr                               #selfSubLeftExpr // ++x
-    | expr=objectExpr Sub Sub                               #selfSubRightExpr // x++
-    | left=objectExpr LeftSquare right=expression RightSquare #squareExpr     // x[y]
+    | Add Add expr=exprPtr                                  #selfAddLeftExpr // ++x
+    | expr=exprPtr Add Add                                  #selfAddRightExpr // x++
+    | Sub Sub expr=exprPtr                                  #selfSubLeftExpr // ++x
+    | expr=exprPtr Sub Sub                               #selfSubRightExpr // x++
+    | exprPtr                                               #ptrExpr
     | left=expression Star right=expression                 #mulExpr        // x*y
     | left=expression Div  right=expression                 #divExpr        // x/y
     | left=expression Mod right=expression                  #modExpr        // x%y
@@ -121,27 +127,23 @@ expression
     | left=expression Or right=expression                   #bitOrExpr      // x|y
     | left=expression And And right=expression              #andExpr        // x&&y
     | left=expression Or Or right=expression                #orExpr         // x||y
-    | left=objectExpr Assign right=expression               #assignExpr     // x=y
-    | left=objectExpr Add Assign right=expression           #addAssignExpr     // x+=y
-    | left=objectExpr Sub Assign right=expression           #subAssignExpr     // x-=y
-    | left=objectExpr Star Assign right=expression          #mulAssignExpr    // x*=y
-    | left=objectExpr Div Assign right=expression           #divAssignExpr     // x/=y
-    | left=objectExpr Mod Assign right=expression           #modAssignExpr     // x%=y
-    | left=objectExpr Add Assign right=expression           #addAssignExpr     // x+=y
-    | left=objectExpr And Assign right=expression           #andAssignExpr          // x&=y
-    | left=objectExpr Or  Assign right=expression           #orAssignExpr           // x|=y
-    | left=objectExpr Xor Assign right=expression           #xorAssignExpr          // x^=y
-    | left=objectExpr LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
-    | left=objectExpr RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
-    | left=objectExpr RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
+    | left=exprPtr Assign right=expression               #assignExpr     // x=y
+    | left=exprPtr Add Assign right=expression           #addAssignExpr     // x+=y
+    | left=exprPtr Sub Assign right=expression           #subAssignExpr     // x-=y
+    | left=exprPtr Star Assign right=expression          #mulAssignExpr    // x*=y
+    | left=exprPtr Div Assign right=expression           #divAssignExpr     // x/=y
+    | left=exprPtr Mod Assign right=expression           #modAssignExpr     // x%=y
+    | left=exprPtr Add Assign right=expression           #addAssignExpr     // x+=y
+    | left=exprPtr And Assign right=expression           #andAssignExpr          // x&=y
+    | left=exprPtr Or  Assign right=expression           #orAssignExpr           // x|=y
+    | left=exprPtr Xor Assign right=expression           #xorAssignExpr          // x^=y
+    | left=exprPtr LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
+    | left=exprPtr RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
+    | left=exprPtr RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
     | string                                                #stringExpr
     | number                                                #numberExpr
     | boolean                                               #booleanExpr
     | id                                                    #objValExpr
-    ;
-
-objectExpr
-    : id
     ;
 
 id: Identifier (Dot Identifier)*;

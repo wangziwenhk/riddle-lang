@@ -42,7 +42,7 @@ namespace Riddle {
         return p;
     }
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        llvm::Value *value = varManager.getVar(ctx->id()->getText()).value;
+        llvm::AllocaInst *value = varManager.getVar(ctx->id()->getText()).value;
         return value;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -93,8 +93,9 @@ namespace Riddle {
         //获取参数列表
         auto argIter = func->args().begin();
         for(int i = 0; i < args.names.size(); i++, argIter++) {
-            argIter->setName(args.names[i]);
-            varManager.defineVar(args.names[i], false, argIter, getTypeName(argIter->getType()));
+            llvm::AllocaInst *Alloca = Builder.CreateAlloca(args.types[i], nullptr, args.names[i]);
+            Builder.CreateStore(argIter, Alloca);
+            varManager.defineVar(args.names[i], false, Alloca, getTypeName(args.types[i]));
         }
 
         visit(ctx->funcBody());
@@ -133,8 +134,8 @@ namespace Riddle {
         return nullptr;
     }
     std::any GenVisitor::visitObjValExpr(RiddleParser::ObjValExprContext *ctx) {
-        llvm::Value *var = varManager.getVar(ctx->id()->getText()).value;
-        llvm::Value *LoadedValue = Builder.CreateLoad(var->getType(), var, "tempVar");
+        llvm::AllocaInst *var = varManager.getVar(ctx->id()->getText()).value;
+        llvm::Value *LoadedValue = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
         return LoadedValue;
     }
     std::any GenVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {
@@ -386,8 +387,8 @@ namespace Riddle {
     // endregion
     std::any GenVisitor::visitCastExpr(RiddleParser::CastExprContext *ctx) {
         auto type = ctx->type->getText();
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->value));
-        auto value = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
+        auto var = any_cast<llvm::Value *>(visit(ctx->value));
+        auto value = Builder.CreateLoad(var->getType(), var, "tempVar");
         auto func = cast[getTypeName(value->getType())][type];
         return func(Builder, value);
     }
@@ -425,7 +426,7 @@ namespace Riddle {
         }
     }
     std::any GenVisitor::visitSquareExpr(RiddleParser::SquareExprContext *ctx) {
-        auto array = any_cast<llvm::Value *>(visit(ctx->left));
+        auto array = any_cast<llvm::AllocaInst *>(visit(ctx->left));
         auto index = any_cast<llvm::Value *>(visit(ctx->right));
         auto ElementTy = dyn_cast<llvm::PointerType>(array->getType());
         llvm::Value *ptr = Builder.CreateGEP(ElementTy, array, {index}, "nthElementPtr");
