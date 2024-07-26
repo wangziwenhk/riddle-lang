@@ -31,7 +31,7 @@ namespace Riddle {
         /// @param value 值
         /// @param op 操作符
         /// @returns llvm::Value*
-        llvm::Value *assignBinaryOp(llvm::AllocaInst *var, llvm::Value *value, std::string op);
+        llvm::Value *assignBinaryOp(llvm::Value *var, llvm::Value *value, std::string op);
         // endregion
     public:
         [[maybe_unused]]
@@ -200,6 +200,9 @@ namespace Riddle {
         /// @brief 获取数组内容
         /// @returns llvm::Value*
         std::any visitSquareExpr(RiddleParser::SquareExprContext *ctx) override;
+        /// @brief 解析指针内容
+        /// @returns llvm::Value*
+        std::any visitPtrExpr(RiddleParser::PtrExprContext *ctx) override;
     };
 }// namespace Riddle
 

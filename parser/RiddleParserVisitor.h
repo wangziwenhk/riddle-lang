@@ -51,6 +51,12 @@ public:
 
     virtual std::any visitClassBody(RiddleParser::ClassBodyContext *context) = 0;
 
+    virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
+
+    virtual std::any visitSquareExpr(RiddleParser::SquareExprContext *context) = 0;
+
+    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
+
     virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *context) = 0;
 
     virtual std::any visitAndAssignExpr(RiddleParser::AndAssignExprContext *context) = 0;
@@ -81,6 +87,8 @@ public:
 
     virtual std::any visitBitXorExpr(RiddleParser::BitXorExprContext *context) = 0;
 
+    virtual std::any visitPtrExpr(RiddleParser::PtrExprContext *context) = 0;
+
     virtual std::any visitStringExpr(RiddleParser::StringExprContext *context) = 0;
 
     virtual std::any visitGreaterExpr(RiddleParser::GreaterExprContext *context) = 0;
@@ -102,10 +110,6 @@ public:
     virtual std::any visitSelfAddRightExpr(RiddleParser::SelfAddRightExprContext *context) = 0;
 
     virtual std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *context) = 0;
-
-    virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
-
-    virtual std::any visitSquareExpr(RiddleParser::SquareExprContext *context) = 0;
 
     virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *context) = 0;
 
@@ -142,8 +146,6 @@ public:
     virtual std::any visitEqualExpr(RiddleParser::EqualExprContext *context) = 0;
 
     virtual std::any visitAndExpr(RiddleParser::AndExprContext *context) = 0;
-
-    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
 
     virtual std::any visitId(RiddleParser::IdContext *context) = 0;
 

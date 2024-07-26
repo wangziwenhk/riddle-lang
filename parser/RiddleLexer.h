@@ -77,7 +77,7 @@ public:
 
     explicit RiddleLexer(antlr4::CharStream *input);
 
-  ~RiddleLexer() override;
+    ~RiddleLexer() override;
 
 
   std::string getGrammarFileName() const override;

@@ -212,9 +212,6 @@ namespace Riddle {
         if(value1->getType()->isStructTy()) {
             throw std::logic_error("还没实现");
         } else {//基本类型处理
-            if(value1->getType() != value2->getType()) {
-                throw std::logic_error("Type mismatch");
-            }
             auto it = opMap.find(op);
             if(it != opMap.end()) {
                 return it->second(Builder, value1, value2);
@@ -222,10 +219,17 @@ namespace Riddle {
         }
         return nullptr;
     }
-    llvm::Value *GenVisitor::assignBinaryOp(llvm::AllocaInst *var, llvm::Value *value, std::string op) {
-        auto loadValue = Builder.CreateLoad(var->getAllocatedType(), var);
-        if(var->getAllocatedType() != value->getType()) {
-            value = cast[getTypeName(var->getAllocatedType())][getTypeName(value->getType())](Builder, value);
+    llvm::Value *GenVisitor::assignBinaryOp(llvm::Value *var, llvm::Value *value, std::string op) {
+        llvm::Type *type = nullptr;
+        if(auto gep = dyn_cast<llvm::GetElementPtrInst>(var)) {
+            type = gep->getResultElementType();
+        } else if(auto allocaTy = dyn_cast<llvm::AllocaInst>(var)) {
+            type = allocaTy->getAllocatedType();
+        }
+
+        auto loadValue = Builder.CreateLoad(type, var);
+        if(type != value->getType() && isSampleType(getTypeName(type))) {
+            value = cast[getTypeName(type)][getTypeName(value->getType())](Builder, value);
         }
         auto result = binaryOperator(loadValue, value, op.substr(0, op.size() - 1));
         Builder.CreateStore(result, var);
@@ -325,62 +329,62 @@ namespace Riddle {
     // endregion
     // region 赋值的双目运算
     std::any GenVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "=");
     }
     std::any GenVisitor::visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "+=");
     }
     std::any GenVisitor::visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "-=");
     }
     std::any GenVisitor::visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "*=");
     }
     std::any GenVisitor::visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "/=");
     }
     std::any GenVisitor::visitModAssignExpr(RiddleParser::ModAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "%=");
     }
     std::any GenVisitor::visitShlAssignExpr(RiddleParser::ShlAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "<<=");
     }
     std::any GenVisitor::visitAShrAssignExpr(RiddleParser::AShrAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, ">>=");
     }
     std::any GenVisitor::visitLShrAssignExpr(RiddleParser::LShrAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, ">>>=");
     }
     std::any GenVisitor::visitAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "&=");
     }
     std::any GenVisitor::visitOrAssignExpr(RiddleParser::OrAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "|=");
     }
     std::any GenVisitor::visitXorAssignExpr(RiddleParser::XorAssignExprContext *ctx) {
-        auto var = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto var = any_cast<llvm::Value *>(visit(ctx->left));
         auto value = any_cast<llvm::Value *>(visit(ctx->right));
         return assignBinaryOp(var, value, "^=");
     }
@@ -430,7 +434,13 @@ namespace Riddle {
         auto index = any_cast<llvm::Value *>(visit(ctx->right));
         auto ElementTy = dyn_cast<llvm::PointerType>(array->getType());
         llvm::Value *ptr = Builder.CreateGEP(ElementTy, array, {index}, "nthElementPtr");
-        llvm::Value *value = Builder.CreateLoad(ElementTy, ptr);
+        //        llvm::Value *value = Builder.CreateLoad(ElementTy, ptr);
+        return ptr;
+    }
+    std::any GenVisitor::visitPtrExpr(RiddleParser::PtrExprContext *ctx) {
+        auto ptr = any_cast<llvm::Value *>(visit(ctx->children[0]));
+        auto type = llvm::cast<llvm::PointerType>(ptr->getType());
+        llvm::Value *value = Builder.CreateLoad(type, ptr);
         return value;
     }
 }// namespace Riddle

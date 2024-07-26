@@ -64,6 +64,15 @@ public:
   virtual void enterClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override {}
   virtual void exitClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override {}
 
+  virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
+  virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
+
+  virtual void enterSquareExpr(RiddleParser::SquareExprContext * /*ctx*/) override {}
+  virtual void exitSquareExpr(RiddleParser::SquareExprContext * /*ctx*/) override {}
+
+  virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override {}
+  virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override {}
+
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
 
@@ -109,6 +118,9 @@ public:
   virtual void enterBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
   virtual void exitBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
 
+  virtual void enterPtrExpr(RiddleParser::PtrExprContext * /*ctx*/) override {}
+  virtual void exitPtrExpr(RiddleParser::PtrExprContext * /*ctx*/) override {}
+
   virtual void enterStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
   virtual void exitStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
 
@@ -141,12 +153,6 @@ public:
 
   virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
   virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
-
-  virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
-  virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
-
-  virtual void enterSquareExpr(RiddleParser::SquareExprContext * /*ctx*/) override {}
-  virtual void exitSquareExpr(RiddleParser::SquareExprContext * /*ctx*/) override {}
 
   virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
   virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
@@ -201,9 +207,6 @@ public:
 
   virtual void enterAndExpr(RiddleParser::AndExprContext * /*ctx*/) override { }
   virtual void exitAndExpr(RiddleParser::AndExprContext * /*ctx*/) override { }
-
-  virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
-  virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
 
   virtual void enterId(RiddleParser::IdContext * /*ctx*/) override { }
   virtual void exitId(RiddleParser::IdContext * /*ctx*/) override { }
