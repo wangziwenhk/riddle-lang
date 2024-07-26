@@ -145,6 +145,9 @@ public:
   virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
   virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
 
+  virtual void enterSquareExpr(RiddleParser::SquareExprContext * /*ctx*/) override {}
+  virtual void exitSquareExpr(RiddleParser::SquareExprContext * /*ctx*/) override {}
+
   virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
   virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
 

@@ -101,6 +101,7 @@ expression
     | expr=objectExpr Add Add                               #selfAddRightExpr // x++
     | Sub Sub expr=objectExpr                               #selfSubLeftExpr // ++x
     | expr=objectExpr Sub Sub                               #selfSubRightExpr // x++
+    | left=objectExpr LeftSquare right=expression RightSquare #squareExpr     // x[y]
     | left=expression Star right=expression                 #mulExpr        // x*y
     | left=expression Div  right=expression                 #divExpr        // x/y
     | left=expression Mod right=expression                  #modExpr        // x%y
@@ -177,7 +178,7 @@ integer returns [int value]
         $value = stoi($Binary.text.substr(2),nullptr,2);
     }
     | Octal{
-        $value = stoi($Octal.text.substr(2),nullptr,8);
+        $value = stoi($Octal.text.substr(1),nullptr,8);
     }
     ;
 

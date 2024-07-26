@@ -143,6 +143,9 @@ public:
   virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
   virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
 
+  virtual void enterSquareExpr(RiddleParser::SquareExprContext *ctx) = 0;
+  virtual void exitSquareExpr(RiddleParser::SquareExprContext *ctx) = 0;
+
   virtual void enterBracketExpr(RiddleParser::BracketExprContext *ctx) = 0;
   virtual void exitBracketExpr(RiddleParser::BracketExprContext *ctx) = 0;
 

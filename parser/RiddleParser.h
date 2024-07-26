@@ -12,7 +12,14 @@
 class  RiddleParser : public antlr4::Parser {
 public:
   enum {
-    Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8,
+        Var = 1,
+        Val = 2,
+        For = 3,
+        While = 4,
+        If = 5,
+        Else = 6,
+        Func = 7,
+        Return = 8,
         Import = 9,
         Package = 10,
         Class = 11,
@@ -69,34 +76,34 @@ public:
     };
 
     enum {
-      RuleProgram = 0,
-      RuleStatement_ed = 1,
-      RuleStatement = 2,
-      RulePackStatement = 3,
-      RuleImportStatement = 4,
-      RuleVarDefineStatement = 5,
-      RuleArgsExpr = 6,
-      RuleDefineArgs = 7,
-      RuleFuncDefine = 8,
-      RuleFuncBody = 9,
-      RuleForStatement = 10,
-      RuleWhileStatement = 11,
-      RuleIfStatement = 12,
-      RuleReturnStatement = 13,
-      RuleClassStatement = 14,
-      RuleClassBody = 15,
-      RuleExpression = 16,
-      RuleObjectExpr = 17,
-      RuleId = 18,
-      RuleNumber = 19,
-      RuleBoolean = 20,
-      RuleString = 21,
-      RuleFloat = 22,
-      RuleInteger = 23,
-      RuleTemplateArg = 24,
-      RuleTemplateArgs = 25,
-      RuleTypeName = 26
-  };
+        RuleProgram = 0,
+        RuleStatement_ed = 1,
+        RuleStatement = 2,
+        RulePackStatement = 3,
+        RuleImportStatement = 4,
+        RuleVarDefineStatement = 5,
+        RuleArgsExpr = 6,
+        RuleDefineArgs = 7,
+        RuleFuncDefine = 8,
+        RuleFuncBody = 9,
+        RuleForStatement = 10,
+        RuleWhileStatement = 11,
+        RuleIfStatement = 12,
+        RuleReturnStatement = 13,
+        RuleClassStatement = 14,
+        RuleClassBody = 15,
+        RuleExpression = 16,
+        RuleObjectExpr = 17,
+        RuleId = 18,
+        RuleNumber = 19,
+        RuleBoolean = 20,
+        RuleString = 21,
+        RuleFloat = 22,
+        RuleInteger = 23,
+        RuleTemplateArg = 24,
+        RuleTemplateArgs = 25,
+        RuleTypeName = 26
+    };
 
   explicit RiddleParser(antlr4::TokenStream *input);
 
@@ -244,7 +251,7 @@ public:
     antlr4::Token *name = nullptr;
       RiddleParser::TypeNameContext *type = nullptr;
       RiddleParser::ExpressionContext *value = nullptr;
-    VarDefineStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      VarDefineStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Var();
     antlr4::tree::TerminalNode *Colon();
@@ -288,6 +295,8 @@ public:
     antlr4::tree::TerminalNode* Identifier(size_t i);
     std::vector<antlr4::tree::TerminalNode *> Colon();
     antlr4::tree::TerminalNode* Colon(size_t i);
+    std::vector<TypeNameContext *> typeName();
+    TypeNameContext *typeName(size_t i);
     std::vector<antlr4::tree::TerminalNode *> Comma();
     antlr4::tree::TerminalNode* Comma(size_t i);
 
@@ -877,6 +886,22 @@ public:
       antlr4::tree::TerminalNode *RightBracket();
       IdContext *id();
       ArgsExprContext *argsExpr();
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class SquareExprContext : public ExpressionContext {
+  public:
+      SquareExprContext(ExpressionContext *ctx);
+
+      RiddleParser::ObjectExprContext *left = nullptr;
+      RiddleParser::ExpressionContext *right = nullptr;
+      antlr4::tree::TerminalNode *LeftSquare();
+      antlr4::tree::TerminalNode *RightSquare();
+      ObjectExprContext *objectExpr();
+      ExpressionContext *expression();
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
       virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 

@@ -421,8 +421,15 @@ namespace Riddle {
             auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->baseType));
             auto [baseType, baseSize] = tuple;
             auto size = any_cast<llvm::Value *>(visit(ctx->size));
-            llvm::Type *ptr = llvm::PointerType::get(baseType, 0);
-            return std::tuple(ptr, size);
+            return std::tuple(baseType, size);
         }
+    }
+    std::any GenVisitor::visitSquareExpr(RiddleParser::SquareExprContext *ctx) {
+        auto array = any_cast<llvm::Value *>(visit(ctx->left));
+        auto index = any_cast<llvm::Value *>(visit(ctx->right));
+        auto ElementTy = dyn_cast<llvm::PointerType>(array->getType());
+        llvm::Value *ptr = Builder.CreateGEP(ElementTy, array, {index}, "nthElementPtr");
+        llvm::Value *value = Builder.CreateLoad(ElementTy, ptr);
+        return value;
     }
 }// namespace Riddle

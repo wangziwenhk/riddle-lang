@@ -187,6 +187,10 @@ public:
       return visitChildren(ctx);
   }
 
+  virtual std::any visitSquareExpr(RiddleParser::SquareExprContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
   virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *ctx) override {
     return visitChildren(ctx);
   }

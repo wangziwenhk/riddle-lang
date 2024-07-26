@@ -105,6 +105,8 @@ public:
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
 
+    virtual std::any visitSquareExpr(RiddleParser::SquareExprContext *context) = 0;
+
     virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *context) = 0;
 
     virtual std::any visitBooleanExpr(RiddleParser::BooleanExprContext *context) = 0;

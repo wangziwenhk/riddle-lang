@@ -28,13 +28,6 @@ namespace Riddle {
         auto it = SampleType.find(type);
         return it != SampleType.end();
     }
-    std::vector<llvm::Type *> getTypes(std::vector<std::string> type, llvm::IRBuilder<> &Builder) {
-        std::vector<llvm::Type *> result;
-        for(auto i: type) {
-            result.push_back(getSampleType(i, Builder));
-        }
-        return result;
-    }
 
     std::string getTypeName(llvm::Type *type) {
         if(type->isIntegerTy(1)) {
@@ -59,6 +52,12 @@ namespace Riddle {
         }
         //遇不到的判断
         throw std::logic_error("This type cannot be recognized");
+    }
+    bool isArray(llvm::Value *var) {
+        if(llvm::AllocaInst *AI = dyn_cast<llvm::AllocaInst>(var)) {
+            return AI->isArrayAllocation();
+        }
+        return var->getType()->isArrayTy();
     }
 
 }// namespace Riddle
