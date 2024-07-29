@@ -13,14 +13,12 @@ namespace Riddle {
     class Variable {
     public:
         const std::string name;
-        std::string type;
-        llvm::AllocaInst *value;
+        llvm::Value *value;
         const bool isConst;
         Variable() = delete;
         Variable(const std::string &name,
-                 llvm::AllocaInst *value,
-                 const std::string &type = Null,
-                 const bool isConst = false): name(name), value(value), type(type), isConst(isConst){};
+                 llvm::Value *value,
+                 const bool isConst = false): name(name), value(value), isConst(isConst){};
     };
 
 }// namespace Riddle

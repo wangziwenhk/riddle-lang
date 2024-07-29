@@ -22,20 +22,21 @@ namespace Riddle {
         }
         Defined.pop();
     }
-    void VarManager::defineVar(const std::string &name, const bool &isConst, llvm::AllocaInst *value, const std::string &type) {
+    void VarManager::defineVar(const std::string &name, const bool &isConst, llvm::Value *value) {
         if(Defined.top().count(name)) {
             throw std::logic_error("The variable has been defined multiple times");
         }
-        NamedVar[name].push(Variable(name, value, type, isConst));
+        NamedVar[name].push(Variable(name, value, isConst));
         Defined.top()[name] = true;
     }
     Variable VarManager::getVar(const std::string &name) {
         if(!isDefined(name))
             throw std::logic_error("The variable does not exist");
-        if(NamedVar[name].top().type == Null)
-            throw std::logic_error("Unclear variables");
 
         return NamedVar[name].top();
+    }
+    bool VarManager::isGlobal() {
+        return Defined.size() == 1;
     }
 
 }// namespace Riddle

@@ -42,9 +42,8 @@ namespace Riddle {
         return p;
     }
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        llvm::AllocaInst *value = varManager.getVar(ctx->id()->getText()).value;
-        llvm::Value *rv = value;
-        return rv;
+        llvm::Value *value = varManager.getVar(ctx->id()->getText()).value;
+        return value;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
         varManager.push();
@@ -96,7 +95,7 @@ namespace Riddle {
         for(int i = 0; i < args.names.size(); i++, argIter++) {
             llvm::AllocaInst *Alloca = Builder.CreateAlloca(args.types[i], nullptr, args.names[i]);
             Builder.CreateStore(argIter, Alloca);
-            varManager.defineVar(args.names[i], false, Alloca, getTypeName(args.types[i]));
+            varManager.defineVar(args.names[i], false, Alloca);
         }
 
         visit(ctx->funcBody());
@@ -114,29 +113,35 @@ namespace Riddle {
     }
     std::any GenVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
         std::string name = ctx->name->getText();
-        if(ctx->type == nullptr) {
-            auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            llvm::AllocaInst *Alloca = Builder.CreateAlloca(value->getType(), nullptr, name);
-            assignBinaryOp(Alloca, value, "=");
-            varManager.defineVar(name, false, Alloca, getTypeName(value->getType()));
-        } else if(ctx->value == nullptr) {
+        llvm::Value *value = nullptr;
+        llvm::Type *type = nullptr;
+        llvm::Value *size = nullptr;
+
+        if(ctx->type != nullptr) {
             auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->type));
-            auto [type, size] = tuple;
-            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, size, name);
-            varManager.defineVar(name, false, Alloca, getTypeName(type));
-        } else {
-            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->type));
-            auto [type, size] = tuple;
-            auto value = any_cast<llvm::Value *>(visit(ctx->value));
-            llvm::AllocaInst *Alloca = Builder.CreateAlloca(type, size, name);
-            assignBinaryOp(Alloca, value, "=");
-            varManager.defineVar(name, false, Alloca, getTypeName(type));
+            auto [_type, _size] = tuple;
+            type = _type;
+            size = _size;
+        } else if(ctx->value != nullptr) {
+            value = any_cast<llvm::Value *>(visit(ctx->value));
+            type = value->getType();
         }
+
+        llvm::Value *var;
+        if(varManager.isGlobal()) {
+            auto CV = llvm::dyn_cast<llvm::Constant>(value);
+            var = new llvm::GlobalVariable(*module, type, false, llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+        } else {
+            var = Builder.CreateAlloca(type, size, name);
+            if(ctx->value != nullptr)
+                assignBinaryOp(var, value, "=");
+        }
+        varManager.defineVar(name, false, var);
         return nullptr;
     }
     std::any GenVisitor::visitObjValExpr(RiddleParser::ObjValExprContext *ctx) {
-        llvm::AllocaInst *var = varManager.getVar(ctx->id()->getText()).value;
-        llvm::Value *LoadedValue = Builder.CreateLoad(var->getAllocatedType(), var, "tempVar");
+        llvm::Value *var = varManager.getVar(ctx->id()->getText()).value;
+        llvm::Value *LoadedValue = Builder.CreateLoad(var->getType(), var, "tempVar");
         return LoadedValue;
     }
     std::any GenVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {

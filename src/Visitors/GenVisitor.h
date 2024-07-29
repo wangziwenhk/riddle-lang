@@ -1,8 +1,8 @@
 #ifndef RIDDLE_LANGUAGE_GENVISITOR_H
 #define RIDDLE_LANGUAGE_GENVISITOR_H
 
+#include "Tools/Managers/VarManager.h"
 #include "Tools/Setup.h"
-#include "Tools/VarManager.h"
 #include <RiddleParserBaseVisitor.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>

@@ -36,6 +36,7 @@ file(GLOB AST_FILES "parser/*.cpp" "parser/*.h")
 file(GLOB SOURCE_FILES
         "src/*"
         "src/Tools/*"
+        "src/Tools/Managers/*"
         "src/Types/*"
         "src/Visitors/*")
 
