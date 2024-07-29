@@ -43,7 +43,8 @@ namespace Riddle {
     }
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
         llvm::AllocaInst *value = varManager.getVar(ctx->id()->getText()).value;
-        return value;
+        llvm::Value *rv = value;
+        return rv;
     }
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
         varManager.push();
@@ -430,7 +431,7 @@ namespace Riddle {
         }
     }
     std::any GenVisitor::visitSquareExpr(RiddleParser::SquareExprContext *ctx) {
-        auto array = any_cast<llvm::AllocaInst *>(visit(ctx->left));
+        auto array = any_cast<llvm::Value *>(visit(ctx->left));
         auto index = any_cast<llvm::Value *>(visit(ctx->right));
         auto ElementTy = dyn_cast<llvm::PointerType>(array->getType());
         llvm::Value *ptr = Builder.CreateGEP(ElementTy, array, {index}, "nthElementPtr");
@@ -439,7 +440,8 @@ namespace Riddle {
     }
     std::any GenVisitor::visitPtrExpr(RiddleParser::PtrExprContext *ctx) {
         auto ptr = any_cast<llvm::Value *>(visit(ctx->children[0]));
-        auto type = llvm::cast<llvm::PointerType>(ptr->getType());
+        auto type = llvm::dyn_cast<llvm::PointerType>(ptr->getType());
+        if(type == nullptr) return ptr;
         llvm::Value *value = Builder.CreateLoad(type, ptr);
         return value;
     }
