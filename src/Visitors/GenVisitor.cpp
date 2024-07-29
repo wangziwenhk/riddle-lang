@@ -71,7 +71,6 @@ namespace Riddle {
         return DefineArgsType{types, names};
     }
     std::any GenVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
-        //fixme 这个问题
         auto args = any_cast<DefineArgsType>(visit(ctx->args));
         llvm::Type *resultType;
         if(ctx->returnType == nullptr) {
@@ -85,6 +84,7 @@ namespace Riddle {
         llvm::FunctionType *funcType = llvm::FunctionType::get(resultType, args.types, false);
         llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", func);
+        llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
         Builder.SetInsertPoint(entry);
         FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
         FuncStack.push(func);
@@ -101,6 +101,7 @@ namespace Riddle {
         visit(ctx->funcBody());
         varManager.pop();
         FuncStack.pop();
+        Builder.SetInsertPoint(oldBlock);
         return nullptr;
     }
     std::any GenVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
