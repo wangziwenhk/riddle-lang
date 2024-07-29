@@ -143,18 +143,18 @@ namespace Riddle {
         auto cond = any_cast<llvm::Value *>(visit(ctx->cond));
         llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(globalContext, "if.then", FuncStack.top());
         llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(globalContext, "if.else", FuncStack.top());
-        llvm::BasicBlock *endBlock = llvm::BasicBlock::Create(globalContext, "if.end", FuncStack.top());
+        llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
         Builder.CreateCondBr(cond, thenBlock, elseBlock);
 
         Builder.SetInsertPoint(thenBlock);
         visit(ctx->body);
-        Builder.CreateBr(endBlock);
+        Builder.CreateBr(oldBlock);
 
         Builder.SetInsertPoint(elseBlock);
         if(ctx->elseBody != nullptr) visit(ctx->elseBody);
-        Builder.CreateBr(endBlock);
+        Builder.CreateBr(oldBlock);
 
-        Builder.SetInsertPoint(endBlock);
+        Builder.SetInsertPoint(oldBlock);
         return nullptr;
     }
     std::any GenVisitor::visitBoolean(RiddleParser::BooleanContext *ctx) {
@@ -166,12 +166,12 @@ namespace Riddle {
     std::any GenVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
         llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(globalContext, "while.cond", FuncStack.top());
         llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(globalContext, "while.loop", FuncStack.top());
-        llvm::BasicBlock *afterBlock = llvm::BasicBlock::Create(globalContext, "while.end", FuncStack.top());
+        llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
 
         Builder.CreateBr(condBlock);
         Builder.SetInsertPoint(condBlock);
         auto Cond = any_cast<llvm::Value *>(visit(ctx->runCond));
-        Builder.CreateCondBr(Cond, loopBlock, afterBlock);
+        Builder.CreateCondBr(Cond, loopBlock, oldBlock);
 
         varManager.push();
         Builder.SetInsertPoint(loopBlock);
@@ -179,13 +179,13 @@ namespace Riddle {
         Builder.CreateBr(condBlock);
         varManager.pop();
 
-        Builder.SetInsertPoint(afterBlock);
+        Builder.SetInsertPoint(oldBlock);
         return nullptr;
     }
     std::any GenVisitor::visitForStatement(RiddleParser::ForStatementContext *ctx) {
         llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(globalContext, "for.cond", FuncStack.top());
         llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(globalContext, "for.loop", FuncStack.top());
-        llvm::BasicBlock *afterBlock = llvm::BasicBlock::Create(globalContext, "for.end", FuncStack.top());
+        llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
 
         //这里我们认为这个变量的作用域在 for 里面，但是实际上是在 for 的外面，但是外面获取不到这个变量的信息
         varManager.push();
@@ -195,13 +195,13 @@ namespace Riddle {
         Builder.CreateBr(condBlock);
         Builder.SetInsertPoint(condBlock);
         auto Cond = any_cast<llvm::Value *>(visit(ctx->termCond));
-        Builder.CreateCondBr(Cond, loopBlock, afterBlock);
+        Builder.CreateCondBr(Cond, loopBlock, oldBlock);
 
         Builder.SetInsertPoint(loopBlock);
         visit(ctx->body);
         Builder.CreateBr(condBlock);
 
-        Builder.SetInsertPoint(afterBlock);
+        Builder.SetInsertPoint(oldBlock);
         varManager.pop();
         return nullptr;
     }

@@ -20,8 +20,14 @@ public:
   virtual void enterStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
   virtual void exitStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
 
+  virtual void enterDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
+  virtual void exitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
+
   virtual void enterStatement(RiddleParser::StatementContext *ctx) = 0;
   virtual void exitStatement(RiddleParser::StatementContext *ctx) = 0;
+
+  virtual void enterDefineStatement(RiddleParser::DefineStatementContext *ctx) = 0;
+  virtual void exitDefineStatement(RiddleParser::DefineStatementContext *ctx) = 0;
 
   virtual void enterPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
   virtual void exitPackStatement(RiddleParser::PackStatementContext *ctx) = 0;

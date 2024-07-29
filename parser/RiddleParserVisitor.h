@@ -23,7 +23,11 @@ public:
 
     virtual std::any visitStatement_ed(RiddleParser::Statement_edContext *context) = 0;
 
+    virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *context) = 0;
+
     virtual std::any visitStatement(RiddleParser::StatementContext *context) = 0;
+
+    virtual std::any visitDefineStatement(RiddleParser::DefineStatementContext *context) = 0;
 
     virtual std::any visitPackStatement(RiddleParser::PackStatementContext *context) = 0;
 

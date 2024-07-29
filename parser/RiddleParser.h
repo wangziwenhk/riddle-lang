@@ -78,34 +78,36 @@ public:
     enum {
         RuleProgram = 0,
         RuleStatement_ed = 1,
-        RuleStatement = 2,
-        RulePackStatement = 3,
-        RuleImportStatement = 4,
-        RuleVarDefineStatement = 5,
-        RuleArgsExpr = 6,
-        RuleDefineArgs = 7,
-        RuleFuncDefine = 8,
-        RuleFuncBody = 9,
-        RuleForStatement = 10,
-        RuleWhileStatement = 11,
-        RuleIfStatement = 12,
-        RuleReturnStatement = 13,
-        RuleClassStatement = 14,
-        RuleClassBody = 15,
-        RuleExprPtr = 16,
-        RuleExpression = 17,
-        RuleId = 18,
-        RuleNumber = 19,
-        RuleBoolean = 20,
-        RuleString = 21,
-        RuleFloat = 22,
-        RuleInteger = 23,
-        RuleTemplateArg = 24,
-        RuleTemplateArgs = 25,
-        RuleTypeName = 26
+        RuleDefineStatement_ed = 2,
+        RuleStatement = 3,
+        RuleDefineStatement = 4,
+        RulePackStatement = 5,
+        RuleImportStatement = 6,
+        RuleVarDefineStatement = 7,
+        RuleArgsExpr = 8,
+        RuleDefineArgs = 9,
+        RuleFuncDefine = 10,
+        RuleFuncBody = 11,
+        RuleForStatement = 12,
+        RuleWhileStatement = 13,
+        RuleIfStatement = 14,
+        RuleReturnStatement = 15,
+        RuleClassStatement = 16,
+        RuleClassBody = 17,
+        RuleExprPtr = 18,
+        RuleExpression = 19,
+        RuleId = 20,
+        RuleNumber = 21,
+        RuleBoolean = 22,
+        RuleString = 23,
+        RuleFloat = 24,
+        RuleInteger = 25,
+        RuleTemplateArg = 26,
+        RuleTemplateArgs = 27,
+        RuleTypeName = 28
     };
 
-    explicit RiddleParser(antlr4::TokenStream *input);
+  explicit RiddleParser(antlr4::TokenStream *input);
 
   RiddleParser(antlr4::TokenStream *input, const antlr4::atn::ParserATNSimulatorOptions &options);
 
@@ -124,7 +126,9 @@ public:
 
   class ProgramContext;
   class Statement_edContext;
+  class DefineStatement_edContext;
   class StatementContext;
+  class DefineStatementContext;
   class PackStatementContext;
   class ImportStatementContext;
   class VarDefineStatementContext;
@@ -184,6 +188,22 @@ public:
 
   Statement_edContext* statement_ed();
 
+  class DefineStatement_edContext : public antlr4::ParserRuleContext {
+  public:
+      DefineStatement_edContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      DefineStatementContext *defineStatement();
+      antlr4::tree::TerminalNode *Semi();
+      antlr4::tree::TerminalNode *Endl();
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  DefineStatement_edContext *defineStatement_ed();
+
   class  StatementContext : public antlr4::ParserRuleContext {
   public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -211,6 +231,21 @@ public:
   };
 
   StatementContext* statement();
+
+  class DefineStatementContext : public antlr4::ParserRuleContext {
+  public:
+      DefineStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+      virtual size_t getRuleIndex() const override;
+      FuncDefineContext *funcDefine();
+      VarDefineStatementContext *varDefineStatement();
+
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+      virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  DefineStatementContext *defineStatement();
 
   class  PackStatementContext : public antlr4::ParserRuleContext {
   public:
@@ -253,7 +288,7 @@ public:
       RiddleParser::ExpressionContext *value = nullptr;
       VarDefineStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
       virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Var();
+      antlr4::tree::TerminalNode *Var();
     antlr4::tree::TerminalNode *Colon();
     antlr4::tree::TerminalNode *Identifier();
     TypeNameContext *typeName();
@@ -467,8 +502,8 @@ public:
   public:
       ClassBodyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
       virtual size_t getRuleIndex() const override;
-      std::vector<Statement_edContext *> statement_ed();
-      Statement_edContext *statement_ed(size_t i);
+      std::vector<DefineStatement_edContext *> defineStatement_ed();
+      DefineStatement_edContext *defineStatement_ed(size_t i);
 
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
       virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -553,10 +588,10 @@ public:
 
       RiddleParser::ExprPtrContext *expr = nullptr;
       std::vector<antlr4::tree::TerminalNode *> Sub();
-    antlr4::tree::TerminalNode* Sub(size_t i);
+      antlr4::tree::TerminalNode* Sub(size_t i);
       ExprPtrContext *exprPtr();
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -567,7 +602,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *And();
+      antlr4::tree::TerminalNode *And();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -666,7 +701,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Star();
+      antlr4::tree::TerminalNode *Star();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -682,7 +717,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Xor();
+      antlr4::tree::TerminalNode *Xor();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -729,7 +764,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Add();
+      antlr4::tree::TerminalNode *Add();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -745,7 +780,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Or();
+      antlr4::tree::TerminalNode *Or();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -813,7 +848,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Div();
+      antlr4::tree::TerminalNode *Div();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -860,10 +895,10 @@ public:
 
       RiddleParser::ExprPtrContext *expr = nullptr;
       std::vector<antlr4::tree::TerminalNode *> Sub();
-    antlr4::tree::TerminalNode* Sub(size_t i);
+      antlr4::tree::TerminalNode* Sub(size_t i);
       ExprPtrContext *exprPtr();
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -904,10 +939,10 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Assign();
+      antlr4::tree::TerminalNode *Assign();
       ExprPtrContext *exprPtr();
       ExpressionContext *expression();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -919,10 +954,10 @@ public:
 
       RiddleParser::ExprPtrContext *expr = nullptr;
       std::vector<antlr4::tree::TerminalNode *> Add();
-    antlr4::tree::TerminalNode* Add(size_t i);
+      antlr4::tree::TerminalNode* Add(size_t i);
       ExprPtrContext *exprPtr();
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -933,7 +968,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Sub();
+      antlr4::tree::TerminalNode *Sub();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -1020,10 +1055,10 @@ public:
 
       RiddleParser::ExprPtrContext *expr = nullptr;
       std::vector<antlr4::tree::TerminalNode *> Add();
-    antlr4::tree::TerminalNode* Add(size_t i);
+      antlr4::tree::TerminalNode* Add(size_t i);
       ExprPtrContext *exprPtr();
       virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+      virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -1034,7 +1069,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *RightRightRight();
+      antlr4::tree::TerminalNode *RightRightRight();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -1066,7 +1101,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *RightRight();
+      antlr4::tree::TerminalNode *RightRight();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -1125,7 +1160,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *LeftLeft();
+      antlr4::tree::TerminalNode *LeftLeft();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();
@@ -1141,7 +1176,7 @@ public:
 
       RiddleParser::ExprPtrContext *left = nullptr;
       RiddleParser::ExpressionContext *right = nullptr;
-    antlr4::tree::TerminalNode *Mod();
+      antlr4::tree::TerminalNode *Mod();
     antlr4::tree::TerminalNode *Assign();
     ExprPtrContext *exprPtr();
     ExpressionContext *expression();

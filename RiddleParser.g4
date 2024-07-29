@@ -21,6 +21,13 @@ statement_ed
     | Endl
     ;
 
+//只包含定义的语句
+defineStatement_ed
+    : defineStatement Semi? Endl?
+    | Semi
+    | Endl
+    ;
+
 statement
     : packStatement
     | importStatement
@@ -33,6 +40,11 @@ statement
     | returnStatement
     | expression
     | LeftCurly statement_ed* RightCurly
+    ;
+
+defineStatement
+    : funcDefine
+    | varDefineStatement
     ;
 
 packStatement
@@ -87,7 +99,7 @@ classStatement
     ;
 
 classBody
-    : statement_ed*
+    : defineStatement_ed*
     ;
 
 // 这一块就是使用

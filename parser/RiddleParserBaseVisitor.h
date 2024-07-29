@@ -23,8 +23,16 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
   virtual std::any visitStatement(RiddleParser::StatementContext *ctx) override {
     return visitChildren(ctx);
+  }
+
+  virtual std::any visitDefineStatement(RiddleParser::DefineStatementContext *ctx) override {
+      return visitChildren(ctx);
   }
 
   virtual std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override {

@@ -22,8 +22,14 @@ public:
   virtual void enterStatement_ed(RiddleParser::Statement_edContext * /*ctx*/) override { }
   virtual void exitStatement_ed(RiddleParser::Statement_edContext * /*ctx*/) override { }
 
+  virtual void enterDefineStatement_ed(RiddleParser::DefineStatement_edContext * /*ctx*/) override {}
+  virtual void exitDefineStatement_ed(RiddleParser::DefineStatement_edContext * /*ctx*/) override {}
+
   virtual void enterStatement(RiddleParser::StatementContext * /*ctx*/) override { }
   virtual void exitStatement(RiddleParser::StatementContext * /*ctx*/) override { }
+
+  virtual void enterDefineStatement(RiddleParser::DefineStatementContext * /*ctx*/) override {}
+  virtual void exitDefineStatement(RiddleParser::DefineStatementContext * /*ctx*/) override {}
 
   virtual void enterPackStatement(RiddleParser::PackStatementContext * /*ctx*/) override { }
   virtual void exitPackStatement(RiddleParser::PackStatementContext * /*ctx*/) override { }
