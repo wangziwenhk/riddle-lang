@@ -123,7 +123,8 @@ namespace Riddle {
             auto [_type, _size] = tuple;
             type = _type;
             size = _size;
-        } else if(ctx->value != nullptr) {
+        }
+        if(ctx->value != nullptr) {
             value = any_cast<llvm::Value *>(visit(ctx->value));
             type = value->getType();
         }
