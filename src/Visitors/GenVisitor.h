@@ -12,6 +12,8 @@ namespace Riddle {
     class GenVisitor : public RiddleParserBaseVisitor {
     private:
         castMapTy cast;
+        /// @brief 用于函数或对象的唯一性
+        std::stack<std::string> packStack;
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
         std::stack<llvm::Function *> FuncStack;
         VarManager varManager;
@@ -197,12 +199,15 @@ namespace Riddle {
         /// @brief 获取类型
         /// @returns std::tuple(llvm::Type*,llvm::Value*)
         std::any visitTypeName(RiddleParser::TypeNameContext *ctx) override;
-        /// @brief 获取数组内容
-        /// @returns llvm::Value*
-        std::any visitSquareExpr(RiddleParser::SquareExprContext *ctx) override;
         /// @brief 解析指针内容
         /// @returns llvm::Value*
         std::any visitPtrExpr(RiddleParser::PtrExprContext *ctx) override;
+        /// @brief 获取当前所在的包
+        /// @returns nullptr
+        std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override;
+        /// @brief 定义一个类
+        /// @returns nullptr
+        std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override;
     };
 }// namespace Riddle
 

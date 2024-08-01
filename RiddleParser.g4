@@ -21,17 +21,10 @@ statement_ed
     | Endl
     ;
 
-//只包含定义的语句
-defineStatement_ed
-    : defineStatement Semi? Endl?
-    | Semi
-    | Endl
-    ;
-
 statement
     : packStatement
     | importStatement
-    | classStatement
+    | classDefine
     | funcDefine
     | varDefineStatement
     | forStatement
@@ -40,11 +33,6 @@ statement
     | returnStatement
     | expression
     | LeftCurly statement_ed* RightCurly
-    ;
-
-defineStatement
-    : funcDefine
-    | varDefineStatement
     ;
 
 packStatement
@@ -94,7 +82,24 @@ returnStatement
     : Return result=statement_ed
     ;
 
-classStatement
+// 关于 Class 的特殊定义
+varClassDefine
+    : Var name=Identifier Colon type=typeName
+    | Var name=Identifier Assign value=expression
+    | Var name=Identifier Colon type=typeName Assign value=expression
+    ;
+
+funcClassDefine
+    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=typeName)? LeftCurly body=funcBody RightCurly
+    ;
+
+defineStatement_ed
+    : (varClassDefine | funcClassDefine) Semi? Endl?
+    | Semi
+    | Endl
+    ;
+
+classDefine
     : Class className = id LeftCurly body=classBody RightCurly
     ;
 
@@ -104,8 +109,7 @@ classBody
 
 // 这一块就是使用
 exprPtr
-    : left=exprPtr LeftSquare right=expression RightSquare #squareExpr     // x[y]
-    | funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
+    : funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
     | id                                                    #objectExpr
     ;
 

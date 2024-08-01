@@ -23,11 +23,7 @@ public:
 
     virtual std::any visitStatement_ed(RiddleParser::Statement_edContext *context) = 0;
 
-    virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *context) = 0;
-
     virtual std::any visitStatement(RiddleParser::StatementContext *context) = 0;
-
-    virtual std::any visitDefineStatement(RiddleParser::DefineStatementContext *context) = 0;
 
     virtual std::any visitPackStatement(RiddleParser::PackStatementContext *context) = 0;
 
@@ -51,13 +47,17 @@ public:
 
     virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) = 0;
 
-    virtual std::any visitClassStatement(RiddleParser::ClassStatementContext *context) = 0;
+    virtual std::any visitVarClassDefine(RiddleParser::VarClassDefineContext *context) = 0;
+
+    virtual std::any visitFuncClassDefine(RiddleParser::FuncClassDefineContext *context) = 0;
+
+    virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *context) = 0;
+
+    virtual std::any visitClassDefine(RiddleParser::ClassDefineContext *context) = 0;
 
     virtual std::any visitClassBody(RiddleParser::ClassBodyContext *context) = 0;
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
-
-    virtual std::any visitSquareExpr(RiddleParser::SquareExprContext *context) = 0;
 
     virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
 

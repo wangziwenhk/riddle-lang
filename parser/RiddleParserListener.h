@@ -20,14 +20,8 @@ public:
   virtual void enterStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
   virtual void exitStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
 
-  virtual void enterDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
-  virtual void exitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
-
   virtual void enterStatement(RiddleParser::StatementContext *ctx) = 0;
   virtual void exitStatement(RiddleParser::StatementContext *ctx) = 0;
-
-  virtual void enterDefineStatement(RiddleParser::DefineStatementContext *ctx) = 0;
-  virtual void exitDefineStatement(RiddleParser::DefineStatementContext *ctx) = 0;
 
   virtual void enterPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
   virtual void exitPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
@@ -62,17 +56,23 @@ public:
   virtual void enterReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
   virtual void exitReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
 
-  virtual void enterClassStatement(RiddleParser::ClassStatementContext *ctx) = 0;
-  virtual void exitClassStatement(RiddleParser::ClassStatementContext *ctx) = 0;
+  virtual void enterVarClassDefine(RiddleParser::VarClassDefineContext *ctx) = 0;
+  virtual void exitVarClassDefine(RiddleParser::VarClassDefineContext *ctx) = 0;
+
+  virtual void enterFuncClassDefine(RiddleParser::FuncClassDefineContext *ctx) = 0;
+  virtual void exitFuncClassDefine(RiddleParser::FuncClassDefineContext *ctx) = 0;
+
+  virtual void enterDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
+  virtual void exitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
+
+  virtual void enterClassDefine(RiddleParser::ClassDefineContext *ctx) = 0;
+  virtual void exitClassDefine(RiddleParser::ClassDefineContext *ctx) = 0;
 
   virtual void enterClassBody(RiddleParser::ClassBodyContext *ctx) = 0;
   virtual void exitClassBody(RiddleParser::ClassBodyContext *ctx) = 0;
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
   virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
-
-  virtual void enterSquareExpr(RiddleParser::SquareExprContext *ctx) = 0;
-  virtual void exitSquareExpr(RiddleParser::SquareExprContext *ctx) = 0;
 
   virtual void enterObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
   virtual void exitObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;

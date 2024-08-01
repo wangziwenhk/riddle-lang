@@ -23,7 +23,6 @@ namespace Riddle {
                 true);
         llvm::FunctionCallee printfFunc = module->getOrInsertFunction("printf", printType);
         FuncCalls["printf"] = printfFunc;
-
         cast = castMapTemplate;
     }
     std::any GenVisitor::visitInteger(RiddleParser::IntegerContext *ctx) {
@@ -60,8 +59,7 @@ namespace Riddle {
             if(isIdentifier(i))
                 name = i->getText();
             else if(dynamic_cast<RiddleParser::TypeNameContext *>(i) != nullptr) {
-                auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(i));
-                auto [type, size] = tuple;
+                auto type = any_cast<llvm::Type *>(visit(i));
                 types.push_back(type);
                 names.push_back(name);
                 type = nullptr;
@@ -76,17 +74,18 @@ namespace Riddle {
         if(ctx->returnType == nullptr) {
             resultType = Builder.getVoidTy();
         } else {
-            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->returnType));
-            auto [type, size] = tuple;
+            auto type = any_cast<llvm::Type *>(visit(ctx->returnType));
             resultType = type;
         }
 
+        std::string funcPkgName = packStack.top() + ctx->funcName->getText();
+
         llvm::FunctionType *funcType = llvm::FunctionType::get(resultType, args.types, false);
-        llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, ctx->funcName->getText(), *module);
+        llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, funcPkgName, *module);
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", func);
         llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
         Builder.SetInsertPoint(entry);
-        FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(ctx->funcName->getText(), funcType);
+        FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(funcPkgName, funcType);
         FuncStack.push(func);
         varManager.push();
 
@@ -113,16 +112,13 @@ namespace Riddle {
         return visit(ctx->children[0]);
     }
     std::any GenVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
-        std::string name = ctx->name->getText();
+        std::string name = packStack.top() + ctx->name->getText();
         llvm::Value *value = nullptr;
         llvm::Type *type = nullptr;
         llvm::Value *size = nullptr;
 
         if(ctx->type != nullptr) {
-            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->type));
-            auto [_type, _size] = tuple;
-            type = _type;
-            size = _size;
+            type = any_cast<llvm::Type *>(visit(ctx->type));
         }
         if(ctx->value != nullptr) {
             value = any_cast<llvm::Value *>(visit(ctx->value));
@@ -131,8 +127,12 @@ namespace Riddle {
 
         llvm::Value *var;
         if(varManager.isGlobal()) {
-            auto CV = llvm::dyn_cast<llvm::Constant>(value);
-            var = new llvm::GlobalVariable(*module, type, false, llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+            llvm::Constant *CV = nullptr;
+            if(value != nullptr) {
+                CV = llvm::dyn_cast<llvm::Constant>(value);
+            }
+            var = new llvm::GlobalVariable(*module, type, false,
+                                           llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
         } else {
             var = Builder.CreateAlloca(type, size, name);
             if(ctx->value != nullptr)
@@ -424,26 +424,11 @@ namespace Riddle {
         return args;
     }
     std::any GenVisitor::visitTypeName(RiddleParser::TypeNameContext *ctx) {
-        if(!ctx->size) {
-            auto name = ctx->name->getText();
-            if(isSampleType(name)) {
-                return std::tuple(getSampleType(name, Builder), (llvm::Value *)Builder.getInt32(0));
-            }
-            throw std::logic_error("关于使用自定义类型是未实现的");
-        } else {//数组
-            auto tuple = any_cast<std::tuple<llvm::Type *, llvm::Value *>>(visit(ctx->baseType));
-            auto [baseType, baseSize] = tuple;
-            auto size = any_cast<llvm::Value *>(visit(ctx->size));
-            return std::tuple(baseType, size);
+        auto name = ctx->name->getText();
+        if(isSampleType(name)) {
+            return getSampleType(name, Builder);
         }
-    }
-    std::any GenVisitor::visitSquareExpr(RiddleParser::SquareExprContext *ctx) {
-        auto array = any_cast<llvm::Value *>(visit(ctx->left));
-        auto index = any_cast<llvm::Value *>(visit(ctx->right));
-        auto ElementTy = dyn_cast<llvm::PointerType>(array->getType());
-        llvm::Value *ptr = Builder.CreateGEP(ElementTy, array, {index}, "nthElementPtr");
-        //        llvm::Value *value = Builder.CreateLoad(ElementTy, ptr);
-        return ptr;
+        throw std::logic_error("关于使用自定义类型是未实现的");
     }
     std::any GenVisitor::visitPtrExpr(RiddleParser::PtrExprContext *ctx) {
         auto ptr = any_cast<llvm::Value *>(visit(ctx->children[0]));
@@ -451,5 +436,21 @@ namespace Riddle {
         if(type == nullptr) return ptr;
         llvm::Value *value = Builder.CreateLoad(type, ptr);
         return value;
+    }
+    std::any GenVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
+        auto packName = ctx->packName->getText();
+        if(packName == "main")
+            packStack.push("");
+        else
+            packStack.push(packName);
+
+        return nullptr;
+    }
+    std::any GenVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx) {
+        std::string name = packStack.top() + ctx->className->getText();
+        packStack.push(packStack.top() + ctx->className->getText());
+        visit(ctx->body);
+        packStack.pop();
+        return nullptr;
     }
 }// namespace Riddle

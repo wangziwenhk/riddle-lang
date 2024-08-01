@@ -17,6 +17,8 @@ Private: 'Private' ;
 Override: 'override';
 True:'true';
 False:'false';
+Static:'static';
+Const:'const';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

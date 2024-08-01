@@ -23,16 +23,8 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) override {
-      return visitChildren(ctx);
-  }
-
   virtual std::any visitStatement(RiddleParser::StatementContext *ctx) override {
     return visitChildren(ctx);
-  }
-
-  virtual std::any visitDefineStatement(RiddleParser::DefineStatementContext *ctx) override {
-      return visitChildren(ctx);
   }
 
   virtual std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override {
@@ -79,7 +71,19 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitClassStatement(RiddleParser::ClassStatementContext *ctx) override {
+  virtual std::any visitVarClassDefine(RiddleParser::VarClassDefineContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
+  virtual std::any visitFuncClassDefine(RiddleParser::FuncClassDefineContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
+  virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) override {
+      return visitChildren(ctx);
+  }
+
+  virtual std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override {
       return visitChildren(ctx);
   }
 
@@ -88,10 +92,6 @@ public:
   }
 
   virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *ctx) override {
-      return visitChildren(ctx);
-  }
-
-  virtual std::any visitSquareExpr(RiddleParser::SquareExprContext *ctx) override {
       return visitChildren(ctx);
   }
 
