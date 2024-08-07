@@ -9,7 +9,7 @@ namespace Riddle {
     /// @brief 获取简单类型
     /// @param type 简单类型的名称
     /// @param Builder 生成器
-    llvm::Type *getSampleType(std::string type, llvm::IRBuilder<> &Builder);
+    llvm::Type *getSampleType(const std::string &type, llvm::IRBuilder<> &Builder);
 
 
     /// @brief 获取类型名称 (可能的?)
@@ -29,7 +29,7 @@ namespace Riddle {
     };
     /// @brief 判断是否为简单类型
     /// @param type 类型名称
-    bool isSampleType(std::string type);
+    bool isSampleType(const std::string &type);
 
     /// @brief 判断是否为数组(包括动态数组)
     /// @param var 变量

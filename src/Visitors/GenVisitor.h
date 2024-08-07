@@ -4,9 +4,9 @@
 #include "Tools/Managers/VarManager.h"
 #include "Tools/Setup.h"
 #include <RiddleParserBaseVisitor.h>
+#include <variant>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 namespace Riddle {
     /// @brief 用于实现生成 IR 的类
     class GenVisitor : public RiddleParserBaseVisitor {
@@ -15,7 +15,7 @@ namespace Riddle {
         /// @brief 用于函数或对象的唯一性
         std::stack<std::string> packStack;
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
-        std::stack<llvm::Function *> FuncStack;
+        std::stack<std::variant<llvm::Function *, llvm::StructType *> > ParentStack;
         VarManager varManager;
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
@@ -27,17 +27,20 @@ namespace Riddle {
         /// @param value2 值2
         /// @param op 二元操作符
         /// @returns llvm::Value*
-        llvm::Value *binaryOperator(llvm::Value *value1, llvm::Value *value2, std::string op);
+        llvm::Value *binaryOperator(llvm::Value *value1, llvm::Value *value2, const std::string &op);
+
         /// @brief 用于处理赋值的二元操作
         /// @param var 变量
         /// @param value 值
         /// @param op 操作符
         /// @returns llvm::Value*
-        llvm::Value *assignBinaryOp(llvm::Value *var, llvm::Value *value, std::string op);
+        llvm::Value *assignBinaryOp(llvm::Value *var, llvm::Value *value, const std::string &op);
+
         // endregion
     public:
         [[maybe_unused]]
-        GenVisitor(std::string builder);
+        GenVisitor(const std::string &builder);
+
         /// @brief 程序的根节点
         /// @returns null
         std::any visitProgram(RiddleParser::ProgramContext *ctx) override;
@@ -208,6 +211,10 @@ namespace Riddle {
         /// @brief 定义一个类
         /// @returns nullptr
         std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override;
+
+        /// @brief 一个类的主体
+        /// @returns nullptr
+        std::any visitClassBody(RiddleParser::ClassBodyContext *ctx) override;
     };
 }// namespace Riddle
 

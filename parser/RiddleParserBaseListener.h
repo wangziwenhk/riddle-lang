@@ -58,26 +58,17 @@ public:
   virtual void enterReturnStatement(RiddleParser::ReturnStatementContext * /*ctx*/) override { }
   virtual void exitReturnStatement(RiddleParser::ReturnStatementContext * /*ctx*/) override { }
 
-  virtual void enterVarClassDefine(RiddleParser::VarClassDefineContext * /*ctx*/) override {}
-  virtual void exitVarClassDefine(RiddleParser::VarClassDefineContext * /*ctx*/) override {}
+  virtual void enterClassDefine(RiddleParser::ClassDefineContext * /*ctx*/) override { }
+  virtual void exitClassDefine(RiddleParser::ClassDefineContext * /*ctx*/) override { }
 
-  virtual void enterFuncClassDefine(RiddleParser::FuncClassDefineContext * /*ctx*/) override {}
-  virtual void exitFuncClassDefine(RiddleParser::FuncClassDefineContext * /*ctx*/) override {}
+  virtual void enterClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override { }
+  virtual void exitClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override { }
 
-  virtual void enterDefineStatement_ed(RiddleParser::DefineStatement_edContext * /*ctx*/) override {}
-  virtual void exitDefineStatement_ed(RiddleParser::DefineStatement_edContext * /*ctx*/) override {}
+  virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
+  virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
 
-  virtual void enterClassDefine(RiddleParser::ClassDefineContext * /*ctx*/) override {}
-  virtual void exitClassDefine(RiddleParser::ClassDefineContext * /*ctx*/) override {}
-
-  virtual void enterClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override {}
-  virtual void exitClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override {}
-
-  virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
-  virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override {}
-
-  virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override {}
-  virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override {}
+  virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
+  virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
 
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
@@ -88,8 +79,8 @@ public:
   virtual void enterModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
   virtual void exitModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
 
-  virtual void enterCastExpr(RiddleParser::CastExprContext * /*ctx*/) override {}
-  virtual void exitCastExpr(RiddleParser::CastExprContext * /*ctx*/) override {}
+  virtual void enterCastExpr(RiddleParser::CastExprContext * /*ctx*/) override { }
+  virtual void exitCastExpr(RiddleParser::CastExprContext * /*ctx*/) override { }
 
   virtual void enterLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
   virtual void exitLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
@@ -124,8 +115,8 @@ public:
   virtual void enterBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
   virtual void exitBitXorExpr(RiddleParser::BitXorExprContext * /*ctx*/) override { }
 
-  virtual void enterPtrExpr(RiddleParser::PtrExprContext * /*ctx*/) override {}
-  virtual void exitPtrExpr(RiddleParser::PtrExprContext * /*ctx*/) override {}
+  virtual void enterPtrExpr(RiddleParser::PtrExprContext * /*ctx*/) override { }
+  virtual void exitPtrExpr(RiddleParser::PtrExprContext * /*ctx*/) override { }
 
   virtual void enterStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
   virtual void exitStringExpr(RiddleParser::StringExprContext * /*ctx*/) override { }
@@ -232,14 +223,14 @@ public:
   virtual void enterInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
   virtual void exitInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
 
-  virtual void enterTemplateArg(RiddleParser::TemplateArgContext * /*ctx*/) override {}
-  virtual void exitTemplateArg(RiddleParser::TemplateArgContext * /*ctx*/) override {}
+  virtual void enterTemplateArg(RiddleParser::TemplateArgContext * /*ctx*/) override { }
+  virtual void exitTemplateArg(RiddleParser::TemplateArgContext * /*ctx*/) override { }
 
-  virtual void enterTemplateArgs(RiddleParser::TemplateArgsContext * /*ctx*/) override {}
-  virtual void exitTemplateArgs(RiddleParser::TemplateArgsContext * /*ctx*/) override {}
+  virtual void enterTemplateArgs(RiddleParser::TemplateArgsContext * /*ctx*/) override { }
+  virtual void exitTemplateArgs(RiddleParser::TemplateArgsContext * /*ctx*/) override { }
 
-  virtual void enterTypeName(RiddleParser::TypeNameContext * /*ctx*/) override {}
-  virtual void exitTypeName(RiddleParser::TypeNameContext * /*ctx*/) override {}
+  virtual void enterTypeName(RiddleParser::TypeNameContext * /*ctx*/) override { }
+  virtual void exitTypeName(RiddleParser::TypeNameContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

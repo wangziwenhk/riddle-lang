@@ -71,32 +71,20 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVarClassDefine(RiddleParser::VarClassDefineContext *ctx) override {
-      return visitChildren(ctx);
-  }
-
-  virtual std::any visitFuncClassDefine(RiddleParser::FuncClassDefineContext *ctx) override {
-      return visitChildren(ctx);
-  }
-
-  virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) override {
-      return visitChildren(ctx);
-  }
-
   virtual std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitClassBody(RiddleParser::ClassBodyContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) override {
@@ -112,7 +100,7 @@ public:
   }
 
   virtual std::any visitCastExpr(RiddleParser::CastExprContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitLShrExpr(RiddleParser::LShrExprContext *ctx) override {
@@ -160,7 +148,7 @@ public:
   }
 
   virtual std::any visitPtrExpr(RiddleParser::PtrExprContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitStringExpr(RiddleParser::StringExprContext *ctx) override {
@@ -304,15 +292,17 @@ public:
   }
 
   virtual std::any visitTemplateArg(RiddleParser::TemplateArgContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitTemplateArgs(RiddleParser::TemplateArgsContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
 
   virtual std::any visitTypeName(RiddleParser::TypeNameContext *ctx) override {
-      return visitChildren(ctx);
+    return visitChildren(ctx);
   }
+
+
 };
 

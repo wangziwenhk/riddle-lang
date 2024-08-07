@@ -1,7 +1,6 @@
 #include "GenTools.h"
 #include "RiddleLexer.h"
 #include "Setup.h"
-#include <llvm/IR/Constants.h>
 
 namespace Riddle {
     bool isTerminalNode(antlr4::tree::ParseTree *tree) {
@@ -9,52 +8,61 @@ namespace Riddle {
     }
     bool isIdentifier(antlr4::tree::ParseTree *tree) {
         if(isTerminalNode(tree)) {
-            antlr4::tree::TerminalNode *terminalNode = dynamic_cast<antlr4::tree::TerminalNode *>(tree);
-            if(terminalNode) {
-                antlr4::Token *token = terminalNode->getSymbol();
+            if (const antlr4::tree::TerminalNode *terminalNode = dynamic_cast<antlr4::tree::TerminalNode *>(tree)) {
+                const antlr4::Token *token = terminalNode->getSymbol();
                 return token->getType() == RiddleLexer::Identifier;
             }
         }
         return false;
     }
-    llvm::Type *getSampleType(std::string type, llvm::IRBuilder<> &Builder) {
-        auto it = SampleType.find(type);
+
+    llvm::Type *getSampleType(const std::string &type, llvm::IRBuilder<> &Builder){
+        const auto it = SampleType.find(type);
         if(it == SampleType.end()) {
             throw std::logic_error("There is no such type");
         }
         return it->second(Builder);
     }
-    bool isSampleType(std::string type) {
-        auto it = SampleType.find(type);
-        return it != SampleType.end();
+
+    bool isSampleType(const std::string &type){
+        return SampleType.contains(type);
     }
 
     std::string getTypeName(llvm::Type *type) {
         if(type->isIntegerTy(1)) {
             return "bool";
-        } else if(type->isIntegerTy(8)) {
+        }
+        if (type->isIntegerTy(8)) {
             return "char";
-        } else if(type->isIntegerTy(16)) {
+        }
+        if (type->isIntegerTy(16)) {
             return "short";
-        } else if(type->isIntegerTy(32)) {
+        }
+        if (type->isIntegerTy(32)) {
             return "int";
-        } else if(type->isFloatTy()) {
+        }
+        if (type->isFloatTy()) {
             return "float";
-        } else if(type->isDoubleTy()) {
+        }
+        if (type->isDoubleTy()) {
             return "double";
-        } else if(type->isStructTy()) {
-            auto structTy = llvm::cast<llvm::StructType>(type);
+        }
+        if (type->isStructTy()) {
+            const auto structTy = llvm::cast<llvm::StructType>(type);
             return structTy->getName().str();
-        } else if(type->isArrayTy()) {
+        }
+        if (type->isArrayTy()) {
             return "array";
-        } else if(type->isPointerTy()) {
+        }
+        if (type->isPointerTy()) {
             return "pointer";
         }
         //遇不到的判断
         throw std::logic_error("This type cannot be recognized");
     }
-    bool isArray(llvm::Value *var) {
-        if(llvm::AllocaInst *AI = dyn_cast<llvm::AllocaInst>(var)) {
+
+    bool isArray(llvm::Value *var){
+        if (const llvm::AllocaInst *AI = dyn_cast<llvm::AllocaInst>(var)) {
             return AI->isArrayAllocation();
         }
         return var->getType()->isArrayTy();

@@ -56,15 +56,6 @@ public:
   virtual void enterReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
   virtual void exitReturnStatement(RiddleParser::ReturnStatementContext *ctx) = 0;
 
-  virtual void enterVarClassDefine(RiddleParser::VarClassDefineContext *ctx) = 0;
-  virtual void exitVarClassDefine(RiddleParser::VarClassDefineContext *ctx) = 0;
-
-  virtual void enterFuncClassDefine(RiddleParser::FuncClassDefineContext *ctx) = 0;
-  virtual void exitFuncClassDefine(RiddleParser::FuncClassDefineContext *ctx) = 0;
-
-  virtual void enterDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
-  virtual void exitDefineStatement_ed(RiddleParser::DefineStatement_edContext *ctx) = 0;
-
   virtual void enterClassDefine(RiddleParser::ClassDefineContext *ctx) = 0;
   virtual void exitClassDefine(RiddleParser::ClassDefineContext *ctx) = 0;
 
@@ -238,5 +229,7 @@ public:
 
   virtual void enterTypeName(RiddleParser::TypeNameContext *ctx) = 0;
   virtual void exitTypeName(RiddleParser::TypeNameContext *ctx) = 0;
+
+
 };
 

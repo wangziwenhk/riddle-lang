@@ -47,12 +47,6 @@ public:
 
     virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) = 0;
 
-    virtual std::any visitVarClassDefine(RiddleParser::VarClassDefineContext *context) = 0;
-
-    virtual std::any visitFuncClassDefine(RiddleParser::FuncClassDefineContext *context) = 0;
-
-    virtual std::any visitDefineStatement_ed(RiddleParser::DefineStatement_edContext *context) = 0;
-
     virtual std::any visitClassDefine(RiddleParser::ClassDefineContext *context) = 0;
 
     virtual std::any visitClassBody(RiddleParser::ClassBodyContext *context) = 0;
@@ -168,5 +162,7 @@ public:
     virtual std::any visitTemplateArgs(RiddleParser::TemplateArgsContext *context) = 0;
 
     virtual std::any visitTypeName(RiddleParser::TypeNameContext *context) = 0;
+
+
 };
 
