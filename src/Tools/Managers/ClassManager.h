@@ -5,12 +5,18 @@
 #ifndef RIDDLE_LANGUAGE_CLASSMANAGER_H
 #define RIDDLE_LANGUAGE_CLASSMANAGER_H
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Value.h>
+
+#include "Types/Class.h"
+
 namespace Riddle {
     /// @brief 管理类
     class ClassManager {
         /// @brief 存储数据字段
-        llvm::StructType *data;
+        std::unordered_map<std::string, Class> Classes;
+    public:
+        Class getClass(const std::string &name);
+
+        void createClass(Class theClass);
     };
 
 }// namespace Riddle

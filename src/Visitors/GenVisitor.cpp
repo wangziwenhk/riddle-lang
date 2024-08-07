@@ -489,11 +489,14 @@ namespace Riddle{
     }
 
     std::any GenVisitor::visitTypeName(RiddleParser::TypeNameContext *ctx){
-        auto name = ctx->name->getText();
+        // 内置类型
+        const auto name = ctx->name->getText();
         if (isSampleType(name)) {
             return getSampleType(name, Builder);
         }
-        throw std::logic_error("关于使用自定义类型是未实现的");
+        // 自定义类型
+        auto type = classManager.getClass(name);
+        return llvm::dyn_cast<llvm::Type>(type.types);
     }
 
     std::any GenVisitor::visitPtrExpr(RiddleParser::PtrExprContext *ctx){
@@ -516,14 +519,16 @@ namespace Riddle{
 
     std::any GenVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx){
         const std::string name = packStack.top() + ctx->className->getText();
-        llvm::StructType *structTy = llvm::StructType::create(globalContext, name);
+        Class theClass;
+        theClass.types = llvm::StructType::create(globalContext, name);
         packStack.push(packStack.top() + ctx->className->getText());
         varManager.push();
-        ParentStack.push(structTy);
+        ParentStack.push(theClass.types);
         visit(ctx->body);
         packStack.pop();
         varManager.pop();
         ParentStack.pop();
+        classManager.createClass(theClass);
         return nullptr;
     }
 

@@ -7,19 +7,24 @@
 #include <variant>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+
+#include "Tools/Managers/ClassManager.h"
+
 namespace Riddle {
     /// @brief 用于实现生成 IR 的类
-    class GenVisitor : public RiddleParserBaseVisitor {
-    private:
+    class GenVisitor final :public RiddleParserBaseVisitor {
         castMapTy cast;
         /// @brief 用于函数或对象的唯一性
-        std::stack<std::string> packStack;
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
-        std::stack<std::variant<llvm::Function *, llvm::StructType *> > ParentStack;
-        VarManager varManager;
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
         llvm::Module *module;
+        // stack
+        std::stack<std::variant<llvm::Function *, llvm::StructType *> > ParentStack;
+        std::stack<std::string> packStack;
+        // manager
+        VarManager varManager;
+        ClassManager classManager;
         // region 工具
     public:
         /// @brief 用于处理二元操作
@@ -37,9 +42,9 @@ namespace Riddle {
         llvm::Value *assignBinaryOp(llvm::Value *var, llvm::Value *value, const std::string &op);
 
         // endregion
-    public:
+
         [[maybe_unused]]
-        GenVisitor(const std::string &builder);
+        explicit GenVisitor(const std::string &builder);
 
         /// @brief 程序的根节点
         /// @returns null
