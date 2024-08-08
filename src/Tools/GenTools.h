@@ -1,13 +1,12 @@
 #ifndef RIDDLE_LANGUAGE_GENTOOLS_H
 #define RIDDLE_LANGUAGE_GENTOOLS_H
+#include <Types/ClassNode.h>
 #include <antlr4-runtime.h>
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Instructions.h>
 #include <string>
 #include <variant>
-#include <Types/ClassNode.h>
 
-namespace Riddle{
+namespace Riddle {
     /// @brief 获取简单类型
     /// @param type 简单类型的名称
     /// @param Builder 生成器
@@ -25,7 +24,7 @@ namespace Riddle{
     /// @param tree 节点
     bool isIdentifier(antlr4::tree::ParseTree *tree);
 
-    struct DefineArgsType{
+    struct DefineArgsType {
         std::vector<llvm::Type *> types;
         std::vector<std::string> names;
     };
@@ -41,7 +40,7 @@ namespace Riddle{
     /// @brief 判断当前是否在类的定义中
     /// @param parent 父栈
     /// @return 是否在类的定义中
-    inline bool isClassDefine(const std::variant<llvm::Function *, ClassNode> parent){
+    inline bool isClassDefine(const std::variant<llvm::Function *, ClassNode> parent) {
         return std::holds_alternative<ClassNode>(parent);
     }
 } // namespace Riddle
