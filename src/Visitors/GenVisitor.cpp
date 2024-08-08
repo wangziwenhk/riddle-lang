@@ -81,6 +81,10 @@ namespace Riddle{
             const auto type = any_cast<llvm::Type *>(visit(ctx->returnType));
             resultType = type;
         }
+        if (isClassDefine(ParentStack.top())) {
+            args.names.insert(args.names.begin(), "this");
+            args.types.insert(args.types.begin(), std::get<ClassNode>(ParentStack.top()).get().types);
+        }
 
         const std::string funcPkgName = packStack.top() + ctx->funcName->getText();
 
@@ -89,8 +93,13 @@ namespace Riddle{
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(globalContext, "entry", func);
         llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
         Builder.SetInsertPoint(entry);
-        FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(funcPkgName, funcType);
-
+        // 对于类中方法的定义
+        if (isClassDefine(ParentStack.top())) {
+            const auto theClass = std::get<ClassNode>(ParentStack.top());
+            theClass.get().funcs[ctx->funcName->getText()] = module->getOrInsertFunction(funcPkgName, funcType);
+        } else {
+            FuncCalls[ctx->funcName->getText()] = module->getOrInsertFunction(funcPkgName, funcType);
+        }
         ParentStack.push(func);
         varManager.push();
 
@@ -133,9 +142,9 @@ namespace Riddle{
         }
 
         // 对于类中成员的定义
-        if (std::holds_alternative<llvm::StructType *>(ParentStack.top())) {
+        if (isClassDefine(ParentStack.top())) {
             // todo 增加初始值设定
-            const auto structTy = std::get<llvm::StructType *>(ParentStack.top());
+            const auto structTy = std::get<ClassNode>(ParentStack.top()).get().types;
             std::vector<llvm::Type *> newMember = structTy->elements();
             newMember.push_back(type);
             structTy->setBody(newMember);
@@ -495,8 +504,8 @@ namespace Riddle{
             return getSampleType(name, Builder);
         }
         // 自定义类型
-        auto type = classManager.getClass(name);
-        return llvm::dyn_cast<llvm::Type>(type.types);
+        const auto theClass = classManager.getClass(name);
+        return llvm::dyn_cast<llvm::Type>(theClass.get().types);
     }
 
     std::any GenVisitor::visitPtrExpr(RiddleParser::PtrExprContext *ctx){
@@ -519,11 +528,11 @@ namespace Riddle{
 
     std::any GenVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx){
         const std::string name = packStack.top() + ctx->className->getText();
-        Class theClass;
-        theClass.types = llvm::StructType::create(globalContext, name);
+        const ClassNode theClass;
+        theClass.get().types = llvm::StructType::create(globalContext, name);
         packStack.push(packStack.top() + ctx->className->getText());
         varManager.push();
-        ParentStack.push(theClass.types);
+        ParentStack.push(theClass);
         visit(ctx->body);
         packStack.pop();
         varManager.pop();

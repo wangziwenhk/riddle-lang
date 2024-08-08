@@ -7,18 +7,19 @@
 #include <llvm/IR/IRBuilder.h>
 
 #include "Types/Class.h"
+#include "Types/ClassNode.h"
 
-namespace Riddle {
+namespace Riddle{
     /// @brief 管理类
-    class ClassManager {
+    class ClassManager{
         /// @brief 存储数据字段
-        std::unordered_map<std::string, Class> Classes;
+        std::unordered_map<std::string, ClassNode> Classes;
+
     public:
-        Class getClass(const std::string &name);
+        ClassNode getClass(const std::string &name);
 
-        void createClass(Class theClass);
+        void createClass(const ClassNode &theClass);
     };
-
-}// namespace Riddle
+} // namespace Riddle
 
 #endif//RIDDLE_LANGUAGE_CLASSMANAGER_H

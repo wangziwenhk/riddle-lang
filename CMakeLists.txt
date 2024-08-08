@@ -38,7 +38,8 @@ file(GLOB SOURCE_FILES
         "src/Tools/*"
         "src/Tools/Managers/*"
         "src/Types/*"
-        "src/Visitors/*")
+        "src/Visitors/*"
+        "src/ext/*")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 

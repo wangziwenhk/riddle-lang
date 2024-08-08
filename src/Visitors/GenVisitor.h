@@ -20,7 +20,7 @@ namespace Riddle {
         llvm::LLVMContext globalContext;
         llvm::Module *module;
         // stack
-        std::stack<std::variant<llvm::Function *, llvm::StructType *> > ParentStack;
+        std::stack<std::variant<llvm::Function *, ClassNode> > ParentStack;
         std::stack<std::string> packStack;
         // manager
         VarManager varManager;
