@@ -1,6 +1,6 @@
 #include "GenTools.h"
+#include "../Setup.h"
 #include "RiddleLexer.h"
-#include "Setup.h"
 
 namespace Riddle {
     bool isTerminalNode(antlr4::tree::ParseTree *tree) {

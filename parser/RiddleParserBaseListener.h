@@ -70,6 +70,9 @@ public:
   virtual void enterObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
   virtual void exitObjectExpr(RiddleParser::ObjectExprContext * /*ctx*/) override { }
 
+  virtual void enterBlendExpr(RiddleParser::BlendExprContext * /*ctx*/) override { }
+  virtual void exitBlendExpr(RiddleParser::BlendExprContext * /*ctx*/) override { }
+
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
 
@@ -90,9 +93,6 @@ public:
 
   virtual void enterNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
   virtual void exitNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
-
-  virtual void enterObjValExpr(RiddleParser::ObjValExprContext * /*ctx*/) override { }
-  virtual void exitObjValExpr(RiddleParser::ObjValExprContext * /*ctx*/) override { }
 
   virtual void enterMulAssignExpr(RiddleParser::MulAssignExprContext * /*ctx*/) override { }
   virtual void exitMulAssignExpr(RiddleParser::MulAssignExprContext * /*ctx*/) override { }

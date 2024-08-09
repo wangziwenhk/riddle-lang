@@ -1,12 +1,12 @@
 #ifndef RIDDLE_LANGUAGE_GENVISITOR_H
 #define RIDDLE_LANGUAGE_GENVISITOR_H
 
+#include "../Setup.h"
 #include "Tools/Managers/VarManager.h"
-#include "Tools/Setup.h"
 #include <RiddleParserBaseVisitor.h>
-#include <variant>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <variant>
 
 #include "Tools/Managers/ClassManager.h"
 
@@ -19,6 +19,7 @@ namespace Riddle {
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
         llvm::Module *module;
+        binaryOpMapTeleTy opMap = binaryOpMapTele;
         // stack
         std::stack<std::variant<llvm::Function *, ClassNode> > ParentStack;
         std::stack<std::string> packStack;
@@ -80,10 +81,6 @@ namespace Riddle {
         /// @warning 这里只有该源文件的当前作用域的变量可能被调用，且需要使用全限定名
         /// @returns llvm::AllocaInst*
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
-        /// @brief 用于获取当前作用域下的某个对象或变量的值
-        /// @warning 这里只有该源文件的当前作用域的变量可能被调用，且需要使用全限定名
-        /// @returns llvm::Value*
-        std::any visitObjValExpr(RiddleParser::ObjValExprContext *ctx) override;
         /// @brief 获取参数列表
         /// @returns std::vector\<llvm::Type*\>
         std::any visitDefineArgs(RiddleParser::DefineArgsContext *ctx) override;

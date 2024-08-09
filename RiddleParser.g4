@@ -94,8 +94,8 @@ classBody
 exprPtr
     : funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
     | id                                                    #objectExpr
+    | exprPtr Dot exprPtr                                   #blendExpr
     ;
-
 expression
     : Less type=typeName Greater LeftBracket value=exprPtr RightBracket #castExpr
     | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
@@ -142,7 +142,6 @@ expression
     | string                                                #stringExpr
     | number                                                #numberExpr
     | boolean                                               #booleanExpr
-    | id                                                    #objValExpr
     ;
 
 id: Identifier (Dot Identifier)*;

@@ -68,6 +68,9 @@ public:
   virtual void enterObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
   virtual void exitObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
 
+  virtual void enterBlendExpr(RiddleParser::BlendExprContext *ctx) = 0;
+  virtual void exitBlendExpr(RiddleParser::BlendExprContext *ctx) = 0;
+
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
 
@@ -88,9 +91,6 @@ public:
 
   virtual void enterNumberExpr(RiddleParser::NumberExprContext *ctx) = 0;
   virtual void exitNumberExpr(RiddleParser::NumberExprContext *ctx) = 0;
-
-  virtual void enterObjValExpr(RiddleParser::ObjValExprContext *ctx) = 0;
-  virtual void exitObjValExpr(RiddleParser::ObjValExprContext *ctx) = 0;
 
   virtual void enterMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) = 0;
   virtual void exitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) = 0;

@@ -1,6 +1,6 @@
 #include "Unit.h"
 
-#include "Tools/Setup.h"
+#include "../Setup.h"
 #include <utility>
 
 namespace Riddle {

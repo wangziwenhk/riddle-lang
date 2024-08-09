@@ -32,14 +32,8 @@ include_directories(${ANTLR4_INCLUDE_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(parser)
 
-file(GLOB AST_FILES "parser/*.cpp" "parser/*.h")
-file(GLOB SOURCE_FILES
-        "src/*"
-        "src/Tools/*"
-        "src/Tools/Managers/*"
-        "src/Types/*"
-        "src/Visitors/*"
-        "src/ext/*")
+file(GLOB_RECURSE AST_FILES "parser/*.cpp" "parser/*.h")
+file(GLOB_RECURSE SOURCE_FILES "src/*")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 

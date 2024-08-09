@@ -87,6 +87,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitBlendExpr(RiddleParser::BlendExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -112,10 +116,6 @@ public:
   }
 
   virtual std::any visitNumberExpr(RiddleParser::NumberExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitObjValExpr(RiddleParser::ObjValExprContext *ctx) override {
     return visitChildren(ctx);
   }
 

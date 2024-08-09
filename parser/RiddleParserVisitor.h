@@ -55,6 +55,8 @@ public:
 
     virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
 
+    virtual std::any visitBlendExpr(RiddleParser::BlendExprContext *context) = 0;
+
     virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *context) = 0;
 
     virtual std::any visitAndAssignExpr(RiddleParser::AndAssignExprContext *context) = 0;
@@ -68,8 +70,6 @@ public:
     virtual std::any visitNegativeExpr(RiddleParser::NegativeExprContext *context) = 0;
 
     virtual std::any visitNumberExpr(RiddleParser::NumberExprContext *context) = 0;
-
-    virtual std::any visitObjValExpr(RiddleParser::ObjValExprContext *context) = 0;
 
     virtual std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *context) = 0;
 

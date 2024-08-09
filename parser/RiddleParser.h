@@ -451,8 +451,21 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  ExprPtrContext* exprPtr();
+  class  BlendExprContext : public ExprPtrContext {
+  public:
+    BlendExprContext(ExprPtrContext *ctx);
 
+    std::vector<ExprPtrContext *> exprPtr();
+    ExprPtrContext* exprPtr(size_t i);
+    antlr4::tree::TerminalNode *Dot();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  ExprPtrContext* exprPtr();
+  ExprPtrContext* exprPtr(int precedence);
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
     ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -562,17 +575,6 @@ public:
     NumberExprContext(ExpressionContext *ctx);
 
     NumberContext *number();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  ObjValExprContext : public ExpressionContext {
-  public:
-    ObjValExprContext(ExpressionContext *ctx);
-
-    IdContext *id();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1300,6 +1302,7 @@ public:
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
 
+  bool exprPtrSempred(ExprPtrContext *_localctx, size_t predicateIndex);
   bool expressionSempred(ExpressionContext *_localctx, size_t predicateIndex);
   bool typeNameSempred(TypeNameContext *_localctx, size_t predicateIndex);
 

@@ -14,9 +14,9 @@ namespace Riddle {
     Linker::Linker() {
     }
     std::string Linker::findSourceLib(const std::string &libPackName, const std::string &sourcePath) {
-        std::string libName = getLibName(libPackName);
-        auto files = Files::getTreeSource(sourcePath);
-        for(int i = (int)files.size() - 1; i >= 0; i--) {
+        const std::string libName = getLibName(libPackName);
+        const auto files = Files::getTreeSource(sourcePath);
+        for(int i = static_cast<int>(files.size()) - 1; i >= 0; i--) {
             fs::path filePath(files[i]);
             std::string name = filePath.filename().string();
             name = name.substr(0, name.size() - 4);
@@ -36,9 +36,7 @@ namespace Riddle {
         return "UNKNOWN";
     }
     std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath) {
-        std::string sp;
-        //source
-        sp = findSourceLib(libPackName, sourcePath);
+        std::string sp = findSourceLib(libPackName, sourcePath);
         if(sp != "UNKNOWN") return sp;
         return "UNKNOWN";
     }
