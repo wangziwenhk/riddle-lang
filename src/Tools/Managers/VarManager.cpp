@@ -2,13 +2,11 @@
 #include <stdexcept>
 
 namespace Riddle {
-    bool VarManager::isDefined(std::string name) {
-        auto it = NamedVar.find(name);
+    bool VarManager::isDefined(const std::string &name) {
+        const auto it = NamedVar.find(name);
         if(it == NamedVar.end()) return false;
-        else if(it->second.empty())
-            return false;
-        else
-            return true;
+        if(it->second.empty()) return false;
+        return true;
     }
     void VarManager::push() {
         Defined.emplace();

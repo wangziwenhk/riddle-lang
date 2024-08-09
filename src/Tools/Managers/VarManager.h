@@ -12,7 +12,7 @@ namespace Riddle {
         std::stack<std::unordered_map<std::string, bool>> Defined;
 
     private:
-        bool isDefined(std::string name);
+        bool isDefined(const std::string &name);
 
     public://函数区
         VarManager() = default;

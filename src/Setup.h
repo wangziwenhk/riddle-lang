@@ -9,7 +9,7 @@
 
 namespace Riddle {
     typedef std::unordered_map<std::string, std::unordered_map<std::string, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *)>>> castMapTy;
-    typedef std::unordered_map<std::string, std::unordered_map<llvm::Type *, std::pmr::unordered_map<llvm::Type *, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>>>> binaryOpMapTeleTy;
+    typedef std::unordered_map<std::string, std::unordered_map<llvm::Type *, std::unordered_map<llvm::Type *, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>>>> binaryOpMapTeleTy;
     const static castMapTy castMapTemplate = {
             {"int",
              {

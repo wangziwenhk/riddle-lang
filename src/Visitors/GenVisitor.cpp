@@ -80,7 +80,7 @@ namespace Riddle {
             const auto type = any_cast<llvm::Type *>(visit(ctx->returnType));
             resultType = type;
         }
-        if(isClassDefine(ParentStack.top())) {
+        if(ParentStack.size() && isClassDefine(ParentStack.top())) {
             args.names.insert(args.names.begin(), "this");
             args.types.insert(args.types.begin(), std::get<ClassNode>(ParentStack.top()).get().types);
         }
@@ -93,7 +93,7 @@ namespace Riddle {
         llvm::BasicBlock *oldBlock = Builder.GetInsertBlock();
         Builder.SetInsertPoint(entry);
         // 对于类中方法的定义
-        if(isClassDefine(ParentStack.top())) {
+        if(ParentStack.size() && isClassDefine(ParentStack.top())) {
             const auto theClass = std::get<ClassNode>(ParentStack.top());
             theClass.get().funcs[ctx->funcName->getText()] = module->getOrInsertFunction(funcPkgName, funcType);
         } else {
