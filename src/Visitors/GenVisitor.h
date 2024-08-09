@@ -12,16 +12,16 @@
 
 namespace Riddle {
     /// @brief 用于实现生成 IR 的类
-    class GenVisitor final :public RiddleParserBaseVisitor {
+    class GenVisitor final : public RiddleParserBaseVisitor {
         castMapTy cast;
         /// @brief 用于函数或对象的唯一性
         std::unordered_map<std::string, llvm::FunctionCallee> FuncCalls;
         llvm::IRBuilder<> Builder;
         llvm::LLVMContext globalContext;
         llvm::Module *module;
-        binaryOpMapTeleTy opMap = binaryOpMapTele;
+        binaryOpMapTy opMap;
         // stack
-        std::stack<std::variant<llvm::Function *, ClassNode> > ParentStack;
+        std::stack<std::variant<llvm::Function *, ClassNode>> ParentStack;
         std::stack<std::string> packStack;
         // manager
         VarManager varManager;
@@ -44,8 +44,7 @@ namespace Riddle {
 
         // endregion
 
-        [[maybe_unused]]
-        explicit GenVisitor(const std::string &builder);
+        [[maybe_unused]] explicit GenVisitor(const std::string &builder);
 
         /// @brief 程序的根节点
         /// @returns null
@@ -213,10 +212,12 @@ namespace Riddle {
         /// @brief 定义一个类
         /// @returns nullptr
         std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override;
-
         /// @brief 一个类的主体
         /// @returns nullptr
         std::any visitClassBody(RiddleParser::ClassBodyContext *ctx) override;
+        /// @brief 获取一个混合对象
+        /// @return llvm::Value*
+        std::any visitBlendExpr(RiddleParser::BlendExprContext *ctx) override;
     };
 }// namespace Riddle
 

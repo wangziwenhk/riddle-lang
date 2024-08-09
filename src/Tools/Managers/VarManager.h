@@ -32,7 +32,7 @@ namespace Riddle {
         Variable getVar(const std::string &name);
         /// @brief 获取当前是否为全局
         /// @returns 是否为全局
-        bool isGlobal();
+        bool isGlobal()const;
     };
 
 }// namespace Riddle

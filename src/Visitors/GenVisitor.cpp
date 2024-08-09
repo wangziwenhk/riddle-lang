@@ -13,6 +13,7 @@
 namespace Riddle {
     [[maybe_unused]] GenVisitor::GenVisitor(const std::string &moduleName): Builder(globalContext) {
         module = new llvm::Module(moduleName, globalContext);
+        opMap = getBinaryOpMap(Builder);
         // print 函数
         const auto printType = llvm::FunctionType::get(
                 Builder.getInt32Ty(),
@@ -42,7 +43,7 @@ namespace Riddle {
     }
 
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        llvm::Value *value = varManager.getVar(ctx->id()->getText()).value;
+        llvm::Value *value = varManager.getVar(ctx->Identifier()->getText()).value;
         return value;
     }
 
@@ -143,10 +144,11 @@ namespace Riddle {
         // 对于类中成员的定义
         if(isClassDefine(ParentStack.top())) {
             // todo 增加初始值设定
-            const auto structTy = std::get<ClassNode>(ParentStack.top()).get().types;
-            std::vector<llvm::Type *> newMember = structTy->elements();
+            const auto theClass = std::get<ClassNode>(ParentStack.top());
+            std::vector<llvm::Type *> newMember = theClass.get().types->elements();
             newMember.push_back(type);
-            structTy->setBody(newMember);
+            theClass.get().types->setBody(newMember);
+            theClass.get().names.insert({ctx->name->getText(), theClass.get().names.size()});
             return nullptr;
         }
 
@@ -505,6 +507,20 @@ namespace Riddle {
         llvm::Value *value = Builder.CreateLoad(type, ptr);
         return value;
     }
+
+    std::any GenVisitor::visitBlendExpr(RiddleParser::BlendExprContext *ctx) {
+        // todo 这里暂时没法使用对象的函数
+        const auto parent = llvm::dyn_cast<llvm::AllocaInst>(std::any_cast<llvm::Value *>(visit(ctx->parent)));
+        const auto childName = ctx->child->getText();
+        const auto theClass = classManager.getClass(parent->getAllocatedType()->getStructName().str());
+        const auto it = theClass.get().names.find(childName);
+        if(it == theClass.get().names.end()) {
+            throw std::logic_error("没有这个成员");
+        }
+        llvm::Value *result = Builder.CreateStructGEP(parent->getAllocatedType(), parent, it->second);
+        return result;
+    }
+
 
     std::any GenVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
         const auto packName = ctx->packName->getText();

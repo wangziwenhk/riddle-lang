@@ -92,9 +92,9 @@ classBody
 
 // 这一块就是使用
 exprPtr
-    : funcName=id LeftBracket args=argsExpr RightBracket    #funcExpr
-    | id                                                    #objectExpr
-    | exprPtr Dot exprPtr                                   #blendExpr
+    : funcName=Identifier LeftBracket args=argsExpr RightBracket    #funcExpr
+    | Identifier                                                    #objectExpr
+    | parent=exprPtr Dot child=exprPtr                                   #blendExpr
     ;
 expression
     : Less type=typeName Greater LeftBracket value=exprPtr RightBracket #castExpr

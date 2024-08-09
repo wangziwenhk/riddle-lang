@@ -28,12 +28,9 @@ namespace Riddle {
         Defined.top()[name] = true;
     }
     Variable VarManager::getVar(const std::string &name) {
-        if(!isDefined(name))
-            throw std::logic_error("The variable does not exist");
-
         return NamedVar[name].top();
     }
-    bool VarManager::isGlobal() {
+    bool VarManager::isGlobal() const {
         return Defined.size() == 1;
     }
 

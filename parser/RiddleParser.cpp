@@ -167,16 +167,16 @@ void riddleparserParserInitialize() {
   	27,1,0,0,0,205,206,5,11,0,0,206,207,3,36,18,0,207,208,5,24,0,0,208,209,
   	3,30,15,0,209,210,5,25,0,0,210,29,1,0,0,0,211,213,3,2,1,0,212,211,1,0,
   	0,0,213,216,1,0,0,0,214,212,1,0,0,0,214,215,1,0,0,0,215,31,1,0,0,0,216,
-  	214,1,0,0,0,217,218,6,16,-1,0,218,219,3,36,18,0,219,220,5,20,0,0,220,
-  	221,3,12,6,0,221,222,5,21,0,0,222,225,1,0,0,0,223,225,3,36,18,0,224,217,
-  	1,0,0,0,224,223,1,0,0,0,225,231,1,0,0,0,226,227,10,1,0,0,227,228,5,45,
-  	0,0,228,230,3,32,16,2,229,226,1,0,0,0,230,233,1,0,0,0,231,229,1,0,0,0,
-  	231,232,1,0,0,0,232,33,1,0,0,0,233,231,1,0,0,0,234,235,6,17,-1,0,235,
-  	236,5,32,0,0,236,237,3,52,26,0,237,238,5,31,0,0,238,239,5,20,0,0,239,
-  	240,3,32,16,0,240,241,5,21,0,0,241,335,1,0,0,0,242,243,5,20,0,0,243,244,
-  	3,34,17,0,244,245,5,21,0,0,245,335,1,0,0,0,246,247,5,41,0,0,247,335,3,
-  	34,17,43,248,249,5,36,0,0,249,335,3,34,17,42,250,251,5,37,0,0,251,335,
-  	3,34,17,41,252,253,5,36,0,0,253,254,5,36,0,0,254,335,3,32,16,0,255,256,
+  	214,1,0,0,0,217,218,6,16,-1,0,218,219,5,49,0,0,219,220,5,20,0,0,220,221,
+  	3,12,6,0,221,222,5,21,0,0,222,225,1,0,0,0,223,225,5,49,0,0,224,217,1,
+  	0,0,0,224,223,1,0,0,0,225,231,1,0,0,0,226,227,10,1,0,0,227,228,5,45,0,
+  	0,228,230,3,32,16,2,229,226,1,0,0,0,230,233,1,0,0,0,231,229,1,0,0,0,231,
+  	232,1,0,0,0,232,33,1,0,0,0,233,231,1,0,0,0,234,235,6,17,-1,0,235,236,
+  	5,32,0,0,236,237,3,52,26,0,237,238,5,31,0,0,238,239,5,20,0,0,239,240,
+  	3,32,16,0,240,241,5,21,0,0,241,335,1,0,0,0,242,243,5,20,0,0,243,244,3,
+  	34,17,0,244,245,5,21,0,0,245,335,1,0,0,0,246,247,5,41,0,0,247,335,3,34,
+  	17,43,248,249,5,36,0,0,249,335,3,34,17,42,250,251,5,37,0,0,251,335,3,
+  	34,17,41,252,253,5,36,0,0,253,254,5,36,0,0,254,335,3,32,16,0,255,256,
   	3,32,16,0,256,257,5,36,0,0,257,258,5,36,0,0,258,335,1,0,0,0,259,260,5,
   	37,0,0,260,261,5,37,0,0,261,335,3,32,16,0,262,263,3,32,16,0,263,264,5,
   	37,0,0,264,265,5,37,0,0,265,335,1,0,0,0,266,335,3,32,16,0,267,268,3,32,
@@ -2016,8 +2016,8 @@ tree::TerminalNode* RiddleParser::FuncExprContext::RightBracket() {
   return getToken(RiddleParser::RightBracket, 0);
 }
 
-RiddleParser::IdContext* RiddleParser::FuncExprContext::id() {
-  return getRuleContext<RiddleParser::IdContext>(0);
+tree::TerminalNode* RiddleParser::FuncExprContext::Identifier() {
+  return getToken(RiddleParser::Identifier, 0);
 }
 
 RiddleParser::ArgsExprContext* RiddleParser::FuncExprContext::argsExpr() {
@@ -2045,8 +2045,8 @@ std::any RiddleParser::FuncExprContext::accept(tree::ParseTreeVisitor *visitor) 
 }
 //----------------- ObjectExprContext ------------------------------------------------------------------
 
-RiddleParser::IdContext* RiddleParser::ObjectExprContext::id() {
-  return getRuleContext<RiddleParser::IdContext>(0);
+tree::TerminalNode* RiddleParser::ObjectExprContext::Identifier() {
+  return getToken(RiddleParser::Identifier, 0);
 }
 
 RiddleParser::ObjectExprContext::ObjectExprContext(ExprPtrContext *ctx) { copyFrom(ctx); }
@@ -2070,16 +2070,16 @@ std::any RiddleParser::ObjectExprContext::accept(tree::ParseTreeVisitor *visitor
 }
 //----------------- BlendExprContext ------------------------------------------------------------------
 
+tree::TerminalNode* RiddleParser::BlendExprContext::Dot() {
+  return getToken(RiddleParser::Dot, 0);
+}
+
 std::vector<RiddleParser::ExprPtrContext *> RiddleParser::BlendExprContext::exprPtr() {
   return getRuleContexts<RiddleParser::ExprPtrContext>();
 }
 
 RiddleParser::ExprPtrContext* RiddleParser::BlendExprContext::exprPtr(size_t i) {
   return getRuleContext<RiddleParser::ExprPtrContext>(i);
-}
-
-tree::TerminalNode* RiddleParser::BlendExprContext::Dot() {
-  return getToken(RiddleParser::Dot, 0);
 }
 
 RiddleParser::BlendExprContext::BlendExprContext(ExprPtrContext *ctx) { copyFrom(ctx); }
@@ -2136,7 +2136,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
       previousContext = _localctx;
 
       setState(218);
-      antlrcpp::downCast<FuncExprContext *>(_localctx)->funcName = id();
+      antlrcpp::downCast<FuncExprContext *>(_localctx)->funcName = match(RiddleParser::Identifier);
       setState(219);
       match(RiddleParser::LeftBracket);
       setState(220);
@@ -2151,7 +2151,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
       _ctx = _localctx;
       previousContext = _localctx;
       setState(223);
-      id();
+      match(RiddleParser::Identifier);
       break;
     }
 
@@ -2169,6 +2169,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
         previousContext = _localctx;
         auto newContext = _tracker.createInstance<BlendExprContext>(_tracker.createInstance<ExprPtrContext>(parentContext, parentState));
         _localctx = newContext;
+        newContext->parent = previousContext;
         pushNewRecursionContext(newContext, startState, RuleExprPtr);
         setState(226);
 
@@ -2176,7 +2177,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
         setState(227);
         match(RiddleParser::Dot);
         setState(228);
-        exprPtr(2); 
+        antlrcpp::downCast<BlendExprContext *>(_localctx)->child = exprPtr(2); 
       }
       setState(233);
       _errHandler->sync(this);

@@ -14,6 +14,6 @@ namespace Riddle{
     }
 
     void ClassManager::createClass(const ClassNode &theClass){
-        Classes[theClass.get().types->getName().str()] = theClass;
+        Classes.emplace(theClass.get().types->getName().str(),theClass);
     }
 } // namespace Riddle

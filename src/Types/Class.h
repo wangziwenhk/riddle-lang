@@ -14,7 +14,7 @@ namespace Riddle{
     class Class {
     public:
         llvm::StructType *types = nullptr;
-        std::vector<std::string> names;
+        std::unordered_map<std::string,int> names;
         std::map<std::string, llvm::FunctionCallee> funcs;
     };
 

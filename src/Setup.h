@@ -9,7 +9,7 @@
 
 namespace Riddle {
     typedef std::unordered_map<std::string, std::unordered_map<std::string, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *)>>> castMapTy;
-    typedef std::unordered_map<std::string, std::unordered_map<llvm::Type *, std::unordered_map<llvm::Type *, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>>>> binaryOpMapTeleTy;
+    typedef std::unordered_map<std::string, std::unordered_map<llvm::Type *, std::unordered_map<llvm::Type *, std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>>>> binaryOpMapTy;
     const static castMapTy castMapTemplate = {
             {"int",
              {
@@ -58,8 +58,8 @@ namespace Riddle {
                           return builder.CreateFPExt(value, builder.getFloatTy(), "DoubleToFloat");
                       }},
              }}};
-    extern binaryOpMapTeleTy binaryOpMapTele;
     extern const std::unordered_map<std::string, std::function<llvm::Type *(llvm::IRBuilder<> &)>> SampleType;
+    binaryOpMapTy getBinaryOpMap(llvm::IRBuilder<> &builder);
 }// namespace Riddle
 
 #endif//RIDDLE_LANGUAGE_SETUP_H
