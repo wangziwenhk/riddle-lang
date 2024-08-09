@@ -22,6 +22,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cmake-
 
+      - name: Cache ANTLR4 build
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/lib/antlr4-runtime
+          key: ${{ runner.os }}-antlr4-${{ hashFiles('**/CMakeLists.txt') }}
+
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y cmake g++ uuid-dev
 
@@ -46,3 +52,24 @@ jobs:
         run: |
           cd build
           make
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly-${{ github.run_id }}  # 使用运行ID作为唯一标识
+          release_name: "Nightly Build - ${{ github.run_id }}"
+          draft: false
+          prerelease: true
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Riddle_Language.exe
+          asset_name: Riddle_Language.exe
+          asset_content_type: application/octet-stream
