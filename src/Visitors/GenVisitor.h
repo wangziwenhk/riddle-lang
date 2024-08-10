@@ -218,6 +218,7 @@ namespace Riddle {
         /// @brief 获取一个混合对象
         /// @return llvm::Value*
         std::any visitBlendExpr(RiddleParser::BlendExprContext *ctx) override;
+        std::any visitExprPtrParser(RiddleParser::ExprPtrParserContext *context) override;
     };
 }// namespace Riddle
 

@@ -73,6 +73,9 @@ public:
   virtual void enterBlendExpr(RiddleParser::BlendExprContext * /*ctx*/) override { }
   virtual void exitBlendExpr(RiddleParser::BlendExprContext * /*ctx*/) override { }
 
+  virtual void enterExprPtrParser(RiddleParser::ExprPtrParserContext * /*ctx*/) override { }
+  virtual void exitExprPtrParser(RiddleParser::ExprPtrParserContext * /*ctx*/) override { }
+
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
 

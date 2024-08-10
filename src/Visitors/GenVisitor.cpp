@@ -13,6 +13,7 @@
 namespace Riddle {
     [[maybe_unused]] GenVisitor::GenVisitor(const std::string &moduleName): Builder(globalContext) {
         module = new llvm::Module(moduleName, globalContext);
+        module->setSourceFileName(moduleName + ".red");
         opMap = getBinaryOpMap(Builder);
         // print 函数
         const auto printType = llvm::FunctionType::get(
@@ -44,7 +45,7 @@ namespace Riddle {
 
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
         llvm::Value *value = varManager.getVar(ctx->Identifier()->getText()).value;
-        return value;
+        return  std::tuple{value,value->getType()};
     }
 
     std::any GenVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -249,6 +250,7 @@ namespace Riddle {
     }
 
     llvm::Value *GenVisitor::binaryOperator(llvm::Value *value1, llvm::Value *value2, const std::string &op) {
+        if(op == "") return value2;
         //基本类型处理
         const auto it = opMap.find(op);
         if(it == opMap.end()) throw std::logic_error("没实现");
@@ -473,10 +475,10 @@ namespace Riddle {
         if(!FuncCalls.contains(funcName)) {
             throw std::logic_error("This function \"" + std::string(funcName) + "\" is undefined");
         }
-        auto args = any_cast<std::vector<llvm::Value *>>(visit(ctx->args));
-        auto func = FuncCalls[funcName];
+        const auto args = any_cast<std::vector<llvm::Value *>>(visit(ctx->args));
+        const auto func = FuncCalls[funcName];
         llvm::Value *result = Builder.CreateCall(func, args);
-        return result;
+        return std::tuple{result,result->getType()};
     }
 
     std::any GenVisitor::visitArgsExpr(RiddleParser::ArgsExprContext *ctx) {
@@ -508,17 +510,38 @@ namespace Riddle {
         return value;
     }
 
+    // BUG 这里不考虑对函数返回的对象的引用
     std::any GenVisitor::visitBlendExpr(RiddleParser::BlendExprContext *ctx) {
         // todo 这里暂时没法使用对象的函数
-        const auto parent = llvm::dyn_cast<llvm::AllocaInst>(std::any_cast<llvm::Value *>(visit(ctx->parent)));
+        const auto [parent,type] = std::any_cast<std::tuple<llvm::Value*,llvm::Type*>>(visit(ctx->parent));
+
         const auto childName = ctx->child->getText();
-        const auto theClass = classManager.getClass(parent->getAllocatedType()->getStructName().str());
-        const auto it = theClass.get().names.find(childName);
-        if(it == theClass.get().names.end()) {
-            throw std::logic_error("没有这个成员");
+        ClassNode theClass;
+
+        if(const auto Alloca = llvm::dyn_cast<llvm::AllocaInst>(parent)) {
+            theClass = classManager.getClass(Alloca->getAllocatedType()->getStructName().str());
+        }else {
+            theClass = classManager.getClass(type->getStructName().str());
         }
-        llvm::Value *result = Builder.CreateStructGEP(parent->getAllocatedType(), parent, it->second);
-        return result;
+
+        if(const auto FuncExpr = dynamic_cast<RiddleParser::FuncExprContext *>(ctx->child)) {
+            const auto func = theClass.get().funcs.at(childName);
+            const auto args = any_cast<std::vector<llvm::Value *>>(visit(FuncExpr->args));
+            llvm::Value *result = Builder.CreateCall(func, args);
+            return std::tuple{result,result->getType()};
+        } else {
+            const auto it = theClass.get().names.find(childName);
+            if(it == theClass.get().names.end()) {
+                throw std::logic_error("没有这个成员");
+            }
+            llvm::Value *result = Builder.CreateStructGEP(theClass.get().types, parent, it->second);
+            return std::tuple{result,theClass.get().types->getElementType(it->second)};
+        }
+    }
+    std::any GenVisitor::visitExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) {
+        auto tp = any_cast<std::tuple<llvm::Value*,llvm::Type*>>(visit(ctx->children[0]));
+        auto [value,type] = tp;
+        return value;
     }
 
 

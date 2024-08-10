@@ -91,6 +91,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) override {
     return visitChildren(ctx);
   }

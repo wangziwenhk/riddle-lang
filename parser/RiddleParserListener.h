@@ -71,6 +71,9 @@ public:
   virtual void enterBlendExpr(RiddleParser::BlendExprContext *ctx) = 0;
   virtual void exitBlendExpr(RiddleParser::BlendExprContext *ctx) = 0;
 
+  virtual void enterExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) = 0;
+  virtual void exitExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) = 0;
+
   virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
   virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext *ctx) = 0;
 
