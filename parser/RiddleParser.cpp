@@ -180,7 +180,7 @@ void riddleparserParserInitialize() {
   	36,18,41,256,257,5,36,0,0,257,258,5,36,0,0,258,339,3,34,17,0,259,260,
   	3,34,17,0,260,261,5,36,0,0,261,262,5,36,0,0,262,339,1,0,0,0,263,264,5,
   	37,0,0,264,265,5,37,0,0,265,339,3,34,17,0,266,267,3,34,17,0,267,268,5,
-  	37,0,0,268,269,5,37,0,0,269,339,1,0,0,0,270,339,3,34,17,0,271,272,3,34,
+  	37,0,0,268,269,5,37,0,0,269,339,1,0,0,0,270,339,3,32,16,0,271,272,3,34,
   	17,0,272,273,5,30,0,0,273,274,3,36,18,16,274,339,1,0,0,0,275,276,3,34,
   	17,0,276,277,5,36,0,0,277,278,5,30,0,0,278,279,3,36,18,15,279,339,1,0,
   	0,0,280,281,3,34,17,0,281,282,5,37,0,0,282,283,5,30,0,0,283,284,3,36,
@@ -2757,8 +2757,8 @@ std::any RiddleParser::BitXorExprContext::accept(tree::ParseTreeVisitor *visitor
 }
 //----------------- PtrExprContext ------------------------------------------------------------------
 
-RiddleParser::ExprPtrParserContext* RiddleParser::PtrExprContext::exprPtrParser() {
-  return getRuleContext<RiddleParser::ExprPtrParserContext>(0);
+RiddleParser::ExprPtrContext* RiddleParser::PtrExprContext::exprPtr() {
+  return getRuleContext<RiddleParser::ExprPtrContext>(0);
 }
 
 RiddleParser::PtrExprContext::PtrExprContext(ExpressionContext *ctx) { copyFrom(ctx); }
@@ -3905,7 +3905,7 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
       _ctx = _localctx;
       previousContext = _localctx;
       setState(270);
-      exprPtrParser();
+      exprPtr(0);
       break;
     }
 

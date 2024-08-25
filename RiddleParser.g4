@@ -94,7 +94,7 @@ classBody
 exprPtr
     : funcName=Identifier LeftBracket args=argsExpr RightBracket    #funcExpr
     | Identifier                                                    #objectExpr
-    | parent=exprPtr Dot child=exprPtr                                   #blendExpr
+    | parent=exprPtr Dot child=exprPtr                              #blendExpr
     ;
 
 exprPtrParser
@@ -111,7 +111,7 @@ expression
     | expr=exprPtrParser Add Add                                  #selfAddRightExpr // x++
     | Sub Sub expr=exprPtrParser                                  #selfSubLeftExpr // ++x
     | expr=exprPtrParser Sub Sub                               #selfSubRightExpr // x++
-    | exprPtrParser                                               #ptrExpr
+    | exprPtr                                               #ptrExpr
     | left=expression Star right=expression                 #mulExpr        // x*y
     | left=expression Div  right=expression                 #divExpr        // x/y
     | left=expression Mod right=expression                  #modExpr        // x%y

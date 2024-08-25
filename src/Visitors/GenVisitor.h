@@ -216,7 +216,7 @@ namespace Riddle {
         /// @returns nullptr
         std::any visitClassBody(RiddleParser::ClassBodyContext *ctx) override;
         /// @brief 获取一个混合对象
-        /// @return llvm::Value*
+        /// @return tuple{llvm::Value*,llvm::Type*}
         std::any visitBlendExpr(RiddleParser::BlendExprContext *ctx) override;
         std::any visitExprPtrParser(RiddleParser::ExprPtrParserContext *context) override;
     };

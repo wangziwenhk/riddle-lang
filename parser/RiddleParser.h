@@ -714,7 +714,7 @@ public:
   public:
     PtrExprContext(ExpressionContext *ctx);
 
-    ExprPtrParserContext *exprPtrParser();
+    ExprPtrContext *exprPtr();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
