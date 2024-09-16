@@ -58,7 +58,7 @@ defineArgs
     ;
 
 funcDefine
-    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Colon returnType=typeName)? LeftCurly body=funcBody RightCurly
+    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? LeftCurly body=funcBody RightCurly
     ;
 
 funcBody
@@ -79,7 +79,7 @@ ifStatement returns [bool hasElse]
     ;
 
 returnStatement
-    : Return result=statement_ed
+    : Return (result=statement_ed)?
     ;
 
 classDefine

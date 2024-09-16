@@ -258,7 +258,8 @@ public:
     antlr4::tree::TerminalNode *Identifier();
     DefineArgsContext *defineArgs();
     FuncBodyContext *funcBody();
-    antlr4::tree::TerminalNode *Colon();
+    antlr4::tree::TerminalNode *Sub();
+    antlr4::tree::TerminalNode *Greater();
     TypeNameContext *typeName();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
