@@ -149,7 +149,7 @@ expression
     | boolean                                               #booleanExpr
     ;
 
-id: Identifier (Dot Identifier)*;
+id: Identifier;
 
 //这里是指常量
 number
