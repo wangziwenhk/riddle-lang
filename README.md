@@ -12,7 +12,7 @@
 ![](https://starchart.cc/wangziwenhk/Riddle-Language.svg)
 轻便，灵活，现代化的编程语言。
 
-Riddle Language 是一个内存安全的编程语音，用于取代 Rust 而出现。
+Riddle Language 是一个内存安全的编程语言，用于取代 Rust 而出现。
 
 ## 注意
 
