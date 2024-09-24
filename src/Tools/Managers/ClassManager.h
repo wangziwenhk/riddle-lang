@@ -7,7 +7,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 import Types.Class;
-#include "Types/ClassNode.h"
+import Types.ClassNode;
 
 namespace Riddle{
     /// @brief 管理类

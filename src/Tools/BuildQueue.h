@@ -1,8 +1,9 @@
 #ifndef RIDDLE_LANGUAGE_BUILDQUEUE_H
 #define RIDDLE_LANGUAGE_BUILDQUEUE_H
 
-#include "Types/Unit.h"
 #include <llvm/IR/Module.h>
+import Types.Unit;
+
 namespace Riddle {
     /// @brief 用于随时调整编译队列
     class BuildQueue {

@@ -1,12 +1,8 @@
-//
-// Created by wangz on 24-8-8.
-//
-
-#ifndef CLASSNODE_H
-#define CLASSNODE_H
+module;
+export module Types.ClassNode;
 import Types.Class;
 
-namespace Riddle{
+export namespace Riddle{
     // 防止内存泄漏，启用 RAII 思想
     class ClassNode{
     public:
@@ -16,12 +12,11 @@ namespace Riddle{
         }
 
         ~ClassNode(){
+            delete theClass;
         }
 
-        Class &get() const{
+        [[nodiscard]] Class &get() const{
             return *theClass;
         }
     };
-} // Riddle
-
-#endif //CLASSNODE_H
+} // namespace Riddle

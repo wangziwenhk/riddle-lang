@@ -1,5 +1,4 @@
 #include "PackageVisitor.h"
-#include "Tools/Linker.h"
 #include <filesystem>
 namespace Riddle {
     std::any PackageVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
@@ -10,7 +9,7 @@ namespace Riddle {
         unit.addImports(ctx->libName->getText());
         return RiddleParserBaseVisitor::visitImportStatement(ctx);
     }
-    PackageVisitor::PackageVisitor(std::string sourcePath, antlr4::tree::ParseTree *tree) {
+    PackageVisitor::PackageVisitor(const std::string &sourcePath, antlr4::tree::ParseTree *tree) {
         unit.parseTree = tree;
         unit.setDirectoryPath(sourcePath);
         unit.setFilePath(sourcePath);

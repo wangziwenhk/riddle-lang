@@ -1,6 +1,6 @@
 #ifndef RIDDLE_LANGUAGE_GENTOOLS_H
 #define RIDDLE_LANGUAGE_GENTOOLS_H
-#include <Types/ClassNode.h>
+import Types.ClassNode;
 #include <antlr4-runtime.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>

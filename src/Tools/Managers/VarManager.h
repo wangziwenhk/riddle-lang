@@ -1,10 +1,11 @@
 #ifndef RIDDLE_LANGUAGE_VARMANAGER_H
 #define RIDDLE_LANGUAGE_VARMANAGER_H
 
-#include "Types/Variable.h"
+#include <llvm/IR/Value.h>
 #include <stack>
 #include <string>
 #include <unordered_map>
+import Type.Variable;
 namespace Riddle {
     class VarManager {
     private://成员区

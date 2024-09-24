@@ -1,7 +1,7 @@
-#include "Unit.h"
-
-#include "../Setup.h"
-#include <utility>
+module;
+#include <vector>
+#include <string>
+module Types.Unit;
 
 namespace Riddle {
     Unit::Unit(const Path &selfPath) {
@@ -15,13 +15,13 @@ namespace Riddle {
     void Unit::addImports(const std::string &lib) {
         imports.push_back(lib);
     }
-    bool Unit::operator>(const Unit &x) {
+    bool Unit::operator>(const Unit &x) const {
         return this->imports.size() > x.imports.size();
     }
-    bool Unit::operator<(const Unit &x) {
+    bool Unit::operator<(const Unit &x) const {
         return this->imports.size() < x.imports.size();
     }
-    size_t Unit::getImportSize() {
+    size_t Unit::getImportSize() const {
         return imports.size();
     }
     void Unit::setPackName(std::string name) {
@@ -36,7 +36,7 @@ namespace Riddle {
     void Unit::setDirectoryPath(Path path) {
         directoryPath = std::move(path);
     }
-    void Unit::setFilePath(Path path) {
+    void Unit::setFilePath(const Path &path) {
         this->filePath = path;
     }
     std::string Unit::getFilePath() const {
