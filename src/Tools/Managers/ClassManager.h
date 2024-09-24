@@ -6,7 +6,7 @@
 #define RIDDLE_LANGUAGE_CLASSMANAGER_H
 #include <llvm/IR/IRBuilder.h>
 
-#include "Types/Class.h"
+import Types.Class;
 #include "Types/ClassNode.h"
 
 namespace Riddle{

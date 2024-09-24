@@ -34,6 +34,11 @@ include_directories(parser)
 
 file(GLOB_RECURSE AST_FILES "parser/*.cpp" "parser/*.h")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE MODULE_FILES "src/*.ixx")
+
+add_library(Riddle_Module ${SOURCE_FILES})
+
+target_sources(Riddle_Module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
@@ -41,3 +46,4 @@ target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 
 target_link_libraries(Riddle_Language LLVMCore)
 target_link_libraries(Riddle_Language antlr4_shared)
+target_link_libraries(Riddle_Language Riddle_Module)

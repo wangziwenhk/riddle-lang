@@ -4,7 +4,7 @@
 
 #ifndef CLASSNODE_H
 #define CLASSNODE_H
-#include "Class.h"
+import Types.Class;
 
 namespace Riddle{
     // 防止内存泄漏，启用 RAII 思想

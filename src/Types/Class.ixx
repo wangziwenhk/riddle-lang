@@ -1,23 +1,14 @@
-//
-// Created by wangz on 24-8-7.
-//
-
-#ifndef CLASS_H
-#define CLASS_H
-
-#include <map>
+module;
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
-
-namespace Riddle{
-
+#include <map>
+export module Types.Class;
+export namespace Riddle {
     class Class {
     public:
         llvm::StructType *types = nullptr;
-        std::unordered_map<std::string,int> names;
+        std::unordered_map<std::string, int> names;
         std::map<std::string, llvm::FunctionCallee> funcs;
     };
 
-} // Riddle
-
-#endif //CLASS_H
+}// namespace Riddle
