@@ -3,6 +3,7 @@ project(Riddle_Language)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 message("Current operating system: ${CMAKE_SYSTEM_NAME}")
 message("Current C++ compiler: ${CMAKE_CXX_COMPILER_ID}")
