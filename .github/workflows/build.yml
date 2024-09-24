@@ -1,4 +1,4 @@
-name: C++ CI
+name: Build
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           key: ${{ runner.os }}-antlr4-${{ hashFiles('**/CMakeLists.txt') }}
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake clang ninja uuid-dev
+        run: sudo apt-get update && sudo apt-get install -y cmake clang ninja-build uuid-dev
 
       - name: Install ANTLR4
         run: |
