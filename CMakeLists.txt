@@ -33,7 +33,7 @@ include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(parser)
 
 file(GLOB_RECURSE AST_FILES "parser/*.cpp" "parser/*.h")
-file(GLOB_RECURSE SOURCE_FILES "src/*")
+file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "src/*.h")
 
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 

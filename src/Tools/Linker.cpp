@@ -1,6 +1,5 @@
 #include "Linker.h"
 #include "Files.h"
-#include <ext/rope>
 #include <filesystem>
 #include <regex>
 namespace fs = std::filesystem;
