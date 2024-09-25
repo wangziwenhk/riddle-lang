@@ -1,5 +1,7 @@
-#include "VarManager.h"
+module;
 #include <stdexcept>
+#include <llvm/IR/Value.h>
+module Manager.VarManager;
 
 namespace Riddle {
     bool VarManager::isDefined(const std::string &name) {
@@ -12,16 +14,16 @@ namespace Riddle {
         Defined.emplace();
     }
     void VarManager::pop() {
-        for(auto i: Defined.top()) {
-            NamedVar[i.first].pop();
-            if(NamedVar[i.first].empty()) {
-                NamedVar.erase(i.first);
+        for(auto [name, iDefined]: Defined.top()) {
+            NamedVar[name].pop();
+            if(NamedVar[name].empty()) {
+                NamedVar.erase(name);
             }
         }
         Defined.pop();
     }
     void VarManager::defineVar(const std::string &name, const bool &isConst, llvm::Value *value) {
-        if(Defined.top().count(name)) {
+        if(Defined.top().contains(name)) {
             throw std::logic_error("The variable has been defined multiple times");
         }
         NamedVar[name].push(Variable(name, value, isConst));

@@ -4,7 +4,6 @@ module;
 #include <utility>
 export module Type.Variable;
 export namespace Riddle {
-    const std::string Null = "null";
     class Variable {
     public:
         const std::string name;

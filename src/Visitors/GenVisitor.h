@@ -8,7 +8,8 @@
 #include <llvm/IR/LLVMContext.h>
 #include <variant>
 
-#include "Tools/Managers/ClassManager.h"
+import Types.ClassNode;
+import Manager.ClassManager;
 
 namespace Riddle {
     /// @brief 用于实现生成 IR 的类

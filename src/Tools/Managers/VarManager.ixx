@@ -1,18 +1,18 @@
-#ifndef RIDDLE_LANGUAGE_VARMANAGER_H
-#define RIDDLE_LANGUAGE_VARMANAGER_H
-
+module;
 #include <llvm/IR/Value.h>
 #include <stack>
 #include <string>
 #include <unordered_map>
+export module Manager.VarManager;
+
 import Type.Variable;
-namespace Riddle {
+
+export namespace Riddle {
     class VarManager {
-    private://成员区
+        //成员区
         std::unordered_map<std::string, std::stack<Variable>> NamedVar;
         std::stack<std::unordered_map<std::string, bool>> Defined;
 
-    private:
         bool isDefined(const std::string &name);
 
     public://函数区
@@ -36,5 +36,3 @@ namespace Riddle {
     };
 
 }// namespace Riddle
-
-#endif//RIDDLE_LANGUAGE_VARMANAGER_H
