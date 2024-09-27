@@ -15,7 +15,7 @@ namespace Riddle {
         std::stack<std::unordered_set<std::string>> Defined;
 
     public:
-        VarManager(): Vars({}), Defined({}) {}
+        VarManager(): Vars({}) {}
 
         /// @brief 获取一个变量
         Variable &getVariable(const std::string &name) {
