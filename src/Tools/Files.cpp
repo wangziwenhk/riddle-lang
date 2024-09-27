@@ -1,7 +1,9 @@
-#include "Files.h"
+module;
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <vector>
+module Tools.Files;
 namespace fs = std::filesystem;
 namespace Riddle {
     std::vector<std::string> Files::getTreeFile(const std::string &path) {// NOLINT(*-no-recursion)
@@ -74,6 +76,10 @@ namespace Riddle {
         std::streampos fileSize = file.tellg();
         // 如果文件大小为0，则文件为空
         return fileSize == 0;
+    }
+    std::string Files::getFileName(const std::string &path){
+        const fs::path file_path(path);
+        return file_path.filename().string();
     }
     std::vector<std::string> Files::getFiles(const std::string &path) {
         std::vector<std::string> files;

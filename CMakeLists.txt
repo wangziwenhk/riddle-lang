@@ -23,10 +23,13 @@ find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
 
 find_package(LLVM REQUIRED CONFIG)
 find_package(antlr4-runtime CONFIG REQUIRED)
+find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
+
+include_directories(${TERMCOLOR_INCLUDE_DIRS})
 
 include_directories(src)
 include_directories(${ANTLR4_INCLUDE_DIR})
@@ -48,3 +51,4 @@ target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 target_link_libraries(Riddle_Language LLVMCore)
 target_link_libraries(Riddle_Language antlr4_shared)
 target_link_libraries(Riddle_Language Riddle_Module)
+

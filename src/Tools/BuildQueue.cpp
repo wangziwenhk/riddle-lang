@@ -25,9 +25,9 @@ namespace Riddle {
     // 目前只做了main的解析
     void BuildQueue::parserFile(std::string filePath) {
         std::ifstream stream(filePath);
-        auto input = new antlr4::ANTLRInputStream(stream);
-        auto lexer = new RiddleLexer(input);
-        auto tokens = new antlr4::CommonTokenStream(lexer);
+        const auto input = new antlr4::ANTLRInputStream(stream);
+        const auto lexer = new RiddleLexer(input);
+        const auto tokens = new antlr4::CommonTokenStream(lexer);
         auto *parser = new RiddleParser(tokens);
         antlr4::tree::ParseTree *p = parser->program();
         PackageVisitor visitor(filePath, p);

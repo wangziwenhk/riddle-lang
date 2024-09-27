@@ -38,7 +38,7 @@ jobs:
           mkdir build && cd build
           cmake .. -DANTLR4_INSTALL=ON -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           ninja
-          sudo make install
+          sudo ninja install
 
       - name: Configure CMake
         run: |

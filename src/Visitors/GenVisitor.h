@@ -2,7 +2,6 @@
 #define RIDDLE_LANGUAGE_GENVISITOR_H
 
 #include "../Setup.h"
-#include "Tools/Managers/VarManager.h"
 #include <RiddleParserBaseVisitor.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
@@ -10,6 +9,7 @@
 
 import Types.ClassNode;
 import Manager.ClassManager;
+import Manager.VarManager;
 
 namespace Riddle {
     /// @brief 用于实现生成 IR 的类

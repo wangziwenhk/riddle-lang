@@ -11,7 +11,7 @@
 #include <system_error>
 
 namespace Riddle {
-    [[maybe_unused]] GenVisitor::GenVisitor(const std::string &moduleName): Builder(globalContext) {
+    GenVisitor::GenVisitor(const std::string &moduleName): Builder(globalContext) {
         module = new llvm::Module(moduleName, globalContext);
         module->setSourceFileName(moduleName + ".red");
         opMap = getBinaryOpMap(Builder);

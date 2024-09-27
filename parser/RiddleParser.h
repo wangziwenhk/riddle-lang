@@ -1157,10 +1157,7 @@ public:
   public:
     IdContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<antlr4::tree::TerminalNode *> Identifier();
-    antlr4::tree::TerminalNode* Identifier(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> Dot();
-    antlr4::tree::TerminalNode* Dot(size_t i);
+    antlr4::tree::TerminalNode *Identifier();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

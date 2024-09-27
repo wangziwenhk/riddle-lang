@@ -13,7 +13,7 @@ namespace Riddle {
         /// @param libPackName 需要寻找的库的包名
         /// @param sourcePath 主动导入该库的源文件的绝对路径
         /// @return 返回库源文件的绝对路径
-        std::string findSourceLib(const std::string &libPackName, const std::string &sourcePath);
+        static std::string findSourceLib(const std::string &libPackName, const std::string &sourcePath);
 
     public:
         Linker();
@@ -21,7 +21,7 @@ namespace Riddle {
         /// @param libPackName 需要寻找的库的包名
         /// @param sourcePath 主动导入该库的源文件的绝对路径
         /// @return 返回库源文件的绝对路径
-        std::string findLib(const std::string &libPackName, const std::string &sourcePath);
+        static std::string findLib(const std::string &libPackName, const std::string &sourcePath);
     };
     static Linker linker;
 }// namespace Riddle

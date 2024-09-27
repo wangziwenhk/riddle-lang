@@ -1,17 +1,16 @@
 #include "Linker.h"
-#include "Files.h"
+import Tools.Files;
 #include <filesystem>
 #include <regex>
 namespace fs = std::filesystem;
 
 std::string getLibName(std::string PackageName) {
-    auto pos = std::find(PackageName.rbegin(), PackageName.rend(), '.');
+    const auto pos = std::find(PackageName.rbegin(), PackageName.rend(), '.');
     return {pos.base(), PackageName.end()};
 }
 
 namespace Riddle {
-    Linker::Linker() {
-    }
+    Linker::Linker() = default;
     std::string Linker::findSourceLib(const std::string &libPackName, const std::string &sourcePath) {
         const std::string libName = getLibName(libPackName);
         const auto files = Files::getTreeSource(sourcePath);
@@ -35,8 +34,7 @@ namespace Riddle {
         return "UNKNOWN";
     }
     std::string Linker::findLib(const std::string &libPackName, const std::string &sourcePath) {
-        std::string sp = findSourceLib(libPackName, sourcePath);
-        if(sp != "UNKNOWN") return sp;
+        if(std::string sp = findSourceLib(libPackName, sourcePath); sp != "UNKNOWN") return sp;
         return "UNKNOWN";
     }
 }// namespace Riddle
