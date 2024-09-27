@@ -11,7 +11,7 @@ message("Current C compiler: ${CMAKE_C_COMPILER_ID}")
 message("Current build type: ${CMAKE_BUILD_TYPE}")
 message("Current generator: ${CMAKE_GENERATOR}")
 
-#Enter the system type for better searching of the database.
+# Enter the system type for better searching of the database.
 if(WIN32)
     set(PLATFORM_DEFINES "-DWIN32")
 else(LINUX)

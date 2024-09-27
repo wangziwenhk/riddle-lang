@@ -19,6 +19,5 @@ int main(const int argv, char *argc[]) {
     // Parser
     Riddle::buildQueue.parserFile(opt.source);
     Riddle::buildQueue.start();
-    Riddle::GenVisitor a("123");
     return 0;
 }
