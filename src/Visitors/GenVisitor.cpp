@@ -44,7 +44,7 @@ namespace Riddle {
     }
 
     std::any GenVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        llvm::Value *value = varManager.getVar(ctx->Identifier()->getText()).value;
+        llvm::Value *value = varManager.getVar(ctx->Identifier()->getText()).var;
         return std::tuple{value, value->getType()};
     }
 

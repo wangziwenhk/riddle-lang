@@ -1,63 +1,79 @@
 module;
 #include "llvm/IR/LLVMContext.h"
-
+#include "llvm/IR/Module.h"
+#include "llvm/Linker/Linker.h"
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
-export module Context;
+export module IR.Context;
 
 import Type.Variable;
-import Types.UnionFind;
 
 namespace Riddle {
     class VarManager {
         std::unordered_map<std::string, std::stack<Variable *>> Vars;
-        std::stack<std::unordered_set<std::string>> Defined;
+        std::stack<std::unordered_set<std::string>> Defined = {};
 
     public:
         VarManager(): Vars({}) {}
 
         /// @brief 获取一个变量
-        Variable &getVariable(const std::string &name) {
-            if(!Vars.contains(name) || Vars.find(name)->second.empty()) {
-                throw std::out_of_range("Variable not found");
-            }
-            return *Vars[name].top();
-        }
+        /// @param name 变量名
+        /// @return 变量
+        Variable &getVariable(const std::string &name);
 
-        void addVariable(Variable &var) {
-            if(Defined.top().contains(var.name)) {
-                throw std::logic_error("Variable already exists");
-            }
-            Defined.top().insert(var.name);
-            Vars[var.name].push(&var);
-        }
+        /// @brief 添加一个变量
+        /// @param var 变量
+        void addVariable(Variable &var);
 
-        void push() {
-            Defined.emplace();
-        }
+        /// @brief 进入下一个生命周期
+        void push();
 
-        void pop() {
-            for(auto i: Defined.top()) {
-                Vars[i].pop();
-                if(Vars[i].empty()) {
-                    Vars.erase(i);
-                }
-            }
-            Defined.pop();
-        }
+        /// @brief 退出当前作用域
+        void pop();
     };
 }// namespace Riddle
+
 export namespace Riddle {
     class Context {
+        int _deep = 0;
+
     public:
         llvm::LLVMContext &context;
+        llvm::Module module;
         VarManager varManager;
 
-        explicit Context(llvm::LLVMContext &context): context(context) {}
+        explicit Context(llvm::LLVMContext &context): context(context), module("", context) {}
 
-        void addVar(Variable var) {
+        inline void addVariable(Variable var) {
             varManager.addVariable(var);
+        }
+
+        inline void push() {
+            varManager.push();
+        }
+
+        inline void pop() {
+            varManager.pop();
+        }
+
+        inline unsigned long long deep() const {
+            return _deep;
+        }
+
+        void merge(const Context &ctx) {
+            llvm::Linker linker(module);
+            auto t = std::make_unique<llvm::Module>(ctx.module.getModuleIdentifier(), ctx.context);
+
+            // 复制源模块的布局和目标配置
+            t->setDataLayout(ctx.module.getDataLayout());
+            t->setTargetTriple(ctx.module.getTargetTriple());
+
+            if(linker.linkInModule(std::move(t))) {
+                llvm::errs() << "Error: Failed to merge modules.\n";
+            } else {
+                llvm::outs() << "Modules merged successfully.\n";
+            }
         }
     };
 }

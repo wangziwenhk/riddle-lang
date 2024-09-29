@@ -7,12 +7,12 @@ export namespace Riddle {
     class Variable {
     public:
         const std::string name;
-        llvm::Value *value;
+        llvm::Value *var;
         const bool isConst;
         Variable() = delete;
         Variable(std::string name,
-                 llvm::Value *value,
-                 const bool isConst = false): name(std::move(name)), value(value), isConst(isConst){};
+                 llvm::Value *var,
+                 const bool isConst = false): name(std::move(name)), var(var), isConst(isConst){};
     };
 
 }// namespace Riddle

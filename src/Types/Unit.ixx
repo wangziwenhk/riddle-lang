@@ -40,7 +40,7 @@ export namespace Riddle {
         void addImports(const std::string &lib);
         void addImports(const std::vector<std::string> &libs);
         [[nodiscard]] std::vector<std::string> getImports() const;
-        size_t getImportSize()const;
+        [[nodiscard]] size_t getImportSize()const;
         /// @brief 添加优先级比较
         bool operator>(const Unit &x)const;
         bool operator<(const Unit &x)const;
