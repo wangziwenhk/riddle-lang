@@ -1,7 +1,6 @@
 module;
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include "llvm/Linker/Linker.h"
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
@@ -59,21 +58,6 @@ export namespace Riddle {
 
         inline unsigned long long deep() const {
             return _deep;
-        }
-
-        void merge(const Context &ctx) {
-            llvm::Linker linker(module);
-            auto t = std::make_unique<llvm::Module>(ctx.module.getModuleIdentifier(), ctx.context);
-
-            // 复制源模块的布局和目标配置
-            t->setDataLayout(ctx.module.getDataLayout());
-            t->setTargetTriple(ctx.module.getTargetTriple());
-
-            if(linker.linkInModule(std::move(t))) {
-                llvm::errs() << "Error: Failed to merge modules.\n";
-            } else {
-                llvm::outs() << "Modules merged successfully.\n";
-            }
         }
     };
 }

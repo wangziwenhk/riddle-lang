@@ -22,7 +22,6 @@ find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
         PATHS ${CMAKE_PREFIX_PATH} NO_DEFAULT_PATH)
 
 find_package(LLVM REQUIRED CONFIG)
-find_package(LLVM COMPONENTS Linker REQUIRED)
 find_package(antlr4-runtime CONFIG REQUIRED)
 find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
 
@@ -48,7 +47,7 @@ add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 
-target_link_libraries(Riddle_Language LLVMCore)
+target_link_libraries(Riddle_Language LLVMCore LLVMLinker)
 target_link_libraries(Riddle_Language antlr4_shared)
 target_link_libraries(Riddle_Language Riddle_Module)
 
