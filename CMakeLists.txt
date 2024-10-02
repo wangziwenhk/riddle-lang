@@ -22,6 +22,7 @@ find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
         PATHS ${CMAKE_PREFIX_PATH} NO_DEFAULT_PATH)
 
 find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM COMPONENTS Linker REQUIRED)
 find_package(antlr4-runtime CONFIG REQUIRED)
 find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
 
@@ -30,7 +31,6 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
 
 include_directories(${TERMCOLOR_INCLUDE_DIRS})
-
 include_directories(src)
 include_directories(${ANTLR4_INCLUDE_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})

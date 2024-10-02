@@ -4,7 +4,7 @@ module;
 module IR.Builder;
 import Type.Variable;
 namespace Riddle {
-    llvm::Value *Builder::CreateVariable(llvm::Type *type, llvm::Value *value, const std::string &name, const bool is_const){
+    llvm::Value *Builder::createVariable(llvm::Type *type, llvm::Value *value, const std::string &name, const bool is_const){
         llvm::Value *var;
         // 对全局变量特判
         if(ctx->deep() <= 1) {
