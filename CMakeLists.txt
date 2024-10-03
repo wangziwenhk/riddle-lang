@@ -48,6 +48,5 @@ add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 
 target_link_libraries(Riddle_Language LLVMCore LLVMLinker)
-target_link_libraries(Riddle_Language antlr4_shared)
 target_link_libraries(Riddle_Language Riddle_Module)
-
+target_link_libraries(Riddle_Language antlr4_shared)
