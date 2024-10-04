@@ -19,6 +19,7 @@ True:'true';
 False:'false';
 Static:'static';
 Const:'const';
+Null:'null';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

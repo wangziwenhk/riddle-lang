@@ -80,6 +80,9 @@ public:
   virtual void enterAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) = 0;
   virtual void exitAndAssignExpr(RiddleParser::AndAssignExprContext *ctx) = 0;
 
+  virtual void enterNullExpr(RiddleParser::NullExprContext *ctx) = 0;
+  virtual void exitNullExpr(RiddleParser::NullExprContext *ctx) = 0;
+
   virtual void enterModExpr(RiddleParser::ModExprContext *ctx) = 0;
   virtual void exitModExpr(RiddleParser::ModExprContext *ctx) = 0;
 

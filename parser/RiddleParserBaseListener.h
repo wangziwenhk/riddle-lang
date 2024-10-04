@@ -82,6 +82,9 @@ public:
   virtual void enterAndAssignExpr(RiddleParser::AndAssignExprContext * /*ctx*/) override { }
   virtual void exitAndAssignExpr(RiddleParser::AndAssignExprContext * /*ctx*/) override { }
 
+  virtual void enterNullExpr(RiddleParser::NullExprContext * /*ctx*/) override { }
+  virtual void exitNullExpr(RiddleParser::NullExprContext * /*ctx*/) override { }
+
   virtual void enterModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
   virtual void exitModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
 

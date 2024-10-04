@@ -23,9 +23,10 @@ export namespace Riddle {
 
             IntegerStmtID,// int 类型
             FloatStmtID,  // float 类型
-            DoubleStmtID,
-            BoolStmtID,
-            NullStmtID,
+            DoubleStmtID, // double 类型
+            BoolStmtID,   // bool 类型
+            StringStmtID, // string 类型
+            NullStmtID,   // Null
 
             NoneStmtID,// 没有任何效果的语句
         };
@@ -107,6 +108,16 @@ export namespace Riddle {
     public:
         explicit BoolStmt(const bool value): ConstantStmt(StmtTypeID::BoolStmtID), value(value) {}
         [[nodiscard]] inline bool getValue() const { return value; }
+    };
+
+    /// @brief 存储 string 数据类型
+    class StringStmt final : public ConstantStmt {
+    protected:
+        std::string value;
+
+    public:
+        explicit StringStmt(const std::string &value): ConstantStmt(StmtTypeID::StringStmtID), value(value) {}
+        [[nodiscard]] inline std::string getValue() const { return value; }
     };
 
     // todo 实现多个变量定义

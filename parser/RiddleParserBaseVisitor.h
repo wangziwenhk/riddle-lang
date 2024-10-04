@@ -103,6 +103,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitNullExpr(RiddleParser::NullExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitModExpr(RiddleParser::ModExprContext *ctx) override {
     return visitChildren(ctx);
   }

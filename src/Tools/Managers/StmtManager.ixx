@@ -1,4 +1,5 @@
 module;
+#include <string>
 #include <vector>
 export module Managers.StmtManager;
 
@@ -14,28 +15,38 @@ export namespace Riddle {
                 delete stmt;
             }
         }
-        BaseStmt *getConstant(const int value) {
+        IntegerStmt *getConstant(const int value) {
             const auto ptr = new IntegerStmt(value);
             stmts.push_back(ptr);
             return ptr;
         }
-        BaseStmt *getConstant(const double value) {
+        DoubleStmt *getConstant(const double value) {
             const auto ptr = new DoubleStmt(value);
             stmts.push_back(ptr);
             return ptr;
         }
-        BaseStmt *getConstant(const float value) {
+        FloatStmt *getConstant(const float value) {
             const auto ptr = new FloatStmt(value);
             stmts.push_back(ptr);
             return ptr;
         }
-        BaseStmt *getConstant(const bool value) {
+        BoolStmt *getConstant(const bool value) {
             const auto ptr = new BoolStmt(value);
             stmts.push_back(ptr);
             return ptr;
         }
-        BaseStmt *getNull() {
+        StringStmt *getConstant(const std::string value) {
+            const auto ptr = new StringStmt(value);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+        NullStmt *getNull() {
             const auto ptr = new NullStmt();
+            stmts.push_back(ptr);
+            return ptr;
+        }
+        VarDefineStmt *getVarDefine(const std::string &name, const std::string &type, BaseStmt *value) {
+            const auto ptr = new VarDefineStmt(name, type, value);
             stmts.push_back(ptr);
             return ptr;
         }

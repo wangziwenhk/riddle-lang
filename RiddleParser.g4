@@ -147,6 +147,7 @@ expression
     | string                                                #stringExpr
     | number                                                #numberExpr
     | boolean                                               #booleanExpr
+    | Null                                                  #nullExpr
     ;
 
 id: Identifier;
