@@ -1,8 +1,8 @@
 module;
 #include "Tools/GenTools.h"
 #include <utility>
-export module Statements;
-namespace Riddle {
+export module Types.Statements;
+export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {
     public:
