@@ -23,15 +23,18 @@ namespace Riddle {
 
             IntegerStmtID,// int 类型
             FloatStmtID,  // float 类型
+            DoubleStmtID,
+            BoolStmtID,
+            NullStmtID,
 
-            NullStmtID,// 没有任何效果的语句
+            NoneStmtID,// 没有任何效果的语句
         };
 
     protected:
         StmtTypeID StmtID;
 
     public:
-        BaseStmt(): StmtID(StmtTypeID::NullStmtID) {}
+        BaseStmt(): StmtID(StmtTypeID::NoneStmtID) {}
         explicit BaseStmt(const StmtTypeID stmtTypeID): StmtID(stmtTypeID) {}
         virtual ~BaseStmt() = default;
 
@@ -62,11 +65,48 @@ namespace Riddle {
 
     /// @brief 存储int类型数据
     class IntegerStmt final : public ConstantStmt {
+    protected:
         int value;
 
     public:
-        explicit IntegerStmt(const int value): ConstantStmt(StmtTypeID::IntegerStmtID), value(value){};
+        explicit IntegerStmt(const int value): ConstantStmt(StmtTypeID::IntegerStmtID), value(value) {}
         [[nodiscard]] inline int getValue() const { return value; }
+    };
+
+    /// @brief 存储 float 数据类型
+    class FloatStmt final : public ConstantStmt {
+    protected:
+        float value;
+
+    public:
+        explicit FloatStmt(const float value): ConstantStmt(StmtTypeID::FloatStmtID), value(value) {}
+        [[nodiscard]] inline float getValue() const { return value; }
+    };
+
+    /// @brief 存储 Null 数据类型
+    class NullStmt final : public ConstantStmt {
+    public:
+        NullStmt(): ConstantStmt(StmtTypeID::NullStmtID) {}
+    };
+
+    /// @brief 存储 double 数据类型
+    class DoubleStmt final : public ConstantStmt {
+    protected:
+        double value;
+
+    public:
+        explicit DoubleStmt(const double value): ConstantStmt(StmtTypeID::DoubleStmtID), value(value) {}
+        [[nodiscard]] inline double getValue() const { return value; }
+    };
+
+    /// @brief 存储 bool 数据类型
+    class BoolStmt final : public ConstantStmt {
+    protected:
+        bool value;
+
+    public:
+        explicit BoolStmt(const bool value): ConstantStmt(StmtTypeID::BoolStmtID), value(value) {}
+        [[nodiscard]] inline bool getValue() const { return value; }
     };
 
     // todo 实现多个变量定义
