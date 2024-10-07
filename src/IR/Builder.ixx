@@ -56,6 +56,10 @@ export namespace Riddle {
             return llvmBuilder.getIntN(bits,bits);
         }
 
+        inline llvm::Constant *getDouble(const double &value) const {
+            return llvm::ConstantFP::get(llvm::Type::getDoubleTy(ctx->context), value);
+        }
+
         /// @brief 创建一个变量
         /// @param type 变量类型
         /// @param value 变量初始值

@@ -8,6 +8,7 @@ export namespace Riddle {
     public:
         /// 用于标识语句类型
         enum class StmtTypeID {
+            ProgramStmtID,
             VarDefineStmtID, // 变量定义
             FuncDefineStmtID,// 函数定义
             ForStmtID,       // for 循环
@@ -43,9 +44,15 @@ export namespace Riddle {
             return false;
         }
 
-        [[nodiscard]] inline StmtTypeID getTypeID() const {
+        [[nodiscard]] inline StmtTypeID getStmtTypeID() const {
             return StmtID;
         }
+    };
+
+    class ProgramStmt final : public BaseStmt {
+    public:
+        std::vector<BaseStmt*> body;
+        explicit ProgramStmt(std::vector<BaseStmt*> body): body{std::move(body)} {}
     };
 
     /// @brief 是多个语句的组合
