@@ -112,7 +112,7 @@ namespace Riddle {
             varManager.defineVar(args.names[i], false, Alloca);
         }
 
-        visit(ctx->funcBody());
+        visit(ctx->body);
         varManager.pop();
         ParentStack.pop();
         Builder.SetInsertPoint(oldBlock);
@@ -576,7 +576,4 @@ namespace Riddle {
         return nullptr;
     }
 
-    std::any GenVisitor::visitClassBody(RiddleParser::ClassBodyContext *ctx){
-        return RiddleParserBaseVisitor::visitClassBody(ctx);
-    }
 } // namespace Riddle

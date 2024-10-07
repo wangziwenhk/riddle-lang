@@ -1,5 +1,5 @@
 
-// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.1
+// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -19,11 +19,15 @@ public:
   /**
    * Visit parse trees produced by RiddleParser.
    */
+    virtual std::any visitNull_cnt(RiddleParser::Null_cntContext *context) = 0;
+
     virtual std::any visitProgram(RiddleParser::ProgramContext *context) = 0;
 
     virtual std::any visitStatement_ed(RiddleParser::Statement_edContext *context) = 0;
 
     virtual std::any visitStatement(RiddleParser::StatementContext *context) = 0;
+
+    virtual std::any visitBodyExpr(RiddleParser::BodyExprContext *context) = 0;
 
     virtual std::any visitPackStatement(RiddleParser::PackStatementContext *context) = 0;
 
@@ -37,9 +41,7 @@ public:
 
     virtual std::any visitFuncDefine(RiddleParser::FuncDefineContext *context) = 0;
 
-    virtual std::any visitFuncBody(RiddleParser::FuncBodyContext *context) = 0;
-
-    virtual std::any visitForStatement(RiddleParser::ForStatementContext *context) = 0;
+    virtual std::any visitForStatement(RiddleParser::ForStatementContext *ctx) = 0;
 
     virtual std::any visitWhileStatement(RiddleParser::WhileStatementContext *context) = 0;
 
@@ -49,7 +51,9 @@ public:
 
     virtual std::any visitClassDefine(RiddleParser::ClassDefineContext *context) = 0;
 
-    virtual std::any visitClassBody(RiddleParser::ClassBodyContext *context) = 0;
+    virtual std::any visitTryExpr(RiddleParser::TryExprContext *context) = 0;
+
+    virtual std::any visitCatchExpr(RiddleParser::CatchExprContext *context) = 0;
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
 

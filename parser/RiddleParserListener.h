@@ -1,5 +1,5 @@
 
-// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.1
+// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -14,6 +14,9 @@
 class  RiddleParserListener : public antlr4::tree::ParseTreeListener {
 public:
 
+  virtual void enterNull_cnt(RiddleParser::Null_cntContext *ctx) = 0;
+  virtual void exitNull_cnt(RiddleParser::Null_cntContext *ctx) = 0;
+
   virtual void enterProgram(RiddleParser::ProgramContext *ctx) = 0;
   virtual void exitProgram(RiddleParser::ProgramContext *ctx) = 0;
 
@@ -22,6 +25,9 @@ public:
 
   virtual void enterStatement(RiddleParser::StatementContext *ctx) = 0;
   virtual void exitStatement(RiddleParser::StatementContext *ctx) = 0;
+
+  virtual void enterBodyExpr(RiddleParser::BodyExprContext *ctx) = 0;
+  virtual void exitBodyExpr(RiddleParser::BodyExprContext *ctx) = 0;
 
   virtual void enterPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
   virtual void exitPackStatement(RiddleParser::PackStatementContext *ctx) = 0;
@@ -41,9 +47,6 @@ public:
   virtual void enterFuncDefine(RiddleParser::FuncDefineContext *ctx) = 0;
   virtual void exitFuncDefine(RiddleParser::FuncDefineContext *ctx) = 0;
 
-  virtual void enterFuncBody(RiddleParser::FuncBodyContext *ctx) = 0;
-  virtual void exitFuncBody(RiddleParser::FuncBodyContext *ctx) = 0;
-
   virtual void enterForStatement(RiddleParser::ForStatementContext *ctx) = 0;
   virtual void exitForStatement(RiddleParser::ForStatementContext *ctx) = 0;
 
@@ -59,8 +62,11 @@ public:
   virtual void enterClassDefine(RiddleParser::ClassDefineContext *ctx) = 0;
   virtual void exitClassDefine(RiddleParser::ClassDefineContext *ctx) = 0;
 
-  virtual void enterClassBody(RiddleParser::ClassBodyContext *ctx) = 0;
-  virtual void exitClassBody(RiddleParser::ClassBodyContext *ctx) = 0;
+  virtual void enterTryExpr(RiddleParser::TryExprContext *ctx) = 0;
+  virtual void exitTryExpr(RiddleParser::TryExprContext *ctx) = 0;
+
+  virtual void enterCatchExpr(RiddleParser::CatchExprContext *ctx) = 0;
+  virtual void exitCatchExpr(RiddleParser::CatchExprContext *ctx) = 0;
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;
   virtual void exitFuncExpr(RiddleParser::FuncExprContext *ctx) = 0;

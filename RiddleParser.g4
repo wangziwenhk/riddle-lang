@@ -5,10 +5,16 @@ options {
 }
 
 @Header{
+
 }
 
 @parserFile::members {
 }
+
+null_cnt
+    : Semi
+    | Endl
+    ;
 
 program
     : statement_ed*
@@ -31,8 +37,13 @@ statement
     | whileStatement
     | ifStatement
     | returnStatement
+    | tryExpr
     | expression
     | LeftCurly statement_ed* RightCurly
+    ;
+
+bodyExpr
+    : statement_ed*
     ;
 
 packStatement
@@ -58,13 +69,8 @@ defineArgs
     ;
 
 funcDefine
-    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? LeftCurly body=funcBody RightCurly
+    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? LeftCurly body=bodyExpr RightCurly
     ;
-
-funcBody
-    : statement_ed*
-    ;
-
 forStatement
     : For LeftBracket (init=varDefineStatement)? Semi (termCond=expression)? Semi (selfVar=statement)? RightBracket body=statement_ed
     ;
@@ -83,11 +89,15 @@ returnStatement
     ;
 
 classDefine
-    : Class className = id LeftCurly body=classBody RightCurly
+    : Class className = id LeftCurly body=bodyExpr RightCurly
     ;
 
-classBody
-    : statement_ed*
+tryExpr
+    : Try LeftCurly tryBody=bodyExpr RightCurly null_cnt? catchExpr
+    ;
+
+catchExpr
+    : Catch LeftBracket varDefineStatement RightBracket
     ;
 
 // 这一块就是使用

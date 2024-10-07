@@ -157,15 +157,11 @@ export namespace Riddle {
     public:
         FuncDefineStmt(std::string func_name,
                        std::string return_type,
-                       std::vector<DefineArg> args = {},
-                       BaseStmt *body = nullptr): BaseStmt(StmtTypeID::FuncDefineStmtID),
-                                                  func_name(std::move(func_name)),
-                                                  return_type(std::move(return_type)),
-                                                  args(std::move(args)), body(body) {}
-        /// 设置函数体
-        void setBodyStmts(BaseStmt *stmts) {
-            body = stmts;
-        }
+                       BaseStmt *body,
+                       std::vector<DefineArg> args = {}): BaseStmt(StmtTypeID::FuncDefineStmtID),
+                                                                          func_name(std::move(func_name)),
+                                                                          return_type(std::move(return_type)),
+                                                                          args(std::move(args)), body(body) {}
 
         [[nodiscard]] inline std::string getFuncName() const { return func_name; }
         [[nodiscard]] inline std::string getReturnType() const { return return_type; }
@@ -185,13 +181,8 @@ export namespace Riddle {
         ForStmt(BaseStmt *init,
                 BaseStmt *cond,
                 BaseStmt *self_change,
-                BaseStmt *body = nullptr): BaseStmt(StmtTypeID::ForStmtID), init(init), condition(cond),
-                                           self_change(self_change), body(body) {}
-
-        /// 设置循环体
-        void setBodyStmt(BaseStmt *stmt) {
-            body = stmt;
-        }
+                BaseStmt *body): BaseStmt(StmtTypeID::ForStmtID), init(init), condition(cond),
+                                 self_change(self_change), body(body) {}
 
         [[nodiscard]] inline BaseStmt *getInit() const { return init; }
         [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
@@ -212,8 +203,31 @@ export namespace Riddle {
             body = stmt;
         }
 
-        [[nodiscard]] inline BaseStmt* getCondition() const { return condition; }
-        [[nodiscard]] inline BaseStmt* getBody() const { return body; }
+        [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
+        [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+    };
+
+    /// @brief 用于存储 try 语句
+    class TryStmt final : public BaseStmt {
+    protected:
+        BaseStmt *tryBody;
+        BaseStmt *catchBody;
+
+    public:
+        TryStmt(BaseStmt *tryBody, BaseStmt *catchBody): tryBody(tryBody), catchBody(catchBody) {}
+
+        [[nodiscard]] inline BaseStmt *getTryBody() const { return tryBody; }
+        [[nodiscard]] inline BaseStmt *getCatchBody() const { return catchBody; }
+    };
+
+    /// @brief 用于存储 if 语句
+    class IfStmt final : public BaseStmt {
+    protected:
+        BaseStmt *condition;
+        BaseStmt *thenBody;
+        BaseStmt *elseBody;
+        public:
+        IfStmt(BaseStmt* cond,BaseStmt* thenBody,BaseStmt* elseBody):condition(cond),thenBody(thenBody),elseBody(elseBody){}
     };
 
 

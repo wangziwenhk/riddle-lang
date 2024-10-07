@@ -20,6 +20,8 @@ False:'false';
 Static:'static';
 Const:'const';
 Null:'null';
+Try:'try';
+Catch:'catch';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

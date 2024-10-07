@@ -50,5 +50,15 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+        WhileStmt *getWhile(BaseStmt *condition, BaseStmt *body) {
+            const auto ptr = new WhileStmt(condition, body);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+        ForStmt *getFor(BaseStmt *init, BaseStmt *condition, BaseStmt *changed, BaseStmt *body) {
+            const auto ptr = new ForStmt(init, condition, changed, body);
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle

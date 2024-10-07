@@ -1,5 +1,5 @@
 
-// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.1
+// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -15,6 +15,10 @@
 class  RiddleParserBaseVisitor : public RiddleParserVisitor {
 public:
 
+  virtual std::any visitNull_cnt(RiddleParser::Null_cntContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitProgram(RiddleParser::ProgramContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -24,6 +28,10 @@ public:
   }
 
   virtual std::any visitStatement(RiddleParser::StatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -51,10 +59,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFuncBody(RiddleParser::FuncBodyContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -75,7 +79,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitClassBody(RiddleParser::ClassBodyContext *ctx) override {
+  virtual std::any visitTryExpr(RiddleParser::TryExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitCatchExpr(RiddleParser::CatchExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
