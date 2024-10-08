@@ -26,6 +26,7 @@ export namespace Riddle {
         /// @param isConst 是否不变
         /// @param value 指某个局部变量的地址
         void defineVar(const std::string &name, const bool &isConst, llvm::Value *value = nullptr);
+        void addVar(const Variable &var);
         /// @brief 获取一个变量的属性
         /// @param name 变量名
         /// @returns 变量的属性

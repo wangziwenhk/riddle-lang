@@ -1,5 +1,5 @@
 
-// Generated from E:/Riddle-Language/RiddleLexer.g4 by ANTLR 4.13.1
+// Generated from E:/Riddle-Language/RiddleLexer.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -15,15 +15,15 @@ public:
     Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
     Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
     Override = 15, True = 16, False = 17, Static = 18, Const = 19, Null = 20, 
-    LeftBracket = 21, RightBracket = 22, LeftSquare = 23, RightSquare = 24, 
-    LeftCurly = 25, RightCurly = 26, Colon = 27, Semi = 28, Comma = 29, 
-    Equal = 30, Assign = 31, Greater = 32, Less = 33, LeftLeft = 34, RightRight = 35, 
-    RightRightRight = 36, Add = 37, Sub = 38, Star = 39, Div = 40, Mod = 41, 
-    Not = 42, And = 43, Or = 44, Xor = 45, Dot = 46, DoubleQuotes = 47, 
-    Quotes = 48, Endl = 49, Identifier = 50, Hexadecimal = 51, Decimal = 52, 
-    Octal = 53, Binary = 54, Float = 55, IntegerSequence = 56, HEX_DIGIT = 57, 
-    OCTAL_DIGIT = 58, BINARY_DIGIT = 59, DIGIT = 60, STRING = 61, LINE_COMMENT = 62, 
-    BLOCK_COMMENT = 63, WHITESPACE = 64
+    Try = 21, Catch = 22, LeftBracket = 23, RightBracket = 24, LeftSquare = 25, 
+    RightSquare = 26, LeftCurly = 27, RightCurly = 28, Colon = 29, Semi = 30, 
+    Comma = 31, Equal = 32, Assign = 33, Greater = 34, Less = 35, LeftLeft = 36, 
+    RightRight = 37, RightRightRight = 38, Add = 39, Sub = 40, Star = 41, 
+    Div = 42, Mod = 43, Not = 44, And = 45, Or = 46, Xor = 47, Dot = 48, 
+    DoubleQuotes = 49, Quotes = 50, Endl = 51, Identifier = 52, Hexadecimal = 53, 
+    Decimal = 54, Octal = 55, Binary = 56, Float = 57, IntegerSequence = 58, 
+    HEX_DIGIT = 59, OCTAL_DIGIT = 60, BINARY_DIGIT = 61, DIGIT = 62, STRING = 63, 
+    LINE_COMMENT = 64, BLOCK_COMMENT = 65, WHITESPACE = 66
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

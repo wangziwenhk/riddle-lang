@@ -1,5 +1,5 @@
 
-// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.1
+// Generated from E:/Riddle-Language/RiddleParser.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -16,6 +16,9 @@
 class  RiddleParserBaseListener : public RiddleParserListener {
 public:
 
+  virtual void enterNull_cnt(RiddleParser::Null_cntContext * /*ctx*/) override { }
+  virtual void exitNull_cnt(RiddleParser::Null_cntContext * /*ctx*/) override { }
+
   virtual void enterProgram(RiddleParser::ProgramContext * /*ctx*/) override { }
   virtual void exitProgram(RiddleParser::ProgramContext * /*ctx*/) override { }
 
@@ -24,6 +27,9 @@ public:
 
   virtual void enterStatement(RiddleParser::StatementContext * /*ctx*/) override { }
   virtual void exitStatement(RiddleParser::StatementContext * /*ctx*/) override { }
+
+  virtual void enterBodyExpr(RiddleParser::BodyExprContext * /*ctx*/) override { }
+  virtual void exitBodyExpr(RiddleParser::BodyExprContext * /*ctx*/) override { }
 
   virtual void enterPackStatement(RiddleParser::PackStatementContext * /*ctx*/) override { }
   virtual void exitPackStatement(RiddleParser::PackStatementContext * /*ctx*/) override { }
@@ -43,9 +49,6 @@ public:
   virtual void enterFuncDefine(RiddleParser::FuncDefineContext * /*ctx*/) override { }
   virtual void exitFuncDefine(RiddleParser::FuncDefineContext * /*ctx*/) override { }
 
-  virtual void enterFuncBody(RiddleParser::FuncBodyContext * /*ctx*/) override { }
-  virtual void exitFuncBody(RiddleParser::FuncBodyContext * /*ctx*/) override { }
-
   virtual void enterForStatement(RiddleParser::ForStatementContext * /*ctx*/) override { }
   virtual void exitForStatement(RiddleParser::ForStatementContext * /*ctx*/) override { }
 
@@ -61,8 +64,11 @@ public:
   virtual void enterClassDefine(RiddleParser::ClassDefineContext * /*ctx*/) override { }
   virtual void exitClassDefine(RiddleParser::ClassDefineContext * /*ctx*/) override { }
 
-  virtual void enterClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override { }
-  virtual void exitClassBody(RiddleParser::ClassBodyContext * /*ctx*/) override { }
+  virtual void enterTryExpr(RiddleParser::TryExprContext * /*ctx*/) override { }
+  virtual void exitTryExpr(RiddleParser::TryExprContext * /*ctx*/) override { }
+
+  virtual void enterCatchExpr(RiddleParser::CatchExprContext * /*ctx*/) override { }
+  virtual void exitCatchExpr(RiddleParser::CatchExprContext * /*ctx*/) override { }
 
   virtual void enterFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }
   virtual void exitFuncExpr(RiddleParser::FuncExprContext * /*ctx*/) override { }

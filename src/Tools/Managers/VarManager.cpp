@@ -1,6 +1,7 @@
 module;
-#include <stdexcept>
 #include <llvm/IR/Value.h>
+#include <stdexcept>
+#include <ranges>
 module Manager.VarManager;
 
 namespace Riddle {
@@ -14,7 +15,7 @@ namespace Riddle {
         Defined.emplace();
     }
     void VarManager::pop() {
-        for(auto [name, iDefined]: Defined.top()) {
+        for(const auto& name: Defined.top() | std::views::keys) {
             NamedVar[name].pop();
             if(NamedVar[name].empty()) {
                 NamedVar.erase(name);
@@ -28,6 +29,10 @@ namespace Riddle {
         }
         NamedVar[name].push(Variable(name, value, isConst));
         Defined.top()[name] = true;
+    }
+    void VarManager::addVar(const Variable &var) {
+        NamedVar[var.name].push(var);
+        Defined.top()[var.name] = true;
     }
     Variable VarManager::getVar(const std::string &name) {
         return NamedVar[name].top();

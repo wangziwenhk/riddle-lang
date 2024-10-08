@@ -10,30 +10,31 @@ export namespace Riddle {
         llvm::IRBuilder<> llvmBuilder;
 
     public:
-        explicit Builder(Context &context): ctx(&context), llvmBuilder(ctx->context) {}
+        explicit Builder(Context &context): ctx(&context), llvmBuilder(ctx->llvm_context) {}
 
+        Context &getContext() const { return *ctx; }
         // constant
 
         /// @brief 获取不同位数的整数类型
         /// @param bits 整数类型的位数
         /// @return llvm:IntegerTy
         inline llvm::IntegerType *getIntegerTy(const unsigned bits = 32) const {
-            return llvm::Type::getIntNTy(ctx->context, bits);
+            return llvm::Type::getIntNTy(ctx->llvm_context, bits);
         }
 
         /// @brief 获取单浮点类型
         inline llvm::Type *getFloatTy() const {
-            return llvm::Type::getFloatTy(ctx->context);
+            return llvm::Type::getFloatTy(ctx->llvm_context);
         }
 
         /// @brief 获取双浮点类型
         inline llvm::Type *getDoubleTy() const {
-            return llvm::Type::getDoubleTy(ctx->context);
+            return llvm::Type::getDoubleTy(ctx->llvm_context);
         }
 
         /// @brief 获取空类型
         inline llvm::Type *getVoidTy() const {
-            return llvm::Type::getVoidTy(ctx->context);
+            return llvm::Type::getVoidTy(ctx->llvm_context);
         }
 
         /// @brief 获取布尔类型
@@ -52,8 +53,12 @@ export namespace Riddle {
         }
 
         /// @brief 将 int N 类型 转化为 llvm::Constant 类型
-        inline llvm::Constant* getIntN(const unsigned long long bits,const long long int) {
-            return llvmBuilder.getIntN(bits,bits);
+        inline llvm::Constant *getIntN(const unsigned long long bits, const long long int) {
+            return llvmBuilder.getIntN(bits, bits);
+        }
+
+        inline llvm::Constant *getDouble(const double &value) const {
+            return llvm::ConstantFP::get(llvm::Type::getDoubleTy(ctx->llvm_context), value);
         }
 
         /// @brief 创建一个变量

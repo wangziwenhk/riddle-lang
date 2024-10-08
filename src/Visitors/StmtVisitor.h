@@ -18,6 +18,8 @@ namespace Riddle {
         std::any visitBoolean(RiddleParser::BooleanContext *ctx) override;
         std::any visitNullExpr(RiddleParser::NullExprContext *context) override;
         std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) override;
+        std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override;
+        std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override;
     };
 
 }// namespace Riddle
