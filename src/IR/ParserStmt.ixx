@@ -5,13 +5,18 @@ module;
 export module IR.ParserStmt;
 import Types.Statements;
 import Manager.ClassManager;
+import Manager.VarManager;
+import IR.Context;
 import IR.Builder;
 export namespace Riddle {
     class ParserStmt {
         Builder builder;
         ClassManager classManager;
+        VarManager varManager;
 
     public:
+        ParserStmt(Context &ctx): classManager(ctx.llvm_context), builder(ctx) {}
+
         std::any accept(BaseStmt *stmt) {
             if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::ProgramStmtID) {
                 Program(static_cast<ProgramStmt *>(stmt));
@@ -20,7 +25,10 @@ export namespace Riddle {
                 return Integer(static_cast<IntegerStmt *>(stmt));
             } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::DoubleStmtID) {
                 return Double(static_cast<DoubleStmt *>(stmt));
+            } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::ObjStmtID) {
+                return Object(static_cast<ObjectStmt *>(stmt));
             }
+            return nullptr;
         }
 
         llvm::Value *Integer(const IntegerStmt *stmt) {
@@ -42,6 +50,11 @@ export namespace Riddle {
             const auto value = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
             const std::string name = stmt->getName();
             return builder.createVariable(type, value, name);
+        }
+
+        llvm::Value *Object(const ObjectStmt *stmt) {
+            const std::string name = stmt->getName();
+            return varManager.getVar(name).var;
         }
     };
 }// namespace Riddle

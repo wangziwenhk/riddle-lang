@@ -51,8 +51,8 @@ export namespace Riddle {
 
     class ProgramStmt final : public BaseStmt {
     public:
-        std::vector<BaseStmt*> body;
-        explicit ProgramStmt(std::vector<BaseStmt*> body): body{std::move(body)} {}
+        std::vector<BaseStmt *> body;
+        explicit ProgramStmt(std::vector<BaseStmt *> body): body{std::move(body)} {}
     };
 
     /// @brief 是多个语句的组合
@@ -166,9 +166,9 @@ export namespace Riddle {
                        std::string return_type,
                        BaseStmt *body,
                        std::vector<DefineArg> args = {}): BaseStmt(StmtTypeID::FuncDefineStmtID),
-                                                                          func_name(std::move(func_name)),
-                                                                          return_type(std::move(return_type)),
-                                                                          args(std::move(args)), body(body) {}
+                                                          func_name(std::move(func_name)),
+                                                          return_type(std::move(return_type)),
+                                                          args(std::move(args)), body(body) {}
 
         [[nodiscard]] inline std::string getFuncName() const { return func_name; }
         [[nodiscard]] inline std::string getReturnType() const { return return_type; }
@@ -233,9 +233,22 @@ export namespace Riddle {
         BaseStmt *condition;
         BaseStmt *thenBody;
         BaseStmt *elseBody;
-        public:
-        IfStmt(BaseStmt* cond,BaseStmt* thenBody,BaseStmt* elseBody):condition(cond),thenBody(thenBody),elseBody(elseBody){}
+
+    public:
+        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): condition(cond),thenBody(thenBody),elseBody(elseBody){}
+
+        [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
+        [[nodiscard]] inline BaseStmt *getThenBody() const { return thenBody; }
+        [[nodiscard]] inline BaseStmt *getElseBody() const { return elseBody; }
     };
 
+    class ObjectStmt final : public BaseStmt {
+    protected:
+        std::string name;
+    public:
+        explicit ObjectStmt(std::string name): name(std::move(name)) {}
+
+        [[nodiscard]] inline std::string getName() const { return name; }
+    };
 
 }// namespace Riddle
