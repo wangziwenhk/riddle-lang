@@ -2,6 +2,8 @@ module;
 #include "Tools/GenTools.h"
 #include <utility>
 export module Types.Statements;
+import Type.DefineArg;
+import Manager.ClassManager;
 export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {
@@ -29,6 +31,11 @@ export namespace Riddle {
             StringStmtID, // string 类型
             NullStmtID,   // Null
 
+            DefineArgStmtID,
+            DefineArgListStmtID,
+            ArgStmtID,
+            ArgListStmtID,
+
             NoneStmtID,// 没有任何效果的语句
         };
 
@@ -52,7 +59,7 @@ export namespace Riddle {
     class ProgramStmt final : public BaseStmt {
     public:
         std::vector<BaseStmt *> body;
-        explicit ProgramStmt(std::vector<BaseStmt *> body): body{std::move(body)} {}
+        explicit ProgramStmt(std::vector<BaseStmt *> body): BaseStmt(StmtTypeID::ProgramStmtID), body{std::move(body)} {}
     };
 
     /// @brief 是多个语句的组合
@@ -146,33 +153,61 @@ export namespace Riddle {
         [[nodiscard]] inline BaseStmt *getValue() const { return value; }
     };
 
+    class DefineArgStmt final : public BaseStmt {
+    protected:
+        std::string name;
+        std::string type;
+        /// 默认值
+        BaseStmt *value;
+
+    public:
+        DefineArgStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::DefineArgStmtID),
+                                                                            name(std::move(name)),
+                                                                            type(std::move(type)),
+                                                                            value(value) {}
+
+        [[nodiscard]] inline std::string getName() const { return name; }
+        [[nodiscard]] inline std::string getType() const { return type; }
+        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+    };
+
+    class DefineArgListStmt final : public BaseStmt {
+    protected:
+        std::vector<DefineArgStmt *> args;
+
+    public:
+        explicit DefineArgListStmt(std::vector<DefineArgStmt *> args): BaseStmt(StmtTypeID::DefineArgListStmtID), args(std::move(args)) {}
+
+        [[nodiscard]] inline std::vector<DefineArgStmt *> getArgs() const { return args; }
+        [[nodiscard]] std::vector<llvm::Type *> getArgsTypes(ClassManager &manager) const {
+            std::vector<llvm::Type *> argTypes;
+            for(const auto arg: args) {
+                argTypes.push_back(manager.getType(arg->getName()));
+            }
+            return argTypes;
+        }
+    };
+
     /// @brief 用于存储函数定义
     class FuncDefineStmt final : public BaseStmt {
-    public:
-        class DefineArg {
-            std::string name;
-            std::string type;
-            std::string default_value;
-        };
-
     protected:
         std::string func_name;
         std::string return_type;
-        std::vector<DefineArg> args;
+        DefineArgListStmt *args;
         BaseStmt *body;
 
     public:
         FuncDefineStmt(std::string func_name,
                        std::string return_type,
                        BaseStmt *body,
-                       std::vector<DefineArg> args = {}): BaseStmt(StmtTypeID::FuncDefineStmtID),
-                                                          func_name(std::move(func_name)),
-                                                          return_type(std::move(return_type)),
-                                                          args(std::move(args)), body(body) {}
+                       DefineArgListStmt *args = nullptr): BaseStmt(StmtTypeID::FuncDefineStmtID),
+                                                           func_name(std::move(func_name)),
+                                                           return_type(std::move(return_type)),
+                                                           args(args), body(body) {}
 
         [[nodiscard]] inline std::string getFuncName() const { return func_name; }
         [[nodiscard]] inline std::string getReturnType() const { return return_type; }
-        [[nodiscard]] inline std::vector<DefineArg> getArgs() const { return args; }
+        [[nodiscard]] inline DefineArgListStmt *getArgs() const { return args; }
         [[nodiscard]] inline BaseStmt *getBody() const { return body; }
     };
 
@@ -235,7 +270,7 @@ export namespace Riddle {
         BaseStmt *elseBody;
 
     public:
-        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): condition(cond),thenBody(thenBody),elseBody(elseBody){}
+        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): condition(cond), thenBody(thenBody), elseBody(elseBody) {}
 
         [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
         [[nodiscard]] inline BaseStmt *getThenBody() const { return thenBody; }
@@ -245,10 +280,19 @@ export namespace Riddle {
     class ObjectStmt final : public BaseStmt {
     protected:
         std::string name;
+
     public:
         explicit ObjectStmt(std::string name): name(std::move(name)) {}
 
         [[nodiscard]] inline std::string getName() const { return name; }
     };
 
+    class ReturnStmt final : public BaseStmt {
+    protected:
+        BaseStmt *value;
+
+    public:
+        explicit ReturnStmt(BaseStmt *value): value(value) {}
+        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+    };
 }// namespace Riddle

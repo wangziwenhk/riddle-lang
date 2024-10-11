@@ -16,11 +16,11 @@
 class  RiddleParserBaseListener : public RiddleParserListener {
 public:
 
-  virtual void enterNull_cnt(RiddleParser::Null_cntContext * /*ctx*/) override { }
-  virtual void exitNull_cnt(RiddleParser::Null_cntContext * /*ctx*/) override { }
-
   virtual void enterProgram(RiddleParser::ProgramContext * /*ctx*/) override { }
   virtual void exitProgram(RiddleParser::ProgramContext * /*ctx*/) override { }
+
+  virtual void enterNull_cnt(RiddleParser::Null_cntContext * /*ctx*/) override { }
+  virtual void exitNull_cnt(RiddleParser::Null_cntContext * /*ctx*/) override { }
 
   virtual void enterStatement_ed(RiddleParser::Statement_edContext * /*ctx*/) override { }
   virtual void exitStatement_ed(RiddleParser::Statement_edContext * /*ctx*/) override { }

@@ -15,11 +15,11 @@
 class  RiddleParserBaseVisitor : public RiddleParserVisitor {
 public:
 
-  virtual std::any visitNull_cnt(RiddleParser::Null_cntContext *ctx) override {
+  virtual std::any visitProgram(RiddleParser::ProgramContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitProgram(RiddleParser::ProgramContext *ctx) override {
+  virtual std::any visitNull_cnt(RiddleParser::Null_cntContext *ctx) override {
     return visitChildren(ctx);
   }
 

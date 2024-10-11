@@ -8,7 +8,7 @@ export module IR.Context;
 
 import Type.Variable;
 import Manager.VarManager;
-
+import Managers.StmtManager;
 export namespace Riddle {
     class Context {
         int _deep = 0;
@@ -17,6 +17,7 @@ export namespace Riddle {
         llvm::LLVMContext &llvm_context;
         llvm::Module module;
         VarManager varManager;
+        StmtManager stmtManager;
 
         explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context) {}
 
@@ -34,6 +35,10 @@ export namespace Riddle {
 
         inline unsigned long long deep() const {
             return _deep;
+        }
+
+        inline StmtManager& getStmtManager() {
+            return stmtManager;
         }
     };
 }

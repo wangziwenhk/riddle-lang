@@ -3,7 +3,9 @@
 #include "Visitors/GenVisitor.h"
 #include "Visitors/PackageVisitor.h"
 #include <iostream>
-
+#include "Visitors/StmtVisitor.h"
+import IR.ParserStmt;
+import Types.Statements;
 namespace Riddle {
     void BuildQueue::push(const Unit &unit) {
         libSource[unit.getPackName()].push_back(unit);
@@ -15,8 +17,16 @@ namespace Riddle {
         // todo 实现解析包相关的东西
         // 暂时还不写，先完成编译main
         if(libSource.count("main")) {
-            GenVisitor visitor("main");
-            visitor.visit(libSource["main"].front().parseTree);
+            // GenVisitor visitor("main");
+            // visitor.visit(libSource["main"].front().parseTree);
+            llvm::LLVMContext llvm_ctx;
+            Context context(llvm_ctx);
+            StmtVisitor visitor(context);
+            auto it = any_cast<ProgramStmt*>(visitor.visit(libSource["main"].front().parseTree));
+            ParserStmt ps(context);
+            ps.accept(it);
+            
+
         } else {
             std::cerr << R"(Not Found "main" package)" << std::endl;
             return;

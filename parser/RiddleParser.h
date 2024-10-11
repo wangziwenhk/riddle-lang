@@ -27,7 +27,7 @@ public:
   };
 
   enum {
-    RuleNull_cnt = 0, RuleProgram = 1, RuleStatement_ed = 2, RuleStatement = 3, 
+    RuleProgram = 0, RuleNull_cnt = 1, RuleStatement_ed = 2, RuleStatement = 3, 
     RuleBodyExpr = 4, RulePackStatement = 5, RuleImportStatement = 6, RuleVarDefineStatement = 7, 
     RuleArgsExpr = 8, RuleDefineArgs = 9, RuleFuncDefine = 10, RuleForStatement = 11, 
     RuleWhileStatement = 12, RuleIfStatement = 13, RuleReturnStatement = 14, 
@@ -54,8 +54,8 @@ public:
   antlr4::atn::SerializedATNView getSerializedATN() const override;
 
 
-  class Null_cntContext;
   class ProgramContext;
+  class Null_cntContext;
   class Statement_edContext;
   class StatementContext;
   class BodyExprContext;
@@ -85,22 +85,6 @@ public:
   class TemplateArgsContext;
   class TypeNameContext; 
 
-  class  Null_cntContext : public antlr4::ParserRuleContext {
-  public:
-    Null_cntContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Semi();
-    antlr4::tree::TerminalNode *Endl();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Null_cntContext* null_cnt();
-
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
     ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -117,6 +101,22 @@ public:
   };
 
   ProgramContext* program();
+
+  class  Null_cntContext : public antlr4::ParserRuleContext {
+  public:
+    Null_cntContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *Semi();
+    antlr4::tree::TerminalNode *Endl();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Null_cntContext* null_cnt();
 
   class  Statement_edContext : public antlr4::ParserRuleContext {
   public:

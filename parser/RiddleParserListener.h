@@ -14,11 +14,11 @@
 class  RiddleParserListener : public antlr4::tree::ParseTreeListener {
 public:
 
-  virtual void enterNull_cnt(RiddleParser::Null_cntContext *ctx) = 0;
-  virtual void exitNull_cnt(RiddleParser::Null_cntContext *ctx) = 0;
-
   virtual void enterProgram(RiddleParser::ProgramContext *ctx) = 0;
   virtual void exitProgram(RiddleParser::ProgramContext *ctx) = 0;
+
+  virtual void enterNull_cnt(RiddleParser::Null_cntContext *ctx) = 0;
+  virtual void exitNull_cnt(RiddleParser::Null_cntContext *ctx) = 0;
 
   virtual void enterStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;
   virtual void exitStatement_ed(RiddleParser::Statement_edContext *ctx) = 0;

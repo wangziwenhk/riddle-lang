@@ -3,7 +3,8 @@ module;
 export module IR.Builder;
 
 import IR.Context;
-
+import Type.Variable;
+import Type.DefineArg;
 export namespace Riddle {
     class Builder {
         Context *ctx = nullptr;
@@ -67,8 +68,40 @@ export namespace Riddle {
         /// @param name 变量名称
         /// @param is_const 是否不可变
         /// @return 变量
-        llvm::Value *createVariable(llvm::Type *type, llvm::Value *value, const std::string &name = "", bool is_const = false);
+        llvm::Value *createVariable(llvm::Type *type, llvm::Value *value, const std::string &name = "", bool is_const = false) {
+            llvm::Value *var;
+            // 对全局变量特判
+            if(ctx->deep() <= 1) {
+                llvm::Constant *CV = llvm::dyn_cast<llvm::Constant>(value);
+                var = new llvm::GlobalVariable(ctx->module, type, is_const, llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+            } else {
+                var = llvmBuilder.CreateAlloca(type, nullptr, name);
+                llvmBuilder.CreateStore(value, var);
+            }
+            ctx->addVariable(Variable(name, var, is_const));
+            return var;
+        }
 
+
+        /// @brief 仅作为创建函数
+        std::tuple<llvm::FunctionType *, llvm::Function *> createFuncDefine(const std::string &funcName, llvm::Type *return_type, std::vector<llvm::Type *> args) const {
+            llvm::FunctionType *funcType = llvm::FunctionType::get(return_type, args, false);
+            llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, funcName, ctx->module);
+            return {funcType, func};
+        }
+
+        void setBlock(llvm::BasicBlock *block) {
+            llvmBuilder.SetInsertPoint(block);
+        }
+
+        llvm::BasicBlock *getBlock() const {
+            return llvmBuilder.GetInsertBlock();
+        }
+
+        llvm::BasicBlock *createBasicBlock(const std::string &label, llvm::Function *func) const {
+            llvm::BasicBlock *block = llvm::BasicBlock::Create(ctx->llvm_context, label,func);
+            return block;
+        }
 
     };
 }// namespace Riddle

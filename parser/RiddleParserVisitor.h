@@ -19,9 +19,9 @@ public:
   /**
    * Visit parse trees produced by RiddleParser.
    */
-    virtual std::any visitNull_cnt(RiddleParser::Null_cntContext *context) = 0;
-
     virtual std::any visitProgram(RiddleParser::ProgramContext *context) = 0;
+
+    virtual std::any visitNull_cnt(RiddleParser::Null_cntContext *context) = 0;
 
     virtual std::any visitStatement_ed(RiddleParser::Statement_edContext *context) = 0;
 
@@ -41,7 +41,7 @@ public:
 
     virtual std::any visitFuncDefine(RiddleParser::FuncDefineContext *context) = 0;
 
-    virtual std::any visitForStatement(RiddleParser::ForStatementContext *ctx) = 0;
+    virtual std::any visitForStatement(RiddleParser::ForStatementContext *context) = 0;
 
     virtual std::any visitWhileStatement(RiddleParser::WhileStatementContext *context) = 0;
 

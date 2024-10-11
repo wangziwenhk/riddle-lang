@@ -35,7 +35,7 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
-        StringStmt *getConstant(const std::string value) {
+        StringStmt *getConstant(const std::string &value) {
             const auto ptr = new StringStmt(value);
             stmts.push_back(ptr);
             return ptr;
@@ -57,6 +57,12 @@ export namespace Riddle {
         }
         ForStmt *getFor(BaseStmt *init, BaseStmt *condition, BaseStmt *changed, BaseStmt *body) {
             const auto ptr = new ForStmt(init, condition, changed, body);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        ProgramStmt *getProgram(const std::vector<BaseStmt *> &stmtList) {
+            const auto ptr = new ProgramStmt(stmtList);
             stmts.push_back(ptr);
             return ptr;
         }

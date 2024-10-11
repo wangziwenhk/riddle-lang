@@ -15,8 +15,9 @@ export namespace Riddle {
         VarManager varManager;
 
     public:
-        ParserStmt(Context &ctx): classManager(ctx.llvm_context), builder(ctx) {}
+        explicit ParserStmt(Context &ctx): builder(ctx), classManager(ctx.llvm_context) {}
 
+        // 获取从语句得到的结果
         std::any accept(BaseStmt *stmt) {
             if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::ProgramStmtID) {
                 Program(static_cast<ProgramStmt *>(stmt));
@@ -27,6 +28,13 @@ export namespace Riddle {
                 return Double(static_cast<DoubleStmt *>(stmt));
             } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::ObjStmtID) {
                 return Object(static_cast<ObjectStmt *>(stmt));
+            } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::FuncDefineStmtID) {
+                return FuncDefine(static_cast<FuncDefineStmt *>(stmt));
+            } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::VarDefineStmtID) {
+                return VarDefine(static_cast<VarDefineStmt *>(stmt));
+            } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::ReturnStmtID) {
+                Return(static_cast<ReturnStmt *>(stmt));
+                return nullptr;
             }
             return nullptr;
         }
@@ -45,6 +53,18 @@ export namespace Riddle {
             }
         }
 
+        llvm::Function *FuncDefine(const FuncDefineStmt *stmt) {
+            const std::string name = stmt->getFuncName();
+            llvm::Type *returnType = classManager.getType(stmt->getReturnType());
+            const auto args = stmt->getArgs();
+            BaseStmt *body = stmt->getBody();
+            auto [funcType, func] = builder.createFuncDefine(name, returnType, args->getArgsTypes(classManager));
+            llvm::BasicBlock *entry = builder.createBasicBlock("entry", func);
+            builder.setBlock(entry);
+            accept(body);
+            return func;
+        }
+
         llvm::Value *VarDefine(const VarDefineStmt *stmt) {
             llvm::Type *type = classManager.getType(stmt->getType());
             const auto value = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
@@ -55,6 +75,10 @@ export namespace Riddle {
         llvm::Value *Object(const ObjectStmt *stmt) {
             const std::string name = stmt->getName();
             return varManager.getVar(name).var;
+        }
+
+        void Return(const ReturnStmt *stmt) {
+            accept(stmt->getValue());
         }
     };
 }// namespace Riddle
