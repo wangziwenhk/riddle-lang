@@ -130,6 +130,7 @@ export namespace Riddle {
             builder.push();
             builder.setNowBlock(loopBlock);
             accept(stmt->getBody());
+            builder.createJump(condBlock);
             builder.pop();
 
             builder.setNowBlock(oldBlock);
