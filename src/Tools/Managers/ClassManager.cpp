@@ -8,13 +8,16 @@ module Manager.ClassManager;
 namespace Riddle {
     /// @brief 查找相关的类
     ClassNode ClassManager::getClass(const std::string &name) {
-        if(const auto it = Classes.find(name); it == Classes.end()) {
-            throw std::logic_error("没有这个类或者使用了不支持的路径");
+        if(isDefined.top().contains(name)) {
+            throw std::logic_error("ClassManager:Duplicate definition");
         }
-        return Classes.find(name)->second;
+        if(const auto it = Classes.find(name); it == Classes.end()) {
+            throw std::logic_error("ClassManager:There is no such class");
+        }
+        return Classes.find(name)->second.top();
     }
     llvm::Type *ClassManager::getType(const std::string &name) {
-        std::unordered_map<std::string, llvm::Type *> baseType = {
+        const std::unordered_map<std::string, llvm::Type *> baseType = {
                 {"int", llvm::Type::getInt32Ty(Context)},
                 {"double", llvm::Type::getDoubleTy(Context)},
                 {"float", llvm::Type::getFloatTy(Context)},
@@ -27,6 +30,18 @@ namespace Riddle {
     }
 
     void ClassManager::createClass(const ClassNode &theClass) {
-        Classes.emplace(theClass.get().types->getName().str(), theClass);
+        Classes[theClass.get().types->getName().str()].push(theClass);
     }
-} // namespace Riddle
+    void ClassManager::push() {
+        isDefined.emplace();
+    }
+    void ClassManager::pop() {
+        for(const auto &i: isDefined.top()) {
+            Classes[i].pop();
+            if(Classes[i].empty()) {
+                Classes.erase(i);
+            }
+        }
+        isDefined.pop();
+    }
+}// namespace Riddle

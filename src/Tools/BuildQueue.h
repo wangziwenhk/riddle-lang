@@ -16,7 +16,7 @@ namespace Riddle {
 
     public:
         /// @brief 用于解析某个源文件
-        void parserFile(std::string filePath);
+        void parserFile(const std::string &filePath);
         void push(const Unit &unit);
         void start();
     };

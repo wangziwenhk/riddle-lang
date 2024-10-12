@@ -65,7 +65,7 @@ export namespace Riddle {
     /// @brief 是多个语句的组合
     class BlockStmt final : public BaseStmt {
     public:
-        std::vector<BaseStmt> stmts;
+        std::vector<BaseStmt*> stmts;
         BlockStmt(): BaseStmt(StmtTypeID::BlockStmtID) {}
     };
 
@@ -130,7 +130,7 @@ export namespace Riddle {
         std::string value;
 
     public:
-        explicit StringStmt(const std::string &value): ConstantStmt(StmtTypeID::StringStmtID), value(value) {}
+        explicit StringStmt(std::string value): ConstantStmt(StmtTypeID::StringStmtID), value(std::move(value)) {}
         [[nodiscard]] inline std::string getValue() const { return value; }
     };
 
@@ -181,6 +181,7 @@ export namespace Riddle {
         [[nodiscard]] inline std::vector<DefineArgStmt *> getArgs() const { return args; }
         [[nodiscard]] std::vector<llvm::Type *> getArgsTypes(ClassManager &manager) const {
             std::vector<llvm::Type *> argTypes;
+            argTypes.reserve(args.size());
             for(const auto arg: args) {
                 argTypes.push_back(manager.getType(arg->getName()));
             }

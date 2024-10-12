@@ -1,8 +1,11 @@
-# Riddle Language
+
 <p style="text-align: center;">
   <img src="./resources/logo.svg" alt="Logo" width="300" height="300">
 </p>
 
+----
+
+# Riddle Language
 简体中文 | [English](./README_en.md)
 
 ![Static Badge](https://img.shields.io/badge/C%2B%2B-20-green?logo=C%2B%2B)

@@ -19,12 +19,14 @@ namespace Riddle {
         std::any visitInteger(RiddleParser::IntegerContext *ctx) override;
         std::any visitFloat(RiddleParser::FloatContext *ctx) override;
         std::any visitBoolean(RiddleParser::BooleanContext *ctx) override;
+        std::any visitString(RiddleParser::StringContext *ctx) override;
         std::any visitNullExpr(RiddleParser::NullExprContext *ctx) override;
         std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) override;
         std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override;
         std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override;
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override;
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override;
+        std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override;
     };
 
 }// namespace Riddle

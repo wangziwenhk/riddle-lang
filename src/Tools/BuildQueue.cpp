@@ -16,24 +16,23 @@ namespace Riddle {
     void BuildQueue::start() {
         // todo 实现解析包相关的东西
         // 暂时还不写，先完成编译main
-        if(libSource.count("main")) {
+        if(libSource.contains("main")) {
             // GenVisitor visitor("main");
             // visitor.visit(libSource["main"].front().parseTree);
             llvm::LLVMContext llvm_ctx;
             Context context(llvm_ctx);
             StmtVisitor visitor(context);
-            auto it = any_cast<ProgramStmt*>(visitor.visit(libSource["main"].front().parseTree));
+            const auto it = any_cast<ProgramStmt*>(visitor.visit(libSource["main"].front().parseTree));
             ParserStmt ps(context);
             ps.accept(it);
             
 
         } else {
             std::cerr << R"(Not Found "main" package)" << std::endl;
-            return;
         }
     }
     // 目前只做了main的解析
-    void BuildQueue::parserFile(std::string filePath) {
+    void BuildQueue::parserFile(const std::string &filePath) {
         std::ifstream stream(filePath);
         const auto input = new antlr4::ANTLRInputStream(stream);
         const auto lexer = new RiddleLexer(input);
@@ -42,6 +41,5 @@ namespace Riddle {
         antlr4::tree::ParseTree *p = parser->program();
         PackageVisitor visitor(filePath, p);
         push(visitor.unit);
-        return;
     }
 }// namespace Riddle

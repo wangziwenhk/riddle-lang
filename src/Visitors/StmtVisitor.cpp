@@ -10,12 +10,18 @@ namespace Riddle {
             if(!it.has_value()) {
                 throw std::logic_error("result is null");
             }
-            stmts.push_back(std::any_cast<BaseStmt *>(it));
+            const auto stmt = std::any_cast<BaseStmt *>(it);
+            // 处理空语句
+            if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::NoneStmtID) {
+                continue;
+            }
+            stmts.push_back(stmt);
         }
         return IRContext.stmtManager.getProgram(stmts);
     }
     std::any StmtVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
         packageName = ctx->packName->getText();
+        IRContext.module.setModuleIdentifier(packageName);
         BaseStmt *stmt = IRContext.getStmtManager().getNoneStmt();
         return stmt;
     }
@@ -33,6 +39,11 @@ namespace Riddle {
     }
     std::any StmtVisitor::visitBoolean(RiddleParser::BooleanContext *ctx) {
         BaseStmt *result = IRContext.getStmtManager().getConstant(ctx->value);
+        return result;
+    }
+    std::any StmtVisitor::visitString(RiddleParser::StringContext *ctx) {
+        const std::string value = ctx->getText();
+        BaseStmt *result = IRContext.getStmtManager().getConstant(value.substr(0, value.size() - 1));
         return result;
     }
     std::any StmtVisitor::visitNullExpr(RiddleParser::NullExprContext *ctx) {
@@ -80,6 +91,15 @@ namespace Riddle {
         }
         BaseStmt *stmt = IRContext.getStmtManager().getFuncDefine(funcName, returnType, body, args);
         return stmt;
+    }
+    std::any StmtVisitor::visitBodyExpr(RiddleParser::BodyExprContext *ctx) {
+        std::vector<BaseStmt *> stmts;
+        stmts.reserve(ctx->children.size());
+        for(const auto i: ctx->children) {
+            stmts.push_back(any_cast<BaseStmt *>(visit(i)));
+        }
+        BaseStmt *body = IRContext.getStmtManager().getBlockStmt(stmts);
+        return body;
     }
 
 

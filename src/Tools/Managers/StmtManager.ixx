@@ -1,5 +1,6 @@
 module;
 #include <string>
+#include <utility>
 #include <vector>
 export module Managers.StmtManager;
 
@@ -81,6 +82,13 @@ export namespace Riddle {
 
         BaseStmt *getNoneStmt() {
             const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        BlockStmt *getBlockStmt(std::vector<BaseStmt*>stmt_list) {
+            const auto ptr = new BlockStmt();
+            ptr->stmts = std::move(stmt_list);
             stmts.push_back(ptr);
             return ptr;
         }

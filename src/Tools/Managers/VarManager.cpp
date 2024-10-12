@@ -27,7 +27,7 @@ namespace Riddle {
         if(Defined.top().contains(name)) {
             throw std::logic_error("The variable has been defined multiple times");
         }
-        NamedVar[name].push(Variable(name, value, isConst));
+        NamedVar[name].emplace(name, value, isConst);
         Defined.top()[name] = true;
     }
     void VarManager::addVar(const Variable &var) {

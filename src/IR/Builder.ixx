@@ -13,33 +13,33 @@ export namespace Riddle {
     public:
         explicit Builder(Context &context): ctx(&context), llvmBuilder(ctx->llvm_context) {}
 
-        Context &getContext() const { return *ctx; }
+        [[nodiscard]] Context &getContext() const { return *ctx; }
         // constant
 
         /// @brief 获取不同位数的整数类型
         /// @param bits 整数类型的位数
         /// @return llvm:IntegerTy
-        inline llvm::IntegerType *getIntegerTy(const unsigned bits = 32) const {
+        [[nodiscard]] inline llvm::IntegerType *getIntegerTy(const unsigned bits = 32) const {
             return llvm::Type::getIntNTy(ctx->llvm_context, bits);
         }
 
         /// @brief 获取单浮点类型
-        inline llvm::Type *getFloatTy() const {
+        [[nodiscard]] inline llvm::Type *getFloatTy() const {
             return llvm::Type::getFloatTy(ctx->llvm_context);
         }
 
         /// @brief 获取双浮点类型
-        inline llvm::Type *getDoubleTy() const {
+        [[nodiscard]] inline llvm::Type *getDoubleTy() const {
             return llvm::Type::getDoubleTy(ctx->llvm_context);
         }
 
         /// @brief 获取空类型
-        inline llvm::Type *getVoidTy() const {
+        [[nodiscard]] inline llvm::Type *getVoidTy() const {
             return llvm::Type::getVoidTy(ctx->llvm_context);
         }
 
         /// @brief 获取布尔类型
-        inline llvm::Type *getBoolTy() const {
+        [[nodiscard]] inline llvm::Type *getBoolTy() const {
             return getIntegerTy(1);
         }
 
@@ -58,7 +58,7 @@ export namespace Riddle {
             return llvmBuilder.getIntN(bits, bits);
         }
 
-        inline llvm::Constant *getDouble(const double &value) const {
+        [[nodiscard]] inline llvm::Constant *getDouble(const double &value) const {
             return llvm::ConstantFP::get(llvm::Type::getDoubleTy(ctx->llvm_context), value);
         }
 
@@ -72,7 +72,7 @@ export namespace Riddle {
             llvm::Value *var;
             // 对全局变量特判
             if(ctx->deep() <= 1) {
-                llvm::Constant *CV = llvm::dyn_cast<llvm::Constant>(value);
+                auto *CV = llvm::dyn_cast<llvm::Constant>(value);
                 var = new llvm::GlobalVariable(ctx->module, type, is_const, llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
                 var = llvmBuilder.CreateAlloca(type, nullptr, name);
@@ -94,7 +94,7 @@ export namespace Riddle {
             llvmBuilder.SetInsertPoint(block);
         }
 
-        llvm::BasicBlock *getBlock() const {
+        [[nodiscard]] llvm::BasicBlock *getBlock() const {
             return llvmBuilder.GetInsertBlock();
         }
 
@@ -110,9 +110,19 @@ export namespace Riddle {
             return llvmBuilder.CreateRet(value);
         }
 
-        void printCode()const {
+        void printCode() const {
             ctx->module.print(llvm::outs(), nullptr);
         }
 
+        inline void push()const {
+            ctx->push();
+        }
+        inline void pop()const {
+            ctx->pop();
+        }
+
+        inline Variable getVar(const std::string &name)const{
+            return ctx->varManager.getVar(name);
+        }
     };
 }// namespace Riddle
