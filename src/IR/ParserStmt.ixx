@@ -44,17 +44,22 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::BlockStmtID:
                     return Block(dynamic_cast<BlockStmt *>(stmt));
 
+                case BaseStmt::StmtTypeID::WhileStmtID:
+                    return While(dynamic_cast<WhileStmt *>(stmt));
+
                 default:
                     return nullptr;// 未知的 StmtTypeID 类型，返回空值
             }
         }
 
         llvm::Value *Integer(const IntegerStmt *stmt) {
-            return builder.getInt32(stmt->getValue());
+            llvm::Value *result = builder.getInt32(stmt->getValue());
+            return result;
         }
 
         llvm::Value *Double(const DoubleStmt *stmt) const {
-            return builder.getDouble(stmt->getValue());
+            llvm::Value *result = builder.getDouble(stmt->getValue());
+            return result;
         }
 
         void Program(ProgramStmt *stmt) {// NOLINT(*-no-recursion)
@@ -77,8 +82,12 @@ export namespace Riddle {
             }
             auto [funcType, func] = builder.createFuncDefine(name, returnType, argTypes);
             llvm::BasicBlock *entry = builder.createBasicBlock("entry", func);
-            builder.setBlock(entry);
+            builder.setNowBlock(entry);
+            builder.push();
+            builder.pushParent(func);
             accept(body);
+            builder.pop();
+            builder.popParent();
             return func;
         }
 
@@ -105,6 +114,25 @@ export namespace Riddle {
                 accept(i);
             }
             builder.pop();
+            return nullptr;
+        }
+
+        llvm::Value *While(const WhileStmt *stmt) {// NOLINT(*-no-recursion)
+            llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
+            llvm::BasicBlock *loopBlock = builder.createBasicBlock("loop", builder.getParent());
+            llvm::BasicBlock *oldBlock = builder.getNowBlock();
+
+            builder.createJump(condBlock);
+            builder.setNowBlock(condBlock);
+            const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
+            builder.createCondJump(cond, loopBlock, oldBlock);
+
+            builder.push();
+            builder.setNowBlock(loopBlock);
+            accept(stmt->getBody());
+            builder.pop();
+
+            builder.setNowBlock(oldBlock);
             return nullptr;
         }
     };

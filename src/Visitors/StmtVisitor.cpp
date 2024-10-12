@@ -95,7 +95,7 @@ namespace Riddle {
     std::any StmtVisitor::visitBodyExpr(RiddleParser::BodyExprContext *ctx) {
         std::vector<BaseStmt *> stmts;
         stmts.reserve(ctx->children.size());
-        for(const auto i: ctx->children) {
+        for(const auto i: std::ranges::subrange(ctx->children.begin() + 1, ctx->children.end() - 1)) {
             stmts.push_back(any_cast<BaseStmt *>(visit(i)));
         }
         BaseStmt *body = IRContext.getStmtManager().getBlockStmt(stmts);

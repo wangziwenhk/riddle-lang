@@ -41,11 +41,11 @@ statement
     | returnStatement
     | tryExpr
     | expression
-    | LeftCurly statement_ed* RightCurly
+    | bodyExpr
     ;
 
 bodyExpr
-    : statement_ed*
+    : LeftCurly statement_ed* RightCurly
     ;
 
 packStatement
@@ -71,7 +71,7 @@ defineArgs
     ;
 
 funcDefine
-    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? LeftCurly body=bodyExpr RightCurly
+    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? body=bodyExpr
     ;
 forStatement
     : For LeftBracket (init=varDefineStatement)? Semi (termCond=expression)? Semi (selfVar=statement)? RightBracket body=statement_ed
@@ -91,11 +91,11 @@ returnStatement
     ;
 
 classDefine
-    : Class className = id LeftCurly body=bodyExpr RightCurly
+    : Class className = id body=bodyExpr
     ;
 
 tryExpr
-    : Try LeftCurly tryBody=bodyExpr RightCurly null_cnt? catchExpr
+    : Try tryBody=bodyExpr null_cnt? catchExpr
     ;
 
 catchExpr

@@ -34,6 +34,9 @@ export namespace Riddle {
         }
 
         inline void pop() {
+            if (_deep == 0) {
+                throw std::runtime_error("Cannot pop from an empty context");
+            }
             varManager.pop();
             classManager.pop();
             _deep--;

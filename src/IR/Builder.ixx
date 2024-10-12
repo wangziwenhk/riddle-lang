@@ -1,5 +1,6 @@
 module;
 #include <llvm/IR/IRBuilder.h>
+#include <stack>
 export module IR.Builder;
 
 import IR.Context;
@@ -9,6 +10,7 @@ export namespace Riddle {
     class Builder {
         Context *ctx = nullptr;
         llvm::IRBuilder<> llvmBuilder;
+        std::stack<llvm::Function *> functions;
 
     public:
         explicit Builder(Context &context): ctx(&context), llvmBuilder(ctx->llvm_context) {}
@@ -90,11 +92,31 @@ export namespace Riddle {
             return {funcType, func};
         }
 
-        void setBlock(llvm::BasicBlock *block) {
+        void pushParent(llvm::Function *func) {
+            functions.push(func);
+        }
+
+        void popParent() {
+            functions.pop();
+        }
+
+        llvm::Function *getParent() {
+            return functions.top();
+        }
+
+        void setNowBlock(llvm::BasicBlock *block) {
             llvmBuilder.SetInsertPoint(block);
         }
 
-        [[nodiscard]] llvm::BasicBlock *getBlock() const {
+        void createJump(llvm::BasicBlock *block) {
+            llvmBuilder.CreateBr(block);
+        }
+
+        void createCondJump(llvm::Value *cond, llvm::BasicBlock *True, llvm::BasicBlock *False) {
+            llvmBuilder.CreateCondBr(cond, True, False);
+        }
+
+        [[nodiscard]] llvm::BasicBlock *getNowBlock() const {
             return llvmBuilder.GetInsertBlock();
         }
 
@@ -114,14 +136,14 @@ export namespace Riddle {
             ctx->module.print(llvm::outs(), nullptr);
         }
 
-        inline void push()const {
+        inline void push() const {
             ctx->push();
         }
-        inline void pop()const {
+        inline void pop() const {
             ctx->pop();
         }
 
-        inline Variable getVar(const std::string &name)const{
+        [[nodiscard]] inline Variable getVar(const std::string &name)const{
             return ctx->varManager.getVar(name);
         }
     };

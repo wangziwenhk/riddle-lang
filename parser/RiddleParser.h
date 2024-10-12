@@ -150,10 +150,7 @@ public:
     ReturnStatementContext *returnStatement();
     TryExprContext *tryExpr();
     ExpressionContext *expression();
-    antlr4::tree::TerminalNode *LeftCurly();
-    antlr4::tree::TerminalNode *RightCurly();
-    std::vector<Statement_edContext *> statement_ed();
-    Statement_edContext* statement_ed(size_t i);
+    BodyExprContext *bodyExpr();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -168,6 +165,8 @@ public:
   public:
     BodyExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LeftCurly();
+    antlr4::tree::TerminalNode *RightCurly();
     std::vector<Statement_edContext *> statement_ed();
     Statement_edContext* statement_ed(size_t i);
 
@@ -288,8 +287,6 @@ public:
     antlr4::tree::TerminalNode *Func();
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
-    antlr4::tree::TerminalNode *LeftCurly();
-    antlr4::tree::TerminalNode *RightCurly();
     antlr4::tree::TerminalNode *Identifier();
     DefineArgsContext *defineArgs();
     BodyExprContext *bodyExpr();
@@ -403,8 +400,6 @@ public:
     ClassDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Class();
-    antlr4::tree::TerminalNode *LeftCurly();
-    antlr4::tree::TerminalNode *RightCurly();
     IdContext *id();
     BodyExprContext *bodyExpr();
 
@@ -423,8 +418,6 @@ public:
     TryExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Try();
-    antlr4::tree::TerminalNode *LeftCurly();
-    antlr4::tree::TerminalNode *RightCurly();
     CatchExprContext *catchExpr();
     BodyExprContext *bodyExpr();
     Null_cntContext *null_cnt();
