@@ -66,5 +66,23 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        ReturnStmt *getReturn(BaseStmt *stmt = nullptr) {
+            const auto ptr = new ReturnStmt(stmt);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        FuncDefineStmt *getFuncDefine(const std::string &name, const std::string &return_type, BaseStmt *body, DefineArgListStmt *args = nullptr) {
+            const auto ptr = new FuncDefineStmt(name, return_type, body, args);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        BaseStmt *getNoneStmt() {
+            const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle

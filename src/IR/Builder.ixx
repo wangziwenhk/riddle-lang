@@ -84,7 +84,7 @@ export namespace Riddle {
 
 
         /// @brief 仅作为创建函数
-        std::tuple<llvm::FunctionType *, llvm::Function *> createFuncDefine(const std::string &funcName, llvm::Type *return_type, std::vector<llvm::Type *> args) const {
+        std::tuple<llvm::FunctionType *, llvm::Function *> createFuncDefine(const std::string &funcName, llvm::Type *return_type, const std::vector<llvm::Type *> &args) const {
             llvm::FunctionType *funcType = llvm::FunctionType::get(return_type, args, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, funcName, ctx->module);
             return {funcType, func};
@@ -99,8 +99,19 @@ export namespace Riddle {
         }
 
         llvm::BasicBlock *createBasicBlock(const std::string &label, llvm::Function *func) const {
-            llvm::BasicBlock *block = llvm::BasicBlock::Create(ctx->llvm_context, label,func);
+            llvm::BasicBlock *block = llvm::BasicBlock::Create(ctx->llvm_context, label, func);
             return block;
+        }
+
+        llvm::Value *createReturn(llvm::Value *value = nullptr) {
+            if(value == nullptr) {
+                return llvmBuilder.CreateRetVoid();
+            }
+            return llvmBuilder.CreateRet(value);
+        }
+
+        void printCode()const {
+            ctx->module.print(llvm::outs(), nullptr);
         }
 
     };

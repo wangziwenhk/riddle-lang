@@ -33,8 +33,7 @@ export namespace Riddle {
             } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::VarDefineStmtID) {
                 return VarDefine(static_cast<VarDefineStmt *>(stmt));
             } else if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::ReturnStmtID) {
-                Return(static_cast<ReturnStmt *>(stmt));
-                return nullptr;
+                return Return(static_cast<ReturnStmt *>(stmt));
             }
             return nullptr;
         }
@@ -51,6 +50,7 @@ export namespace Riddle {
             for(const auto i: stmt->body) {
                 accept(i);
             }
+            builder.printCode();
         }
 
         llvm::Function *FuncDefine(const FuncDefineStmt *stmt) {
@@ -58,7 +58,11 @@ export namespace Riddle {
             llvm::Type *returnType = classManager.getType(stmt->getReturnType());
             const auto args = stmt->getArgs();
             BaseStmt *body = stmt->getBody();
-            auto [funcType, func] = builder.createFuncDefine(name, returnType, args->getArgsTypes(classManager));
+            std::vector<llvm::Type *> argTypes;
+            if(stmt->getArgs() != nullptr) {
+                argTypes = args->getArgsTypes(classManager);
+            }
+            auto [funcType, func] = builder.createFuncDefine(name, returnType, argTypes);
             llvm::BasicBlock *entry = builder.createBasicBlock("entry", func);
             builder.setBlock(entry);
             accept(body);
@@ -77,8 +81,9 @@ export namespace Riddle {
             return varManager.getVar(name).var;
         }
 
-        void Return(const ReturnStmt *stmt) {
-            accept(stmt->getValue());
+        llvm::Value *Return(const ReturnStmt *stmt) {
+            const auto result = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
+            return builder.createReturn(result);
         }
     };
 }// namespace Riddle

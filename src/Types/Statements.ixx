@@ -43,7 +43,7 @@ export namespace Riddle {
         StmtTypeID StmtID;
 
     public:
-        BaseStmt(): StmtID(StmtTypeID::NoneStmtID) {}
+        BaseStmt() = delete;
         explicit BaseStmt(const StmtTypeID stmtTypeID): StmtID(stmtTypeID) {}
         virtual ~BaseStmt() = default;
 
@@ -239,7 +239,7 @@ export namespace Riddle {
         BaseStmt *body;
 
     public:
-        WhileStmt(BaseStmt *cond, BaseStmt *body): condition(cond), body(body) {}
+        WhileStmt(BaseStmt *cond, BaseStmt *body): BaseStmt(StmtTypeID::WhileStmtID), condition(cond), body(body) {}
 
         void setBodyStmt(BaseStmt *stmt) {
             body = stmt;
@@ -256,7 +256,7 @@ export namespace Riddle {
         BaseStmt *catchBody;
 
     public:
-        TryStmt(BaseStmt *tryBody, BaseStmt *catchBody): tryBody(tryBody), catchBody(catchBody) {}
+        TryStmt(BaseStmt *tryBody, BaseStmt *catchBody): BaseStmt(StmtTypeID::TryStmtID), tryBody(tryBody), catchBody(catchBody) {}
 
         [[nodiscard]] inline BaseStmt *getTryBody() const { return tryBody; }
         [[nodiscard]] inline BaseStmt *getCatchBody() const { return catchBody; }
@@ -270,7 +270,7 @@ export namespace Riddle {
         BaseStmt *elseBody;
 
     public:
-        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): condition(cond), thenBody(thenBody), elseBody(elseBody) {}
+        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): BaseStmt(StmtTypeID::IfStmtID), condition(cond), thenBody(thenBody), elseBody(elseBody) {}
 
         [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
         [[nodiscard]] inline BaseStmt *getThenBody() const { return thenBody; }
@@ -282,7 +282,7 @@ export namespace Riddle {
         std::string name;
 
     public:
-        explicit ObjectStmt(std::string name): name(std::move(name)) {}
+        explicit ObjectStmt(std::string name): BaseStmt(StmtTypeID::ObjStmtID), name(std::move(name)) {}
 
         [[nodiscard]] inline std::string getName() const { return name; }
     };
@@ -292,7 +292,7 @@ export namespace Riddle {
         BaseStmt *value;
 
     public:
-        explicit ReturnStmt(BaseStmt *value): value(value) {}
+        explicit ReturnStmt(BaseStmt *value):BaseStmt(StmtTypeID::ReturnStmtID), value(value) {}
         [[nodiscard]] inline BaseStmt *getValue() const { return value; }
     };
 }// namespace Riddle
