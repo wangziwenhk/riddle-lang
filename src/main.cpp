@@ -3,15 +3,11 @@
 #include "termcolor/termcolor.hpp"
 import Tools.Options;
 using namespace std;
-int main(const int argv, char *argc[]) {
+int main(const int argc, char *argv[]) {
     // 交由 Options 进行处理
-    vector<string> args;
-    for(int i = 1; i < argv; i++) {
-        args.push_back(argc[i]);
-    }
     Riddle::Options opt;
     try{
-        opt = Riddle::Options(args);
+        opt = Riddle::Options(argc, argv);
     }
     catch(std::invalid_argument) {
         cout<<termcolor::red<<"No source file"<<termcolor::reset;

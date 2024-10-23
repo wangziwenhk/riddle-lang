@@ -118,8 +118,8 @@ export namespace Riddle {
         }
 
         llvm::Value *While(const WhileStmt *stmt) {// NOLINT(*-no-recursion)
-            llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
-            llvm::BasicBlock *loopBlock = builder.createBasicBlock("loop", builder.getParent());
+            llvm::BasicBlock *condBlock = builder.createBasicBlock("while.cond", builder.getParent());
+            llvm::BasicBlock *loopBlock = builder.createBasicBlock("while.loop", builder.getParent());
             llvm::BasicBlock *oldBlock = builder.getNowBlock();
 
             builder.createJump(condBlock);
@@ -134,6 +134,19 @@ export namespace Riddle {
             builder.pop();
 
             builder.setNowBlock(oldBlock);
+            return nullptr;
+        }
+
+        llvm::Value* For(const ForStmt *stmt) {
+            llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
+            llvm::BasicBlock *selfVarBlock = builder.createBasicBlock("selfVar", builder.getParent());
+            llvm::BasicBlock *loopBlock = builder.createBasicBlock("loop", builder.getParent());
+            llvm::BasicBlock *oldBlock = builder.getNowBlock();
+
+            if(!stmt->getInit()->isNoneStmt()) {
+                accept(stmt->getInit());
+            }
+
             return nullptr;
         }
     };

@@ -305,8 +305,8 @@ public:
 
   class  ForStatementContext : public antlr4::ParserRuleContext {
   public:
-    RiddleParser::VarDefineStatementContext *init = nullptr;
-    RiddleParser::ExpressionContext *termCond = nullptr;
+    RiddleParser::StatementContext *init = nullptr;
+    RiddleParser::StatementContext *termCond = nullptr;
     RiddleParser::StatementContext *selfVar = nullptr;
     RiddleParser::Statement_edContext *body = nullptr;
     ForStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -317,9 +317,8 @@ public:
     antlr4::tree::TerminalNode* Semi(size_t i);
     antlr4::tree::TerminalNode *RightBracket();
     Statement_edContext *statement_ed();
-    VarDefineStatementContext *varDefineStatement();
-    ExpressionContext *expression();
-    StatementContext *statement();
+    std::vector<StatementContext *> statement();
+    StatementContext* statement(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

@@ -54,6 +54,8 @@ export namespace Riddle {
         [[nodiscard]] inline StmtTypeID getStmtTypeID() const {
             return StmtID;
         }
+
+        [[nodiscard]] inline bool isNoneStmt() const { return StmtID == StmtTypeID::NoneStmtID; }
     };
 
     class ProgramStmt final : public BaseStmt {
@@ -65,7 +67,7 @@ export namespace Riddle {
     /// @brief 是多个语句的组合
     class BlockStmt final : public BaseStmt {
     public:
-        std::vector<BaseStmt*> stmts;
+        std::vector<BaseStmt *> stmts;
         BlockStmt(): BaseStmt(StmtTypeID::BlockStmtID) {}
     };
 
