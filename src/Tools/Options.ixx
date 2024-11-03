@@ -10,7 +10,7 @@ export namespace Riddle {
         std::string output;
         bool isMultiThread = false;
         Options() = default;
-        explicit Options(int argc, char *argv[]) {
+        explicit Options(const int argc, char *argv[]) {
             int opt;
             while((opt = getopt(argc,argv,"o:"))) {
                 switch(opt) {

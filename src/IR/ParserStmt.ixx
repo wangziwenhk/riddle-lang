@@ -147,6 +147,8 @@ export namespace Riddle {
                 accept(stmt->getInit());
             }
 
+            builder.createJump(condBlock);
+
             return nullptr;
         }
     };
