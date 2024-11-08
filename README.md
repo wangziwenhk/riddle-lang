@@ -10,7 +10,6 @@
 
 ![Static Badge](https://img.shields.io/badge/C%2B%2B-20-green?logo=C%2B%2B)
 ![Static Badge](https://img.shields.io/badge/LLVM-18.1.8-purple?logo=LLVm)
-[![Build](https://github.com/wangziwenhk/Riddle-Language/actions/workflows/main.yml/badge.svg)](https://github.com/wangziwenhk/Riddle-Language/actions/workflows/main.yml)
 
 ![](https://starchart.cc/wangziwenhk/Riddle-Language.svg)
 轻便，灵活，现代化的编程语言。
@@ -33,10 +32,6 @@ Riddle 仍不完善，现在仍处于开发的早期阶段
 
 - [![Static Badge](https://img.shields.io/badge/LLVM-8A2BE2?logo=llvm)](https://github.com/llvm/llvm-project)
 - [![Static Badge](https://img.shields.io/badge/Antlr4-red)](https://github.com/antlr/antlr4)
-
-## 主要开发者
-
-该项目是由 [三线调谐 (Third-tier-Tuning)](https://github.com/Third-tier-Tuning) 实验室开发
 
 ## 许可证
 

@@ -57,7 +57,7 @@ public:
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
 
-    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
+    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
 
     virtual std::any visitBlendExpr(RiddleParser::BlendExprContext *context) = 0;
 

@@ -22,7 +22,7 @@ namespace Riddle {
     std::any StmtVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
         packageName = ctx->packName->getText();
         IRContext.module.setModuleIdentifier(packageName);
-        BaseStmt *stmt = IRContext.getStmtManager().getNoneStmt();
+        BaseStmt *stmt = IRContext.getStmtManager().getNone();
         return stmt;
     }
     std::any StmtVisitor::visitStatement_ed(RiddleParser::Statement_edContext *ctx) {
@@ -83,7 +83,12 @@ namespace Riddle {
     }
     std::any StmtVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
         const auto funcName = ctx->funcName->getText();
-        const auto returnType = ctx->returnType->getText();
+        std::string returnType;
+        if(ctx->returnType != nullptr) {
+            returnType = ctx->returnType->getText();
+        } else {
+            returnType = "void";
+        }
         const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
         DefineArgListStmt *args = nullptr;
         if(!ctx->args->children.empty()) {
@@ -96,11 +101,21 @@ namespace Riddle {
         std::vector<BaseStmt *> stmts;
         stmts.reserve(ctx->children.size());
         for(const auto i: std::ranges::subrange(ctx->children.begin() + 1, ctx->children.end() - 1)) {
-            stmts.push_back(any_cast<BaseStmt *>(visit(i)));
+            try {
+                auto it = std::any_cast<BaseStmt *>(visit(i));
+                stmts.push_back(std::any_cast<BaseStmt *>(it));
+            } catch(...) {
+                // 也有可能是没实现这个方法
+                throw std::logic_error("Error in visiting body expression: \"" + i->getText() + "\"");
+            }
         }
-        BaseStmt *body = IRContext.getStmtManager().getBlockStmt(stmts);
+        BaseStmt *body = IRContext.getStmtManager().getBlock(stmts);
         return body;
     }
 
+    std::any StmtVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
+        BaseStmt *stmt = IRContext.getStmtManager().getObject(ctx->getText());
+        return stmt;
+    }
 
 }// namespace Riddle

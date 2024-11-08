@@ -92,12 +92,16 @@ export namespace Riddle {
         }
 
         llvm::Value *VarDefine(const VarDefineStmt *stmt) {// NOLINT(*-no-recursion)
-            llvm::Type *type = classManager.getType(stmt->getType());
             const auto value = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
             const std::string name = stmt->getName();
+            llvm::Type *type = nullptr;
+            if(stmt->getType().empty()) {
+                type = value->getType();
+            } else {
+                type = classManager.getType(stmt->getType());
+            }
             return builder.createVariable(type, value, name);
         }
-
         llvm::Value *Object(const ObjectStmt *stmt) const {
             const std::string name = stmt->getName();
             return builder.getVar(name).var;
@@ -137,7 +141,7 @@ export namespace Riddle {
             return nullptr;
         }
 
-        llvm::Value* For(const ForStmt *stmt) {
+        llvm::Value *For(const ForStmt *stmt) {
             llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
             llvm::BasicBlock *selfVarBlock = builder.createBasicBlock("selfVar", builder.getParent());
             llvm::BasicBlock *loopBlock = builder.createBasicBlock("loop", builder.getParent());

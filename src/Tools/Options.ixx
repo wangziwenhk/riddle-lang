@@ -18,9 +18,11 @@ export namespace Riddle {
                         output = optarg;
                         break;
                     default:
-                        return;
+                        goto Completion;
                 }
             }
+            // 补全部分
+            Completion:
             if (optind < argc) {
                 source = argv[optind];
             }

@@ -80,15 +80,21 @@ export namespace Riddle {
             return ptr;
         }
 
-        BaseStmt *getNoneStmt() {
+        BaseStmt *getNone() {
             const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
             stmts.push_back(ptr);
             return ptr;
         }
 
-        BlockStmt *getBlockStmt(std::vector<BaseStmt*>stmt_list) {
+        BlockStmt *getBlock(std::vector<BaseStmt *> stmt_list) {
             const auto ptr = new BlockStmt();
             ptr->stmts = std::move(stmt_list);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        ObjectStmt *getObject(const std::string &name) {
+            const auto ptr = new ObjectStmt(name);
             stmts.push_back(ptr);
             return ptr;
         }

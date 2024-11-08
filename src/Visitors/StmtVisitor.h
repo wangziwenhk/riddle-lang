@@ -27,6 +27,7 @@ namespace Riddle {
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override;
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override;
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override;
+        std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
     };
 
 }// namespace Riddle

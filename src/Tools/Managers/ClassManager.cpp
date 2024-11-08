@@ -22,7 +22,8 @@ namespace Riddle {
                 {"double", llvm::Type::getDoubleTy(Context)},
                 {"float", llvm::Type::getFloatTy(Context)},
                 {"bool", llvm::Type::getInt1Ty(Context)},
-                {"char", llvm::Type::getInt8Ty(Context)}};
+                {"char", llvm::Type::getInt8Ty(Context)},
+                {"void", llvm::Type::getVoidTy(Context)}};
         if(baseType.contains(name)) {
             return baseType.find(name)->second;
         }

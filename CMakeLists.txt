@@ -36,16 +36,25 @@ include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(parser)
 
 file(GLOB_RECURSE AST_FILES "parser/*.cpp" "parser/*.h")
-file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE HEADER_FILES "src/*.h")
+file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 file(GLOB_RECURSE MODULE_FILES "src/*.ixx")
 
+# 添加 模块编译
 add_library(Riddle_Module ${SOURCE_FILES})
 
 target_sources(Riddle_Module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 
+# 添加 主编译目标
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
+# 添加 编译配置
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
+#target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
+
+# 忽略 MSDll 警告
+target_compile_options(Riddle_Language PRIVATE -Wno-ignored-attributes)
+target_compile_options(Riddle_Language PRIVATE -Wno-deprecated)
 
 target_link_libraries(Riddle_Language LLVMCore LLVMLinker)
 target_link_libraries(Riddle_Language Riddle_Module)
