@@ -2,6 +2,7 @@ module;
 #include <any>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <stack>
 export module IR.ParserStmt;
 import Types.Statements;
 import Manager.ClassManager;
@@ -12,6 +13,8 @@ export namespace Riddle {
     class ParserStmt {
         Builder builder;
         ClassManager classManager;
+        std::stack<llvm::BasicBlock *> breakBlocks;
+        std::stack<llvm::BasicBlock *> continueBlocks;
 
     public:
         explicit ParserStmt(Context &ctx): builder(ctx), classManager(ctx.llvm_context) {}
@@ -46,6 +49,15 @@ export namespace Riddle {
 
                 case BaseStmt::StmtTypeID::WhileStmtID:
                     return While(dynamic_cast<WhileStmt *>(stmt));
+
+                case BaseStmt::StmtTypeID::ForStmtID:
+                    return For(dynamic_cast<ForStmt *>(stmt));
+
+                case BaseStmt::StmtTypeID::ContinueStmtID:
+                    return Continue();
+
+                case BaseStmt::StmtTypeID::BreakStmtID:
+                    return Break();
 
                 default:
                     return nullptr;// 未知的 StmtTypeID 类型，返回空值
@@ -146,8 +158,8 @@ export namespace Riddle {
         // todo 实现 selfVar continue break
         llvm::Value *For(const ForStmt *stmt) {
             llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
-            llvm::BasicBlock *selfVarBlock = builder.createBasicBlock("selfVar", builder.getParent());
             llvm::BasicBlock *loopBlock = builder.createBasicBlock("loop", builder.getParent());
+            llvm::BasicBlock *exitBlock = builder.createBasicBlock("exit", builder.getParent());
             llvm::BasicBlock *oldBlock = builder.getNowBlock();
 
             if(!stmt->getInit()->isNoneStmt()) {
@@ -162,17 +174,46 @@ export namespace Riddle {
 
             builder.createJump(condBlock);
             builder.setNowBlock(condBlock);
-            const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
+            // 如果没有 Cond 那么一直运行
+            llvm::Value *cond = builder.getBool(true);
+            if(!stmt->getCondition()->isNoneStmt()) {
+                cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
+            }
+
             builder.createCondJump(cond, loopBlock, oldBlock);
 
+            // 设置当前 break 和 continue 执行的对象
+            breakBlocks.push(exitBlock);
+            continueBlocks.push(condBlock);
+
             builder.setNowBlock(loopBlock);
+            if(!stmt->getSelfChange()->isNoneStmt()) {
+                accept(stmt->getSelfChange());
+            }
             accept(stmt->getBody());
             builder.createJump(condBlock);
+
+            builder.setNowBlock(exitBlock);
+
+            builder.createJump(oldBlock);
 
             builder.setNowBlock(oldBlock);
 
             builder.pop();
 
+            breakBlocks.pop();
+            continueBlocks.pop();
+
+            return nullptr;
+        }
+
+        llvm::Value *Break() {
+            builder.createJump(breakBlocks.top());
+            return nullptr;
+        }
+
+        llvm::Value *Continue() {
+            builder.createJump(continueBlocks.top());
             return nullptr;
         }
     };

@@ -143,8 +143,12 @@ export namespace Riddle {
             ctx->pop();
         }
 
-        [[nodiscard]] inline Variable getVar(const std::string &name)const{
+        [[nodiscard]] inline Variable getVar(const std::string &name) const {
             return ctx->varManager.getVar(name);
+        }
+
+        [[nodiscard]] inline llvm::Value *getBool(const bool value) {
+            return llvmBuilder.getInt1(value);
         }
     };
 }// namespace Riddle
