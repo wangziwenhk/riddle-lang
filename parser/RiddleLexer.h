@@ -12,18 +12,19 @@
 class  RiddleLexer : public antlr4::Lexer {
 public:
   enum {
-    Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
-    Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, True = 16, False = 17, Static = 18, Const = 19, Null = 20, 
-    Try = 21, Catch = 22, LeftBracket = 23, RightBracket = 24, LeftSquare = 25, 
-    RightSquare = 26, LeftCurly = 27, RightCurly = 28, Colon = 29, Semi = 30, 
-    Comma = 31, Equal = 32, Assign = 33, Greater = 34, Less = 35, LeftLeft = 36, 
-    RightRight = 37, RightRightRight = 38, Add = 39, Sub = 40, Star = 41, 
-    Div = 42, Mod = 43, Not = 44, And = 45, Or = 46, Xor = 47, Dot = 48, 
-    DoubleQuotes = 49, Quotes = 50, Endl = 51, Identifier = 52, Hexadecimal = 53, 
-    Decimal = 54, Octal = 55, Binary = 56, Float = 57, IntegerSequence = 58, 
-    HEX_DIGIT = 59, OCTAL_DIGIT = 60, BINARY_DIGIT = 61, DIGIT = 62, STRING = 63, 
-    LINE_COMMENT = 64, BLOCK_COMMENT = 65, WHITESPACE = 66
+    Var = 1, Val = 2, For = 3, While = 4, Continue = 5, Break = 6, If = 7, 
+    Else = 8, Func = 9, Return = 10, Import = 11, Package = 12, Class = 13, 
+    Public = 14, Protected = 15, Private = 16, Override = 17, True = 18, 
+    False = 19, Static = 20, Const = 21, Null = 22, Try = 23, Catch = 24, 
+    LeftBracket = 25, RightBracket = 26, LeftSquare = 27, RightSquare = 28, 
+    LeftCurly = 29, RightCurly = 30, Colon = 31, Semi = 32, Comma = 33, 
+    Equal = 34, Assign = 35, Greater = 36, Less = 37, LeftLeft = 38, RightRight = 39, 
+    RightRightRight = 40, Add = 41, Sub = 42, Star = 43, Div = 44, Mod = 45, 
+    Not = 46, And = 47, Or = 48, Xor = 49, Dot = 50, DoubleQuotes = 51, 
+    Quotes = 52, Endl = 53, Identifier = 54, Hexadecimal = 55, Decimal = 56, 
+    Octal = 57, Binary = 58, Float = 59, IntegerSequence = 60, HEX_DIGIT = 61, 
+    OCTAL_DIGIT = 62, BINARY_DIGIT = 63, DIGIT = 64, STRING = 65, LINE_COMMENT = 66, 
+    BLOCK_COMMENT = 67, WHITESPACE = 68
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

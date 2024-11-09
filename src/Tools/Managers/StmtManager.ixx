@@ -98,5 +98,17 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        ContinueStmt *getContinue() {
+            const auto ptr = new ContinueStmt();
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        BreakStmt *getBreak() {
+            const auto ptr = new BreakStmt();
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle

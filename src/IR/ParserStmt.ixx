@@ -71,6 +71,7 @@ export namespace Riddle {
             builder.printCode();
         }
 
+        /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
         llvm::Function *FuncDefine(const FuncDefineStmt *stmt) {// NOLINT(*-no-recursion)
             const std::string name = stmt->getFuncName();
             llvm::Type *returnType = classManager.getType(stmt->getReturnType());
@@ -90,6 +91,7 @@ export namespace Riddle {
             builder.popParent();
             return func;
         }
+
 
         llvm::Value *VarDefine(const VarDefineStmt *stmt) {// NOLINT(*-no-recursion)
             const auto value = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
@@ -141,6 +143,7 @@ export namespace Riddle {
             return nullptr;
         }
 
+        // todo 实现 selfVar continue break
         llvm::Value *For(const ForStmt *stmt) {
             llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
             llvm::BasicBlock *selfVarBlock = builder.createBasicBlock("selfVar", builder.getParent());
@@ -151,7 +154,24 @@ export namespace Riddle {
                 accept(stmt->getInit());
             }
 
+            builder.push();
+
+            if(!stmt->getInit()->isNoneStmt()) {
+                accept(stmt->getInit());
+            }
+
             builder.createJump(condBlock);
+            builder.setNowBlock(condBlock);
+            const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
+            builder.createCondJump(cond, loopBlock, oldBlock);
+
+            builder.setNowBlock(loopBlock);
+            accept(stmt->getBody());
+            builder.createJump(condBlock);
+
+            builder.setNowBlock(oldBlock);
+
+            builder.pop();
 
             return nullptr;
         }

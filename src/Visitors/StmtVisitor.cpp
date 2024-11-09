@@ -1,5 +1,4 @@
 #include "StmtVisitor.h"
-import Types.Statements;
 import Managers.StmtManager;
 
 namespace Riddle {
@@ -115,6 +114,15 @@ namespace Riddle {
 
     std::any StmtVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
         BaseStmt *stmt = IRContext.getStmtManager().getObject(ctx->getText());
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) {
+        BaseStmt *stmt = IRContext.getStmtManager().getContinue();
+        return stmt;
+    }
+    std::any StmtVisitor::visitBreakStatement(RiddleParser::BreakStatementContext *context) {
+        BaseStmt *stmt = IRContext.getStmtManager().getBreak();
         return stmt;
     }
 

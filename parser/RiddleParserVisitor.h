@@ -45,6 +45,10 @@ public:
 
     virtual std::any visitWhileStatement(RiddleParser::WhileStatementContext *context) = 0;
 
+    virtual std::any visitContinueStatement(RiddleParser::ContinueStatementContext *context) = 0;
+
+    virtual std::any visitBreakStatement(RiddleParser::BreakStatementContext *context) = 0;
+
     virtual std::any visitIfStatement(RiddleParser::IfStatementContext *context) = 0;
 
     virtual std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) = 0;
@@ -57,7 +61,7 @@ public:
 
     virtual std::any visitFuncExpr(RiddleParser::FuncExprContext *context) = 0;
 
-    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) = 0;
+    virtual std::any visitObjectExpr(RiddleParser::ObjectExprContext *context) = 0;
 
     virtual std::any visitBlendExpr(RiddleParser::BlendExprContext *context) = 0;
 

@@ -12,29 +12,31 @@
 class  RiddleParser : public antlr4::Parser {
 public:
   enum {
-    Var = 1, Val = 2, For = 3, While = 4, If = 5, Else = 6, Func = 7, Return = 8, 
-    Import = 9, Package = 10, Class = 11, Public = 12, Protected = 13, Private = 14, 
-    Override = 15, True = 16, False = 17, Static = 18, Const = 19, Null = 20, 
-    Try = 21, Catch = 22, LeftBracket = 23, RightBracket = 24, LeftSquare = 25, 
-    RightSquare = 26, LeftCurly = 27, RightCurly = 28, Colon = 29, Semi = 30, 
-    Comma = 31, Equal = 32, Assign = 33, Greater = 34, Less = 35, LeftLeft = 36, 
-    RightRight = 37, RightRightRight = 38, Add = 39, Sub = 40, Star = 41, 
-    Div = 42, Mod = 43, Not = 44, And = 45, Or = 46, Xor = 47, Dot = 48, 
-    DoubleQuotes = 49, Quotes = 50, Endl = 51, Identifier = 52, Hexadecimal = 53, 
-    Decimal = 54, Octal = 55, Binary = 56, Float = 57, IntegerSequence = 58, 
-    HEX_DIGIT = 59, OCTAL_DIGIT = 60, BINARY_DIGIT = 61, DIGIT = 62, STRING = 63, 
-    LINE_COMMENT = 64, BLOCK_COMMENT = 65, WHITESPACE = 66
+    Var = 1, Val = 2, For = 3, While = 4, Continue = 5, Break = 6, If = 7, 
+    Else = 8, Func = 9, Return = 10, Import = 11, Package = 12, Class = 13, 
+    Public = 14, Protected = 15, Private = 16, Override = 17, True = 18, 
+    False = 19, Static = 20, Const = 21, Null = 22, Try = 23, Catch = 24, 
+    LeftBracket = 25, RightBracket = 26, LeftSquare = 27, RightSquare = 28, 
+    LeftCurly = 29, RightCurly = 30, Colon = 31, Semi = 32, Comma = 33, 
+    Equal = 34, Assign = 35, Greater = 36, Less = 37, LeftLeft = 38, RightRight = 39, 
+    RightRightRight = 40, Add = 41, Sub = 42, Star = 43, Div = 44, Mod = 45, 
+    Not = 46, And = 47, Or = 48, Xor = 49, Dot = 50, DoubleQuotes = 51, 
+    Quotes = 52, Endl = 53, Identifier = 54, Hexadecimal = 55, Decimal = 56, 
+    Octal = 57, Binary = 58, Float = 59, IntegerSequence = 60, HEX_DIGIT = 61, 
+    OCTAL_DIGIT = 62, BINARY_DIGIT = 63, DIGIT = 64, STRING = 65, LINE_COMMENT = 66, 
+    BLOCK_COMMENT = 67, WHITESPACE = 68
   };
 
   enum {
     RuleProgram = 0, RuleNull_cnt = 1, RuleStatement_ed = 2, RuleStatement = 3, 
     RuleBodyExpr = 4, RulePackStatement = 5, RuleImportStatement = 6, RuleVarDefineStatement = 7, 
     RuleArgsExpr = 8, RuleDefineArgs = 9, RuleFuncDefine = 10, RuleForStatement = 11, 
-    RuleWhileStatement = 12, RuleIfStatement = 13, RuleReturnStatement = 14, 
-    RuleClassDefine = 15, RuleTryExpr = 16, RuleCatchExpr = 17, RuleExprPtr = 18, 
-    RuleExprPtrParser = 19, RuleExpression = 20, RuleId = 21, RuleNumber = 22, 
-    RuleBoolean = 23, RuleString = 24, RuleFloat = 25, RuleInteger = 26, 
-    RuleTemplateArg = 27, RuleTemplateArgs = 28, RuleTypeName = 29
+    RuleWhileStatement = 12, RuleContinueStatement = 13, RuleBreakStatement = 14, 
+    RuleIfStatement = 15, RuleReturnStatement = 16, RuleClassDefine = 17, 
+    RuleTryExpr = 18, RuleCatchExpr = 19, RuleExprPtr = 20, RuleExprPtrParser = 21, 
+    RuleExpression = 22, RuleId = 23, RuleNumber = 24, RuleBoolean = 25, 
+    RuleString = 26, RuleFloat = 27, RuleInteger = 28, RuleTemplateArg = 29, 
+    RuleTemplateArgs = 30, RuleTypeName = 31
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -67,6 +69,8 @@ public:
   class FuncDefineContext;
   class ForStatementContext;
   class WhileStatementContext;
+  class ContinueStatementContext;
+  class BreakStatementContext;
   class IfStatementContext;
   class ReturnStatementContext;
   class ClassDefineContext;
@@ -148,6 +152,8 @@ public:
     WhileStatementContext *whileStatement();
     IfStatementContext *ifStatement();
     ReturnStatementContext *returnStatement();
+    ContinueStatementContext *continueStatement();
+    BreakStatementContext *breakStatement();
     TryExprContext *tryExpr();
     ExpressionContext *expression();
     BodyExprContext *bodyExpr();
@@ -349,6 +355,36 @@ public:
   };
 
   WhileStatementContext* whileStatement();
+
+  class  ContinueStatementContext : public antlr4::ParserRuleContext {
+  public:
+    ContinueStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *Continue();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ContinueStatementContext* continueStatement();
+
+  class  BreakStatementContext : public antlr4::ParserRuleContext {
+  public:
+    BreakStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *Break();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  BreakStatementContext* breakStatement();
 
   class  IfStatementContext : public antlr4::ParserRuleContext {
   public:

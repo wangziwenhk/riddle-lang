@@ -4,6 +4,8 @@ Var:'var';  //可变变量
 Val:'val';  //不可变变量
 For:'for';
 While:'while';
+Continue:'continue';
+Break:'break';
 If:'if';
 Else:'else';
 Func:'fun'; //函数定义

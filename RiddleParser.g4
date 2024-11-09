@@ -39,6 +39,8 @@ statement
     | whileStatement
     | ifStatement
     | returnStatement
+    | continueStatement
+    | breakStatement
     | tryExpr
     | expression
     | bodyExpr
@@ -79,6 +81,14 @@ forStatement
 
 whileStatement
     : While LeftBracket runCond=expression RightBracket body=statement_ed
+    ;
+
+continueStatement
+    : Continue
+    ;
+
+breakStatement
+    : Break
     ;
 
 ifStatement returns [bool hasElse]

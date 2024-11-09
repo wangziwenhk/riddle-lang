@@ -53,6 +53,12 @@ public:
   virtual void enterWhileStatement(RiddleParser::WhileStatementContext *ctx) = 0;
   virtual void exitWhileStatement(RiddleParser::WhileStatementContext *ctx) = 0;
 
+  virtual void enterContinueStatement(RiddleParser::ContinueStatementContext *ctx) = 0;
+  virtual void exitContinueStatement(RiddleParser::ContinueStatementContext *ctx) = 0;
+
+  virtual void enterBreakStatement(RiddleParser::BreakStatementContext *ctx) = 0;
+  virtual void exitBreakStatement(RiddleParser::BreakStatementContext *ctx) = 0;
+
   virtual void enterIfStatement(RiddleParser::IfStatementContext *ctx) = 0;
   virtual void exitIfStatement(RiddleParser::IfStatementContext *ctx) = 0;
 

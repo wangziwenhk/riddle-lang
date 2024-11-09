@@ -67,6 +67,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBreakStatement(RiddleParser::BreakStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitIfStatement(RiddleParser::IfStatementContext *ctx) override {
     return visitChildren(ctx);
   }

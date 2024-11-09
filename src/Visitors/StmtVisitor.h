@@ -5,6 +5,8 @@
 
 import Managers.StmtManager;
 import IR.Context;
+import Types.Statements;
+
 namespace Riddle {
     /// 所有函数的返回值都为BaseStmt
     class StmtVisitor final : public RiddleParserBaseVisitor {
@@ -28,6 +30,8 @@ namespace Riddle {
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override;
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override;
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
+        std::any visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) override;
+        std::any visitBreakStatement(RiddleParser::BreakStatementContext *context) override;
     };
 
 }// namespace Riddle

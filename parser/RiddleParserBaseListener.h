@@ -55,6 +55,12 @@ public:
   virtual void enterWhileStatement(RiddleParser::WhileStatementContext * /*ctx*/) override { }
   virtual void exitWhileStatement(RiddleParser::WhileStatementContext * /*ctx*/) override { }
 
+  virtual void enterContinueStatement(RiddleParser::ContinueStatementContext * /*ctx*/) override { }
+  virtual void exitContinueStatement(RiddleParser::ContinueStatementContext * /*ctx*/) override { }
+
+  virtual void enterBreakStatement(RiddleParser::BreakStatementContext * /*ctx*/) override { }
+  virtual void exitBreakStatement(RiddleParser::BreakStatementContext * /*ctx*/) override { }
+
   virtual void enterIfStatement(RiddleParser::IfStatementContext * /*ctx*/) override { }
   virtual void exitIfStatement(RiddleParser::IfStatementContext * /*ctx*/) override { }
 

@@ -18,11 +18,14 @@ export namespace Riddle {
             BinaryOpStmtID,  // 双元运算
             UnaryOpStmtID,   // 单元运算
             LabelStmtID,     // Label 表达式
-            ReturnStmtID,    // 返回语句
             IfStmtID,        // If 语句
             TryStmtID,       // 错误处理
             ObjStmtID,       // 获取对象
             BlockStmtID,     // 组合语句 {}
+
+            ReturnStmtID,  // 返回语句
+            ContinueStmtID,// 跳过当前循环
+            BreakStmtID,   // 跳出当前循环
 
             IntegerStmtID,// int 类型
             FloatStmtID,  // float 类型
@@ -295,7 +298,18 @@ export namespace Riddle {
         BaseStmt *value;
 
     public:
-        explicit ReturnStmt(BaseStmt *value):BaseStmt(StmtTypeID::ReturnStmtID), value(value) {}
+        explicit ReturnStmt(BaseStmt *value): BaseStmt(StmtTypeID::ReturnStmtID), value(value) {}
         [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+    };
+
+    class ContinueStmt final : public BaseStmt {
+    public:
+        explicit ContinueStmt(): BaseStmt(StmtTypeID::ContinueStmtID){}
+    };
+
+    class BreakStmt final : public BaseStmt {
+
+    public:
+        explicit BreakStmt():BaseStmt(StmtTypeID::BreakStmtID){}
     };
 }// namespace Riddle
