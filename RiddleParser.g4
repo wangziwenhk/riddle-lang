@@ -174,7 +174,7 @@ expression
 
 id: Identifier;
 
-//这里是指常量
+//这里是指字面量
 number
     : integer
     | float
