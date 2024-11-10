@@ -180,7 +180,7 @@ export namespace Riddle {
                 cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
             }
 
-            builder.createCondJump(cond, loopBlock, oldBlock);
+            builder.createCondJump(cond, loopBlock, exitBlock);
 
             // 设置当前 break 和 continue 执行的对象
             breakBlocks.push(exitBlock);
@@ -194,10 +194,6 @@ export namespace Riddle {
             builder.createJump(condBlock);
 
             builder.setNowBlock(exitBlock);
-
-            builder.createJump(oldBlock);
-
-            builder.setNowBlock(oldBlock);
 
             builder.pop();
 

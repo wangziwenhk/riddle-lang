@@ -68,11 +68,20 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitForStatement(RiddleParser::ForStatementContext *ctx) {
-        const auto init = std::any_cast<BaseStmt *>(visit(ctx->init));
-        const auto cond = std::any_cast<BaseStmt *>(visit(ctx->termCond));
-        const auto changed = std::any_cast<BaseStmt *>(visit(ctx->selfVar));
+        BaseStmt *cond = IRContext.getStmtManager().getNone();
+        BaseStmt *init = IRContext.getStmtManager().getNone();
+        BaseStmt *change = IRContext.getStmtManager().getNone();
+        if(ctx->init != nullptr) {
+            init = std::any_cast<BaseStmt *>(visit(ctx->init));
+        }
+        if(ctx->termCond != nullptr) {
+            cond = std::any_cast<BaseStmt *>(visit(ctx->termCond));
+        }
+        if(ctx->selfVar != nullptr) {
+            change = std::any_cast<BaseStmt *>(visit(ctx->selfVar));
+        }
         const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
-        BaseStmt *stmt = IRContext.getStmtManager().getFor(init, cond, changed, body);
+        BaseStmt *stmt = IRContext.getStmtManager().getFor(init, cond, change, body);
         return stmt;
     }
     std::any StmtVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
