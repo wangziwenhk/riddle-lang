@@ -1,9 +1,10 @@
 <div align="center">
-  <img src="./resources/logo.svg" alt="Logo" width="300" height="300">
+  <img src="./resources/logo.svg" alt="Logo" width="250" height="250">
+  <h1>Riddle Language</h1>
 </div>
+
 ----
 
-# Riddle Language
 简体中文 | [English](./README_en.md)
 
 ![Static Badge](https://img.shields.io/badge/C%2B%2B-20-green?logo=C%2B%2B)
