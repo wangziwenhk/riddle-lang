@@ -3,7 +3,6 @@
   <h1>Riddle Language</h1>
 </div>
 
-----
 
 简体中文 | [English](./README_en.md)
 
