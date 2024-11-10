@@ -1,8 +1,6 @@
-
-<p style="text-align: center;">
+<div align="center">
   <img src="./resources/logo.svg" alt="Logo" width="300" height="300">
-</p>
-
+</div>
 ----
 
 # Riddle Language
