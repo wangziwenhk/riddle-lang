@@ -96,8 +96,48 @@ export namespace Riddle {
             auto [funcType, func] = builder.createFuncDefine(name, returnType, argTypes);
             llvm::BasicBlock *entry = builder.createBasicBlock("entry", func);
             builder.setNowBlock(entry);
+
+            // 预处理 varDefine
+            std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
+                if(const auto it = dynamic_cast<VarDefineStmt *>(s)) {
+                    accept(s);
+                    return;
+                }
+                if(s->BodyCount() == 1) {
+                    if(const auto it = dynamic_cast<ForStmt *>(s)) {
+                        pre_varDefine(it->getBody());
+                    }
+                    if(const auto it = dynamic_cast<WhileStmt *>(s)) {
+                        pre_varDefine(it->getBody());
+                    }
+                    if(const auto it = dynamic_cast<BlockStmt *>(s)) {
+                        for(const auto i: it->stmts) {
+                            pre_varDefine(i);
+                        }
+                        for(int i = 0; i < it->stmts.size(); i++) {
+                            if(const auto t = dynamic_cast<VarDefineStmt *>(it->stmts[i])) {
+                                it->stmts.erase(it->stmts.begin() + i);
+                                i--;
+                            }
+                        }
+                    }
+                    if(const auto it = dynamic_cast<IfStmt *>(s)) {
+                        pre_varDefine(it->getThenBody());
+                    }
+                }
+                if(s->BodyCount() == 2) {
+                    if(const auto it = dynamic_cast<IfStmt *>(s)) {
+                        pre_varDefine(it->getThenBody());
+                        pre_varDefine(it->getElseBody());
+                    }
+                }
+            };
+
             builder.push();
             builder.pushParent(func);
+
+            pre_varDefine(body);
+
             accept(body);
             builder.pop();
             builder.popParent();
@@ -138,12 +178,15 @@ export namespace Riddle {
         llvm::Value *While(const WhileStmt *stmt) {// NOLINT(*-no-recursion)
             llvm::BasicBlock *condBlock = builder.createBasicBlock("while.cond", builder.getParent());
             llvm::BasicBlock *loopBlock = builder.createBasicBlock("while.loop", builder.getParent());
-            llvm::BasicBlock *oldBlock = builder.getNowBlock();
+            llvm::BasicBlock *exitBlock = builder.createBasicBlock("while.exit", builder.getParent());
 
             builder.createJump(condBlock);
             builder.setNowBlock(condBlock);
             const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
-            builder.createCondJump(cond, loopBlock, oldBlock);
+            builder.createCondJump(cond, loopBlock, exitBlock);
+
+            breakBlocks.push(exitBlock);
+            continueBlocks.push(condBlock);
 
             builder.push();
             builder.setNowBlock(loopBlock);
@@ -151,16 +194,17 @@ export namespace Riddle {
             builder.createJump(condBlock);
             builder.pop();
 
-            builder.setNowBlock(oldBlock);
+            breakBlocks.pop();
+            continueBlocks.pop();
+
+            builder.setNowBlock(exitBlock);
             return nullptr;
         }
 
-        // todo 实现 selfVar continue break
         llvm::Value *For(const ForStmt *stmt) {
-            llvm::BasicBlock *condBlock = builder.createBasicBlock("cond", builder.getParent());
-            llvm::BasicBlock *loopBlock = builder.createBasicBlock("loop", builder.getParent());
-            llvm::BasicBlock *exitBlock = builder.createBasicBlock("exit", builder.getParent());
-            llvm::BasicBlock *oldBlock = builder.getNowBlock();
+            llvm::BasicBlock *condBlock = builder.createBasicBlock("for.cond", builder.getParent());
+            llvm::BasicBlock *loopBlock = builder.createBasicBlock("for.loop", builder.getParent());
+            llvm::BasicBlock *exitBlock = builder.createBasicBlock("for.exit", builder.getParent());
 
             if(!stmt->getInit()->isNoneStmt()) {
                 accept(stmt->getInit());

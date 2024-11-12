@@ -59,12 +59,20 @@ export namespace Riddle {
         }
 
         [[nodiscard]] inline bool isNoneStmt() const { return StmtID == StmtTypeID::NoneStmtID; }
+
+        [[nodiscard]] virtual inline int BodyCount() const {
+            return 0;
+        }
     };
 
     class ProgramStmt final : public BaseStmt {
     public:
         std::vector<BaseStmt *> body;
         explicit ProgramStmt(std::vector<BaseStmt *> body): BaseStmt(StmtTypeID::ProgramStmtID), body{std::move(body)} {}
+
+        [[nodiscard]] int BodyCount() const override {
+            return 1;
+        }
     };
 
     /// @brief 是多个语句的组合
@@ -72,6 +80,10 @@ export namespace Riddle {
     public:
         std::vector<BaseStmt *> stmts;
         BlockStmt(): BaseStmt(StmtTypeID::BlockStmtID) {}
+
+        [[nodiscard]] int BodyCount() const override {
+            return 1;
+        }
     };
 
     /// @brief 存储常量
@@ -215,6 +227,10 @@ export namespace Riddle {
         [[nodiscard]] inline std::string getReturnType() const { return return_type; }
         [[nodiscard]] inline DefineArgListStmt *getArgs() const { return args; }
         [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+
+        [[nodiscard]] int BodyCount() const override {
+            return 1;
+        }
     };
 
     /// @brief 用于存储for循环语句
@@ -223,36 +239,44 @@ export namespace Riddle {
         BaseStmt *init;
         BaseStmt *condition;
         BaseStmt *self_change;
-        BaseStmt *body;
+        BlockStmt *body;
 
     public:
         ForStmt(BaseStmt *init,
                 BaseStmt *cond,
                 BaseStmt *self_change,
-                BaseStmt *body): BaseStmt(StmtTypeID::ForStmtID), init(init), condition(cond),
-                                 self_change(self_change), body(body) {}
+                BlockStmt *body): BaseStmt(StmtTypeID::ForStmtID), init(init), condition(cond),
+                                  self_change(self_change), body(body) {}
 
         [[nodiscard]] inline BaseStmt *getInit() const { return init; }
         [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
         [[nodiscard]] inline BaseStmt *getSelfChange() const { return self_change; }
         [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+
+        [[nodiscard]] inline int BodyCount() const override {
+            return 1;
+        }
     };
 
     /// @brief 用于存储while循环语句
     class WhileStmt final : public BaseStmt {
     protected:
         BaseStmt *condition;
-        BaseStmt *body;
+        BlockStmt *body;
 
     public:
-        WhileStmt(BaseStmt *cond, BaseStmt *body): BaseStmt(StmtTypeID::WhileStmtID), condition(cond), body(body) {}
+        WhileStmt(BaseStmt *cond, BlockStmt *body): BaseStmt(StmtTypeID::WhileStmtID), condition(cond), body(body) {}
 
-        void setBodyStmt(BaseStmt *stmt) {
+        void setBodyStmt(BlockStmt *stmt) {
             body = stmt;
         }
 
         [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
         [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+
+        [[nodiscard]] inline int BodyCount() const override {
+            return 1;
+        }
     };
 
     /// @brief 用于存储 try 语句
@@ -266,6 +290,10 @@ export namespace Riddle {
 
         [[nodiscard]] inline BaseStmt *getTryBody() const { return tryBody; }
         [[nodiscard]] inline BaseStmt *getCatchBody() const { return catchBody; }
+
+        [[nodiscard]] inline int BodyCount() const override {
+            return 2;
+        }
     };
 
     /// @brief 用于存储 if 语句
@@ -281,6 +309,10 @@ export namespace Riddle {
         [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
         [[nodiscard]] inline BaseStmt *getThenBody() const { return thenBody; }
         [[nodiscard]] inline BaseStmt *getElseBody() const { return elseBody; }
+
+        [[nodiscard]] inline int BodyCount() const override {
+            return elseBody == nullptr ? 1 : 2;
+        }
     };
 
     class ObjectStmt final : public BaseStmt {
