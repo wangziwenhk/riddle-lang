@@ -52,12 +52,24 @@ export namespace Riddle {
             return ptr;
         }
         WhileStmt *getWhile(BaseStmt *condition, BaseStmt *body) {
-            const auto ptr = new WhileStmt(condition, body);
+            BlockStmt *_body = nullptr;
+            try {
+                _body = dynamic_cast<BlockStmt *>(body);
+            } catch(...) {
+                _body = this->getBlock({body});
+            }
+            const auto ptr = new WhileStmt(condition, _body);
             stmts.push_back(ptr);
             return ptr;
         }
         ForStmt *getFor(BaseStmt *init, BaseStmt *condition, BaseStmt *changed, BaseStmt *body) {
-            const auto ptr = new ForStmt(init, condition, changed, body);
+            BlockStmt *_body = nullptr;
+            try {
+                _body = dynamic_cast<BlockStmt *>(body);
+            } catch(...) {
+                _body = this->getBlock({body});
+            }
+            const auto ptr = new ForStmt(init, condition, changed, _body);
             stmts.push_back(ptr);
             return ptr;
         }
