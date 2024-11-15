@@ -2,7 +2,7 @@ module;
 #include <string>
 #include <utility>
 #include <vector>
-export module Managers.StmtManager;
+export module Manager.StmtManager;
 
 import Types.Statements;
 
@@ -119,6 +119,12 @@ export namespace Riddle {
 
         BreakStmt *getBreak() {
             const auto ptr = new BreakStmt();
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        BinaryExprStmt *getBinaryExpr(BaseStmt *lhs, BaseStmt *rhs, const std::string &opt) {
+            const auto ptr = new BinaryExprStmt(lhs, rhs, opt);
             stmts.push_back(ptr);
             return ptr;
         }

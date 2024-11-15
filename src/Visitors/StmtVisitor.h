@@ -3,7 +3,7 @@
 
 #include <RiddleParserBaseVisitor.h>
 
-import Managers.StmtManager;
+import Manager.StmtManager;
 import IR.Context;
 import Types.Statements;
 
@@ -31,7 +31,10 @@ namespace Riddle {
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override;
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
         std::any visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) override;
-        std::any visitBreakStatement(RiddleParser::BreakStatementContext *context) override;
+        std::any visitBreakStatement(RiddleParser::BreakStatementContext *ctx) override;
+        // 二元运算符号相关
+        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override;
+        std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override;
     };
 
 }// namespace Riddle

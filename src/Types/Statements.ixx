@@ -15,8 +15,8 @@ export namespace Riddle {
             FuncDefineStmtID,// 函数定义
             ForStmtID,       // for 循环
             WhileStmtID,     // while 循环
-            BinaryOpStmtID,  // 双元运算
-            UnaryOpStmtID,   // 单元运算
+            BinaryExprStmtID,// 双元运算
+            UnaryExprStmtID, // 单元运算
             LabelStmtID,     // Label 表达式
             IfStmtID,        // If 语句
             TryStmtID,       // 错误处理
@@ -159,11 +159,15 @@ export namespace Riddle {
         std::string type;
         /// 对于一个值，一定可以被解析为一个Statement
         BaseStmt *value;
+        /// 是否在函数内部时被优化到entry
+
 
     public:
         VarDefineStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::VarDefineStmtID),
                                                                             name(std::move(name)),
                                                                             type(std::move(type)), value(value) {}
+
+        bool isStore = true;
 
         [[nodiscard]] inline std::string getName() const { return name; }
         [[nodiscard]] inline std::string getType() const { return type; }
@@ -336,12 +340,26 @@ export namespace Riddle {
 
     class ContinueStmt final : public BaseStmt {
     public:
-        explicit ContinueStmt(): BaseStmt(StmtTypeID::ContinueStmtID){}
+        explicit ContinueStmt(): BaseStmt(StmtTypeID::ContinueStmtID) {}
     };
 
     class BreakStmt final : public BaseStmt {
 
     public:
-        explicit BreakStmt():BaseStmt(StmtTypeID::BreakStmtID){}
+        explicit BreakStmt(): BaseStmt(StmtTypeID::BreakStmtID) {}
+    };
+
+    class BinaryExprStmt final : public BaseStmt {
+    protected:
+        BaseStmt *lhs;
+        BaseStmt *rhs;
+        std::string opt;
+
+    public:
+        BinaryExprStmt(BaseStmt *lhs, BaseStmt *rhs, std::string opt): BaseStmt(StmtTypeID::BinaryExprStmtID), lhs(lhs), rhs(rhs), opt(std::move(opt)) {}
+
+        [[nodiscard]] constexpr inline BaseStmt *getLHS() const { return lhs; }
+        [[nodiscard]] constexpr inline BaseStmt *getRHS() const { return rhs; }
+        [[nodiscard]] constexpr inline std::string getOpt() const { return opt; }
     };
 }// namespace Riddle

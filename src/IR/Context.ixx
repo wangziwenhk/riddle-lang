@@ -2,14 +2,13 @@ module;
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include <stack>
-#include <unordered_map>
-#include <unordered_set>
 export module IR.Context;
 
 import Type.Variable;
 import Manager.VarManager;
-import Managers.StmtManager;
+import Manager.StmtManager;
 import Manager.ClassManager;
+import Manager.OpManager;
 export namespace Riddle {
     class Context {
         int _deep = 0;
@@ -20,8 +19,9 @@ export namespace Riddle {
         VarManager varManager;
         ClassManager classManager;
         StmtManager stmtManager;
+        OpManager opManager;
 
-        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context), classManager(context) {}
+        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context), classManager(context), opManager(context) {}
 
         inline void addVariable(const Variable &var) {
             varManager.addVar(var);
@@ -29,25 +29,19 @@ export namespace Riddle {
 
         inline void push() {
             varManager.push();
-            classManager.push();
             _deep++;
         }
 
         inline void pop() {
-            if (_deep == 0) {
+            if(_deep == 0) {
                 throw std::runtime_error("Cannot pop from an empty context");
             }
             varManager.pop();
-            classManager.pop();
             _deep--;
         }
 
         inline unsigned long long deep() const {
             return _deep;
-        }
-
-        inline StmtManager &getStmtManager() {
-            return stmtManager;
         }
     };
 }// namespace Riddle

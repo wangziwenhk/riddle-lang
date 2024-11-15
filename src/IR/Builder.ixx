@@ -6,6 +6,10 @@ export module IR.Builder;
 import IR.Context;
 import Type.Variable;
 import Type.DefineArg;
+import Manager.VarManager;
+import Manager.StmtManager;
+import Manager.OpManager;
+import Manager.ClassManager;
 export namespace Riddle {
     class Builder {
         Context *ctx = nullptr;
@@ -70,15 +74,16 @@ export namespace Riddle {
         /// @param name 变量名称
         /// @param is_const 是否不可变
         /// @return 变量
-        llvm::Value *createVariable(llvm::Type *type, llvm::Value *value, const std::string &name = "", bool is_const = false) {
+        llvm::Value *createVariable(llvm::Type *type, llvm::Value *value, const std::string &name = "", const bool is_const = false) {
             llvm::Value *var;
             // 对全局变量特判
             if(ctx->deep() <= 1) {
                 auto *CV = llvm::dyn_cast<llvm::Constant>(value);
                 var = new llvm::GlobalVariable(ctx->module, type, is_const, llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
+
                 var = llvmBuilder.CreateAlloca(type, nullptr, name);
-                llvmBuilder.CreateStore(value, var);
+                if(value != nullptr) llvmBuilder.CreateStore(value, var);
             }
             ctx->addVariable(Variable(name, var, is_const));
             return var;
@@ -149,6 +154,26 @@ export namespace Riddle {
 
         [[nodiscard]] inline llvm::Value *getBool(const bool value) {
             return llvmBuilder.getInt1(value);
+        }
+
+        inline StmtManager &getStmtManager() const {
+            return ctx->stmtManager;
+        }
+
+        inline VarManager &getVarManager() const {
+            return ctx->varManager;
+        }
+
+        inline ClassManager &getClassManager() const {
+            return ctx->classManager;
+        }
+
+        inline OpManager &getOpManager() const {
+            return ctx->opManager;
+        }
+
+        inline llvm::IRBuilder<> &getLLVMBuilder(){
+            return llvmBuilder;
         }
     };
 }// namespace Riddle

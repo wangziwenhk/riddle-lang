@@ -470,7 +470,7 @@ namespace Riddle {
         return func(Builder, value);
     }
 
-    //BUG 无法判断是否为常量还是引用，先搁置者
+    /// @bug 无法判断是否为常量还是引用，先搁置者
     std::any GenVisitor::visitFuncExpr(RiddleParser::FuncExprContext *ctx) {
         auto funcName = ctx->funcName->getText();
         if(!FuncCalls.contains(funcName)) {

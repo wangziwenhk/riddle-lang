@@ -7,6 +7,7 @@ export module IR.ParserStmt;
 import Types.Statements;
 import Manager.ClassManager;
 import Manager.VarManager;
+import Manager.OpManager;
 import IR.Context;
 import IR.Builder;
 export namespace Riddle {
@@ -59,6 +60,9 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::BreakStmtID:
                     return Break();
 
+                case BaseStmt::StmtTypeID::BinaryExprStmtID:
+                    return BinaryExpr(dynamic_cast<BinaryExprStmt *>(stmt));
+
                 default:
                     return nullptr;// 未知的 StmtTypeID 类型，返回空值
             }
@@ -99,8 +103,10 @@ export namespace Riddle {
 
             // 预处理 varDefine
             std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
+                // 立刻分配空间
                 if(const auto it = dynamic_cast<VarDefineStmt *>(s)) {
-                    accept(s);
+                    it->isStore = false;
+                    accept(it);
                     return;
                 }
                 if(s->BodyCount() == 1) {
@@ -116,7 +122,7 @@ export namespace Riddle {
                         }
                         for(int i = 0; i < it->stmts.size(); i++) {
                             if(const auto t = dynamic_cast<VarDefineStmt *>(it->stmts[i])) {
-                                it->stmts.erase(it->stmts.begin() + i);
+                                it->stmts[i] = builder.getStmtManager().getBinaryExpr(builder.getStmtManager().getObject(t->getName()), t->getValue(), "=");
                                 i--;
                             }
                         }
@@ -124,8 +130,7 @@ export namespace Riddle {
                     if(const auto it = dynamic_cast<IfStmt *>(s)) {
                         pre_varDefine(it->getThenBody());
                     }
-                }
-                if(s->BodyCount() == 2) {
+                } else if(s->BodyCount() == 2) {
                     if(const auto it = dynamic_cast<IfStmt *>(s)) {
                         pre_varDefine(it->getThenBody());
                         pre_varDefine(it->getElseBody());
@@ -154,8 +159,14 @@ export namespace Riddle {
             } else {
                 type = classManager.getType(stmt->getType());
             }
-            return builder.createVariable(type, value, name);
+            if(stmt->isStore) {
+                return builder.createVariable(type, value, name);
+            }
+            else {
+                return builder.createVariable(type, nullptr, name);
+            }
         }
+
         llvm::Value *Object(const ObjectStmt *stmt) const {
             const std::string name = stmt->getName();
             return builder.getVar(name).var;
@@ -255,6 +266,16 @@ export namespace Riddle {
         llvm::Value *Continue() {
             builder.createJump(continueBlocks.top());
             return nullptr;
+        }
+
+        llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) {
+            auto lhs = std::any_cast<llvm::Value *>(accept(stmt->getLHS()));
+            auto rhs = std::any_cast<llvm::Value *>(accept(stmt->getRHS()));
+            auto op = stmt->getOpt();
+            // 由于可能的运算符的数量过多，我们使用一个Manager来控制
+            llvm::Value *result = builder.getOpManager().getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(builder.getLLVMBuilder(),lhs,rhs);
+
+            return result;
         }
     };
 }// namespace Riddle

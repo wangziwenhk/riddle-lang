@@ -1,5 +1,5 @@
 #include "StmtVisitor.h"
-import Managers.StmtManager;
+import Manager.StmtManager;
 
 namespace Riddle {
     std::any StmtVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -21,7 +21,7 @@ namespace Riddle {
     std::any StmtVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
         packageName = ctx->packName->getText();
         IRContext.module.setModuleIdentifier(packageName);
-        BaseStmt *stmt = IRContext.getStmtManager().getNone();
+        BaseStmt *stmt = IRContext.stmtManager.getNone();
         return stmt;
     }
     std::any StmtVisitor::visitStatement_ed(RiddleParser::Statement_edContext *ctx) {
@@ -29,24 +29,24 @@ namespace Riddle {
     }
 
     std::any StmtVisitor::visitInteger(RiddleParser::IntegerContext *ctx) {
-        BaseStmt *result = IRContext.getStmtManager().getConstant(ctx->value);
+        BaseStmt *result = IRContext.stmtManager.getConstant(ctx->value);
         return result;
     }
     std::any StmtVisitor::visitFloat(RiddleParser::FloatContext *ctx) {
-        BaseStmt *result = IRContext.getStmtManager().getConstant(ctx->value);
+        BaseStmt *result = IRContext.stmtManager.getConstant(ctx->value);
         return result;
     }
     std::any StmtVisitor::visitBoolean(RiddleParser::BooleanContext *ctx) {
-        BaseStmt *result = IRContext.getStmtManager().getConstant(ctx->value);
+        BaseStmt *result = IRContext.stmtManager.getConstant(ctx->value);
         return result;
     }
     std::any StmtVisitor::visitString(RiddleParser::StringContext *ctx) {
         const std::string value = ctx->getText();
-        BaseStmt *result = IRContext.getStmtManager().getConstant(value.substr(0, value.size() - 1));
+        BaseStmt *result = IRContext.stmtManager.getConstant(value.substr(0, value.size() - 1));
         return result;
     }
     std::any StmtVisitor::visitNullExpr(RiddleParser::NullExprContext *ctx) {
-        BaseStmt *result = IRContext.getStmtManager().getNull();
+        BaseStmt *result = IRContext.stmtManager.getNull();
         return result;
     }
 
@@ -58,19 +58,19 @@ namespace Riddle {
             type = ctx->type->getText();
         }
         const auto value = std::any_cast<BaseStmt *>(visit(ctx->value));
-        BaseStmt *stmt = IRContext.getStmtManager().getVarDefine(name, type, value);
+        BaseStmt *stmt = IRContext.stmtManager.getVarDefine(name, type, value);
         return stmt;
     }
     std::any StmtVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
         const auto cond = std::any_cast<BaseStmt *>(visit(ctx->runCond));
         const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
-        BaseStmt *stmt = IRContext.getStmtManager().getWhile(cond, body);
+        BaseStmt *stmt = IRContext.stmtManager.getWhile(cond, body);
         return stmt;
     }
     std::any StmtVisitor::visitForStatement(RiddleParser::ForStatementContext *ctx) {
-        BaseStmt *cond = IRContext.getStmtManager().getNone();
-        BaseStmt *init = IRContext.getStmtManager().getNone();
-        BaseStmt *change = IRContext.getStmtManager().getNone();
+        BaseStmt *cond = IRContext.stmtManager.getNone();
+        BaseStmt *init = IRContext.stmtManager.getNone();
+        BaseStmt *change = IRContext.stmtManager.getNone();
         if(ctx->init != nullptr) {
             init = std::any_cast<BaseStmt *>(visit(ctx->init));
         }
@@ -81,12 +81,12 @@ namespace Riddle {
             change = std::any_cast<BaseStmt *>(visit(ctx->selfVar));
         }
         const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
-        BaseStmt *stmt = IRContext.getStmtManager().getFor(init, cond, change, body);
+        BaseStmt *stmt = IRContext.stmtManager.getFor(init, cond, change, body);
         return stmt;
     }
     std::any StmtVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
         const auto val = std::any_cast<BaseStmt *>(visit(ctx->result));
-        BaseStmt *stmt = IRContext.getStmtManager().getReturn(val);
+        BaseStmt *stmt = IRContext.stmtManager.getReturn(val);
         return stmt;
     }
     std::any StmtVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
@@ -102,7 +102,7 @@ namespace Riddle {
         if(!ctx->args->children.empty()) {
             args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
         }
-        BaseStmt *stmt = IRContext.getStmtManager().getFuncDefine(funcName, returnType, body, args);
+        BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, args);
         return stmt;
     }
     std::any StmtVisitor::visitBodyExpr(RiddleParser::BodyExprContext *ctx) {
@@ -117,22 +117,38 @@ namespace Riddle {
                 throw std::logic_error("Error in visiting body expression: \"" + i->getText() + "\"");
             }
         }
-        BaseStmt *body = IRContext.getStmtManager().getBlock(stmts);
+        BaseStmt *body = IRContext.stmtManager.getBlock(stmts);
         return body;
     }
 
     std::any StmtVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        BaseStmt *stmt = IRContext.getStmtManager().getObject(ctx->getText());
+        BaseStmt *stmt = IRContext.stmtManager.getObject(ctx->getText());
         return stmt;
     }
 
     std::any StmtVisitor::visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) {
-        BaseStmt *stmt = IRContext.getStmtManager().getContinue();
+        BaseStmt *stmt = IRContext.stmtManager.getContinue();
         return stmt;
     }
-    std::any StmtVisitor::visitBreakStatement(RiddleParser::BreakStatementContext *context) {
-        BaseStmt *stmt = IRContext.getStmtManager().getBreak();
+
+    std::any StmtVisitor::visitBreakStatement(RiddleParser::BreakStatementContext *ctx) {
+        BaseStmt *stmt = IRContext.stmtManager.getBreak();
         return stmt;
     }
+
+    std::any StmtVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(ctx->left);
+        const auto rhs = std::any_cast<BaseStmt *>(ctx->right);
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "=");
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitAddExpr(RiddleParser::AddExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(ctx->left);
+        const auto rhs = std::any_cast<BaseStmt *>(ctx->right);
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "+");
+        return stmt;
+    }
+
 
 }// namespace Riddle

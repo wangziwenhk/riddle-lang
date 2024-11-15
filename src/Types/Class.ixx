@@ -9,6 +9,7 @@ export namespace Riddle {
         llvm::StructType *types = nullptr;
         std::unordered_map<std::string, int> names;
         std::map<std::string, llvm::FunctionCallee> funcs;
+        std::string moduleName;
     };
 
 }// namespace Riddle
