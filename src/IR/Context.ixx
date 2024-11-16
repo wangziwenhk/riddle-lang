@@ -21,7 +21,8 @@ export namespace Riddle {
         StmtManager stmtManager;
         OpManager opManager;
 
-        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context), classManager(context), opManager(context) {}
+        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context), classManager(context), opManager(context) {
+        }
 
         inline void addVariable(const Variable &var) {
             varManager.addVar(var);

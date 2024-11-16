@@ -149,6 +149,23 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "+");
         return stmt;
     }
-
+    std::any StmtVisitor::visitSubExpr(RiddleParser::SubExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "-");
+        return stmt;
+    }
+    std::any StmtVisitor::visitMulExpr(RiddleParser::MulExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "*");
+        return stmt;
+    }
+    std::any StmtVisitor::visitDivExpr(RiddleParser::DivExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "/");
+        return stmt;
+    }
 
 }// namespace Riddle

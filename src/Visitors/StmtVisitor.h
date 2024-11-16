@@ -35,6 +35,9 @@ namespace Riddle {
         // 二元运算符号相关
         std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override;
         std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override;
+        std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override;
+        std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override;
+        std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override;
     };
 
 }// namespace Riddle

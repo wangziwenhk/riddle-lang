@@ -81,7 +81,6 @@ export namespace Riddle {
                 auto *CV = llvm::dyn_cast<llvm::Constant>(value);
                 var = new llvm::GlobalVariable(ctx->module, type, is_const, llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
-
                 var = llvmBuilder.CreateAlloca(type, nullptr, name);
                 if(value != nullptr) llvmBuilder.CreateStore(value, var);
             }
