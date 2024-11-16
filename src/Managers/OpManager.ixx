@@ -32,13 +32,19 @@ export namespace Riddle {
         explicit OpManager(llvm::LLVMContext &ctx): ctx(ctx) {
             //基础类型的运算符实现
             const auto i32Ty = llvm::Type::getInt32Ty(ctx);
-            const std::vector<std::pair<OpGroup, FIW>> baseOpGroups = {
+            static const std::vector<std::pair<OpGroup, FIW>> baseOpGroups = {
                     {{i32Ty, i32Ty, "="}, [](FIA) -> llvm::Value * {
                          return builder.CreateStore(rhs, lhs);
                      }},
                     {{i32Ty, i32Ty, "=="}, [](FIA) -> llvm::Value * {
                          return builder.CreateICmpEQ(lhs, rhs);
                      }},
+                    {{i32Ty,i32Ty,"+"},[](FIA) -> llvm::Value * {
+                        return builder.CreateAdd(lhs, rhs);
+                    }},
+                    {{i32Ty,i32Ty,"-"},[](FIA) -> llvm::Value * {
+                        return builder.CreateSub(lhs, rhs);
+                    }},
             };
             for(auto [group, func]: baseOpGroups) {
                 opMap[group] = func;

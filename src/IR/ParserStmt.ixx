@@ -33,6 +33,9 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::DoubleStmtID:
                     return Double(dynamic_cast<DoubleStmt *>(stmt));
 
+                case BaseStmt::StmtTypeID::BoolStmtID:
+                    return Boolean(dynamic_cast<BoolStmt *>(stmt));
+
                 case BaseStmt::StmtTypeID::ObjStmtID:
                     return Object(dynamic_cast<ObjectStmt *>(stmt));
 
@@ -63,8 +66,9 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::BinaryExprStmtID:
                     return BinaryExpr(dynamic_cast<BinaryExprStmt *>(stmt));
 
+                // 未知的 StmtTypeID 类型或未实现的类型
                 default:
-                    return nullptr;// 未知的 StmtTypeID 类型，返回空值
+                    throw std::logic_error("Unhandled StmtTypeID");
             }
         }
 
@@ -75,6 +79,11 @@ export namespace Riddle {
 
         llvm::Value *Double(const DoubleStmt *stmt) const {
             llvm::Value *result = builder.getDouble(stmt->getValue());
+            return result;
+        }
+
+        llvm::Value* Boolean(const BoolStmt *stmt) {
+            llvm::Value *result = builder.getBool(stmt->getValue());
             return result;
         }
 
@@ -193,6 +202,7 @@ export namespace Riddle {
 
             builder.createJump(condBlock);
             builder.setNowBlock(condBlock);
+            // cond 是必须要求的
             const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
             builder.createCondJump(cond, loopBlock, exitBlock);
 

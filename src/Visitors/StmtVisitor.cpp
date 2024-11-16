@@ -144,8 +144,8 @@ namespace Riddle {
     }
 
     std::any StmtVisitor::visitAddExpr(RiddleParser::AddExprContext *ctx) {
-        const auto lhs = std::any_cast<BaseStmt *>(ctx->left);
-        const auto rhs = std::any_cast<BaseStmt *>(ctx->right);
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "+");
         return stmt;
     }
