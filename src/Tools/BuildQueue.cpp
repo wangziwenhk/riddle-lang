@@ -1,11 +1,11 @@
 #include "BuildQueue.h"
 #include "RiddleLexer.h"
-#include "Visitors/GenVisitor.h"
 #include "Visitors/PackageVisitor.h"
 #include <iostream>
 #include "Visitors/StmtVisitor.h"
 import IR.ParserStmt;
 import Types.Statements;
+import ErrorManager;
 namespace Riddle {
     void BuildQueue::push(const Unit &unit) {
         libSource[unit.getPackName()].push_back(unit);
@@ -17,15 +17,12 @@ namespace Riddle {
         // todo 实现解析包相关的东西
         // 暂时还不写，先完成编译main
         if(libSource.contains("main")) {
-            // GenVisitor visitor("main");
-            // visitor.visit(libSource["main"].front().parseTree);
             llvm::LLVMContext llvm_ctx;
             Context context(llvm_ctx);
             StmtVisitor visitor(context);
             const auto it = any_cast<ProgramStmt*>(visitor.visit(libSource["main"].front().parseTree));
             ParserStmt ps(context);
             ps.accept(it);
-            
 
         } else {
             std::cerr << R"(Not Found "main" package)" << std::endl;
@@ -36,6 +33,9 @@ namespace Riddle {
         std::ifstream stream(filePath);
         const auto input = new antlr4::ANTLRInputStream(stream);
         const auto lexer = new RiddleLexer(input);
+        LexerErrorListener lexerListener;
+        lexer->removeErrorListeners();
+        lexer->addErrorListener(&lexerListener);
         const auto tokens = new antlr4::CommonTokenStream(lexer);
         auto *parser = new RiddleParser(tokens);
         antlr4::tree::ParseTree *p = parser->program();

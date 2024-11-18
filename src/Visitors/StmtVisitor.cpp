@@ -149,22 +149,60 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "+");
         return stmt;
     }
+
     std::any StmtVisitor::visitSubExpr(RiddleParser::SubExprContext *ctx) {
         const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
         const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "-");
         return stmt;
     }
+
     std::any StmtVisitor::visitMulExpr(RiddleParser::MulExprContext *ctx) {
         const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
         const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "*");
         return stmt;
     }
+
     std::any StmtVisitor::visitDivExpr(RiddleParser::DivExprContext *ctx) {
         const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
         const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "/");
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitModExpr(RiddleParser::ModExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "%");
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "&");
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "|");
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "^");
+        return stmt;
+    }
+
+    std::any StmtVisitor::visitEqualExpr(RiddleParser::EqualExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "==");
         return stmt;
     }
 

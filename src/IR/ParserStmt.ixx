@@ -82,7 +82,7 @@ export namespace Riddle {
             return result;
         }
 
-        llvm::Value* Boolean(const BoolStmt *stmt) {
+        llvm::Value *Boolean(const BoolStmt *stmt) {
             llvm::Value *result = builder.getBool(stmt->getValue());
             return result;
         }
@@ -170,8 +170,7 @@ export namespace Riddle {
             }
             if(stmt->isStore) {
                 return builder.createVariable(type, value, name);
-            }
-            else {
+            } else {
                 return builder.createVariable(type, nullptr, name);
             }
         }
@@ -285,7 +284,6 @@ export namespace Riddle {
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上，好神奇
             llvm::Value *result = builder.getOpManager().getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(builder.getLLVMBuilder(),lhs,rhs);
-
             return result;
         }
     };

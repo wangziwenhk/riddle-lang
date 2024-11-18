@@ -13,6 +13,7 @@ namespace Riddle {
     protected:
         Context &IRContext;
         std::string packageName;
+
     public:
         explicit StmtVisitor(Context &ctx): IRContext(ctx) {}
         std::any visitProgram(RiddleParser::ProgramContext *ctx) override;
@@ -32,12 +33,26 @@ namespace Riddle {
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
         std::any visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) override;
         std::any visitBreakStatement(RiddleParser::BreakStatementContext *ctx) override;
+
         // 二元运算符号相关
+        // 算数操作
+
         std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override;
         std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override;
         std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override;
         std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override;
         std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override;
+        std::any visitModExpr(RiddleParser::ModExprContext *ctx) override;
+
+        // 位运算
+
+        std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override;
+        std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override;
+        std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override;
+
+        // 逻辑操作
+
+        std::any visitEqualExpr(RiddleParser::EqualExprContext *ctx) override;
     };
 
 }// namespace Riddle

@@ -2,6 +2,7 @@ module;
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
+
 #include <map>
 export module Manager.OpManager;
 import Types.Statements;
@@ -73,7 +74,7 @@ const std::vector<std::pair<Riddle::OpGroup, FIW>> &getBaseOpGroups(llvm::LLVMCo
             {{i32Ty, i32Ty, "^"}, [](FIA) -> llvm::Value * {
                  return builder.CreateXor(lhs, rhs);
              }},
-        
+
     };
     return baseOpGroups;
 }

@@ -1,6 +1,8 @@
 module;
-#include "Tools/GenTools.h"
 #include <utility>
+#include <vector>
+#include <string>
+#include <llvm/IR/Type.h>
 export module Types.Statements;
 import Type.DefineArg;
 import Manager.ClassManager;
