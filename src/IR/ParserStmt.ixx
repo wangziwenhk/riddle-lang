@@ -221,7 +221,7 @@ export namespace Riddle {
             return nullptr;
         }
 
-        llvm::Value *For(const ForStmt *stmt) {
+        llvm::Value *For(const ForStmt *stmt) { // NOLINT(*-no-recursion)
             llvm::BasicBlock *condBlock = builder.createBasicBlock("for.cond", builder.getParent());
             llvm::BasicBlock *loopBlock = builder.createBasicBlock("for.loop", builder.getParent());
             llvm::BasicBlock *exitBlock = builder.createBasicBlock("for.exit", builder.getParent());
@@ -277,7 +277,7 @@ export namespace Riddle {
             return nullptr;
         }
 
-        llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) {
+        llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) { // NOLINT(*-no-recursion)
             const auto lhs = std::any_cast<llvm::Value *>(accept(stmt->getLHS()));
             const auto rhs = std::any_cast<llvm::Value *>(accept(stmt->getRHS()));
             const auto op = stmt->getOpt();

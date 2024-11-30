@@ -12,28 +12,29 @@ message("Current build type: ${CMAKE_BUILD_TYPE}")
 message("Current generator: ${CMAKE_GENERATOR}")
 
 # Enter the system type for better searching of the database.
-if(WIN32)
+if (WIN32)
     set(PLATFORM_DEFINES "-DWIN32")
-else(LINUX)
+else (LINUX)
     set(PLATFORM_DEFINES "-DLINUX")
-endif()
+endif ()
 
 find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
         PATHS ${CMAKE_PREFIX_PATH} NO_DEFAULT_PATH)
 
 find_package(LLVM REQUIRED CONFIG)
 find_package(antlr4-runtime CONFIG REQUIRED)
-find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
+find_path(TERMCOLOR_INCLUDE_DIR "termcolor/termcolor.hpp")
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
+message(STATUS "Found Termcolor include ${TERMCOLOR_INCLUDE_DIR}")
 
-include_directories(${TERMCOLOR_INCLUDE_DIRS})
 include_directories(src)
+include_directories(parser)
+include_directories(${TERMCOLOR_INCLUDE_DIR})
 include_directories(${ANTLR4_INCLUDE_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})
-include_directories(parser)
 
 file(GLOB_RECURSE AST_FILES "parser/*.cpp" "parser/*.h")
 file(GLOB_RECURSE HEADER_FILES "src/*.h")
@@ -56,6 +57,6 @@ target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 target_compile_options(Riddle_Language PRIVATE -Wno-ignored-attributes)
 target_compile_options(Riddle_Language PRIVATE -Wno-deprecated)
 
-target_link_libraries(Riddle_Language LLVMCore LLVMLinker)
+target_link_libraries(Riddle_Language LLVMCore)
 target_link_libraries(Riddle_Language Riddle_Module)
 target_link_libraries(Riddle_Language antlr4_shared)

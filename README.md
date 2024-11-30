@@ -30,6 +30,7 @@ Riddle 仍不完善，现在仍处于开发的早期阶段
 
 - [![Static Badge](https://img.shields.io/badge/LLVM-8A2BE2?logo=llvm)](https://github.com/llvm/llvm-project)
 - [![Static Badge](https://img.shields.io/badge/Antlr4-red)](https://github.com/antlr/antlr4)
+- TermColor
 
 ## 许可证
 

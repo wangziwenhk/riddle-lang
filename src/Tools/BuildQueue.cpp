@@ -9,7 +9,8 @@ import ErrorManager;
 namespace Riddle {
     void BuildQueue::push(const Unit &unit) {
         libSource[unit.getPackName()].push_back(unit);
-        for(auto i: unit.getImports()) {
+        // 建模块关系图
+        for(const auto& i: unit.getImports()) {
             libGraph[i].push_back(unit.getPackName());
         }
     }
@@ -33,6 +34,7 @@ namespace Riddle {
         std::ifstream stream(filePath);
         const auto input = new antlr4::ANTLRInputStream(stream);
         const auto lexer = new RiddleLexer(input);
+        // 添加自定义的错误处理
         LexerErrorListener lexerListener;
         lexer->removeErrorListeners();
         lexer->addErrorListener(&lexerListener);
