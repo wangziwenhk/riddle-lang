@@ -1,6 +1,7 @@
 module;
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Type.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <unordered_map>
 #include <unordered_set>
 export module Manager.ClassManager;
@@ -25,7 +26,7 @@ export namespace Riddle {
         }
 
         llvm::Type *getType(const std::string &name) {
-            const std::unordered_map<std::string, llvm::Type *> baseType = {
+            static const std::unordered_map<std::string, llvm::Type *> baseType = {
                     {"int", llvm::Type::getInt32Ty(Context)},
                     {"double", llvm::Type::getDoubleTy(Context)},
                     {"float", llvm::Type::getFloatTy(Context)},

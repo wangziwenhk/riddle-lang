@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
+
 project(Riddle_Language)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -23,16 +24,16 @@ find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
 
 find_package(LLVM REQUIRED CONFIG)
 find_package(antlr4-runtime CONFIG REQUIRED)
-find_path(TERMCOLOR_INCLUDE_DIR "termcolor/termcolor.hpp")
+find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
-message(STATUS "Found Termcolor include ${TERMCOLOR_INCLUDE_DIR}")
+message(STATUS "Found Termcolor include ${TERMCOLOR_INCLUDE_DIRS}")
 
 include_directories(src)
 include_directories(parser)
-include_directories(${TERMCOLOR_INCLUDE_DIR})
+include_directories(${TERMCOLOR_INCLUDE_DIRS})
 include_directories(${ANTLR4_INCLUDE_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})
 
@@ -49,13 +50,14 @@ target_sources(Riddle_Module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 # 添加 主编译目标
 add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
 
+if (MSVC)
+    add_compile_options(/wd4819)
+endif ()
+
+
 # 添加 编译配置
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 #target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
-
-# 忽略 MSDll 警告
-target_compile_options(Riddle_Language PRIVATE -Wno-ignored-attributes)
-target_compile_options(Riddle_Language PRIVATE -Wno-deprecated)
 
 target_link_libraries(Riddle_Language LLVMCore)
 target_link_libraries(Riddle_Language Riddle_Module)

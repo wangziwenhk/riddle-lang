@@ -40,6 +40,9 @@ namespace Riddle {
         lexer->addErrorListener(&lexerListener);
         const auto tokens = new antlr4::CommonTokenStream(lexer);
         auto *parser = new RiddleParser(tokens);
+        ParserErrorListener parserListener;
+        parser->removeErrorListeners();
+        parser->addErrorListener(&parserListener);
         antlr4::tree::ParseTree *p = parser->program();
         PackageVisitor visitor(filePath, p);
         push(visitor.unit);

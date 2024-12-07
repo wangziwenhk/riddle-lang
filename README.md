@@ -12,11 +12,7 @@
 ![](https://starchart.cc/wangziwenhk/Riddle-Language.svg)
 轻便，灵活，现代化的编程语言。
 
-Riddle Language 是一个内存安全的编程语言，用于取代 Rust 而出现。
-
-## 注意
-
-Riddle 仍不完善，现在仍处于开发的早期阶段
+Riddle Language 是一个内存安全的编程语言，用于修复 C/C++ 的不足之处而出现。
 
 ## 特性
 
@@ -28,9 +24,9 @@ Riddle 仍不完善，现在仍处于开发的早期阶段
 
 ## 技术栈 :rocket:
 
-- [![Static Badge](https://img.shields.io/badge/LLVM-8A2BE2?logo=llvm)](https://github.com/llvm/llvm-project)
-- [![Static Badge](https://img.shields.io/badge/Antlr4-red)](https://github.com/antlr/antlr4)
-- TermColor
+- [LLVM](https://github.com/llvm/llvm-project)
+- [Antlr4](https://github.com/antlr/antlr4)
+- [TermColor](https://github.com/ikalnytskyi/termcolor)
 
 ## 许可证
 
