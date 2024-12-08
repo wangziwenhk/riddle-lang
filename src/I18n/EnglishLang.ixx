@@ -15,5 +15,8 @@ export namespace Riddle {
         std::string recognitionError() override {
             return "recognition error";
         }
+        std::string noViableAlternativeAtInput() override{
+            return "no viable alternative at input";
+        }
     };
 }// namespace Riddle

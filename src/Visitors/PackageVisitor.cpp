@@ -9,10 +9,11 @@ namespace Riddle {
         unit.addImports(ctx->libName->getText());
         return RiddleParserBaseVisitor::visitImportStatement(ctx);
     }
-    PackageVisitor::PackageVisitor(const std::string &sourcePath, antlr4::tree::ParseTree *tree) {
+    PackageVisitor::PackageVisitor(const std::string &sourcePath, antlr4::tree::ParseTree *tree,RiddleParser* parser) {
         unit.parseTree = tree;
+        unit.parser = parser;
         unit.setDirectoryPath(sourcePath);
         unit.setFilePath(sourcePath);
-        this->visit(tree);
+        visit(tree);
     }
 }// namespace Riddle

@@ -15,5 +15,8 @@ export namespace Riddle {
         std::string recognitionError() override {
             return "不存在的语法";
         }
+        std::string noViableAlternativeAtInput() override{
+            return "没有可行的替代方案";
+        }
     };
 }// namespace Riddle

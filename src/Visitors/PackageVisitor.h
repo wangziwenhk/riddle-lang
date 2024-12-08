@@ -10,7 +10,7 @@ namespace Riddle {
     public:
         Unit unit;
         PackageVisitor() = delete;
-        PackageVisitor(const std::string &sourcePath, antlr4::tree::ParseTree *tree);
+        PackageVisitor(const std::string &sourcePath, antlr4::tree::ParseTree *tree,RiddleParser* parser);
         std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override;
         std::any visitImportStatement(RiddleParser::ImportStatementContext *ctx) override;
     };

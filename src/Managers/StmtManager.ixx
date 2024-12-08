@@ -92,7 +92,8 @@ export namespace Riddle {
             return ptr;
         }
 
-        BaseStmt *getNone() {
+        /// @brief 获取一个无作用的语句
+        BaseStmt *getNoneStmt() {
             const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
             stmts.push_back(ptr);
             return ptr;

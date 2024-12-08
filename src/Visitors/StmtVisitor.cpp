@@ -21,8 +21,20 @@ namespace Riddle {
     std::any StmtVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
         packageName = ctx->packName->getText();
         IRContext.module.setModuleIdentifier(packageName);
-        BaseStmt *stmt = IRContext.stmtManager.getNone();
+        BaseStmt *stmt = IRContext.stmtManager.getNoneStmt();
         return stmt;
+    }
+    std::any StmtVisitor::visitStatement(RiddleParser::StatementContext *ctx) {
+        try {
+            return RiddleParserBaseVisitor::visitStatement(ctx);
+        }
+        catch(std::exception &e) {
+            const auto it = dynamic_cast<antlr4::RuleContext*>(ctx->children[0]);
+            std::cerr<<"Parser Error for Rule \'"<<parser->getRuleNames()[it->getRuleIndex()]<<"\'"<<std::endl;
+            std::cerr<<"\t"<<ctx->getText()<<std::endl;
+            std::cerr<<e.what()<<std::endl<<std::endl;
+            return IRContext.stmtManager.getNoneStmt();
+        }
     }
     std::any StmtVisitor::visitStatement_ed(RiddleParser::Statement_edContext *ctx) {
         return visit(ctx->children[0]);
@@ -52,6 +64,10 @@ namespace Riddle {
 
 
     std::any StmtVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
+        if(ctx->name == nullptr) {
+            throw std::logic_error("name is null");
+            return {};
+        }
         const std::string name = ctx->name->getText();
         std::string type;
         if(ctx->type != nullptr) {
@@ -68,9 +84,9 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitForStatement(RiddleParser::ForStatementContext *ctx) {
-        BaseStmt *cond = IRContext.stmtManager.getNone();
-        BaseStmt *init = IRContext.stmtManager.getNone();
-        BaseStmt *change = IRContext.stmtManager.getNone();
+        BaseStmt *cond = IRContext.stmtManager.getNoneStmt();
+        BaseStmt *init = IRContext.stmtManager.getNoneStmt();
+        BaseStmt *change = IRContext.stmtManager.getNoneStmt();
         if(ctx->init != nullptr) {
             init = std::any_cast<BaseStmt *>(visit(ctx->init));
         }

@@ -18,6 +18,7 @@ export namespace Riddle {
         virtual std::string syntaxError() = 0;
         virtual std::string extraneousInput() = 0;
         virtual std::string recognitionError() = 0;
+        virtual std::string noViableAlternativeAtInput() = 0;
         [[nodiscard]] LangType getLangType() const {
             return langType;
         }

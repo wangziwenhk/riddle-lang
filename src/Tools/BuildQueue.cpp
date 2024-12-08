@@ -20,7 +20,7 @@ namespace Riddle {
         if(libSource.contains("main")) {
             llvm::LLVMContext llvm_ctx;
             Context context(llvm_ctx);
-            StmtVisitor visitor(context);
+            StmtVisitor visitor(context,libSource["main"].front().parser);
             const auto it = any_cast<ProgramStmt*>(visitor.visit(libSource["main"].front().parseTree));
             ParserStmt ps(context);
             ps.accept(it);
@@ -38,13 +38,24 @@ namespace Riddle {
         LexerErrorListener lexerListener;
         lexer->removeErrorListeners();
         lexer->addErrorListener(&lexerListener);
+
         const auto tokens = new antlr4::CommonTokenStream(lexer);
         auto *parser = new RiddleParser(tokens);
+
         ParserErrorListener parserListener;
+
+        std::string line;
+        while (std::getline(stream, line)) {
+            parserListener.lines.push_back(line);
+        }
+        stream.clear();
+        stream.seekg(0);
+
         parser->removeErrorListeners();
         parser->addErrorListener(&parserListener);
+
         antlr4::tree::ParseTree *p = parser->program();
-        PackageVisitor visitor(filePath, p);
+        PackageVisitor visitor(filePath, p,parser);
         push(visitor.unit);
     }
 }// namespace Riddle
