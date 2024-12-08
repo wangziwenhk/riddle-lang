@@ -1,5 +1,5 @@
 #include "StmtVisitor.h"
-import Manager.StmtManager;
+import managers.StmtManager;
 
 namespace Riddle {
     std::any StmtVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -27,12 +27,12 @@ namespace Riddle {
     std::any StmtVisitor::visitStatement(RiddleParser::StatementContext *ctx) {
         try {
             return RiddleParserBaseVisitor::visitStatement(ctx);
-        }
-        catch(std::exception &e) {
-            const auto it = dynamic_cast<antlr4::RuleContext*>(ctx->children[0]);
-            std::cerr<<"Parser Error for Rule \'"<<parser->getRuleNames()[it->getRuleIndex()]<<"\'"<<std::endl;
-            std::cerr<<"\t"<<ctx->getText()<<std::endl;
-            std::cerr<<e.what()<<std::endl<<std::endl;
+        } catch(std::exception &e) {
+            const auto it = dynamic_cast<antlr4::RuleContext *>(ctx->children[0]);
+            std::cerr << "Parser Error for Rule \'" << parser->getRuleNames()[it->getRuleIndex()] << "\'" << std::endl;
+            std::cerr << "\t" << ctx->getText() << std::endl;
+            std::cerr << e.what() << std::endl
+                      << std::endl;
             return IRContext.stmtManager.getNoneStmt();
         }
     }
@@ -61,7 +61,6 @@ namespace Riddle {
         BaseStmt *result = IRContext.stmtManager.getNull();
         return result;
     }
-
 
     std::any StmtVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
         if(ctx->name == nullptr) {
@@ -141,6 +140,9 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getObject(ctx->getText());
         return stmt;
     }
+    std::any StmtVisitor::visitExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) {
+        return visit(ctx->children[0]);
+    }
 
     std::any StmtVisitor::visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) {
         BaseStmt *stmt = IRContext.stmtManager.getContinue();
@@ -153,8 +155,8 @@ namespace Riddle {
     }
 
     std::any StmtVisitor::visitAssignExpr(RiddleParser::AssignExprContext *ctx) {
-        const auto lhs = std::any_cast<BaseStmt *>(ctx->left);
-        const auto rhs = std::any_cast<BaseStmt *>(ctx->right);
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "=");
         return stmt;
     }
@@ -221,5 +223,13 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "==");
         return stmt;
     }
+    std::any StmtVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx) {
+        const std::string className = ctx->className->getText();
+        const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
+        const auto body = dynamic_cast<BlockStmt *>(t_body);
+
+        return RiddleParserBaseVisitor::visitClassDefine(ctx);
+    }
+
 
 }// namespace Riddle

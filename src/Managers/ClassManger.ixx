@@ -4,7 +4,7 @@ module;
 #include <llvm/IR/DerivedTypes.h>
 #include <unordered_map>
 #include <unordered_set>
-export module Manager.ClassManager;
+export module managers.ClassManager;
 import Types.Class;
 import Types.ClassNode;
 export namespace Riddle {

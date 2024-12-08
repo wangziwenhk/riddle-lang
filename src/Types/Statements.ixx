@@ -5,7 +5,7 @@ module;
 #include <llvm/IR/Type.h>
 export module Types.Statements;
 import Type.DefineArg;
-import Manager.ClassManager;
+import managers.ClassManager;
 export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {

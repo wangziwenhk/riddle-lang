@@ -5,10 +5,11 @@ module;
 export module IR.Context;
 
 import Type.Variable;
-import Manager.VarManager;
-import Manager.StmtManager;
-import Manager.ClassManager;
-import Manager.OpManager;
+import managers.VarManager;
+import managers.StmtManager;
+import managers.ClassManager;
+import managers.OpManager;
+import managers.FuncManager;
 export namespace Riddle {
     class Context {
         int _deep = 0;
@@ -20,9 +21,11 @@ export namespace Riddle {
         ClassManager classManager;
         StmtManager stmtManager;
         OpManager opManager;
+        FuncManager funcManager;
 
-        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context), classManager(context), opManager(context) {
-        }
+        explicit Context(llvm::LLVMContext &context):
+            llvm_context(context), module("", context),
+            classManager(context), opManager(context) {}
 
         inline void addVariable(const Variable &var) {
             varManager.addVar(var);
@@ -30,6 +33,7 @@ export namespace Riddle {
 
         inline void push() {
             varManager.push();
+            funcManager.push();
             _deep++;
         }
 
@@ -38,6 +42,7 @@ export namespace Riddle {
                 throw std::runtime_error("Cannot pop from an empty context");
             }
             varManager.pop();
+            funcManager.pop();
             _deep--;
         }
 

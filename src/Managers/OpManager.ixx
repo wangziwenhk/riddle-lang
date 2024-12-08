@@ -4,7 +4,7 @@ module;
 #include <llvm/IR/Type.h>
 
 #include <map>
-export module Manager.OpManager;
+export module managers.OpManager;
 import Types.Statements;
 #define FIW std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>
 #define FIA llvm::IRBuilder<> &builder, llvm::Value *lhs, llvm::Value *rhs

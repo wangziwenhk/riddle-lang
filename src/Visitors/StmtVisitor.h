@@ -3,7 +3,7 @@
 
 #include <RiddleParserBaseVisitor.h>
 
-import Manager.StmtManager;
+import managers.StmtManager;
 import IR.Context;
 import Types.Statements;
 
@@ -32,7 +32,10 @@ namespace Riddle {
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override;
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override;
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override;
+
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
+        std::any visitExprPtrParser(RiddleParser::ExprPtrParserContext *context) override;
+
         std::any visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) override;
         std::any visitBreakStatement(RiddleParser::BreakStatementContext *ctx) override;
 
@@ -53,8 +56,10 @@ namespace Riddle {
         std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override;
 
         // 逻辑操作
-
         std::any visitEqualExpr(RiddleParser::EqualExprContext *ctx) override;
+
+        // 类
+        std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override;
     };
 
 }// namespace Riddle

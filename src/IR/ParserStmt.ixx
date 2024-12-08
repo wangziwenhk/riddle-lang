@@ -1,24 +1,30 @@
 module;
 #include <any>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 #include <stack>
 export module IR.ParserStmt;
 import Types.Statements;
-import Manager.ClassManager;
-import Manager.VarManager;
-import Manager.OpManager;
+import managers.ClassManager;
+import managers.VarManager;
+import managers.OpManager;
 import IR.Context;
-import IR.Builder;
+import Type.Variable;
 export namespace Riddle {
     class ParserStmt {
-        Builder builder;
+        Context *ctx = nullptr;
+        llvm::IRBuilder<> llvmBuilder;
         ClassManager classManager;
         std::stack<llvm::BasicBlock *> breakBlocks;
         std::stack<llvm::BasicBlock *> continueBlocks;
+        std::stack<llvm::Function *> parent;
 
     public:
-        explicit ParserStmt(Context &ctx): builder(ctx), classManager(ctx.llvm_context) {}
+        explicit ParserStmt(Context *ctx): ctx(ctx), llvmBuilder(ctx->llvm_context), classManager(ctx->llvm_context) {
+            // TestLib
+        }
 
         // 获取从语句得到的结果
         std::any accept(BaseStmt *stmt) {// NOLINT(*-no-recursion)
@@ -71,29 +77,28 @@ export namespace Riddle {
                     throw std::logic_error("Unhandled StmtTypeID");
             }
         }
-
         llvm::Value *Integer(const IntegerStmt *stmt) {
-            llvm::Value *result = builder.getInt32(stmt->getValue());
+            llvm::Value *result = llvmBuilder.getInt32(stmt->getValue());
             return result;
         }
 
         llvm::Value *Double(const DoubleStmt *stmt) const {
-            llvm::Value *result = builder.getDouble(stmt->getValue());
+            llvm::Value *result = llvm::ConstantFP::get(llvm::Type::getDoubleTy(ctx->llvm_context), stmt->getValue());
             return result;
         }
 
         llvm::Value *Boolean(const BoolStmt *stmt) {
-            llvm::Value *result = builder.getBool(stmt->getValue());
+            llvm::Value *result = llvmBuilder.getInt1(stmt->getValue());
             return result;
         }
 
         void Program(ProgramStmt *stmt) {// NOLINT(*-no-recursion)
-            builder.push();
+            ctx->push();
             for(const auto i: stmt->body) {
                 accept(i);
             }
-            builder.pop();
-            builder.printCode();
+            ctx->pop();
+            ctx->module.print(llvm::outs(), nullptr);
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
@@ -106,9 +111,10 @@ export namespace Riddle {
             if(stmt->getArgs() != nullptr) {
                 argTypes = args->getArgsTypes(classManager);
             }
-            auto [funcType, func] = builder.createFuncDefine(name, returnType, argTypes);
-            llvm::BasicBlock *entry = builder.createBasicBlock("entry", func);
-            builder.setNowBlock(entry);
+            llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
+            llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
+            llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
+            llvmBuilder.SetInsertPoint(entry);
 
             // 预处理 varDefine
             std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
@@ -131,7 +137,7 @@ export namespace Riddle {
                         }
                         for(int i = 0; i < it->stmts.size(); i++) {
                             if(const auto t = dynamic_cast<VarDefineStmt *>(it->stmts[i])) {
-                                it->stmts[i] = builder.getStmtManager().getBinaryExpr(builder.getStmtManager().getObject(t->getName()), t->getValue(), "=");
+                                it->stmts[i] = ctx->stmtManager.getBinaryExpr(ctx->stmtManager.getObject(t->getName()), t->getValue(), "=");
                                 i--;
                             }
                         }
@@ -147,14 +153,15 @@ export namespace Riddle {
                 }
             };
 
-            builder.push();
-            builder.pushParent(func);
+            ctx->push();
+            parent.push(func);
 
             pre_varDefine(body);
 
             accept(body);
-            builder.pop();
-            builder.popParent();
+            ctx->pop();
+            parent.pop();
+
             return func;
         }
 
@@ -169,97 +176,121 @@ export namespace Riddle {
                 type = classManager.getType(stmt->getType());
             }
             if(stmt->isStore) {
-                return builder.createVariable(type, value, name);
+                llvm::Value *var;
+                // 对全局变量特判
+                if(ctx->deep() <= 1) {
+                    auto *CV = llvm::dyn_cast<llvm::Constant>(value);
+                    var = new llvm::GlobalVariable(ctx->module, type, false,
+                                                   llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+                } else {
+                    var = llvmBuilder.CreateAlloca(type, nullptr, name);
+                    if(value != nullptr) llvmBuilder.CreateStore(value, var);
+                }
+                ctx->addVariable(Variable(name, var, false));
+                return var;
             } else {
-                return builder.createVariable(type, nullptr, name);
+                llvm::Value *var;
+                // 对全局变量特判
+                if(ctx->deep() <= 1) {
+                    auto *CV = llvm::dyn_cast<llvm::Constant>(value);
+                    var = new llvm::GlobalVariable(ctx->module, type, false,
+                                                   llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+                } else {
+                    var = llvmBuilder.CreateAlloca(type, nullptr, name);
+                }
+                ctx->addVariable(Variable(name, var, false));
+                return var;
             }
         }
 
         llvm::Value *Object(const ObjectStmt *stmt) const {
             const std::string name = stmt->getName();
-            return builder.getVar(name).var;
+            return ctx->varManager.getVar(name).var;
         }
 
         llvm::Value *Return(const ReturnStmt *stmt) {// NOLINT(*-no-recursion)
             const auto result = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
-            return builder.createReturn(result);
+            if(result == nullptr) {
+                return llvmBuilder.CreateRetVoid();
+            }
+            return llvmBuilder.CreateRet(result);
         }
 
         llvm::Value *Block(const BlockStmt *stmt) {// NOLINT(*-no-recursion)
-            builder.push();
+            ctx->push();
             for(const auto i: stmt->stmts) {
                 accept(i);
             }
-            builder.pop();
+            ctx->pop();
             return nullptr;
         }
 
         llvm::Value *While(const WhileStmt *stmt) {// NOLINT(*-no-recursion)
-            llvm::BasicBlock *condBlock = builder.createBasicBlock("while.cond", builder.getParent());
-            llvm::BasicBlock *loopBlock = builder.createBasicBlock("while.loop", builder.getParent());
-            llvm::BasicBlock *exitBlock = builder.createBasicBlock("while.exit", builder.getParent());
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.cond", parent.top());
+            llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.loop", parent.top());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.exit", parent.top());
 
-            builder.createJump(condBlock);
-            builder.setNowBlock(condBlock);
+            llvmBuilder.CreateBr(condBlock);
+            llvmBuilder.SetInsertPoint(condBlock);
             // cond 是必须要求的
             const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
-            builder.createCondJump(cond, loopBlock, exitBlock);
+            llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
 
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
 
-            builder.push();
-            builder.setNowBlock(loopBlock);
+            ctx->push();
+            llvmBuilder.SetInsertPoint(loopBlock);
             accept(stmt->getBody());
-            builder.createJump(condBlock);
-            builder.pop();
+            llvmBuilder.CreateBr(condBlock);
+            ctx->pop();
 
             breakBlocks.pop();
             continueBlocks.pop();
 
-            builder.setNowBlock(exitBlock);
+            llvmBuilder.SetInsertPoint(exitBlock);
             return nullptr;
         }
 
-        llvm::Value *For(const ForStmt *stmt) { // NOLINT(*-no-recursion)
-            llvm::BasicBlock *condBlock = builder.createBasicBlock("for.cond", builder.getParent());
-            llvm::BasicBlock *loopBlock = builder.createBasicBlock("for.loop", builder.getParent());
-            llvm::BasicBlock *exitBlock = builder.createBasicBlock("for.exit", builder.getParent());
+        llvm::Value *For(const ForStmt *stmt) {// NOLINT(*-no-recursion)
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.cond", parent.top());
+            llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.loop", parent.top());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.exit", parent.top());
 
             if(!stmt->getInit()->isNoneStmt()) {
                 accept(stmt->getInit());
             }
 
-            builder.push();
+            ctx->push();
 
             if(!stmt->getInit()->isNoneStmt()) {
                 accept(stmt->getInit());
             }
 
-            builder.createJump(condBlock);
-            builder.setNowBlock(condBlock);
+            llvmBuilder.CreateBr(condBlock);
+            llvmBuilder.SetInsertPoint(condBlock);
             // 如果没有 Cond 那么一直运行
-            llvm::Value *cond = builder.getBool(true);
+            llvm::Value *cond = llvmBuilder.getInt1(true);
             if(!stmt->getCondition()->isNoneStmt()) {
                 cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
             }
 
-            builder.createCondJump(cond, loopBlock, exitBlock);
+            llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
 
             // 设置当前 break 和 continue 执行的对象
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
 
-            builder.setNowBlock(loopBlock);
+            llvmBuilder.SetInsertPoint(loopBlock);
             if(!stmt->getSelfChange()->isNoneStmt()) {
                 accept(stmt->getSelfChange());
             }
             accept(stmt->getBody());
-            builder.createJump(condBlock);
+            llvmBuilder.CreateBr(condBlock);
 
-            builder.setNowBlock(exitBlock);
+            llvmBuilder.SetInsertPoint(exitBlock);
 
-            builder.pop();
+            ctx->pop();
 
             breakBlocks.pop();
             continueBlocks.pop();
@@ -268,22 +299,22 @@ export namespace Riddle {
         }
 
         llvm::Value *Break() {
-            builder.createJump(breakBlocks.top());
+            llvmBuilder.CreateBr(breakBlocks.top());
             return nullptr;
         }
 
         llvm::Value *Continue() {
-            builder.createJump(continueBlocks.top());
+            llvmBuilder.CreateBr(continueBlocks.top());
             return nullptr;
         }
 
-        llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) { // NOLINT(*-no-recursion)
+        llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) {// NOLINT(*-no-recursion)
             const auto lhs = std::any_cast<llvm::Value *>(accept(stmt->getLHS()));
             const auto rhs = std::any_cast<llvm::Value *>(accept(stmt->getRHS()));
             const auto op = stmt->getOpt();
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上，好神奇
-            llvm::Value *result = builder.getOpManager().getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(builder.getLLVMBuilder(),lhs,rhs);
+            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(llvmBuilder,lhs,rhs);
             return result;
         }
     };

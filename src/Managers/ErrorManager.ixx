@@ -2,7 +2,7 @@ module;
 #include <antlr4-runtime.h>
 #include <string>
 #include "RiddleParser.h"
-export module ErrorManager;
+export module managers.ErrorManager;
 #define ull unsigned long long
 import lang.BaseLang;
 export namespace Riddle {

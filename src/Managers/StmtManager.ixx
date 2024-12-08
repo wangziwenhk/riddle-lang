@@ -2,7 +2,7 @@ module;
 #include <string>
 #include <utility>
 #include <vector>
-export module Manager.StmtManager;
+export module managers.StmtManager;
 
 import Types.Statements;
 

@@ -5,7 +5,7 @@
 #include "Visitors/StmtVisitor.h"
 import IR.ParserStmt;
 import Types.Statements;
-import ErrorManager;
+import managers.ErrorManager;
 namespace Riddle {
     void BuildQueue::push(const Unit &unit) {
         libSource[unit.getPackName()].push_back(unit);
@@ -22,7 +22,7 @@ namespace Riddle {
             Context context(llvm_ctx);
             StmtVisitor visitor(context,libSource["main"].front().parser);
             const auto it = any_cast<ProgramStmt*>(visitor.visit(libSource["main"].front().parseTree));
-            ParserStmt ps(context);
+            ParserStmt ps(&context);
             ps.accept(it);
 
         } else {
