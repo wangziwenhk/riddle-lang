@@ -161,13 +161,14 @@ export namespace Riddle {
             parent.push(func);
 
             if(args != nullptr) {
-                auto argNames = args->getArgsNames();
+                const auto argNames = args->getArgsNames();
                 int i = 0;
                 for(auto it = func->arg_begin(); it != func->arg_end(); ++it, ++i) {
-                    ctx->varManager.defineVar(argNames[i], argTypes[i]);
+                    it->setName(argNames[i]);
+                    llvm::Value *t = it;
+                    ctx->varManager.defineVar(argNames[i], false, t);
                 }
             }
-
 
             pre_varDefine(body);
 
