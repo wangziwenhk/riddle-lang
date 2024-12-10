@@ -207,9 +207,20 @@ export namespace Riddle {
             std::vector<llvm::Type *> argTypes;
             argTypes.reserve(args.size());
             for(const auto arg: args) {
-                argTypes.push_back(manager.getType(arg->getName()));
+                argTypes.push_back(manager.getType(arg->getType()));
             }
             return argTypes;
+        }
+        [[nodiscard]] std::vector<std::string> getArgsNames() const {
+            if(args.empty()) {
+                return {};
+            }
+            std::vector<std::string> names;
+            names.reserve(args.size());
+            for(const auto i:args) {
+                names.push_back(i->getName());
+            }
+            return names;
         }
     };
 

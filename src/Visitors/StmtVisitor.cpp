@@ -104,6 +104,41 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getReturn(val);
         return stmt;
     }
+    std::any StmtVisitor::visitDefineArgs(RiddleParser::DefineArgsContext *ctx) {
+        std::string name;
+        std::string type;
+        BaseStmt *value = IRContext.stmtManager.getNoneStmt();
+
+        DefineArgStmt *defineArg = nullptr;
+        std::vector<DefineArgStmt *> args;
+
+        for(auto i: ctx->children) {
+            if(i->getText() == ",") {
+                defineArg = IRContext.stmtManager.getDefineArg(name, type, value);
+                args.push_back(defineArg);
+                name.clear();
+                type.clear();
+                value = IRContext.stmtManager.getNoneStmt();
+            } else if(i->getText() == ":") {
+                continue;
+            } else if(name.empty()) {
+                name = i->getText();
+            } else if(type.empty()) {
+                type = i->getText();
+            } else {
+                throw std::logic_error("unknown type");
+            }
+        }
+        if(!name.empty()) {
+            defineArg = IRContext.stmtManager.getDefineArg(name, type, value);
+            args.push_back(defineArg);
+            name.clear();
+            type.clear();
+            value = IRContext.stmtManager.getNoneStmt();
+        }
+        BaseStmt *stmt = IRContext.stmtManager.getDefineArgList(args);
+        return stmt;
+    }
     std::any StmtVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
         const auto funcName = ctx->funcName->getText();
         std::string returnType;

@@ -160,6 +160,15 @@ export namespace Riddle {
             ctx->push();
             parent.push(func);
 
+            if(args != nullptr) {
+                auto argNames = args->getArgsNames();
+                int i = 0;
+                for(auto it = func->arg_begin(); it != func->arg_end(); ++it, ++i) {
+                    ctx->varManager.defineVar(argNames[i], argTypes[i]);
+                }
+            }
+
+
             pre_varDefine(body);
 
             accept(body);
@@ -322,7 +331,7 @@ export namespace Riddle {
             return result;
         }
 
-        llvm::Value *FuncCall(const FuncCallStmt *stmt) { // NOLINT(*-no-recursion)
+        llvm::Value *FuncCall(const FuncCallStmt *stmt) {// NOLINT(*-no-recursion)
             const auto name = stmt->getName();
             const auto argList = stmt->getArgs();
             std::vector<llvm::Value *> args;

@@ -141,5 +141,17 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        DefineArgStmt *getDefineArg(const std::string &name, const std::string &type, BaseStmt *value) {
+            const auto ptr = new DefineArgStmt(name, type, value);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        DefineArgListStmt *getDefineArgList(const std::vector<DefineArgStmt *> &stmtList) {
+            const auto ptr = new DefineArgListStmt(stmtList);
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle
