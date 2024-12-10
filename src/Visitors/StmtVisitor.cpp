@@ -135,6 +135,20 @@ namespace Riddle {
         BaseStmt *body = IRContext.stmtManager.getBlock(stmts);
         return body;
     }
+    std::any StmtVisitor::visitFuncExpr(RiddleParser::FuncExprContext *ctx) {
+        const std::string funcName = ctx->funcName->getText();
+        const auto args = dynamic_cast<ArgListStmt *>(any_cast<BaseStmt *>(visit(ctx->args)));
+        BaseStmt *stmt = IRContext.stmtManager.getFuncCall(funcName, args);
+        return stmt;
+    }
+    std::any StmtVisitor::visitArgsExpr(RiddleParser::ArgsExprContext *ctx) {
+        std::vector<BaseStmt *> args;
+        for(auto i: ctx->children) {
+            args.push_back(std::any_cast<BaseStmt *>(visit(i)));
+        }
+        BaseStmt *stmt = IRContext.stmtManager.getArgList(args);
+        return stmt;
+    }
 
     std::any StmtVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
         BaseStmt *stmt = IRContext.stmtManager.getObject(ctx->getText());
@@ -224,9 +238,9 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx) {
-        const std::string className = ctx->className->getText();
-        const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
-        const auto body = dynamic_cast<BlockStmt *>(t_body);
+        // const std::string className = ctx->className->getText();
+        // const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
+        // const auto body = dynamic_cast<BlockStmt *>(t_body);
 
         return RiddleParserBaseVisitor::visitClassDefine(ctx);
     }

@@ -1,3 +1,0 @@
-[submodule "LLVM-lib"]
-	Path = LLVM-lib
-	url = https://github.com/wangziwenhk/LLVM-lib.git

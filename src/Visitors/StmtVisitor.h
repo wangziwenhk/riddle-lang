@@ -30,11 +30,14 @@ namespace Riddle {
         std::any visitWhileStatement(RiddleParser::WhileStatementContext *ctx) override;
         std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override;
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override;
+
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override;
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override;
+        std::any visitFuncExpr(RiddleParser::FuncExprContext *ctx) override;
+        std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override;
 
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override;
-        std::any visitExprPtrParser(RiddleParser::ExprPtrParserContext *context) override;
+        std::any visitExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) override;
 
         std::any visitContinueStatement(RiddleParser::ContinueStatementContext *ctx) override;
         std::any visitBreakStatement(RiddleParser::BreakStatementContext *ctx) override;

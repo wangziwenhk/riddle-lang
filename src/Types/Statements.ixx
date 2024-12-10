@@ -1,8 +1,8 @@
 module;
+#include <llvm/IR/Type.h>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <llvm/IR/Type.h>
 export module Types.Statements;
 import Type.DefineArg;
 import managers.ClassManager;
@@ -15,6 +15,7 @@ export namespace Riddle {
             ProgramStmtID,
             VarDefineStmtID, // 变量定义
             FuncDefineStmtID,// 函数定义
+            FuncCallStmtID,  // 函数调用
             ForStmtID,       // for 循环
             WhileStmtID,     // while 循环
             BinaryExprStmtID,// 双元运算
@@ -360,8 +361,39 @@ export namespace Riddle {
     public:
         BinaryExprStmt(BaseStmt *lhs, BaseStmt *rhs, std::string opt): BaseStmt(StmtTypeID::BinaryExprStmtID), lhs(lhs), rhs(rhs), opt(std::move(opt)) {}
 
-        [[nodiscard]] constexpr inline BaseStmt *getLHS() const { return lhs; }
-        [[nodiscard]] constexpr inline BaseStmt *getRHS() const { return rhs; }
-        [[nodiscard]] constexpr inline std::string getOpt() const { return opt; }
+        [[nodiscard]] constexpr BaseStmt *getLHS() const { return lhs; }
+        [[nodiscard]] constexpr BaseStmt *getRHS() const { return rhs; }
+        [[nodiscard]] constexpr std::string getOpt() const { return opt; }
+    };
+
+    class ArgStmt final : public BaseStmt {
+    protected:
+        BaseStmt *value;
+
+    public:
+        explicit ArgStmt(BaseStmt *value): BaseStmt(StmtTypeID::ArgStmtID), value(value) {}
+
+        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+    };
+
+    class ArgListStmt final : public BaseStmt {
+    protected:
+        std::vector<BaseStmt *> args;
+
+    public:
+        explicit ArgListStmt(std::vector<BaseStmt *> args): BaseStmt(StmtTypeID::ArgListStmtID), args(std::move(args)) {}
+        [[nodiscard]] inline std::vector<BaseStmt *> getArgs() const { return args; }
+    };
+
+    class FuncCallStmt final : public BaseStmt {
+    protected:
+        std::string name;
+        ArgListStmt* args;
+
+    public:
+        explicit FuncCallStmt(std::string name,ArgListStmt* args): BaseStmt(StmtTypeID::FuncCallStmtID),name(std::move(name)),args(std::move(args)) {}
+
+        [[nodiscard]] inline std::string getName() const { return name; }
+        [[nodiscard]] inline ArgListStmt* getArgs() const { return args; }
     };
 }// namespace Riddle

@@ -72,6 +72,9 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::BinaryExprStmtID:
                     return BinaryExpr(dynamic_cast<BinaryExprStmt *>(stmt));
 
+                case BaseStmt::StmtTypeID::FuncCallStmtID:
+                    return FuncCall(dynamic_cast<FuncCallStmt *>(stmt));
+
                 // 未知的 StmtTypeID 类型或未实现的类型
                 default:
                     throw std::logic_error("Unhandled StmtTypeID");
@@ -115,6 +118,7 @@ export namespace Riddle {
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
             llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
             llvmBuilder.SetInsertPoint(entry);
+            ctx->funcManager.registerFunction(name, func);
 
             // 预处理 varDefine
             std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
@@ -314,7 +318,19 @@ export namespace Riddle {
             const auto op = stmt->getOpt();
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上，好神奇
-            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(llvmBuilder,lhs,rhs);
+            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(llvmBuilder, lhs, rhs);
+            return result;
+        }
+
+        llvm::Value *FuncCall(const FuncCallStmt *stmt) { // NOLINT(*-no-recursion)
+            const auto name = stmt->getName();
+            const auto argList = stmt->getArgs();
+            std::vector<llvm::Value *> args;
+            for(const auto i: argList->getArgs()) {
+                auto value = std::any_cast<llvm::Value *>(accept(i));
+                args.push_back(value);
+            }
+            llvm::Value* result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
             return result;
         }
     };

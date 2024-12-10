@@ -129,5 +129,17 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        ArgListStmt *getArgList(std::vector<BaseStmt *> stmtList) {
+            const auto ptr = new ArgListStmt(std::move(stmtList));
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        FuncCallStmt *getFuncCall(const std::string &funcName, ArgListStmt *args) {
+            const auto ptr = new FuncCallStmt(funcName, args);
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle
