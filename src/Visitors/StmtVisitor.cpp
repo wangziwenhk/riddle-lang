@@ -54,7 +54,7 @@ namespace Riddle {
     }
     std::any StmtVisitor::visitString(RiddleParser::StringContext *ctx) {
         const std::string value = ctx->getText();
-        BaseStmt *result = IRContext.stmtManager.getConstant(value.substr(0, value.size() - 1));
+        BaseStmt *result = IRContext.stmtManager.getConstant(value.substr(1, value.size() - 2));
         return result;
     }
     std::any StmtVisitor::visitNullExpr(RiddleParser::NullExprContext *ctx) {
@@ -270,6 +270,18 @@ namespace Riddle {
         const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
         const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
         BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "==");
+        return stmt;
+    }
+    std::any StmtVisitor::visitLessExpr(RiddleParser::LessExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, "<");
+        return stmt;
+    }
+    std::any StmtVisitor::visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) {
+        const auto lhs = std::any_cast<BaseStmt *>(visit(ctx->left));
+        const auto rhs = std::any_cast<BaseStmt *>(visit(ctx->right));
+        BaseStmt *stmt = IRContext.stmtManager.getBinaryExpr(lhs, rhs, ">");
         return stmt;
     }
     std::any StmtVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx) {

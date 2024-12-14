@@ -20,11 +20,12 @@ export namespace Riddle {
                 throw std::runtime_error("Function '" + name + "' already registered");
             }
             funcCalls[name].emplace(func);
+            defined.top().emplace(name);
         }
 
         llvm::FunctionCallee getFunction(const std::string &name) {
             if(!funcCalls.contains(name)) {
-                throw std::logic_error("Function not found");
+                throw std::logic_error("Function \'"+name+"\' not found");
             }
             return funcCalls[name].top();
         }

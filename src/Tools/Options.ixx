@@ -40,7 +40,6 @@ export namespace Riddle {
                     } else {
                         throw std::invalid_argument("Language file path is missing after '" + arg + "'");
                     }
-
                 } else {
                     source = arg;
                 }
@@ -48,7 +47,7 @@ export namespace Riddle {
 
             if(output.empty()) {
                 if(!source.empty()) {
-                    output = source + ".exe";
+                    output = source + ".ll";
                 } else {
                     throw std::invalid_argument("Source file is missing");
                 }

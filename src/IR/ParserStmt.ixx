@@ -11,6 +11,7 @@ import managers.ClassManager;
 import managers.VarManager;
 import managers.OpManager;
 import IR.Context;
+import IR.TypeParser;
 import Type.Variable;
 export namespace Riddle {
     class ParserStmt {
@@ -23,7 +24,6 @@ export namespace Riddle {
 
     public:
         explicit ParserStmt(Context *ctx): ctx(ctx), llvmBuilder(ctx->llvm_context), classManager(ctx->llvm_context) {
-            // TestLib
         }
 
         // 获取从语句得到的结果
@@ -75,6 +75,9 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::FuncCallStmtID:
                     return FuncCall(dynamic_cast<FuncCallStmt *>(stmt));
 
+                case BaseStmt::StmtTypeID::StringStmtID:
+                    return String(dynamic_cast<StringStmt *>(stmt));
+
                 // 未知的 StmtTypeID 类型或未实现的类型
                 default:
                     throw std::logic_error("Unhandled StmtTypeID");
@@ -94,9 +97,19 @@ export namespace Riddle {
             llvm::Value *result = llvmBuilder.getInt1(stmt->getValue());
             return result;
         }
+        llvm::Value *String(const StringStmt *stmt) {
+            llvm::Value *result = llvmBuilder.CreateGlobalStringPtr(stmt->getValue());
+            return result;
+        }
 
         void Program(ProgramStmt *stmt) {// NOLINT(*-no-recursion)
             ctx->push();
+            // TestLib start
+            llvm::FunctionType *printfType = llvm::FunctionType::get(llvmBuilder.getVoidTy(), {llvmBuilder.getPtrTy()}, false);
+            llvm::Function *printfFunc = llvm::Function::Create(
+                    printfType, llvm::Function::ExternalLinkage, "printf", ctx->module);
+            ctx->funcManager.registerFunction("printf", printfFunc);
+            // TestLib end
             for(const auto i: stmt->body) {
                 accept(i);
             }
@@ -323,12 +336,15 @@ export namespace Riddle {
         }
 
         llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) {// NOLINT(*-no-recursion)
-            const auto lhs = std::any_cast<llvm::Value *>(accept(stmt->getLHS()));
+            auto lhs = std::any_cast<llvm::Value *>(accept(stmt->getLHS()));
             const auto rhs = std::any_cast<llvm::Value *>(accept(stmt->getRHS()));
             const auto op = stmt->getOpt();
+            if(lhs->getType()->isPointerTy() && op != "=") {
+                lhs = llvmBuilder.CreateLoad(getSourceType(lhs), lhs);
+            }
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
-            // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上，好神奇
-            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(llvmBuilder, lhs, rhs);
+            // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上
+            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{getSourceType(lhs), getSourceType(rhs), op})(llvmBuilder, lhs, rhs);
             return result;
         }
 

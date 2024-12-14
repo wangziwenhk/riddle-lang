@@ -61,6 +61,8 @@ namespace Riddle {
 
         // 逻辑操作
         std::any visitEqualExpr(RiddleParser::EqualExprContext *ctx) override;
+        std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override;
+        std::any visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) override;
 
         // 类
         std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override;
