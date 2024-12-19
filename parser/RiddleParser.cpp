@@ -171,7 +171,7 @@ void riddleparserParserInitialize() {
   	204,215,1,0,0,0,205,206,5,7,0,0,206,207,5,25,0,0,207,208,3,44,22,0,208,
   	209,5,26,0,0,209,210,3,4,2,0,210,211,5,8,0,0,211,212,3,4,2,0,212,213,
   	6,15,-1,0,213,215,1,0,0,0,214,198,1,0,0,0,214,205,1,0,0,0,215,31,1,0,
-  	0,0,216,218,5,10,0,0,217,219,3,4,2,0,218,217,1,0,0,0,218,219,1,0,0,0,
+  	0,0,216,218,5,10,0,0,217,219,3,6,3,0,218,217,1,0,0,0,218,219,1,0,0,0,
   	219,33,1,0,0,0,220,221,5,13,0,0,221,222,3,46,23,0,222,223,3,8,4,0,223,
   	35,1,0,0,0,224,225,5,23,0,0,225,227,3,8,4,0,226,228,3,2,1,0,227,226,1,
   	0,0,0,227,228,1,0,0,0,228,229,1,0,0,0,229,230,3,38,19,0,230,37,1,0,0,
@@ -1994,8 +1994,8 @@ tree::TerminalNode* RiddleParser::ReturnStatementContext::Return() {
   return getToken(RiddleParser::Return, 0);
 }
 
-RiddleParser::Statement_edContext* RiddleParser::ReturnStatementContext::statement_ed() {
-  return getRuleContext<RiddleParser::Statement_edContext>(0);
+RiddleParser::StatementContext* RiddleParser::ReturnStatementContext::statement() {
+  return getRuleContext<RiddleParser::StatementContext>(0);
 }
 
 
@@ -2044,7 +2044,7 @@ RiddleParser::ReturnStatementContext* RiddleParser::returnStatement() {
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 17, _ctx)) {
     case 1: {
       setState(217);
-      antlrcpp::downCast<ReturnStatementContext *>(_localctx)->result = statement_ed();
+      antlrcpp::downCast<ReturnStatementContext *>(_localctx)->result = statement();
       break;
     }
 

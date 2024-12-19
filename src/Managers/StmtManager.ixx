@@ -153,5 +153,11 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        IfStmt *getIf(BaseStmt *condition, BaseStmt *thenBody, BaseStmt *elseBody) {
+            const auto ptr = new IfStmt(condition, thenBody, elseBody);
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle

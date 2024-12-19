@@ -76,6 +76,13 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getVarDefine(name, type, value);
         return stmt;
     }
+    std::any StmtVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {
+        const auto cond = std::any_cast<BaseStmt *>(visit(ctx->cond));
+        const auto thenBody = std::any_cast<BaseStmt*>(visit(ctx->body));
+        const auto elseBody = std::any_cast<BaseStmt*>(visit(ctx->elseBody));
+        BaseStmt* stmt = IRContext.stmtManager.getIf(cond, thenBody, elseBody);
+        return stmt;
+    }
     std::any StmtVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
         const auto cond = std::any_cast<BaseStmt *>(visit(ctx->runCond));
         const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
@@ -100,7 +107,10 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
-        const auto val = std::any_cast<BaseStmt *>(visit(ctx->result));
+        BaseStmt* val = nullptr;
+        if(ctx->result != nullptr) {
+            val = std::any_cast<BaseStmt *>(visit(ctx->result));
+        }
         BaseStmt *stmt = IRContext.stmtManager.getReturn(val);
         return stmt;
     }
@@ -147,11 +157,12 @@ namespace Riddle {
         } else {
             returnType = "void";
         }
-        const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
+        auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
         DefineArgListStmt *args = nullptr;
         if(!ctx->args->children.empty()) {
             args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
         }
+        auto it = dynamic_cast<BlockStmt*>(body);
         BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, args);
         return stmt;
     }

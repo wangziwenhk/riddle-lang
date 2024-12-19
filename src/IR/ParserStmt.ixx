@@ -1,9 +1,11 @@
 module;
 #include <any>
+#include <iostream>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <llvm/IR/Verifier.h>
 #include <stack>
 export module IR.ParserStmt;
 import Types.Statements;
@@ -54,9 +56,6 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::ReturnStmtID:
                     return Return(dynamic_cast<ReturnStmt *>(stmt));
 
-                case BaseStmt::StmtTypeID::BlockStmtID:
-                    return Block(dynamic_cast<BlockStmt *>(stmt));
-
                 case BaseStmt::StmtTypeID::WhileStmtID:
                     return While(dynamic_cast<WhileStmt *>(stmt));
 
@@ -77,6 +76,13 @@ export namespace Riddle {
 
                 case BaseStmt::StmtTypeID::StringStmtID:
                     return String(dynamic_cast<StringStmt *>(stmt));
+
+                case BaseStmt::StmtTypeID::IfStmtID:
+                    If(dynamic_cast<IfStmt *>(stmt));
+                    return nullptr;
+
+                case BaseStmt::StmtTypeID::BlockStmtID:
+                    return Block(dynamic_cast<BlockStmt *>(stmt));
 
                 // 未知的 StmtTypeID 类型或未实现的类型
                 default:
@@ -114,6 +120,9 @@ export namespace Riddle {
                 accept(i);
             }
             ctx->pop();
+            if(verifyModule(ctx->module, &llvm::errs())) {
+                std::cerr << "Failed to verify module" << std::endl;
+            }
             ctx->module.print(llvm::outs(), nullptr);
         }
 
@@ -186,6 +195,10 @@ export namespace Riddle {
             pre_varDefine(body);
 
             accept(body);
+            if(returnType->isVoidTy()) {
+                const auto t = ctx->stmtManager.getReturn();
+                accept(t);
+            }
             ctx->pop();
             parent.pop();
 
@@ -236,10 +249,10 @@ export namespace Riddle {
         }
 
         llvm::Value *Return(const ReturnStmt *stmt) {// NOLINT(*-no-recursion)
-            const auto result = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
-            if(result == nullptr) {
+            if(stmt->getValue() == nullptr) {
                 return llvmBuilder.CreateRetVoid();
             }
+            const auto result = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
             return llvmBuilder.CreateRet(result);
         }
 
@@ -356,8 +369,49 @@ export namespace Riddle {
                 auto value = std::any_cast<llvm::Value *>(accept(i));
                 args.push_back(value);
             }
-            llvm::Value* result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
+            llvm::Value *result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
             return result;
+        }
+
+        void If(const IfStmt *stmt) {// NOLINT(*-no-recursion)
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.cond", parent.top());
+            llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.then", parent.top());
+            llvm::BasicBlock *elseBlock = nullptr;
+            if(!stmt->getElseBody()->isNoneStmt()) {
+                elseBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.else", parent.top());
+            }
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.exit", parent.top());
+
+
+            ctx->push();
+
+            llvmBuilder.CreateBr(condBlock);
+            llvmBuilder.SetInsertPoint(condBlock);
+            const auto cond = std::any_cast<llvm::Value *>(accept(stmt->getCondition()));
+            if(elseBlock == nullptr) {
+                llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
+            } else {
+                llvmBuilder.CreateCondBr(cond, thenBlock, elseBlock);
+            }
+
+            // if true
+            ctx->push();
+            llvmBuilder.SetInsertPoint(thenBlock);
+            accept(stmt->getThenBody());
+            llvmBuilder.CreateBr(exitBlock);
+            ctx->pop();
+
+            // if false
+            if(elseBlock != nullptr) {
+                ctx->push();
+                llvmBuilder.SetInsertPoint(elseBlock);
+                accept(stmt->getElseBody());
+                llvmBuilder.CreateBr(exitBlock);
+                ctx->pop();
+            }
+
+            ctx->pop();
+            llvmBuilder.SetInsertPoint(exitBlock);
         }
     };
 }// namespace Riddle

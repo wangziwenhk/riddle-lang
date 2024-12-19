@@ -59,6 +59,9 @@ endif ()
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 #target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
 
-target_link_libraries(Riddle_Language LLVMCore)
+llvm_map_components_to_libnames(llvm_libs core irreader support analysis)
+message(STATUS "LLVM libraries: ${llvm_libs}")
+
+target_link_libraries(Riddle_Language ${llvm_libs})
 target_link_libraries(Riddle_Language Riddle_Module)
 target_link_libraries(Riddle_Language antlr4_shared)
