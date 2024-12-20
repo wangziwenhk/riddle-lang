@@ -42,6 +42,8 @@ export namespace Riddle {
             ArgStmtID,
             ArgListStmtID,
 
+            ClassDefineStmtID,
+
             NoneStmtID,// 没有任何效果的语句
         };
 
@@ -170,8 +172,6 @@ export namespace Riddle {
                                                                             name(std::move(name)),
                                                                             type(std::move(type)), value(value) {}
 
-        bool isStore = true;
-
         [[nodiscard]] inline std::string getName() const { return name; }
         [[nodiscard]] inline std::string getType() const { return type; }
         [[nodiscard]] inline BaseStmt *getValue() const { return value; }
@@ -217,7 +217,7 @@ export namespace Riddle {
             }
             std::vector<std::string> names;
             names.reserve(args.size());
-            for(const auto i:args) {
+            for(const auto i: args) {
                 names.push_back(i->getName());
             }
             return names;
@@ -399,12 +399,24 @@ export namespace Riddle {
     class FuncCallStmt final : public BaseStmt {
     protected:
         std::string name;
-        ArgListStmt* args;
+        ArgListStmt *args;
 
     public:
-        explicit FuncCallStmt(std::string name,ArgListStmt* args): BaseStmt(StmtTypeID::FuncCallStmtID),name(std::move(name)),args(std::move(args)) {}
+        explicit FuncCallStmt(std::string name, ArgListStmt *args): BaseStmt(StmtTypeID::FuncCallStmtID), name(std::move(name)), args(args) {}
 
         [[nodiscard]] inline std::string getName() const { return name; }
-        [[nodiscard]] inline ArgListStmt* getArgs() const { return args; }
+        [[nodiscard]] inline ArgListStmt *getArgs() const { return args; }
+    };
+
+    class ClassDefineStmt final : public BaseStmt {
+        std::vector<VarDefineStmt *> members;
+        std::string name;
+
+    public:
+        explicit ClassDefineStmt(std::string className,std::vector<VarDefineStmt*>members):
+                                BaseStmt(StmtTypeID::ClassDefineStmtID),members(std::move(members)),name(std::move(className)) {}
+
+        [[nodiscard]] inline std::string getName() const { return name; }
+        [[nodiscard]] inline const std::vector<VarDefineStmt *>& getMembers() const { return members; }
     };
 }// namespace Riddle

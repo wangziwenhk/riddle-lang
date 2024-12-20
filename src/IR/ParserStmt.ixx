@@ -12,6 +12,7 @@ import Types.Statements;
 import managers.ClassManager;
 import managers.VarManager;
 import managers.OpManager;
+import Types.Class;
 import IR.Context;
 import IR.TypeParser;
 import Type.Variable;
@@ -81,8 +82,15 @@ export namespace Riddle {
                     If(dynamic_cast<IfStmt *>(stmt));
                     return nullptr;
 
+                case BaseStmt::StmtTypeID::ClassDefineStmtID:
+                    ClassDefine(dynamic_cast<ClassDefineStmt *>(stmt));
+                    return nullptr;
+
                 case BaseStmt::StmtTypeID::BlockStmtID:
                     return Block(dynamic_cast<BlockStmt *>(stmt));
+
+                case BaseStmt::StmtTypeID::NoneStmtID:
+                    return nullptr;
 
                 // 未知的 StmtTypeID 类型或未实现的类型
                 default:
@@ -146,7 +154,6 @@ export namespace Riddle {
             std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
                 // 立刻分配空间
                 if(const auto it = dynamic_cast<VarDefineStmt *>(s)) {
-                    it->isStore = false;
                     accept(it);
                     return;
                 }
@@ -163,8 +170,13 @@ export namespace Riddle {
                         }
                         for(int i = 0; i < it->stmts.size(); i++) {
                             if(const auto t = dynamic_cast<VarDefineStmt *>(it->stmts[i])) {
-                                it->stmts[i] = ctx->stmtManager.getBinaryExpr(ctx->stmtManager.getObject(t->getName()), t->getValue(), "=");
-                                i--;
+                                if(!t->getValue()->isNoneStmt()) {
+                                    it->stmts[i] = ctx->stmtManager.getBinaryExpr(ctx->stmtManager.getObject(t->getName()), t->getValue(), "=");
+                                    i--;
+                                }
+                                else {
+                                    it->stmts[i] = ctx->stmtManager.getNoneStmt();
+                                }
                             }
                         }
                     }
@@ -207,40 +219,29 @@ export namespace Riddle {
 
 
         llvm::Value *VarDefine(const VarDefineStmt *stmt) {// NOLINT(*-no-recursion)
-            const auto value = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
+            llvm::Value *value = nullptr;
+            if(!stmt->getValue()->isNoneStmt()) {
+                value = std::any_cast<llvm::Value *>(accept(stmt->getValue()));
+            }
             const std::string name = stmt->getName();
             llvm::Type *type = nullptr;
-            if(stmt->getType().empty()) {
+            if(stmt->getType().empty() && value != nullptr) {
                 type = value->getType();
             } else {
                 type = classManager.getType(stmt->getType());
             }
-            if(stmt->isStore) {
-                llvm::Value *var;
-                // 对全局变量特判
-                if(ctx->deep() <= 1) {
-                    auto *CV = llvm::dyn_cast<llvm::Constant>(value);
-                    var = new llvm::GlobalVariable(ctx->module, type, false,
-                                                   llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
-                } else {
-                    var = llvmBuilder.CreateAlloca(type, nullptr, name);
-                    if(value != nullptr) llvmBuilder.CreateStore(value, var);
-                }
-                ctx->addVariable(Variable(name, var, false));
-                return var;
+
+            llvm::Value *var;
+            // 对全局变量特判
+            if(ctx->deep() <= 1) {
+                auto *CV = llvm::dyn_cast<llvm::Constant>(value);
+                var = new llvm::GlobalVariable(ctx->module, type, false,
+                                               llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
-                llvm::Value *var;
-                // 对全局变量特判
-                if(ctx->deep() <= 1) {
-                    auto *CV = llvm::dyn_cast<llvm::Constant>(value);
-                    var = new llvm::GlobalVariable(ctx->module, type, false,
-                                                   llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
-                } else {
-                    var = llvmBuilder.CreateAlloca(type, nullptr, name);
-                }
-                ctx->addVariable(Variable(name, var, false));
-                return var;
+                var = llvmBuilder.CreateAlloca(type, nullptr, name);
             }
+            ctx->addVariable(Variable(name, var, false));
+            return var;
         }
 
         llvm::Value *Object(const ObjectStmt *stmt) const {
@@ -413,5 +414,33 @@ export namespace Riddle {
             ctx->pop();
             llvmBuilder.SetInsertPoint(exitBlock);
         }
+
+        void ClassDefine(const ClassDefineStmt *stmt) {
+            const auto theClass = new Class();
+            theClass->types = llvm::StructType::create(ctx->llvm_context, stmt->getName());
+            // 成员创建
+            int cnt = 0;
+            std::vector<llvm::Type *> types;
+            for(const auto i: stmt->getMembers()) {
+                const auto memberName = i->getName();
+                llvm::Type *type = nullptr;
+                const llvm::Value *value = nullptr;
+                if(!i->getValue()->isNoneStmt()) {
+                    value = std::any_cast<llvm::Value *>(accept(i->getValue()));
+                }
+
+                if(i->getType().empty()) {
+                    type = value->getType();
+                } else {
+                    type = classManager.getType(i->getType());
+                }
+                theClass->names[memberName] = cnt;
+                types.push_back(type);
+                cnt++;
+            }
+            theClass->types->setBody(types);
+            classManager.createClass(theClass);
+        }
+
     };
 }// namespace Riddle

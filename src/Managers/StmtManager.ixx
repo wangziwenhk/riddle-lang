@@ -159,5 +159,11 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        ClassDefineStmt *getClassDefine(const std::string &name,std::vector<VarDefineStmt*>varDefs) {
+            const auto ptr = new ClassDefineStmt(name, std::move(varDefs));
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle

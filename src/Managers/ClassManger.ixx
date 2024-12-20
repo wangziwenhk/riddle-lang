@@ -6,19 +6,18 @@ module;
 #include <unordered_set>
 export module managers.ClassManager;
 import Types.Class;
-import Types.ClassNode;
 export namespace Riddle {
     /// @brief 管理类
     class ClassManager {
         /// @brief 存储数据字段
-        std::unordered_map<std::string, ClassNode> Classes;
+        std::unordered_map<std::string, Class*> Classes;
         llvm::LLVMContext &Context;
 
     public:
         explicit ClassManager(llvm::LLVMContext &context): Context(context) {}
 
         /// @brief 查找相关的类
-        ClassNode getClass(const std::string &name) {
+        Class* getClass(const std::string &name) {
             if(const auto it = Classes.find(name); it == Classes.end()) {
                 throw std::logic_error("ClassManager:There is no such class");
             }
@@ -38,12 +37,12 @@ export namespace Riddle {
             if(baseType.contains(name)) {
                 return baseType.find(name)->second;
             }
-            return getClass(name).theClass->types;
+            return getClass(name)->types;
         }
 
         // class 在进入该函数后则不可修改
-        void createClass(const ClassNode &theClass) {
-            Classes[theClass.get().types->getName().str()] = theClass;
+        void createClass(Class* theClass) {
+            Classes[theClass->types->getName().str()] = theClass;
         }
     };
 } // namespace Riddle

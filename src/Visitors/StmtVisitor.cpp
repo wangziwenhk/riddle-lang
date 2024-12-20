@@ -72,15 +72,18 @@ namespace Riddle {
         if(ctx->type != nullptr) {
             type = ctx->type->getText();
         }
-        const auto value = std::any_cast<BaseStmt *>(visit(ctx->value));
+        BaseStmt *value = IRContext.stmtManager.getNoneStmt();;
+        if(ctx->value != nullptr)  {
+            value = std::any_cast<BaseStmt *>(visit(ctx->value));
+        }
         BaseStmt *stmt = IRContext.stmtManager.getVarDefine(name, type, value);
         return stmt;
     }
     std::any StmtVisitor::visitIfStatement(RiddleParser::IfStatementContext *ctx) {
         const auto cond = std::any_cast<BaseStmt *>(visit(ctx->cond));
-        const auto thenBody = std::any_cast<BaseStmt*>(visit(ctx->body));
-        const auto elseBody = std::any_cast<BaseStmt*>(visit(ctx->elseBody));
-        BaseStmt* stmt = IRContext.stmtManager.getIf(cond, thenBody, elseBody);
+        const auto thenBody = std::any_cast<BaseStmt *>(visit(ctx->body));
+        const auto elseBody = std::any_cast<BaseStmt *>(visit(ctx->elseBody));
+        BaseStmt *stmt = IRContext.stmtManager.getIf(cond, thenBody, elseBody);
         return stmt;
     }
     std::any StmtVisitor::visitWhileStatement(RiddleParser::WhileStatementContext *ctx) {
@@ -107,7 +110,7 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) {
-        BaseStmt* val = nullptr;
+        BaseStmt *val = nullptr;
         if(ctx->result != nullptr) {
             val = std::any_cast<BaseStmt *>(visit(ctx->result));
         }
@@ -162,7 +165,7 @@ namespace Riddle {
         if(!ctx->args->children.empty()) {
             args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
         }
-        auto it = dynamic_cast<BlockStmt*>(body);
+        auto it = dynamic_cast<BlockStmt *>(body);
         BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, args);
         return stmt;
     }
@@ -296,11 +299,19 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitClassDefine(RiddleParser::ClassDefineContext *ctx) {
-        // const std::string className = ctx->className->getText();
-        // const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
-        // const auto body = dynamic_cast<BlockStmt *>(t_body);
+        const std::string className = ctx->className->getText();
+        const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
+        const auto body = dynamic_cast<BlockStmt *>(t_body);
 
-        return RiddleParserBaseVisitor::visitClassDefine(ctx);
+        std::vector<VarDefineStmt *> varDefs;
+        for(const auto i: body->stmts) {
+            if(i->getStmtTypeID() == BaseStmt::StmtTypeID::VarDefineStmtID) {
+                varDefs.push_back(dynamic_cast<VarDefineStmt *>(i));
+            }
+        }
+
+        BaseStmt* stmt = IRContext.stmtManager.getClassDefine(className, varDefs);
+        return stmt;
     }
 
 
