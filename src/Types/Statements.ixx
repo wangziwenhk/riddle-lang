@@ -43,6 +43,8 @@ export namespace Riddle {
             ArgListStmtID,
 
             ClassDefineStmtID,
+            MethodCallStmtID,
+            MemberExprStmt,
 
             NoneStmtID,// 没有任何效果的语句
         };
@@ -209,6 +211,7 @@ export namespace Riddle {
         std::string return_type;
         DefineArgListStmt *args;
         BaseStmt *body;
+        std::string theClass;
 
         [[nodiscard]] int BodyCount() const override {
             return 1;
@@ -343,5 +346,18 @@ export namespace Riddle {
         std::vector<VarDefineStmt *> members;
         std::vector<FuncDefineStmt *> funcDefines;
         std::string name;
+    };
+
+    class MethodCallStmt final : public BaseStmt {
+    public:
+        MethodCallStmt(BaseStmt* obj,FuncCallStmt* call):BaseStmt(StmtTypeID::MethodCallStmtID),object(obj),call(call){}
+
+        BaseStmt* object;
+        FuncCallStmt* call;
+    };
+
+    class MemberExprStmt final : public BaseStmt {
+        public:
+        MemberExprStmt(BaseStmt* parent,BaseStmt* child):BaseStmt(StmtTypeID::MemberExprStmt){}
     };
 }// namespace Riddle

@@ -67,7 +67,6 @@ namespace Riddle {
     std::any StmtVisitor::visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) {
         if(ctx->name == nullptr) {
             throw std::logic_error("name is null");
-            return {};
         }
         const std::string name = ctx->name->getText();
         std::string type;
@@ -150,7 +149,6 @@ namespace Riddle {
             args.push_back(defineArg);
             name.clear();
             type.clear();
-            value = IRContext.stmtManager.getNoneStmt();
         }
         BaseStmt *stmt = IRContext.stmtManager.getDefineArgList(args);
         return stmt;
@@ -168,7 +166,6 @@ namespace Riddle {
         if(!ctx->args->children.empty()) {
             args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
         }
-        auto it = dynamic_cast<BlockStmt *>(body);
         BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, args);
         return stmt;
     }
@@ -195,7 +192,8 @@ namespace Riddle {
     }
     std::any StmtVisitor::visitArgsExpr(RiddleParser::ArgsExprContext *ctx) {
         std::vector<BaseStmt *> args;
-        for(auto i: ctx->children) {
+        args.reserve(ctx->children.size());
+        for(const auto i: ctx->children) {
             args.push_back(std::any_cast<BaseStmt *>(visit(i)));
         }
         BaseStmt *stmt = IRContext.stmtManager.getArgList(args);
@@ -317,6 +315,18 @@ namespace Riddle {
         }
         BaseStmt *stmt = IRContext.stmtManager.getClassDefine(className, varDefs, funcDefines);
         return stmt;
+    }
+    std::any StmtVisitor::visitBlendExpr(RiddleParser::BlendExprContext *ctx) {
+        const auto parent = std::any_cast<BaseStmt *>(visit(ctx->parent));
+        const auto child = std::any_cast<BaseStmt *>(visit(ctx->child));
+        BaseStmt *result;
+        if(child->getStmtTypeID() == BaseStmt::StmtTypeID::FuncCallStmtID) {
+            result = IRContext.stmtManager.getMethodCall(parent, dynamic_cast<FuncCallStmt *>(child));
+        } else {
+            result = IRContext.stmtManager.getMemberExpr(parent, child);
+        }
+
+        return result;
     }
 
 

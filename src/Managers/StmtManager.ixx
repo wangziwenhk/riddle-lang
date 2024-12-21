@@ -173,5 +173,17 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
+
+        MethodCallStmt *getMethodCall(BaseStmt *object, FuncCallStmt *call) {
+            const auto ptr = new MethodCallStmt(object, call);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        MemberExprStmt *getMemberExpr(BaseStmt *parent,BaseStmt* child) {
+            const auto ptr = new MemberExprStmt(parent, child);
+            stmts.push_back(ptr);
+            return ptr;
+        }
     };
 }// namespace Riddle

@@ -20,13 +20,12 @@ export namespace Riddle {
     class ParserStmt {
         Context *ctx = nullptr;
         llvm::IRBuilder<> llvmBuilder;
-        ClassManager classManager;
         std::stack<llvm::BasicBlock *> breakBlocks;
         std::stack<llvm::BasicBlock *> continueBlocks;
         std::stack<llvm::Function *> parent;
 
     public:
-        explicit ParserStmt(Context *ctx): ctx(ctx), llvmBuilder(ctx->llvm_context), classManager(ctx->llvm_context) {
+        explicit ParserStmt(Context *ctx): ctx(ctx), llvmBuilder(ctx->llvm_context) {
         }
 
         // 获取从语句得到的结果
@@ -86,6 +85,9 @@ export namespace Riddle {
                     ClassDefine(dynamic_cast<ClassDefineStmt *>(stmt));
                     return nullptr;
 
+                case BaseStmt::StmtTypeID::MethodCallStmtID:
+                    return MethodCall(dynamic_cast<MethodCallStmt *>(stmt));
+
                 case BaseStmt::StmtTypeID::BlockStmtID:
                     return Block(dynamic_cast<BlockStmt *>(stmt));
 
@@ -137,12 +139,17 @@ export namespace Riddle {
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
         llvm::Function *FuncDefine(const FuncDefineStmt *stmt) {// NOLINT(*-no-recursion)
             const std::string name = stmt->func_name;
-            llvm::Type *returnType = classManager.getType(stmt->return_type);
+            llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
             const auto args = stmt->args;
             BaseStmt *body = stmt->body;
             std::vector<llvm::Type *> argTypes;
             if(stmt->args != nullptr) {
-                argTypes = args->getArgsTypes(classManager);
+                argTypes = args->getArgsTypes(ctx->classManager);
+            }
+            if(!stmt->theClass.empty()) {
+                const auto theClass = ctx->classManager.getClass(stmt->theClass)->types;
+                const auto ptr_theClass = theClass->getPointerTo();
+                argTypes.insert(argTypes.begin(),ptr_theClass);
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
@@ -227,7 +234,7 @@ export namespace Riddle {
             if(stmt->type.empty() && value != nullptr) {
                 type = value->getType();
             } else {
-                type = classManager.getType(stmt->type);
+                type = ctx->classManager.getType(stmt->type);
             }
 
             llvm::Value *var;
@@ -361,17 +368,6 @@ export namespace Riddle {
             return result;
         }
 
-        llvm::Value *FuncCall(const FuncCallStmt *stmt) {// NOLINT(*-no-recursion)
-            const auto name = stmt->name;
-            const auto argList = stmt->args;
-            std::vector<llvm::Value *> args;
-            for(const auto i: argList->args) {
-                auto value = std::any_cast<llvm::Value *>(accept(i));
-                args.push_back(value);
-            }
-            llvm::Value *result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
-            return result;
-        }
 
         void If(const IfStmt *stmt) {// NOLINT(*-no-recursion)
             llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.cond", parent.top());
@@ -430,29 +426,52 @@ export namespace Riddle {
                 if(i->type.empty() && value != nullptr) {
                     type = value->getType();
                 } else {
-                    type = classManager.getType(i->type);
+                    type = ctx->classManager.getType(i->type);
                 }
                 theClass->names[memberName] = cnt;
                 types.push_back(type);
                 cnt++;
             }
             theClass->types->setBody(types);
-            classManager.createClass(theClass);
+            ctx->classManager.createClass(theClass);
 
             // 方法创建
             for(const auto i: stmt->funcDefines) {
                 std::string sourceName = i->func_name;
                 i->func_name = stmt->name + "_" + i->func_name;
+                i->theClass = stmt->name;
 
-                auto self = ctx->stmtManager.getDefineArg("this", stmt->name, ctx->stmtManager.getNoneStmt());
-                if(i->args == nullptr || i->args->isNoneStmt()) {
-                    i->args = ctx->stmtManager.getDefineArgList({self});
-                } else {
-                    i->args->args.push_back(self);
-                }
-                const auto call = std::any_cast<llvm::Function*>(accept(i));
+                const auto call = std::any_cast<llvm::Function *>(accept(i));
                 theClass->funcs[sourceName] = call;
             }
+        }
+        llvm::Value *FuncCall(const FuncCallStmt *stmt) {// NOLINT(*-no-recursion)
+            const auto name = stmt->name;
+            const auto argList = stmt->args;
+            std::vector<llvm::Value *> args;
+            for(const auto i: argList->args) {
+                auto value = std::any_cast<llvm::Value *>(accept(i));
+                args.push_back(value);
+            }
+            llvm::Value *result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
+            return result;
+        }
+        llvm::Value *MethodCall(const MethodCallStmt *stmt) {
+            const auto object = std::any_cast<llvm::Value *>(accept(stmt->object));
+            const auto type = getSourceType(object);
+            const auto theClass = ctx->classManager.getClassFromType(type);
+            // insert self
+            const auto argList = stmt->call->args;
+            argList->args.insert(argList->args.begin(), stmt->object);
+
+            std::vector<llvm::Value *> args;
+            for(const auto i: argList->args) {
+                auto value = std::any_cast<llvm::Value *>(accept(i));
+                args.push_back(value);
+            }
+            llvm::Value *result = llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
+
+            return result;
         }
     };
 }// namespace Riddle
