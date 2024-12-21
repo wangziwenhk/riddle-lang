@@ -12,9 +12,17 @@ export namespace Riddle {
 
     public:
         ~StmtManager() {
-            for(const auto stmt: stmts) {
+            const BaseStmt *theNoneStmt = nullptr;
+            for(auto &stmt: stmts) {
+                if(stmt->isNoneStmt()) {
+                    theNoneStmt = stmt;
+                    continue;
+                }
                 delete stmt;
+                stmt = nullptr;
             }
+            delete theNoneStmt;
+            theNoneStmt = nullptr;
         }
         IntegerStmt *getConstant(const int value) {
             const auto ptr = new IntegerStmt(value);
@@ -94,7 +102,7 @@ export namespace Riddle {
 
         /// @brief 获取一个无作用的语句
         BaseStmt *getNoneStmt() {
-            const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
+            static const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
             stmts.push_back(ptr);
             return ptr;
         }
@@ -160,8 +168,8 @@ export namespace Riddle {
             return ptr;
         }
 
-        ClassDefineStmt *getClassDefine(const std::string &name,std::vector<VarDefineStmt*>varDefs) {
-            const auto ptr = new ClassDefineStmt(name, std::move(varDefs));
+        ClassDefineStmt *getClassDefine(const std::string &name, std::vector<VarDefineStmt *> varDefs, const std::vector<FuncDefineStmt *> &funcDefines) {
+            const auto ptr = new ClassDefineStmt(name, std::move(varDefs), funcDefines);
             stmts.push_back(ptr);
             return ptr;
         }

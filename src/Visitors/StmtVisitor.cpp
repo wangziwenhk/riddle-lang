@@ -1,4 +1,6 @@
 #include "StmtVisitor.h"
+
+#include <llvm/IR/DerivedTypes.h>
 import managers.StmtManager;
 
 namespace Riddle {
@@ -72,8 +74,9 @@ namespace Riddle {
         if(ctx->type != nullptr) {
             type = ctx->type->getText();
         }
-        BaseStmt *value = IRContext.stmtManager.getNoneStmt();;
-        if(ctx->value != nullptr)  {
+        BaseStmt *value = IRContext.stmtManager.getNoneStmt();
+        ;
+        if(ctx->value != nullptr) {
             value = std::any_cast<BaseStmt *>(visit(ctx->value));
         }
         BaseStmt *stmt = IRContext.stmtManager.getVarDefine(name, type, value);
@@ -304,13 +307,15 @@ namespace Riddle {
         const auto body = dynamic_cast<BlockStmt *>(t_body);
 
         std::vector<VarDefineStmt *> varDefs;
+        std::vector<FuncDefineStmt *> funcDefines;
         for(const auto i: body->stmts) {
             if(i->getStmtTypeID() == BaseStmt::StmtTypeID::VarDefineStmtID) {
                 varDefs.push_back(dynamic_cast<VarDefineStmt *>(i));
+            } else if(i->getStmtTypeID() == BaseStmt::StmtTypeID::FuncDefineStmtID) {
+                funcDefines.push_back(dynamic_cast<FuncDefineStmt *>(i));
             }
         }
-
-        BaseStmt* stmt = IRContext.stmtManager.getClassDefine(className, varDefs);
+        BaseStmt *stmt = IRContext.stmtManager.getClassDefine(className, varDefs, funcDefines);
         return stmt;
     }
 

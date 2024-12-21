@@ -102,22 +102,16 @@ export namespace Riddle {
 
     /// @brief 存储int类型数据
     class IntegerStmt final : public ConstantStmt {
-    protected:
-        int value;
-
     public:
         explicit IntegerStmt(const int value): ConstantStmt(StmtTypeID::IntegerStmtID), value(value) {}
-        [[nodiscard]] inline int getValue() const { return value; }
+        int value;
     };
 
     /// @brief 存储 float 数据类型
     class FloatStmt final : public ConstantStmt {
-    protected:
-        float value;
-
     public:
         explicit FloatStmt(const float value): ConstantStmt(StmtTypeID::FloatStmtID), value(value) {}
-        [[nodiscard]] inline float getValue() const { return value; }
+        float value;
     };
 
     /// @brief 存储 Null 数据类型
@@ -128,86 +122,62 @@ export namespace Riddle {
 
     /// @brief 存储 double 数据类型
     class DoubleStmt final : public ConstantStmt {
-    protected:
-        double value;
-
     public:
         explicit DoubleStmt(const double value): ConstantStmt(StmtTypeID::DoubleStmtID), value(value) {}
-        [[nodiscard]] inline double getValue() const { return value; }
+        double value;
     };
 
     /// @brief 存储 bool 数据类型
     class BoolStmt final : public ConstantStmt {
-    protected:
-        bool value;
-
     public:
         explicit BoolStmt(const bool value): ConstantStmt(StmtTypeID::BoolStmtID), value(value) {}
-        [[nodiscard]] inline bool getValue() const { return value; }
+        bool value;
     };
 
     /// @brief 存储 string 数据类型
     class StringStmt final : public ConstantStmt {
-    protected:
-        std::string value;
-
     public:
         explicit StringStmt(std::string value): ConstantStmt(StmtTypeID::StringStmtID), value(std::move(value)) {}
-        [[nodiscard]] inline std::string getValue() const { return value; }
+        std::string value;
     };
-
-    // todo 实现多个变量定义
 
     /// @brief 用于存储变量定义
     class VarDefineStmt final : public BaseStmt {
-        std::string name;
-        std::string type;
-        /// 对于一个值，一定可以被解析为一个Statement
-        BaseStmt *value;
-        /// 是否在函数内部时被优化到entry
-
-
     public:
         VarDefineStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::VarDefineStmtID),
                                                                             name(std::move(name)),
                                                                             type(std::move(type)), value(value) {}
 
-        [[nodiscard]] inline std::string getName() const { return name; }
-        [[nodiscard]] inline std::string getType() const { return type; }
-        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+        std::string name;
+        std::string type;
+        /// 对于一个值，一定可以被解析为一个Statement
+        BaseStmt *value;
+        /// 是否在函数内部时被优化到entry
     };
 
     class DefineArgStmt final : public BaseStmt {
     protected:
-        std::string name;
-        std::string type;
-        /// 默认值
-        BaseStmt *value;
-
     public:
         DefineArgStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::DefineArgStmtID),
                                                                             name(std::move(name)),
                                                                             type(std::move(type)),
                                                                             value(value) {}
-
-        [[nodiscard]] inline std::string getName() const { return name; }
-        [[nodiscard]] inline std::string getType() const { return type; }
-        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+        std::string name;
+        std::string type;
+        /// 默认值
+        BaseStmt *value;
     };
 
     class DefineArgListStmt final : public BaseStmt {
-    protected:
-        std::vector<DefineArgStmt *> args;
-
     public:
         explicit DefineArgListStmt(std::vector<DefineArgStmt *> args): BaseStmt(StmtTypeID::DefineArgListStmtID), args(std::move(args)) {}
 
-        [[nodiscard]] inline std::vector<DefineArgStmt *> getArgs() const { return args; }
+        std::vector<DefineArgStmt *> args;
         [[nodiscard]] std::vector<llvm::Type *> getArgsTypes(ClassManager &manager) const {
             std::vector<llvm::Type *> argTypes;
             argTypes.reserve(args.size());
             for(const auto arg: args) {
-                argTypes.push_back(manager.getType(arg->getType()));
+                argTypes.push_back(manager.getType(arg->type));
             }
             return argTypes;
         }
@@ -218,7 +188,7 @@ export namespace Riddle {
             std::vector<std::string> names;
             names.reserve(args.size());
             for(const auto i: args) {
-                names.push_back(i->getName());
+                names.push_back(i->name);
             }
             return names;
         }
@@ -226,12 +196,6 @@ export namespace Riddle {
 
     /// @brief 用于存储函数定义
     class FuncDefineStmt final : public BaseStmt {
-    protected:
-        std::string func_name;
-        std::string return_type;
-        DefineArgListStmt *args;
-        BaseStmt *body;
-
     public:
         FuncDefineStmt(std::string func_name,
                        std::string return_type,
@@ -241,10 +205,10 @@ export namespace Riddle {
                                                            return_type(std::move(return_type)),
                                                            args(args), body(body) {}
 
-        [[nodiscard]] inline std::string getFuncName() const { return func_name; }
-        [[nodiscard]] inline std::string getReturnType() const { return return_type; }
-        [[nodiscard]] inline DefineArgListStmt *getArgs() const { return args; }
-        [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+        std::string func_name;
+        std::string return_type;
+        DefineArgListStmt *args;
+        BaseStmt *body;
 
         [[nodiscard]] int BodyCount() const override {
             return 1;
@@ -253,12 +217,6 @@ export namespace Riddle {
 
     /// @brief 用于存储for循环语句
     class ForStmt final : public BaseStmt {
-    protected:
-        BaseStmt *init;
-        BaseStmt *condition;
-        BaseStmt *self_change;
-        BlockStmt *body;
-
     public:
         ForStmt(BaseStmt *init,
                 BaseStmt *cond,
@@ -266,10 +224,10 @@ export namespace Riddle {
                 BlockStmt *body): BaseStmt(StmtTypeID::ForStmtID), init(init), condition(cond),
                                   self_change(self_change), body(body) {}
 
-        [[nodiscard]] inline BaseStmt *getInit() const { return init; }
-        [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
-        [[nodiscard]] inline BaseStmt *getSelfChange() const { return self_change; }
-        [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+        BaseStmt *init;
+        BaseStmt *condition;
+        BaseStmt *self_change;
+        BlockStmt *body;
 
         [[nodiscard]] inline int BodyCount() const override {
             return 1;
@@ -278,10 +236,6 @@ export namespace Riddle {
 
     /// @brief 用于存储while循环语句
     class WhileStmt final : public BaseStmt {
-    protected:
-        BaseStmt *condition;
-        BlockStmt *body;
-
     public:
         WhileStmt(BaseStmt *cond, BlockStmt *body): BaseStmt(StmtTypeID::WhileStmtID), condition(cond), body(body) {}
 
@@ -289,8 +243,9 @@ export namespace Riddle {
             body = stmt;
         }
 
-        [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
-        [[nodiscard]] inline BaseStmt *getBody() const { return body; }
+        BaseStmt *condition;
+        BlockStmt *body;
+
 
         [[nodiscard]] inline int BodyCount() const override {
             return 1;
@@ -299,15 +254,11 @@ export namespace Riddle {
 
     /// @brief 用于存储 try 语句
     class TryStmt final : public BaseStmt {
-    protected:
-        BaseStmt *tryBody;
-        BaseStmt *catchBody;
-
     public:
         TryStmt(BaseStmt *tryBody, BaseStmt *catchBody): BaseStmt(StmtTypeID::TryStmtID), tryBody(tryBody), catchBody(catchBody) {}
 
-        [[nodiscard]] inline BaseStmt *getTryBody() const { return tryBody; }
-        [[nodiscard]] inline BaseStmt *getCatchBody() const { return catchBody; }
+        BaseStmt *tryBody;
+        BaseStmt *catchBody;
 
         [[nodiscard]] inline int BodyCount() const override {
             return 2;
@@ -316,17 +267,12 @@ export namespace Riddle {
 
     /// @brief 用于存储 if 语句
     class IfStmt final : public BaseStmt {
-    protected:
-        BaseStmt *condition;
-        BaseStmt *thenBody;
-        BaseStmt *elseBody;
-
     public:
         IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): BaseStmt(StmtTypeID::IfStmtID), condition(cond), thenBody(thenBody), elseBody(elseBody) {}
 
-        [[nodiscard]] inline BaseStmt *getCondition() const { return condition; }
-        [[nodiscard]] inline BaseStmt *getThenBody() const { return thenBody; }
-        [[nodiscard]] inline BaseStmt *getElseBody() const { return elseBody; }
+        BaseStmt *condition;
+        BaseStmt *thenBody;
+        BaseStmt *elseBody;
 
         [[nodiscard]] inline int BodyCount() const override {
             return elseBody == nullptr ? 1 : 2;
@@ -334,22 +280,16 @@ export namespace Riddle {
     };
 
     class ObjectStmt final : public BaseStmt {
-    protected:
-        std::string name;
-
     public:
         explicit ObjectStmt(std::string name): BaseStmt(StmtTypeID::ObjStmtID), name(std::move(name)) {}
 
-        [[nodiscard]] inline std::string getName() const { return name; }
+        std::string name;
     };
 
     class ReturnStmt final : public BaseStmt {
-    protected:
-        BaseStmt *value;
-
     public:
         explicit ReturnStmt(BaseStmt *value): BaseStmt(StmtTypeID::ReturnStmtID), value(value) {}
-        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+        BaseStmt *value;
     };
 
     class ContinueStmt final : public BaseStmt {
@@ -358,65 +298,50 @@ export namespace Riddle {
     };
 
     class BreakStmt final : public BaseStmt {
-
     public:
         explicit BreakStmt(): BaseStmt(StmtTypeID::BreakStmtID) {}
     };
 
     class BinaryExprStmt final : public BaseStmt {
-    protected:
-        BaseStmt *lhs;
-        BaseStmt *rhs;
-        std::string opt;
-
     public:
         BinaryExprStmt(BaseStmt *lhs, BaseStmt *rhs, std::string opt): BaseStmt(StmtTypeID::BinaryExprStmtID), lhs(lhs), rhs(rhs), opt(std::move(opt)) {}
 
-        [[nodiscard]] constexpr BaseStmt *getLHS() const { return lhs; }
-        [[nodiscard]] constexpr BaseStmt *getRHS() const { return rhs; }
-        [[nodiscard]] constexpr std::string getOpt() const { return opt; }
+        BaseStmt *lhs;
+        BaseStmt *rhs;
+        std::string opt;
     };
 
     class ArgStmt final : public BaseStmt {
-    protected:
-        BaseStmt *value;
-
     public:
         explicit ArgStmt(BaseStmt *value): BaseStmt(StmtTypeID::ArgStmtID), value(value) {}
 
-        [[nodiscard]] inline BaseStmt *getValue() const { return value; }
+        BaseStmt *value;
     };
 
     class ArgListStmt final : public BaseStmt {
-    protected:
-        std::vector<BaseStmt *> args;
-
     public:
         explicit ArgListStmt(std::vector<BaseStmt *> args): BaseStmt(StmtTypeID::ArgListStmtID), args(std::move(args)) {}
-        [[nodiscard]] inline std::vector<BaseStmt *> getArgs() const { return args; }
+        std::vector<BaseStmt *> args;
     };
 
     class FuncCallStmt final : public BaseStmt {
-    protected:
-        std::string name;
-        ArgListStmt *args;
-
     public:
         explicit FuncCallStmt(std::string name, ArgListStmt *args): BaseStmt(StmtTypeID::FuncCallStmtID), name(std::move(name)), args(args) {}
 
-        [[nodiscard]] inline std::string getName() const { return name; }
-        [[nodiscard]] inline ArgListStmt *getArgs() const { return args; }
+        std::string name;
+        ArgListStmt *args;
     };
 
     class ClassDefineStmt final : public BaseStmt {
-        std::vector<VarDefineStmt *> members;
-        std::string name;
-
     public:
-        explicit ClassDefineStmt(std::string className,std::vector<VarDefineStmt*>members):
-                                BaseStmt(StmtTypeID::ClassDefineStmtID),members(std::move(members)),name(std::move(className)) {}
-
-        [[nodiscard]] inline std::string getName() const { return name; }
-        [[nodiscard]] inline const std::vector<VarDefineStmt *>& getMembers() const { return members; }
+        explicit ClassDefineStmt(std::string className,
+                                 std::vector<VarDefineStmt *> members,
+                                 const std::vector<FuncDefineStmt *> &funcDefines): BaseStmt(StmtTypeID::ClassDefineStmtID),
+                                                                                    members(std::move(members)),
+                                                                                    funcDefines(funcDefines),
+                                                                                    name(std::move(className)) {}
+        std::vector<VarDefineStmt *> members;
+        std::vector<FuncDefineStmt *> funcDefines;
+        std::string name;
     };
 }// namespace Riddle
