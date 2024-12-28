@@ -1,5 +1,4 @@
 #include "StmtVisitor.h"
-
 #include <llvm/IR/DerivedTypes.h>
 import managers.StmtManager;
 
@@ -322,10 +321,11 @@ namespace Riddle {
         BaseStmt *result;
         if(child->getStmtTypeID() == BaseStmt::StmtTypeID::FuncCallStmtID) {
             result = IRContext.stmtManager.getMethodCall(parent, dynamic_cast<FuncCallStmt *>(child));
-        } else {
-            result = IRContext.stmtManager.getMemberExpr(parent, child);
+        } else if(child->getStmtTypeID() == BaseStmt::StmtTypeID::ObjStmtID){
+            result = IRContext.stmtManager.getMemberExpr(parent, dynamic_cast<ObjectStmt *>(child));
+        }else {
+            throw std::logic_error("visitBlendExpr:What fuck?");
         }
-
         return result;
     }
 

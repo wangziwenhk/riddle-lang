@@ -88,6 +88,9 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::MethodCallStmtID:
                     return MethodCall(dynamic_cast<MethodCallStmt *>(stmt));
 
+                case BaseStmt::StmtTypeID::MemberExprStmtID:
+                    return MemberExpr(dynamic_cast<MemberExprStmt *>(stmt));
+
                 case BaseStmt::StmtTypeID::BlockStmtID:
                     return Block(dynamic_cast<BlockStmt *>(stmt));
 
@@ -147,9 +150,9 @@ export namespace Riddle {
                 argTypes = args->getArgsTypes(ctx->classManager);
             }
             if(!stmt->theClass.empty()) {
-                const auto theClass = ctx->classManager.getClass(stmt->theClass)->types;
+                const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
                 const auto ptr_theClass = theClass->getPointerTo();
-                argTypes.insert(argTypes.begin(),ptr_theClass);
+                argTypes.insert(argTypes.begin(), ptr_theClass);
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
@@ -412,7 +415,7 @@ export namespace Riddle {
 
         void ClassDefine(const ClassDefineStmt *stmt) {// NOLINT(*-no-recursion)
             const auto theClass = new Class();
-            theClass->types = llvm::StructType::create(ctx->llvm_context, stmt->name);
+            theClass->type = llvm::StructType::create(ctx->llvm_context, stmt->name);
             // 成员创建
             int cnt = 0;
             std::vector<llvm::Type *> types;
@@ -428,11 +431,11 @@ export namespace Riddle {
                 } else {
                     type = ctx->classManager.getType(i->type);
                 }
-                theClass->names[memberName] = cnt;
+                theClass->members[memberName] = cnt;
                 types.push_back(type);
                 cnt++;
             }
-            theClass->types->setBody(types);
+            theClass->type->setBody(types);
             ctx->classManager.createClass(theClass);
 
             // 方法创建
@@ -445,6 +448,7 @@ export namespace Riddle {
                 theClass->funcs[sourceName] = call;
             }
         }
+
         llvm::Value *FuncCall(const FuncCallStmt *stmt) {// NOLINT(*-no-recursion)
             const auto name = stmt->name;
             const auto argList = stmt->args;
@@ -456,6 +460,7 @@ export namespace Riddle {
             llvm::Value *result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
             return result;
         }
+
         llvm::Value *MethodCall(const MethodCallStmt *stmt) {
             const auto object = std::any_cast<llvm::Value *>(accept(stmt->object));
             const auto type = getSourceType(object);
@@ -472,6 +477,28 @@ export namespace Riddle {
             llvm::Value *result = llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
 
             return result;
+        }
+
+        llvm::Value *MemberExpr(const MemberExprStmt *stmt) {
+            const auto object = std::any_cast<llvm::Value *>(accept(stmt->parent));
+            const auto type = getSourceType(object);
+            const auto theClass = ctx->classManager.getClassFromType(type);
+
+            const std::string child = stmt->child->name;
+
+            const int index = theClass->members[child];
+
+            llvm::Value *ptr = llvmBuilder.CreateStructGEP(
+                    theClass->type,
+                    object,
+                    index
+                    );
+
+            // if(stmt->isLast) {
+            //     llvm::Value *loaded = llvmBuilder.CreateLoad(theClass->type->getElementType(index),ptr);
+            //     return loaded;
+            // }
+            return ptr;
         }
     };
 }// namespace Riddle
