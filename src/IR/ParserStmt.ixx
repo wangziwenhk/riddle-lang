@@ -108,18 +108,18 @@ export namespace Riddle {
             return result;
         }
 
-        Value *DoublePs(const DoubleStmt *stmt) const {
+        llvm::Value *DoublePs(const DoubleStmt *stmt) const {
             Value *result = ctx->valueManager.getFloat(stmt->value);
-            return result;
+            return result->toLLVM();
         }
 
-        Value *BooleanPs(const BoolStmt *stmt) const {
+        llvm::Value *BooleanPs(const BoolStmt *stmt) const {
             Value *result = ctx->valueManager.getBool(stmt->value);
-            return result;
+            return result->toLLVM();
         }
-        llvm::Value *StringPs(const StringStmt *stmt)const {
-            llvm::Value *result = ctx->llvmBuilder.CreateGlobalStringPtr(stmt->value);
-            return result;
+        llvm::Value *StringPs(const StringStmt *stmt) const {
+            Value *result = ctx->valueManager.getString(stmt->value);
+            return result->toLLVM();
         }
 
         void ProgramPs(ProgramStmt *stmt) {// NOLINT(*-no-recursion)
@@ -229,9 +229,9 @@ export namespace Riddle {
 
 
         llvm::Value *VarDefinePs(const VarDefineStmt *stmt) {// NOLINT(*-no-recursion)
-            llvm::Value *value = nullptr;
+            Value *value = nullptr;
             if(!stmt->value->isNoneStmt()) {
-                value = std::any_cast<llvm::Value *>(accept(stmt->value));
+                value = std::any_cast<Value *>(accept(stmt->value));
             }
             const std::string name = stmt->name;
             llvm::Type *type = nullptr;
@@ -244,7 +244,10 @@ export namespace Riddle {
             llvm::Value *var;
             // 对全局变量特判
             if(ctx->deep() <= 1) {
-                auto *CV = llvm::dyn_cast<llvm::Constant>(value);
+                if(value == nullptr) {
+                    throw std::logic_error("VarDefinePs called with nullptr");
+                }
+                auto *CV = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
                 var = new llvm::GlobalVariable(ctx->module, type, false,
                                                llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
@@ -263,8 +266,8 @@ export namespace Riddle {
             if(stmt->value == nullptr) {
                 return ctx->llvmBuilder.CreateRetVoid();
             }
-            const auto result = std::any_cast<llvm::Value *>(accept(stmt->value));
-            return ctx->llvmBuilder.CreateRet(result);
+            const auto result = std::any_cast<Value*>(accept(stmt->value));
+            return ctx->llvmBuilder.CreateRet(result->toLLVM());
         }
 
         llvm::Value *BlockPs(const BlockStmt *stmt) {// NOLINT(*-no-recursion)
@@ -361,7 +364,7 @@ export namespace Riddle {
 
         llvm::Value *BinaryExprPs(const BinaryExprStmt *stmt) {// NOLINT(*-no-recursion)
             auto lhs = std::any_cast<llvm::Value *>(accept(stmt->lhs));
-            const auto rhs = std::any_cast<llvm::Value *>(accept(stmt->rhs));
+            const auto rhs = std::any_cast<Value *>(accept(stmt->rhs))->toLLVM();
             const auto op = stmt->opt;
             if(lhs->getType()->isPointerTy() && op != "=") {
                 lhs = ctx->llvmBuilder.CreateLoad(getSourceType(lhs), lhs);
@@ -501,4 +504,4 @@ export namespace Riddle {
             return ptr;
         }
     };
-}// namespace Riddle
+}// namespace Riddl

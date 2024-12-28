@@ -2,20 +2,20 @@ module;
 #include <vector>
 export module Tools.Allocator;
 export namespace Riddle {
+    template<typename Tp>
     class Allocator final {
-        std::vector<void *> data;
+        std::vector<Tp *> data;
 
     public:
         Allocator() = default;
 
         ~Allocator() {
             for(const auto i:data) {
-                // ReSharper disable once CppDeletingVoidPointer
                 delete i;
             }
         }
 
-        void addPtr(void *ptr) {
+        void addPtr(Tp *ptr) {
             data.push_back(ptr);
         }
     };

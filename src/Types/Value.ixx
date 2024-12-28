@@ -27,6 +27,7 @@ export namespace Riddle {
 
         virtual ~Value() = default;
         virtual llvm::Value *toLLVM() = 0;
+        virtual llvm::Type *getType() = 0;
     };
 
     class Integer final : public Value {
@@ -41,6 +42,10 @@ export namespace Riddle {
 
         llvm::Value *toLLVM() override {
             return builder.getInt32(value);
+        }
+
+        llvm::Type *getType() override {
+            return builder.getInt32Ty();
         }
     };
 
@@ -57,6 +62,10 @@ export namespace Riddle {
             const auto doubleTy = builder.getDoubleTy();
             return llvm::ConstantFP::get(doubleTy, value);
         }
+
+        llvm::Type *getType() override {
+            return builder.getFloatTy();
+        }
     };
 
     class String final : public Value {
@@ -72,6 +81,10 @@ export namespace Riddle {
         llvm::Value *toLLVM() override {
             return builder.CreateGlobalStringPtr(value);
         }
+
+        llvm::Type *getType() override {
+            return builder.getPtrTy();
+        }
     };
 
     class Bool final : public Value {
@@ -85,6 +98,10 @@ export namespace Riddle {
 
         llvm::Value *toLLVM() override {
             return builder.getInt1(value);
+        }
+
+        llvm::Type *getType() override {
+            return builder.getInt1Ty();
         }
     };
 
@@ -101,6 +118,10 @@ export namespace Riddle {
             llvm::Value *pointerTo = value->toLLVM();
             const auto type = llvm::PointerType::get(builder.getContext(), 0);
             return builder.CreatePointerCast(pointerTo, type);
+        }
+
+        llvm::Type *getType() override {
+            return builder.getPtrTy();
         }
     };
 }// namespace Riddle
