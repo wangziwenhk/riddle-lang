@@ -16,83 +16,84 @@ import Types.Class;
 import IR.Context;
 import IR.TypeParser;
 import Type.Variable;
+import Types.Value;
 export namespace Riddle {
     class ParserStmt {
         Context *ctx = nullptr;
-        llvm::IRBuilder<> llvmBuilder;
+
         std::stack<llvm::BasicBlock *> breakBlocks;
         std::stack<llvm::BasicBlock *> continueBlocks;
         std::stack<llvm::Function *> parent;
 
     public:
-        explicit ParserStmt(Context *ctx): ctx(ctx), llvmBuilder(ctx->llvm_context) {
+        explicit ParserStmt(Context *ctx): ctx(ctx) {
         }
 
         // 获取从语句得到的结果
         std::any accept(BaseStmt *stmt) {// NOLINT(*-no-recursion)
             switch(stmt->getStmtTypeID()) {
                 case BaseStmt::StmtTypeID::ProgramStmtID:
-                    Program(dynamic_cast<ProgramStmt *>(stmt));
+                    ProgramPs(dynamic_cast<ProgramStmt *>(stmt));
                     return nullptr;
 
                 case BaseStmt::StmtTypeID::IntegerStmtID:
-                    return Integer(dynamic_cast<IntegerStmt *>(stmt));
+                    return IntegerPs(dynamic_cast<IntegerStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::DoubleStmtID:
-                    return Double(dynamic_cast<DoubleStmt *>(stmt));
+                    return DoublePs(dynamic_cast<DoubleStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::BoolStmtID:
-                    return Boolean(dynamic_cast<BoolStmt *>(stmt));
+                    return BooleanPs(dynamic_cast<BoolStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::ObjStmtID:
-                    return Object(dynamic_cast<ObjectStmt *>(stmt));
+                    return ObjectPs(dynamic_cast<ObjectStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::FuncDefineStmtID:
-                    return FuncDefine(dynamic_cast<FuncDefineStmt *>(stmt));
+                    return FuncDefinePs(dynamic_cast<FuncDefineStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::VarDefineStmtID:
-                    return VarDefine(dynamic_cast<VarDefineStmt *>(stmt));
+                    return VarDefinePs(dynamic_cast<VarDefineStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::ReturnStmtID:
-                    return Return(dynamic_cast<ReturnStmt *>(stmt));
+                    return ReturnPs(dynamic_cast<ReturnStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::WhileStmtID:
-                    return While(dynamic_cast<WhileStmt *>(stmt));
+                    return WhilePs(dynamic_cast<WhileStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::ForStmtID:
-                    return For(dynamic_cast<ForStmt *>(stmt));
+                    return ForPs(dynamic_cast<ForStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::ContinueStmtID:
-                    return Continue();
+                    return ContinuePs();
 
                 case BaseStmt::StmtTypeID::BreakStmtID:
-                    return Break();
+                    return BreakPs();
 
                 case BaseStmt::StmtTypeID::BinaryExprStmtID:
-                    return BinaryExpr(dynamic_cast<BinaryExprStmt *>(stmt));
+                    return BinaryExprPs(dynamic_cast<BinaryExprStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::FuncCallStmtID:
-                    return FuncCall(dynamic_cast<FuncCallStmt *>(stmt));
+                    return FuncCallPs(dynamic_cast<FuncCallStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::StringStmtID:
-                    return String(dynamic_cast<StringStmt *>(stmt));
+                    return StringPs(dynamic_cast<StringStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::IfStmtID:
-                    If(dynamic_cast<IfStmt *>(stmt));
+                    IfPs(dynamic_cast<IfStmt *>(stmt));
                     return nullptr;
 
                 case BaseStmt::StmtTypeID::ClassDefineStmtID:
-                    ClassDefine(dynamic_cast<ClassDefineStmt *>(stmt));
+                    ClassDefinePs(dynamic_cast<ClassDefineStmt *>(stmt));
                     return nullptr;
 
                 case BaseStmt::StmtTypeID::MethodCallStmtID:
-                    return MethodCall(dynamic_cast<MethodCallStmt *>(stmt));
+                    return MethodCallPs(dynamic_cast<MethodCallStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::MemberExprStmtID:
-                    return MemberExpr(dynamic_cast<MemberExprStmt *>(stmt));
+                    return MemberExprPs(dynamic_cast<MemberExprStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::BlockStmtID:
-                    return Block(dynamic_cast<BlockStmt *>(stmt));
+                    return BlockPs(dynamic_cast<BlockStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::NoneStmtID:
                     return nullptr;
@@ -102,29 +103,29 @@ export namespace Riddle {
                     throw std::logic_error("Unhandled StmtTypeID");
             }
         }
-        llvm::Value *Integer(const IntegerStmt *stmt) {
-            llvm::Value *result = llvmBuilder.getInt32(stmt->value);
+        Value *IntegerPs(const IntegerStmt *stmt) const {
+            Value *result = ctx->valueManager.getInteger(stmt->value);
             return result;
         }
 
-        llvm::Value *Double(const DoubleStmt *stmt) const {
-            llvm::Value *result = llvm::ConstantFP::get(llvm::Type::getDoubleTy(ctx->llvm_context), stmt->value);
+        Value *DoublePs(const DoubleStmt *stmt) const {
+            Value *result = ctx->valueManager.getFloat(stmt->value);
             return result;
         }
 
-        llvm::Value *Boolean(const BoolStmt *stmt) {
-            llvm::Value *result = llvmBuilder.getInt1(stmt->value);
+        Value *BooleanPs(const BoolStmt *stmt) const {
+            Value *result = ctx->valueManager.getBool(stmt->value);
             return result;
         }
-        llvm::Value *String(const StringStmt *stmt) {
-            llvm::Value *result = llvmBuilder.CreateGlobalStringPtr(stmt->value);
+        llvm::Value *StringPs(const StringStmt *stmt)const {
+            llvm::Value *result = ctx->llvmBuilder.CreateGlobalStringPtr(stmt->value);
             return result;
         }
 
-        void Program(ProgramStmt *stmt) {// NOLINT(*-no-recursion)
+        void ProgramPs(ProgramStmt *stmt) {// NOLINT(*-no-recursion)
             ctx->push();
             // TestLib start
-            llvm::FunctionType *printfType = llvm::FunctionType::get(llvmBuilder.getVoidTy(), {llvmBuilder.getPtrTy()}, false);
+            llvm::FunctionType *printfType = llvm::FunctionType::get(ctx->llvmBuilder.getVoidTy(), {ctx->llvmBuilder.getPtrTy()}, false);
             llvm::Function *printfFunc = llvm::Function::Create(
                     printfType, llvm::Function::ExternalLinkage, "printf", ctx->module);
             ctx->funcManager.registerFunction("printf", printfFunc);
@@ -140,7 +141,7 @@ export namespace Riddle {
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
-        llvm::Function *FuncDefine(const FuncDefineStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Function *FuncDefinePs(const FuncDefineStmt *stmt) {// NOLINT(*-no-recursion)
             const std::string name = stmt->func_name;
             llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
             const auto args = stmt->args;
@@ -157,7 +158,7 @@ export namespace Riddle {
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
             llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
-            llvmBuilder.SetInsertPoint(entry);
+            ctx->llvmBuilder.SetInsertPoint(entry);
             ctx->funcManager.registerFunction(name, func);
 
             // 预处理 varDefine
@@ -227,7 +228,7 @@ export namespace Riddle {
         }
 
 
-        llvm::Value *VarDefine(const VarDefineStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *VarDefinePs(const VarDefineStmt *stmt) {// NOLINT(*-no-recursion)
             llvm::Value *value = nullptr;
             if(!stmt->value->isNoneStmt()) {
                 value = std::any_cast<llvm::Value *>(accept(stmt->value));
@@ -247,26 +248,26 @@ export namespace Riddle {
                 var = new llvm::GlobalVariable(ctx->module, type, false,
                                                llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
-                var = llvmBuilder.CreateAlloca(type, nullptr, name);
+                var = ctx->llvmBuilder.CreateAlloca(type, nullptr, name);
             }
             ctx->addVariable(Variable(name, var, false));
             return var;
         }
 
-        llvm::Value *Object(const ObjectStmt *stmt) const {
+        llvm::Value *ObjectPs(const ObjectStmt *stmt) const {
             const std::string name = stmt->name;
             return ctx->varManager.getVar(name).var;
         }
 
-        llvm::Value *Return(const ReturnStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *ReturnPs(const ReturnStmt *stmt) {// NOLINT(*-no-recursion)
             if(stmt->value == nullptr) {
-                return llvmBuilder.CreateRetVoid();
+                return ctx->llvmBuilder.CreateRetVoid();
             }
             const auto result = std::any_cast<llvm::Value *>(accept(stmt->value));
-            return llvmBuilder.CreateRet(result);
+            return ctx->llvmBuilder.CreateRet(result);
         }
 
-        llvm::Value *Block(const BlockStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *BlockPs(const BlockStmt *stmt) {// NOLINT(*-no-recursion)
             ctx->push();
             for(const auto i: stmt->stmts) {
                 accept(i);
@@ -275,34 +276,34 @@ export namespace Riddle {
             return nullptr;
         }
 
-        llvm::Value *While(const WhileStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *WhilePs(const WhileStmt *stmt) {// NOLINT(*-no-recursion)
             llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.cond", parent.top());
             llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.loop", parent.top());
             llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.exit", parent.top());
 
-            llvmBuilder.CreateBr(condBlock);
-            llvmBuilder.SetInsertPoint(condBlock);
+            ctx->llvmBuilder.CreateBr(condBlock);
+            ctx->llvmBuilder.SetInsertPoint(condBlock);
             // cond 是必须要求的
             const auto cond = std::any_cast<llvm::Value *>(accept(stmt->condition));
-            llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
+            ctx->llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
 
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
 
             ctx->push();
-            llvmBuilder.SetInsertPoint(loopBlock);
+            ctx->llvmBuilder.SetInsertPoint(loopBlock);
             accept(stmt->body);
-            llvmBuilder.CreateBr(condBlock);
+            ctx->llvmBuilder.CreateBr(condBlock);
             ctx->pop();
 
             breakBlocks.pop();
             continueBlocks.pop();
 
-            llvmBuilder.SetInsertPoint(exitBlock);
+            ctx->llvmBuilder.SetInsertPoint(exitBlock);
             return nullptr;
         }
 
-        llvm::Value *For(const ForStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *ForPs(const ForStmt *stmt) {// NOLINT(*-no-recursion)
             llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.cond", parent.top());
             llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.loop", parent.top());
             llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.exit", parent.top());
@@ -317,28 +318,28 @@ export namespace Riddle {
                 accept(stmt->init);
             }
 
-            llvmBuilder.CreateBr(condBlock);
-            llvmBuilder.SetInsertPoint(condBlock);
+            ctx->llvmBuilder.CreateBr(condBlock);
+            ctx->llvmBuilder.SetInsertPoint(condBlock);
             // 如果没有 Cond 那么一直运行
-            llvm::Value *cond = llvmBuilder.getInt1(true);
+            llvm::Value *cond = ctx->llvmBuilder.getInt1(true);
             if(!stmt->condition->isNoneStmt()) {
                 cond = std::any_cast<llvm::Value *>(accept(stmt->condition));
             }
 
-            llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
+            ctx->llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
 
             // 设置当前 break 和 continue 执行的对象
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
 
-            llvmBuilder.SetInsertPoint(loopBlock);
+            ctx->llvmBuilder.SetInsertPoint(loopBlock);
             if(!stmt->self_change->isNoneStmt()) {
                 accept(stmt->self_change);
             }
             accept(stmt->body);
-            llvmBuilder.CreateBr(condBlock);
+            ctx->llvmBuilder.CreateBr(condBlock);
 
-            llvmBuilder.SetInsertPoint(exitBlock);
+            ctx->llvmBuilder.SetInsertPoint(exitBlock);
 
             ctx->pop();
 
@@ -348,31 +349,31 @@ export namespace Riddle {
             return nullptr;
         }
 
-        llvm::Value *Break() {
-            llvmBuilder.CreateBr(breakBlocks.top());
+        llvm::Value *BreakPs() {
+            ctx->llvmBuilder.CreateBr(breakBlocks.top());
             return nullptr;
         }
 
-        llvm::Value *Continue() {
-            llvmBuilder.CreateBr(continueBlocks.top());
+        llvm::Value *ContinuePs() {
+            ctx->llvmBuilder.CreateBr(continueBlocks.top());
             return nullptr;
         }
 
-        llvm::Value *BinaryExpr(const BinaryExprStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *BinaryExprPs(const BinaryExprStmt *stmt) {// NOLINT(*-no-recursion)
             auto lhs = std::any_cast<llvm::Value *>(accept(stmt->lhs));
             const auto rhs = std::any_cast<llvm::Value *>(accept(stmt->rhs));
             const auto op = stmt->opt;
             if(lhs->getType()->isPointerTy() && op != "=") {
-                lhs = llvmBuilder.CreateLoad(getSourceType(lhs), lhs);
+                lhs = ctx->llvmBuilder.CreateLoad(getSourceType(lhs), lhs);
             }
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上
-            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{getSourceType(lhs), getSourceType(rhs), op})(llvmBuilder, lhs, rhs);
+            llvm::Value *result = ctx->opManager.getOpFunc(OpGroup{getSourceType(lhs), getSourceType(rhs), op})(ctx->llvmBuilder, lhs, rhs);
             return result;
         }
 
 
-        void If(const IfStmt *stmt) {// NOLINT(*-no-recursion)
+        void IfPs(const IfStmt *stmt) {// NOLINT(*-no-recursion)
             llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.cond", parent.top());
             llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.then", parent.top());
             llvm::BasicBlock *elseBlock = nullptr;
@@ -384,36 +385,36 @@ export namespace Riddle {
 
             ctx->push();
 
-            llvmBuilder.CreateBr(condBlock);
-            llvmBuilder.SetInsertPoint(condBlock);
+            ctx->llvmBuilder.CreateBr(condBlock);
+            ctx->llvmBuilder.SetInsertPoint(condBlock);
             const auto cond = std::any_cast<llvm::Value *>(accept(stmt->condition));
             if(elseBlock == nullptr) {
-                llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
+                ctx->llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
             } else {
-                llvmBuilder.CreateCondBr(cond, thenBlock, elseBlock);
+                ctx->llvmBuilder.CreateCondBr(cond, thenBlock, elseBlock);
             }
 
             // if true
             ctx->push();
-            llvmBuilder.SetInsertPoint(thenBlock);
+            ctx->llvmBuilder.SetInsertPoint(thenBlock);
             accept(stmt->thenBody);
-            llvmBuilder.CreateBr(exitBlock);
+            ctx->llvmBuilder.CreateBr(exitBlock);
             ctx->pop();
 
             // if false
             if(elseBlock != nullptr) {
                 ctx->push();
-                llvmBuilder.SetInsertPoint(elseBlock);
+                ctx->llvmBuilder.SetInsertPoint(elseBlock);
                 accept(stmt->elseBody);
-                llvmBuilder.CreateBr(exitBlock);
+                ctx->llvmBuilder.CreateBr(exitBlock);
                 ctx->pop();
             }
 
             ctx->pop();
-            llvmBuilder.SetInsertPoint(exitBlock);
+            ctx->llvmBuilder.SetInsertPoint(exitBlock);
         }
 
-        void ClassDefine(const ClassDefineStmt *stmt) {// NOLINT(*-no-recursion)
+        void ClassDefinePs(const ClassDefineStmt *stmt) {// NOLINT(*-no-recursion)
             const auto theClass = new Class();
             theClass->type = llvm::StructType::create(ctx->llvm_context, stmt->name);
             // 成员创建
@@ -449,7 +450,7 @@ export namespace Riddle {
             }
         }
 
-        llvm::Value *FuncCall(const FuncCallStmt *stmt) {// NOLINT(*-no-recursion)
+        llvm::Value *FuncCallPs(const FuncCallStmt *stmt) {// NOLINT(*-no-recursion)
             const auto name = stmt->name;
             const auto argList = stmt->args;
             std::vector<llvm::Value *> args;
@@ -457,11 +458,11 @@ export namespace Riddle {
                 auto value = std::any_cast<llvm::Value *>(accept(i));
                 args.push_back(value);
             }
-            llvm::Value *result = llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
+            llvm::Value *result = ctx->llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
             return result;
         }
 
-        llvm::Value *MethodCall(const MethodCallStmt *stmt) {
+        llvm::Value *MethodCallPs(const MethodCallStmt *stmt) {
             const auto object = std::any_cast<llvm::Value *>(accept(stmt->object));
             const auto type = getSourceType(object);
             const auto theClass = ctx->classManager.getClassFromType(type);
@@ -474,12 +475,12 @@ export namespace Riddle {
                 auto value = std::any_cast<llvm::Value *>(accept(i));
                 args.push_back(value);
             }
-            llvm::Value *result = llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
+            llvm::Value *result = ctx->llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
 
             return result;
         }
 
-        llvm::Value *MemberExpr(const MemberExprStmt *stmt) {
+        llvm::Value *MemberExprPs(const MemberExprStmt *stmt) {
             const auto object = std::any_cast<llvm::Value *>(accept(stmt->parent));
             const auto type = getSourceType(object);
             const auto theClass = ctx->classManager.getClassFromType(type);
@@ -488,14 +489,13 @@ export namespace Riddle {
 
             const int index = theClass->members[child];
 
-            llvm::Value *ptr = llvmBuilder.CreateStructGEP(
+            llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
                     theClass->type,
                     object,
-                    index
-                    );
+                    index);
 
             // if(stmt->isLast) {
-            //     llvm::Value *loaded = llvmBuilder.CreateLoad(theClass->type->getElementType(index),ptr);
+            //     llvm::Value *loaded = ctx->llvmBuilder.CreateLoad(theClass->type->getElementType(index),ptr);
             //     return loaded;
             // }
             return ptr;
