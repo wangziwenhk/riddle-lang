@@ -26,12 +26,11 @@ export namespace Riddle {
         OpManager opManager;
         FuncManager funcManager;
         ValueManager valueManager;
-        Allocator allocator;
         llvm::IRBuilder<> llvmBuilder;
 
         explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context),
                                                       classManager(context), opManager(context),
-                                                      valueManager(llvmBuilder, allocator), llvmBuilder(context) {}
+                                                      valueManager(llvmBuilder), llvmBuilder(context) {}
 
         inline void addVariable(const Variable &var) {
             varManager.addVar(var);
