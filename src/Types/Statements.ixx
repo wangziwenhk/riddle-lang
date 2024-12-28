@@ -44,7 +44,7 @@ export namespace Riddle {
 
             ClassDefineStmtID,
             MethodCallStmtID,
-            MemberExprStmt,
+            MemberExprStmtID,
 
             NoneStmtID,// 没有任何效果的语句
         };
@@ -158,7 +158,7 @@ export namespace Riddle {
     };
 
     class DefineArgStmt final : public BaseStmt {
-    protected:
+
     public:
         DefineArgStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::DefineArgStmtID),
                                                                             name(std::move(name)),
@@ -350,14 +350,16 @@ export namespace Riddle {
 
     class MethodCallStmt final : public BaseStmt {
     public:
-        MethodCallStmt(BaseStmt* obj,FuncCallStmt* call):BaseStmt(StmtTypeID::MethodCallStmtID),object(obj),call(call){}
+        MethodCallStmt(BaseStmt *obj, FuncCallStmt *call): BaseStmt(StmtTypeID::MethodCallStmtID), object(obj), call(call) {}
 
-        BaseStmt* object;
-        FuncCallStmt* call;
+        BaseStmt *object;
+        FuncCallStmt *call;
     };
 
     class MemberExprStmt final : public BaseStmt {
-        public:
-        MemberExprStmt(BaseStmt* parent,BaseStmt* child):BaseStmt(StmtTypeID::MemberExprStmt){}
+    public:
+        MemberExprStmt(BaseStmt *parent,ObjectStmt* child):BaseStmt(StmtTypeID::MemberExprStmtID),parent(parent),child(child){}
+        BaseStmt* parent;
+        ObjectStmt* child;
     };
 }// namespace Riddle

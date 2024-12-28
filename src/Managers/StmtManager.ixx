@@ -180,7 +180,7 @@ export namespace Riddle {
             return ptr;
         }
 
-        MemberExprStmt *getMemberExpr(BaseStmt *parent,BaseStmt* child) {
+        MemberExprStmt *getMemberExpr(BaseStmt *parent, ObjectStmt *child) {
             const auto ptr = new MemberExprStmt(parent, child);
             stmts.push_back(ptr);
             return ptr;
