@@ -34,5 +34,11 @@ export namespace Riddle {
             allocator.addPtr(it);
             return it;
         }
+
+        [[nodiscard]] LLVMValue *getLLVMValue(llvm::Value *value, llvm::Type *type) {
+            const auto it = new LLVMValue(builder, value, type);
+            allocator.addPtr(it);
+            return it;
+        }
     };
 }// namespace Riddle
