@@ -18,7 +18,8 @@ export namespace Riddle {
             StringTyID,
             BoolTyID,
             StructTyID,
-            PtrTyID,
+            LLVMValueTyID,
+            ObjectTyID,
         };
 
         ValueTyID ID;
@@ -105,23 +106,22 @@ export namespace Riddle {
         }
     };
 
-    class Pointer final : public Value {
-        Value *value;
+    class LLVMValue final : public Value {
+        llvm::Value *value;
+        llvm::Type *type;
 
     public:
-        explicit Pointer(llvm::IRBuilder<> &builder, Value *value): Value(builder, PtrTyID), value(value) {}
-        [[nodiscard]] Value *getValue() const {
+        explicit LLVMValue(llvm::IRBuilder<> &builder, llvm::Value *value, llvm::Type *type): Value(builder, LLVMValueTyID), value(value), type(type) {}
+        [[nodiscard]] llvm::Value *getValue() const {
             return value;
         }
 
         llvm::Value *toLLVM() override {
-            llvm::Value *pointerTo = value->toLLVM();
-            const auto type = llvm::PointerType::get(builder.getContext(), 0);
-            return builder.CreatePointerCast(pointerTo, type);
+            return value;
         }
 
         llvm::Type *getType() override {
-            return builder.getPtrTy();
+            return type;
         }
     };
 }// namespace Riddle
