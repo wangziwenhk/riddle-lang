@@ -1,5 +1,4 @@
 #include "StmtVisitor.h"
-
 #include <llvm/IR/DerivedTypes.h>
 import managers.StmtManager;
 
@@ -194,7 +193,11 @@ namespace Riddle {
         std::vector<BaseStmt *> args;
         args.reserve(ctx->children.size());
         for(const auto i: ctx->children) {
-            args.push_back(std::any_cast<BaseStmt *>(visit(i)));
+            if(antlrcpp::is<antlr4::tree::TerminalNode*>(i)) {
+                continue;
+            }
+            auto it = visit(i);
+            args.push_back(std::any_cast<BaseStmt *>(it));
         }
         BaseStmt *stmt = IRContext.stmtManager.getArgList(args);
         return stmt;
@@ -317,17 +320,21 @@ namespace Riddle {
         return stmt;
     }
     std::any StmtVisitor::visitBlendExpr(RiddleParser::BlendExprContext *ctx) {
-        const auto parent = std::any_cast<BaseStmt *>(visit(ctx->parent));
+        const auto parent = std::any_cast<BaseStmt *>(visit(ctx->parents));
         const auto child = std::any_cast<BaseStmt *>(visit(ctx->child));
-        BaseStmt *result;
+        BaseStmt *result = nullptr;
         if(child->getStmtTypeID() == BaseStmt::StmtTypeID::FuncCallStmtID) {
             result = IRContext.stmtManager.getMethodCall(parent, dynamic_cast<FuncCallStmt *>(child));
+        } else if(child->getStmtTypeID() == BaseStmt::StmtTypeID::ObjStmtID) {
+            bool isLoaded = false;
+            // 这里这个parent是节点的parent而不是该表达式的parent
+            if(antlrcpp::is<RiddleParser::PtrExprContext*>(ctx->parent)) {
+                isLoaded = true;
+            }
+            result = IRContext.stmtManager.getMemberExpr(parent, dynamic_cast<ObjectStmt *>(child), isLoaded);
         } else {
-            result = IRContext.stmtManager.getMemberExpr(parent, child);
+            throw std::logic_error("visitBlendExpr:What fuck?");
         }
-
         return result;
     }
-
-
 }// namespace Riddle

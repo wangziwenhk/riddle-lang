@@ -116,7 +116,7 @@ catchExpr
 exprPtr
     : funcName=Identifier LeftBracket args=argsExpr RightBracket    #funcExpr
     | Identifier                                                    #objectExpr
-    | parent=exprPtr Dot child=exprPtr                              #blendExpr
+    | parents=exprPtr Dot child=exprPtr                             #blendExpr
     ;
 
 exprPtrParser

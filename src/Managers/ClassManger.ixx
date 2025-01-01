@@ -7,6 +7,7 @@ module;
 #include <unordered_set>
 export module managers.ClassManager;
 import Types.Class;
+import IR.TypeParser;
 export namespace Riddle {
     /// @brief 管理类
     class ClassManager {
@@ -40,13 +41,13 @@ export namespace Riddle {
             if(baseType.contains(name)) {
                 return baseType.find(name)->second;
             }
-            return getClass(name)->types;
+            return getClass(name)->type;
         }
 
         // class 在进入该函数后则不可修改
         void createClass(Class *theClass) {
-            Classes[theClass->types->getName().str()] = theClass;
-            ClassesByType[theClass->types] = theClass;
+            Classes[theClass->type->getName().str()] = theClass;
+            ClassesByType[theClass->type] = theClass;
         }
 
         // 从 Struct 地址获得 Class
