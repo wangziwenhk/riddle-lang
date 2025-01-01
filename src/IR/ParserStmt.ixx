@@ -14,7 +14,6 @@ import managers.VarManager;
 import managers.OpManager;
 import Types.Class;
 import IR.Context;
-import IR.TypeParser;
 import Type.Variable;
 import Types.Value;
 export namespace Riddle {
@@ -381,15 +380,18 @@ export namespace Riddle {
         }
 
         Value *BinaryExprPs(const BinaryExprStmt *stmt) {
-            auto lhs = std::any_cast<Value *>(accept(stmt->lhs))->toLLVM();
+            const auto lhs = std::any_cast<Value *>(accept(stmt->lhs));
             const auto rhs = std::any_cast<Value *>(accept(stmt->rhs))->toLLVM();
             const auto op = stmt->opt;
             if(lhs->getType()->isPointerTy() && op != "=") {
-                lhs = ctx->llvmBuilder.CreateLoad(getSourceType(lhs), lhs);
+                const auto load_lhs = ctx->llvmBuilder.CreateLoad(lhs->getType(), lhs->toLLVM());
+                llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{load_lhs->getType(), rhs->getType(), op})(ctx->llvmBuilder, load_lhs, rhs);
+                Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
+                return result;
             }
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上
-            llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{getSourceType(lhs), getSourceType(rhs), op})(ctx->llvmBuilder, lhs, rhs);
+            llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(ctx->llvmBuilder, lhs->toLLVM(), rhs);
             Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
             return result;
         }

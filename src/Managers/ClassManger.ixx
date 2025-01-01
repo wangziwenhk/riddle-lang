@@ -7,7 +7,7 @@ module;
 #include <unordered_set>
 export module managers.ClassManager;
 import Types.Class;
-import IR.TypeParser;
+
 export namespace Riddle {
     /// @brief 管理类
     class ClassManager {
