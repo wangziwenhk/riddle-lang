@@ -1,5 +1,6 @@
-#include "Tools/BuildQueue.h"
+#include <stdint.h>
 #include "termcolor/termcolor.hpp"
+import Tools.BuildQueue;
 import Tools.Options;
 using namespace std;
 int main(const int argc, char *argv[]) {
@@ -7,8 +8,9 @@ int main(const int argc, char *argv[]) {
     // 交由 Options 进行处理
     const auto opt = Riddle::Options(argc, argv);
     // Parser
-    freopen(opt.output.c_str(),"w",stdout);
-    Riddle::buildQueue.parserFile(opt.source);
-    Riddle::buildQueue.start();
+    freopen(opt.output.c_str(), "w", stdout);
+    Riddle::BuildQueue buildQueue;
+    buildQueue.parserFile(opt.source);
+    buildQueue.start();
     return 0;
 }

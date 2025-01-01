@@ -8,7 +8,7 @@ module;
 #include <llvm/IR/Verifier.h>
 #include <stack>
 export module IR.ParserStmt;
-import Types.Statements;
+import IR.Statements;
 import managers.ClassManager;
 import managers.VarManager;
 import managers.OpManager;
@@ -132,7 +132,7 @@ export namespace Riddle {
         void ProgramPs(ProgramStmt *stmt) {
             ctx->push();
             // TestLib start
-            llvm::FunctionType *printfType = llvm::FunctionType::get(ctx->llvmBuilder.getVoidTy(), {ctx->llvmBuilder.getPtrTy()}, false);
+            llvm::FunctionType *printfType = llvm::FunctionType::get(ctx->llvmBuilder.getVoidTy(), {ctx->llvmBuilder.getPtrTy()}, true);
             llvm::Function *printfFunc = llvm::Function::Create(
                     printfType, llvm::Function::ExternalLinkage, "printf", ctx->module);
             ctx->funcManager.registerFunction("printf", printfFunc);
@@ -263,6 +263,7 @@ export namespace Riddle {
             ctx->addVariable(Variable(name, var, false));
         }
 
+        // ReSharper disable once CppDFAConstantFunctionResult
         Value *ObjectPs(const ObjectStmt *stmt) const {
             const std::string name = stmt->name;
             // ReSharper disable once CppDFAUnreadVariable
@@ -477,7 +478,7 @@ export namespace Riddle {
             return result;
         }
 
-        llvm::Value *MethodCallPs(const MethodCallStmt *stmt) {
+        Value *MethodCallPs(const MethodCallStmt *stmt) {
             const auto object = std::any_cast<Value *>(accept(stmt->object));
             const auto type = object->getType();
             const auto theClass = ctx->classManager.getClassFromType(type);
@@ -490,14 +491,14 @@ export namespace Riddle {
                 auto value = std::any_cast<llvm::Value *>(accept(i));
                 args.push_back(value);
             }
-            llvm::Value *result = ctx->llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
-
+            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
+            Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
             return result;
         }
 
-        llvm::Value *MemberExprPs(const MemberExprStmt *stmt) {
-            const auto object = std::any_cast<Value *>(accept(stmt->parent))->toLLVM();
-            const auto type = getSourceType(object);
+        Value *MemberExprPs(const MemberExprStmt *stmt) {
+            const auto object = std::any_cast<Value *>(accept(stmt->parent));
+            const auto type = object->getType();
             const auto theClass = ctx->classManager.getClassFromType(type);
 
             const std::string child = stmt->child->name;
@@ -506,14 +507,19 @@ export namespace Riddle {
 
             llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
                     theClass->type,
-                    object,
+                    object->toLLVM(),
                     index);
 
-            // if(stmt->isLast) {
-            //     llvm::Value *loaded = ctx->llvmBuilder.CreateLoad(theClass->type->getElementType(index),ptr);
-            //     return loaded;
-            // }
-            return ptr;
+            Value *result = nullptr;
+            llvm::Type *childType = theClass->type->getElementType(index);
+
+            if(stmt->isLoaded) {
+                llvm::Value *load = ctx->llvmBuilder.CreateLoad(childType, ptr);
+                result = ctx->valueManager.getLLVMValue(load, childType);
+            } else {
+                result = ctx->valueManager.getLLVMValue(ptr, childType);
+            }
+            return result;
         }
     };
 }// namespace Riddle
