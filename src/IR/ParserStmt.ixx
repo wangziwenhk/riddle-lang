@@ -269,12 +269,19 @@ export namespace Riddle {
             // ReSharper disable once CppDFAUnreadVariable
             // ReSharper disable once CppDFAUnusedValue
             const auto ptr = ctx->varManager.getVar(name).var;
+            bool isLoaded = stmt->isLoaded;
             Value *value = nullptr;
             if(const auto arg = llvm::dyn_cast<llvm::Argument>(ptr); arg != nullptr) {
                 value = ctx->valueManager.getLLVMValue(arg, arg->getType());
             } else if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(ptr); var != nullptr) {
-                value = ctx->valueManager.getLLVMValue(var, var->getAllocatedType());
+                if(isLoaded) {
+                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), ptr);
+                    value = ctx->valueManager.getLLVMValue(load, load->getType());
+                } else {
+                    value = ctx->valueManager.getLLVMValue(var, var->getAllocatedType());
+                }
             }
+
             return value;
         }
 

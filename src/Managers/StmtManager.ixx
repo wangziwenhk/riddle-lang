@@ -115,8 +115,8 @@ export namespace Riddle {
             return ptr;
         }
 
-        ObjectStmt *getObject(const std::string &name) {
-            const auto ptr = new ObjectStmt(name);
+        ObjectStmt *getObject(const std::string &name, const bool isLoaded = false) {
+            const auto ptr = new ObjectStmt(name, isLoaded);
             stmts.push_back(ptr);
             return ptr;
         }

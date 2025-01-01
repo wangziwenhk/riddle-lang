@@ -193,7 +193,7 @@ namespace Riddle {
         std::vector<BaseStmt *> args;
         args.reserve(ctx->children.size());
         for(const auto i: ctx->children) {
-            if(antlrcpp::is<antlr4::tree::TerminalNode*>(i)) {
+            if(antlrcpp::is<antlr4::tree::TerminalNode *>(i)) {
                 continue;
             }
             auto it = visit(i);
@@ -204,7 +204,11 @@ namespace Riddle {
     }
 
     std::any StmtVisitor::visitObjectExpr(RiddleParser::ObjectExprContext *ctx) {
-        BaseStmt *stmt = IRContext.stmtManager.getObject(ctx->getText());
+        bool isLoaded = false;
+        if(antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
+            isLoaded = true;
+        }
+        BaseStmt *stmt = IRContext.stmtManager.getObject(ctx->getText(), isLoaded);
         return stmt;
     }
     std::any StmtVisitor::visitExprPtrParser(RiddleParser::ExprPtrParserContext *ctx) {
@@ -328,7 +332,7 @@ namespace Riddle {
         } else if(child->getStmtTypeID() == BaseStmt::StmtTypeID::ObjStmtID) {
             bool isLoaded = false;
             // 这里这个parent是节点的parent而不是该表达式的parent
-            if(antlrcpp::is<RiddleParser::PtrExprContext*>(ctx->parent)) {
+            if(antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
                 isLoaded = true;
             }
             result = IRContext.stmtManager.getMemberExpr(parent, dynamic_cast<ObjectStmt *>(child), isLoaded);

@@ -284,9 +284,10 @@ export namespace Riddle {
 
     class ObjectStmt final : public BaseStmt {
     public:
-        explicit ObjectStmt(std::string name): BaseStmt(StmtTypeID::ObjStmtID), name(std::move(name)) {}
+        explicit ObjectStmt(std::string name, const bool isLoaded = false): BaseStmt(StmtTypeID::ObjStmtID), name(std::move(name)), isLoaded(isLoaded) {}
 
         std::string name;
+        bool isLoaded = false;
     };
 
     class ReturnStmt final : public BaseStmt {
