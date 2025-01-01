@@ -3,7 +3,7 @@ module;
 #include <string>
 #include <utility>
 #include <vector>
-export module Types.Statements;
+export module IR.Statements;
 import Type.DefineArg;
 import managers.ClassManager;
 export namespace Riddle {
@@ -358,8 +358,13 @@ export namespace Riddle {
 
     class MemberExprStmt final : public BaseStmt {
     public:
-        MemberExprStmt(BaseStmt *parent,ObjectStmt* child):BaseStmt(StmtTypeID::MemberExprStmtID),parent(parent),child(child){}
+        MemberExprStmt(BaseStmt *parent,
+                       ObjectStmt *child,
+                       const bool isLoaded = false): BaseStmt(StmtTypeID::MemberExprStmtID),
+                                                     parent(parent), child(child),
+                                                     isLoaded(isLoaded){}
         BaseStmt* parent;
         ObjectStmt* child;
+        bool isLoaded;
     };
 }// namespace Riddle
