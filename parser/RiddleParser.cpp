@@ -2480,7 +2480,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
         previousContext = _localctx;
         auto newContext = _tracker.createInstance<BlendExprContext>(_tracker.createInstance<ExprPtrContext>(parentContext, parentState));
         _localctx = newContext;
-        newContext->parent = previousContext;
+        newContext->parents = previousContext;
         pushNewRecursionContext(newContext, startState, RuleExprPtr);
         setState(245);
 

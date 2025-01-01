@@ -1,6 +1,7 @@
 module;
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include <llvm/IR/IRBuilder.h>
 #include <stack>
 export module IR.Context;
 
@@ -10,6 +11,8 @@ import managers.StmtManager;
 import managers.ClassManager;
 import managers.OpManager;
 import managers.FuncManager;
+import Tools.Allocator;
+import ValueManager;
 export namespace Riddle {
     class Context {
         int _deep = 0;
@@ -22,10 +25,12 @@ export namespace Riddle {
         StmtManager stmtManager;
         OpManager opManager;
         FuncManager funcManager;
+        ValueManager valueManager;
+        llvm::IRBuilder<> llvmBuilder;
 
-        explicit Context(llvm::LLVMContext &context):
-            llvm_context(context), module("", context),
-            classManager(context), opManager(context) {}
+        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context),
+                                                      classManager(context), opManager(context),
+                                                      valueManager(llvmBuilder), llvmBuilder(context) {}
 
         inline void addVariable(const Variable &var) {
             varManager.addVar(var);

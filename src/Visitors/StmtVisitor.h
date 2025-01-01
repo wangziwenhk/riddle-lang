@@ -5,7 +5,7 @@
 
 import managers.StmtManager;
 import IR.Context;
-import Types.Statements;
+import IR.Statements;
 
 namespace Riddle {
     /// 所有函数的返回值都为BaseStmt
@@ -14,6 +14,7 @@ namespace Riddle {
         Context &IRContext;
         std::string packageName;
         RiddleParser* parser;
+        size_t deep = 0;
 
     public:
         explicit StmtVisitor(Context &ctx,RiddleParser* parser): IRContext(ctx), parser(parser) {}

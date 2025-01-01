@@ -1,10 +1,11 @@
 module;
 #include <string>
+#include <support/CPPUtils.h>
 #include <utility>
 #include <vector>
 export module managers.StmtManager;
 
-import Types.Statements;
+import IR.Statements;
 
 export namespace Riddle {
     class StmtManager {
@@ -180,8 +181,8 @@ export namespace Riddle {
             return ptr;
         }
 
-        MemberExprStmt *getMemberExpr(BaseStmt *parent,BaseStmt* child) {
-            const auto ptr = new MemberExprStmt(parent, child);
+        MemberExprStmt *getMemberExpr(BaseStmt *parent, ObjectStmt *child, const bool isLoaded = false) {
+            const auto ptr = new MemberExprStmt(parent, child, isLoaded);
             stmts.push_back(ptr);
             return ptr;
         }
