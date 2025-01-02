@@ -309,8 +309,8 @@ export namespace Riddle {
             ctx->llvmBuilder.CreateBr(condBlock);
             ctx->llvmBuilder.SetInsertPoint(condBlock);
             // cond 是必须要求的
-            const auto cond = std::any_cast<llvm::Value *>(accept(stmt->condition));
-            ctx->llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
+            const auto cond = std::any_cast<Value *>(accept(stmt->condition));
+            ctx->llvmBuilder.CreateCondBr(cond->toLLVM(), loopBlock, exitBlock);
 
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
@@ -497,7 +497,7 @@ export namespace Riddle {
 
             std::vector<llvm::Value *> args;
             for(const auto i: argList->args) {
-                auto value = std::any_cast<llvm::Value *>(accept(i));
+                auto value = std::any_cast<Value *>(accept(i))->toLLVM();
                 args.push_back(value);
             }
             llvm::Value *result_t = ctx->llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
@@ -507,6 +507,7 @@ export namespace Riddle {
 
         Value *MemberExprPs(const MemberExprStmt *stmt) {
             const auto object = std::any_cast<Value *>(accept(stmt->parent));
+            // 有可能你这个不是一个ptr而是一个data对吧
             const auto type = object->getType();
             const auto theClass = ctx->classManager.getClassFromType(type);
 
