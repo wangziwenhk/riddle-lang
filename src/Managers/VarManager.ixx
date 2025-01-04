@@ -7,6 +7,7 @@ module;
 export module managers.VarManager;
 
 import Type.Variable;
+import Types.Value;
 
 export namespace Riddle {
     class VarManager {
@@ -41,7 +42,7 @@ export namespace Riddle {
         /// @param name 变量名
         /// @param isConst 是否不变
         /// @param value 指某个局部变量的地址
-        void defineVar(const std::string &name, const bool &isConst, llvm::Value *value = nullptr) {
+        void defineVar(const std::string &name, const bool &isConst, Value *value = nullptr) {
             if(Defined.top().contains(name)) {
                 throw std::logic_error("The variable has been defined multiple times");
             }

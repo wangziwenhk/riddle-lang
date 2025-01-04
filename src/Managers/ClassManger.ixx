@@ -32,7 +32,7 @@ export namespace Riddle {
         /// @brief 查找相关的类
         Class *getClass(const std::string &name) {
             if(const auto it = Classes.find(name); it == Classes.end()) {
-                throw std::logic_error("ClassManager:There is no such class");
+                throw std::logic_error("ClassManager : There is no such class:"+name);
             }
             return Classes.find(name)->second;
         }
@@ -53,12 +53,12 @@ export namespace Riddle {
         // 从 Struct 地址获得 Class
         Class *getClassFromType(llvm::Type *type) {
             if(!type->isStructTy()) {
-                throw std::logic_error("ClassManager : There is no such class");
+                throw std::logic_error("ClassManager : It's Not a Struct");
             }
 
             const auto it = ClassesByType.find(type);
             if(it == ClassesByType.end()) {
-                throw std::logic_error("ClassManager : There is no such class");
+                throw std::logic_error("ClassManager : There is no such class"+type->getStructName().str());
             }
             return it->second;
         }

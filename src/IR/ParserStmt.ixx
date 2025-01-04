@@ -6,6 +6,7 @@ module;
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/Support/raw_ostream.h>
 #include <stack>
 export module IR.ParserStmt;
 import IR.Statements;
@@ -150,16 +151,19 @@ export namespace Riddle {
         llvm::Function *FuncDefinePs(const FuncDefineStmt *stmt) {
             const std::string name = stmt->func_name;
             llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
-            const auto args = stmt->args;
+            auto args = stmt->args;
             BaseStmt *body = stmt->body;
             std::vector<llvm::Type *> argTypes;
-            if(stmt->args != nullptr) {
-                argTypes = args->getArgsTypes(ctx->classManager);
+            if(stmt->args == nullptr) {
+                args = ctx->stmtManager.getDefineArgList({});
             }
+            argTypes = args->getArgsTypes(ctx->classManager);
             if(!stmt->theClass.empty()) {
                 const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
                 const auto ptr_theClass = theClass->getPointerTo();
                 argTypes.insert(argTypes.begin(), ptr_theClass);
+                const auto thisArg = ctx->stmtManager.getDefineArg("this", theClass->getName().str(), ctx->stmtManager.getNoneStmt());
+                args->args.insert(args->args.begin(), thisArg);
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
@@ -213,11 +217,26 @@ export namespace Riddle {
             if(args != nullptr) {
                 const auto argNames = args->getArgsNames();
                 int i = 0;
-                for(auto it = func->arg_begin(); it != func->arg_end(); ++it, ++i) {
+                auto it = func->arg_begin();
+                if(!stmt->theClass.empty()) {
+                    it->setName("this");
+                    const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
+                    Value *t = ctx->valueManager.getLLVMValue(it, theClass);
+                    ctx->varManager.defineVar("this", false, t);
+                    it++;
+                    i++;
+                }
+                for(; it != func->arg_end(); ++it, ++i) {
                     it->setName(argNames[i]);
-                    llvm::Value *t = it;
+                    Value *t = ctx->valueManager.getLLVMValue(it, it->getType());
                     ctx->varManager.defineVar(argNames[i], false, t);
                 }
+            } else if(!stmt->theClass.empty()) {
+                const auto it = func->arg_begin();
+                it->setName("this");
+                const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
+                const auto t = ctx->valueManager.getLLVMValue(it, theClass);
+                ctx->varManager.defineVar("this", false, t);
             }
 
             pre_varDefine(body);
@@ -247,18 +266,20 @@ export namespace Riddle {
                 type = ctx->classManager.getType(stmt->type);
             }
 
-            llvm::Value *var;
+            Value *var;
             // 对全局变量特判
             if(ctx->deep() <= 1) {
                 if(value == nullptr) {
                     throw std::logic_error("VarDefinePs called with nullptr");
                 }
                 auto *CV = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
-                var = new llvm::GlobalVariable(ctx->module, type, false,
-                                               llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+                auto ptr = new llvm::GlobalVariable(ctx->module, type, false,
+                                                    llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+                var = ctx->valueManager.getLLVMValue(ptr, type);
             } else {
                 // 实际上此处应该是被提前 Alloca 的时候运行的，不需要赋值，后续会被替换为 = 运算符
-                var = ctx->llvmBuilder.CreateAlloca(type, nullptr, name);
+                auto ptr = ctx->llvmBuilder.CreateAlloca(type, nullptr, name);
+                var = ctx->valueManager.getLLVMValue(ptr, type);
             }
             ctx->addVariable(Variable(name, var, false));
         }
@@ -271,18 +292,17 @@ export namespace Riddle {
             const auto ptr = ctx->varManager.getVar(name).var;
             const bool isLoaded = stmt->isLoaded;
             Value *value = nullptr;
-            if(const auto arg = llvm::dyn_cast<llvm::Argument>(ptr); arg != nullptr) {
-                value = ctx->valueManager.getLLVMValue(arg, arg->getType());
-            } else if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(ptr); var != nullptr) {
+            if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(ptr->toLLVM()); var != nullptr) {
                 if(isLoaded) {
-                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), ptr);
+                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), ptr->toLLVM());
                     value = ctx->valueManager.getLLVMValue(load, load->getType());
                 } else {
                     value = ctx->valueManager.getLLVMValue(var, var->getAllocatedType());
                 }
+                return value;
             }
 
-            return value;
+            return ptr;
         }
 
         void ReturnPs(const ReturnStmt *stmt) {
@@ -507,18 +527,17 @@ export namespace Riddle {
         }
 
         Value *MemberExprPs(const MemberExprStmt *stmt) {
-            const auto object_t = std::any_cast<Value *>(accept(stmt->parent));
-            llvm::Value *object = object_t->toLLVM();
+            const auto object = std::any_cast<Value *>(accept(stmt->parent));
             const auto type = object->getType();
             const auto theClass = ctx->classManager.getClassFromType(type);
 
             const std::string child = stmt->child->name;
 
             const int index = theClass->members[child];
-            if(type->isPointerTy()) {
+            if(object->toLLVM()->getType()->isPointerTy()) {
                 llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
                         theClass->type,
-                        object,
+                        object->toLLVM(),
                         index);
 
                 Value *result = nullptr;
@@ -532,7 +551,7 @@ export namespace Riddle {
                 }
                 return result;
             } else {
-                llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object, index);
+                llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object->toLLVM(), index);
                 return ctx->valueManager.getLLVMValue(ptr, type);
             }
         }
