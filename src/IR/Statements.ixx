@@ -7,6 +7,7 @@ module;
 export module IR.Statements;
 import Type.DefineArg;
 import managers.ClassManager;
+import Types.Value;
 export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {
@@ -156,6 +157,9 @@ export namespace Riddle {
         /// 对于一个值，一定可以被解析为一个Statement
         BaseStmt *value;
         /// 是否在函数内部时被优化到entry
+
+        bool isAlloca = false;
+        Value* alloca = nullptr;
     };
 
     class DefineArgStmt final : public BaseStmt {

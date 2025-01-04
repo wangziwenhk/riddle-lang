@@ -189,14 +189,9 @@ export namespace Riddle {
                         for(const auto i: it->stmts) {
                             pre_varDefine(i);
                         }
-                        for(int i = 0; i < it->stmts.size(); i++) {
-                            if(const auto t = dynamic_cast<VarDefineStmt *>(it->stmts[i])) {
-                                if(!t->value->isNoneStmt()) {
-                                    it->stmts[i] = ctx->stmtManager.getBinaryExpr(ctx->stmtManager.getObject(t->name), t->value, "=");
-                                    i--;
-                                } else {
-                                    it->stmts[i] = ctx->stmtManager.getNoneStmt();
-                                }
+                        for(auto & i : it->stmts) {
+                            if(const auto t = dynamic_cast<VarDefineStmt *>(i)) {
+                                t->isAlloca = true;
                             }
                         }
                     }
@@ -253,17 +248,26 @@ export namespace Riddle {
         }
 
 
-        void VarDefinePs(const VarDefineStmt *stmt) {
+        void VarDefinePs(VarDefineStmt *stmt) {
             Value *value = nullptr;
             if(!stmt->value->isNoneStmt()) {
                 value = std::any_cast<Value *>(accept(stmt->value));
             }
             const std::string name = stmt->name;
+
             llvm::Type *type = nullptr;
             if(stmt->type.empty() && value != nullptr) {
                 type = value->getType();
             } else {
                 type = ctx->classManager.getType(stmt->type);
+            }
+
+            if(stmt->isAlloca) {
+                ctx->addVariable(Variable(name, stmt->alloca, false));
+                if(value != nullptr) {
+                    ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca->toLLVM());
+                }
+                return;
             }
 
             Value *var;
@@ -281,7 +285,7 @@ export namespace Riddle {
                 auto ptr = ctx->llvmBuilder.CreateAlloca(type, nullptr, name);
                 var = ctx->valueManager.getLLVMValue(ptr, type);
             }
-            ctx->addVariable(Variable(name, var, false));
+            stmt->alloca = var;
         }
 
         // ReSharper disable once CppDFAConstantFunctionResult
