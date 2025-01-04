@@ -13,14 +13,14 @@ namespace Riddle {
     Linker::Linker() = default;
     std::string Linker::findSourceLib(const std::string &libPackName, const std::string &sourcePath) {
         const std::string libName = getLibName(libPackName);
-        const auto files = Files::getTreeSource(sourcePath);
+        const auto files = FilesTools::getTreeSource(sourcePath);
         for(int i = static_cast<int>(files.size()) - 1; i >= 0; i--) {
             fs::path filePath(files[i]);
             std::string name = filePath.filename().string();
             name = name.substr(0, name.size() - 4);
             if(name != libName) continue;
 
-            auto statement = Files::getFileFirstLine(files[i]);
+            auto statement = FilesTools::getFileFirstLine(files[i]);
             std::smatch matches;
             std::regex pattern("package ([a-zA-Z.]+);");
             if(std::regex_search(statement, matches, pattern)) {

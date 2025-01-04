@@ -1,9 +1,9 @@
 module;
 #include <llvm/IR/Value.h>
+#include <ranges>
 #include <stack>
 #include <string>
 #include <unordered_map>
-#include <ranges>
 export module managers.VarManager;
 
 import Type.Variable;
@@ -50,6 +50,9 @@ export namespace Riddle {
             Defined.top()[name] = true;
         }
         void addVar(const Variable &var) {
+            if(Defined.top().contains(var.name)) {
+                throw std::logic_error("The variable has been defined multiple times");
+            }
             NamedVar[var.name].push(var);
             Defined.top()[var.name] = true;
         }
@@ -57,7 +60,11 @@ export namespace Riddle {
         /// @param name 变量名
         /// @returns 变量的属性
         Variable getVar(const std::string &name) {
-            return NamedVar[name].top();
+            const auto it = NamedVar.find(name);
+            if(it == NamedVar.end()) {
+                throw std::logic_error("The variable has been defined multiple times");
+            }
+            return it->second.top();
         }
         /// @brief 获取当前是否为全局
         /// @returns 是否为全局

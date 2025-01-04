@@ -7,7 +7,7 @@ module;
 export module Tools.Files;
 namespace fs = std::filesystem;
 export namespace Riddle {
-    class Files {
+    class FilesTools {
         //我们应该增加一个缓存吗
     public:
         /// @brief 递归获取某个路径下的所有文件
