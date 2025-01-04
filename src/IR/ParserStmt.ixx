@@ -521,7 +521,7 @@ export namespace Riddle {
                 auto value = std::any_cast<Value *>(accept(i))->toLLVM();
                 args.push_back(value);
             }
-            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(theClass->funcs[stmt->call->name], args);
+            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(theClass->getFunction(stmt->call->name), args);
             Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
             return result;
         }
@@ -533,7 +533,7 @@ export namespace Riddle {
 
             const std::string child = stmt->child->name;
 
-            const int index = theClass->members[child];
+            const int index = theClass->getMember(child);
             if(object->toLLVM()->getType()->isPointerTy()) {
                 llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
                         theClass->type,
