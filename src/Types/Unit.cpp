@@ -6,6 +6,7 @@ module Types.Unit;
 namespace Riddle {
     Unit::Unit(const Path &selfPath) {
         this->directoryPath = selfPath;
+        parser = nullptr;
     }
     void Unit::addImports(const std::vector<std::string> &libs) {
         for(const auto &i: libs) {

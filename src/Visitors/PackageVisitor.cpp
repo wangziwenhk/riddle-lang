@@ -14,6 +14,6 @@ namespace Riddle {
         unit.parser = parser;
         unit.setDirectoryPath(sourcePath);
         unit.setFilePath(sourcePath);
-        visit(tree);
+        PackageVisitor::visit(tree);
     }
 }// namespace Riddle

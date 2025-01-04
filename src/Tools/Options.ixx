@@ -3,9 +3,6 @@ module;
 #include <string>
 export module Tools.Options;
 import Tools.Files;
-import lang.Chinese;
-import lang.English;
-
 export namespace Riddle {
     class Options {
     public:
@@ -29,17 +26,6 @@ export namespace Riddle {
 
                 } else if(arg == "-m" || arg == "--multi-thread") {
                     isMultiThread = true;
-                } else if(arg == "-l" || arg == "--lang") {
-                    if(i + 1 < argc) {
-                        std::string lang_type = argv[++i];
-                        if(lang_type == "zh_cn") {
-                            BaseLang::nowLangClass = new ChineseLang();
-                        } else {
-                            BaseLang::nowLangClass = new EnglishLang();
-                        }
-                    } else {
-                        throw std::invalid_argument("Language file path is missing after '" + arg + "'");
-                    }
                 } else {
                     source = arg;
                 }
@@ -51,9 +37,6 @@ export namespace Riddle {
                 } else {
                     throw std::invalid_argument("Source file is missing");
                 }
-            }
-            if(BaseLang::nowLangClass == nullptr) {
-                BaseLang::nowLangClass = new EnglishLang();
             }
         }
     };
