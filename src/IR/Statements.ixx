@@ -1,4 +1,5 @@
 module;
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Type.h>
 #include <string>
 #include <utility>
@@ -363,9 +364,14 @@ export namespace Riddle {
                        ObjectStmt *child,
                        const bool isLoaded = false): BaseStmt(StmtTypeID::MemberExprStmtID),
                                                      parent(parent), child(child),
-                                                     isLoaded(isLoaded){}
-        BaseStmt* parent;
-        ObjectStmt* child;
+                                                     isLoaded(isLoaded) {}
+        BaseStmt *parent;
+        ObjectStmt *child;
         bool isLoaded;
     };
+
+    template <typename T>
+    bool isSameStmt(const BaseStmt* stmt) {
+        return dynamic_cast<const T*>(stmt) != nullptr;
+    }
 }// namespace Riddle
