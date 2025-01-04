@@ -257,6 +257,7 @@ export namespace Riddle {
                 var = new llvm::GlobalVariable(ctx->module, type, false,
                                                llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
             } else {
+                // 实际上此处应该是被提前 Alloca 的时候运行的，不需要赋值，后续会被替换为 = 运算符
                 var = ctx->llvmBuilder.CreateAlloca(type, nullptr, name);
             }
             ctx->addVariable(Variable(name, var, false));
@@ -268,7 +269,7 @@ export namespace Riddle {
             // ReSharper disable once CppDFAUnreadVariable
             // ReSharper disable once CppDFAUnusedValue
             const auto ptr = ctx->varManager.getVar(name).var;
-            bool isLoaded = stmt->isLoaded;
+            const bool isLoaded = stmt->isLoaded;
             Value *value = nullptr;
             if(const auto arg = llvm::dyn_cast<llvm::Argument>(ptr); arg != nullptr) {
                 value = ctx->valueManager.getLLVMValue(arg, arg->getType());
@@ -506,30 +507,34 @@ export namespace Riddle {
         }
 
         Value *MemberExprPs(const MemberExprStmt *stmt) {
-            const auto object = std::any_cast<Value *>(accept(stmt->parent));
-            // 有可能你这个不是一个ptr而是一个data对吧
+            const auto object_t = std::any_cast<Value *>(accept(stmt->parent));
+            llvm::Value *object = object_t->toLLVM();
             const auto type = object->getType();
             const auto theClass = ctx->classManager.getClassFromType(type);
 
             const std::string child = stmt->child->name;
 
             const int index = theClass->members[child];
+            if(type->isPointerTy()) {
+                llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
+                        theClass->type,
+                        object,
+                        index);
 
-            llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
-                    theClass->type,
-                    object->toLLVM(),
-                    index);
+                Value *result = nullptr;
+                llvm::Type *childType = theClass->type->getElementType(index);
 
-            Value *result = nullptr;
-            llvm::Type *childType = theClass->type->getElementType(index);
-
-            if(stmt->isLoaded) {
-                llvm::Value *load = ctx->llvmBuilder.CreateLoad(childType, ptr);
-                result = ctx->valueManager.getLLVMValue(load, childType);
+                if(stmt->isLoaded) {
+                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(childType, ptr);
+                    result = ctx->valueManager.getLLVMValue(load, childType);
+                } else {
+                    result = ctx->valueManager.getLLVMValue(ptr, childType);
+                }
+                return result;
             } else {
-                result = ctx->valueManager.getLLVMValue(ptr, childType);
+                llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object, index);
+                return ctx->valueManager.getLLVMValue(ptr, type);
             }
-            return result;
         }
     };
 }// namespace Riddle
