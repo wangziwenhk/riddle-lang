@@ -7,6 +7,7 @@ module;
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/raw_ostream.h>
+#include <ranges>
 #include <stack>
 export module IR.ParserStmt;
 import IR.Statements;
@@ -153,11 +154,10 @@ export namespace Riddle {
             llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
             auto args = stmt->args;
             BaseStmt *body = stmt->body;
-            std::vector<llvm::Type *> argTypes;
             if(stmt->args == nullptr) {
                 args = ctx->stmtManager.getDefineArgList({});
             }
-            argTypes = args->getArgsTypes(ctx->classManager);
+            std::vector<llvm::Type *> argTypes = args->getArgsTypes(ctx->classManager);
             if(!stmt->theClass.empty()) {
                 const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
                 const auto ptr_theClass = theClass->getPointerTo();
@@ -189,7 +189,7 @@ export namespace Riddle {
                         for(const auto i: it->stmts) {
                             pre_varDefine(i);
                         }
-                        for(auto & i : it->stmts) {
+                        for(auto &i: it->stmts) {
                             if(const auto t = dynamic_cast<VarDefineStmt *>(i)) {
                                 t->isAlloca = true;
                             }
@@ -247,7 +247,8 @@ export namespace Riddle {
             return func;
         }
 
-
+        /// @brief 用于解析变量定义的函数
+        /// @param stmt 语句
         void VarDefinePs(VarDefineStmt *stmt) {
             Value *value = nullptr;
             if(!stmt->value->isNoneStmt()) {
@@ -295,8 +296,8 @@ export namespace Riddle {
             // ReSharper disable once CppDFAUnusedValue
             const auto ptr = ctx->varManager.getVar(name).var;
             const bool isLoaded = stmt->isLoaded;
-            Value *value = nullptr;
             if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(ptr->toLLVM()); var != nullptr) {
+                Value *value = nullptr;
                 if(isLoaded) {
                     llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), ptr->toLLVM());
                     value = ctx->valueManager.getLLVMValue(load, load->getType());
@@ -463,12 +464,25 @@ export namespace Riddle {
             ctx->llvmBuilder.SetInsertPoint(exitBlock);
         }
 
-        void ClassDefinePs(const ClassDefineStmt *stmt) {
+        void ClassDefinePs(ClassDefineStmt *stmt) {
             const auto theClass = new Class();
             theClass->type = llvm::StructType::create(ctx->llvm_context, stmt->name);
-            // 成员创建
-            int cnt = 0;
             std::vector<llvm::Type *> types;
+            size_t cnt = 0;
+            // 构建继承
+            if(!stmt->parentClass.empty()) {
+                const auto parentClass = ctx->classManager.getClass(stmt->parentClass);
+                std::vector<llvm::Type *> parentTypes;
+                // 将父类的所有成员插入
+                parentTypes.resize(parentClass->members.size());
+                for(const auto index : parentClass->members | std::views::values) {
+                    llvm::Type* type = parentClass->type->getElementType(index);
+                    parentTypes[index] = type;
+                    cnt++;
+                }
+                types = parentTypes;
+            }
+            // 成员创建
             for(const auto i: stmt->members) {
                 const auto memberName = i->name;
                 llvm::Type *type = nullptr;
@@ -483,7 +497,7 @@ export namespace Riddle {
                 }
                 theClass->members[memberName] = cnt;
                 types.push_back(type);
-                cnt++;
+                ++cnt;
             }
             theClass->type->setBody(types);
             ctx->classManager.createClass(theClass);

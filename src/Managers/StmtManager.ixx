@@ -169,8 +169,11 @@ export namespace Riddle {
             return ptr;
         }
 
-        ClassDefineStmt *getClassDefine(const std::string &name, std::vector<VarDefineStmt *> varDefs, const std::vector<FuncDefineStmt *> &funcDefines) {
-            const auto ptr = new ClassDefineStmt(name, std::move(varDefs), funcDefines);
+        ClassDefineStmt *getClassDefine(const std::string &name,
+                                        std::vector<VarDefineStmt *> varDefs,
+                                        const std::vector<FuncDefineStmt *> &funcDefines,
+                                        const std::string &parentClass = "") {
+            const auto ptr = new ClassDefineStmt(name, std::move(varDefs), funcDefines, parentClass);
             stmts.push_back(ptr);
             return ptr;
         }

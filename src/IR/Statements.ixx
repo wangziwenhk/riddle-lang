@@ -159,7 +159,7 @@ export namespace Riddle {
         /// 是否在函数内部时被优化到entry
 
         bool isAlloca = false;
-        Value* alloca = nullptr;
+        Value *alloca = nullptr;
     };
 
     class DefineArgStmt final : public BaseStmt {
@@ -345,12 +345,15 @@ export namespace Riddle {
     public:
         explicit ClassDefineStmt(std::string className,
                                  std::vector<VarDefineStmt *> members,
-                                 const std::vector<FuncDefineStmt *> &funcDefines): BaseStmt(StmtTypeID::ClassDefineStmtID),
-                                                                                    members(std::move(members)),
-                                                                                    funcDefines(funcDefines),
-                                                                                    name(std::move(className)) {}
+                                 const std::vector<FuncDefineStmt *> &funcDefines,
+                                 std::string parentClass = ""): BaseStmt(StmtTypeID::ClassDefineStmtID),
+                                                                members(std::move(members)),
+                                                                funcDefines(funcDefines),
+                                                                parentClass(std::move(parentClass)),
+                                                                name(std::move(className)) {}
         std::vector<VarDefineStmt *> members;
         std::vector<FuncDefineStmt *> funcDefines;
+        std::string parentClass;
         std::string name;
     };
 
