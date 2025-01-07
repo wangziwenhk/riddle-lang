@@ -101,7 +101,7 @@ returnStatement
     ;
 
 classDefine
-    : Class className = id body=bodyExpr
+    : Class className = id (Colon parentClass=id)? body=bodyExpr
     ;
 
 tryExpr

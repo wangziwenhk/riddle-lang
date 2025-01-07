@@ -431,12 +431,15 @@ public:
   class  ClassDefineContext : public antlr4::ParserRuleContext {
   public:
     RiddleParser::IdContext *className = nullptr;
+    RiddleParser::IdContext *parentClass = nullptr;
     RiddleParser::BodyExprContext *body = nullptr;
     ClassDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Class();
-    IdContext *id();
+    std::vector<IdContext *> id();
+    IdContext* id(size_t i);
     BodyExprContext *bodyExpr();
+    antlr4::tree::TerminalNode *Colon();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

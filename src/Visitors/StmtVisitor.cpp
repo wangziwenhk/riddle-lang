@@ -320,7 +320,11 @@ namespace Riddle {
                 funcDefines.push_back(dynamic_cast<FuncDefineStmt *>(i));
             }
         }
-        BaseStmt *stmt = IRContext.stmtManager.getClassDefine(className, varDefs, funcDefines);
+        std::string parentClassName;
+        if(ctx->parentClass) {
+            parentClassName = ctx->parentClass->getText();
+        }
+        BaseStmt *stmt = IRContext.stmtManager.getClassDefine(className, varDefs, funcDefines, parentClassName);
         return stmt;
     }
     std::any StmtVisitor::visitBlendExpr(RiddleParser::BlendExprContext *ctx) {

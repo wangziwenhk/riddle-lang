@@ -49,6 +49,8 @@ export namespace Riddle {
             NamedVar[name].emplace(name, value, isConst);
             Defined.top()[name] = true;
         }
+        /// @brief 将一个已经被定义的变量加入当前作用域中
+        /// @param var 变量
         void addVar(const Variable &var) {
             if(Defined.top().contains(var.name)) {
                 throw std::logic_error("The variable has been defined multiple times");
