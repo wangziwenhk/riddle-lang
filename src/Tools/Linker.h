@@ -1,14 +1,11 @@
 #ifndef RIDDLE_LANGUAGE_LINKER_H
 #define RIDDLE_LANGUAGE_LINKER_H
 
-#include <algorithm>
 #include <string>
-#include <vector>
 
 namespace Riddle {
     /// @brief 用于寻找库的全局工具
     class Linker {
-    private:
         /// @brief 从当前路径寻找库
         /// @param libPackName 需要寻找的库的包名
         /// @param sourcePath 主动导入该库的源文件的绝对路径

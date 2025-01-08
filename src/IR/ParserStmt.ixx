@@ -11,9 +11,9 @@ module;
 #include <stack>
 export module IR.ParserStmt;
 import IR.Statements;
-import managers.ClassManager;
-import managers.VarManager;
-import managers.OpManager;
+import Manager.ClassManager;
+import Manager.VarManager;
+import Manager.OpManager;
 import Types.Class;
 import IR.Context;
 import Type.Variable;
@@ -475,12 +475,17 @@ export namespace Riddle {
                 std::vector<llvm::Type *> parentTypes;
                 // 将父类的所有成员插入
                 parentTypes.resize(parentClass->members.size());
-                for(const auto index : parentClass->members | std::views::values) {
-                    llvm::Type* type = parentClass->type->getElementType(index);
+                for(const auto& [name, index]: parentClass->members) {
+                    llvm::Type *type = parentClass->type->getElementType(index);
                     parentTypes[index] = type;
+                    theClass->members[name] = cnt;
                     cnt++;
                 }
                 types = parentTypes;
+                // 继承方法
+                for(auto i: parentClass->funcs) {
+                    theClass->funcs.insert(i);
+                }
             }
             // 成员创建
             for(const auto i: stmt->members) {

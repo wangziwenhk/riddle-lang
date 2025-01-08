@@ -6,13 +6,13 @@ module;
 export module IR.Context;
 
 import Type.Variable;
-import managers.VarManager;
-import managers.StmtManager;
-import managers.ClassManager;
-import managers.OpManager;
-import managers.FuncManager;
+import Manager.VarManager;
+import Manager.StmtManager;
+import Manager.ClassManager;
+import Manager.OpManager;
+import Manager.FuncManager;
 import Tools.Allocator;
-import ValueManager;
+import Manager.ValueManager;
 export namespace Riddle {
     class Context {
         int _deep = 0;

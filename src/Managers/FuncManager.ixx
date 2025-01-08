@@ -5,7 +5,7 @@ module;
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-export module managers.FuncManager;
+export module Manager.FuncManager;
 export namespace Riddle {
     class FuncManager {
         std::unordered_map<std::string, std::stack<llvm::FunctionCallee>> funcCalls;

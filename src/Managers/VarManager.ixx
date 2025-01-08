@@ -4,7 +4,7 @@ module;
 #include <stack>
 #include <string>
 #include <unordered_map>
-export module managers.VarManager;
+export module Manager.VarManager;
 
 import Type.Variable;
 import Types.Value;

@@ -1,6 +1,6 @@
 module;
 #include <llvm/IR/IRBuilder.h>
-export module ValueManager;
+export module Manager.ValueManager;
 import Types.Value;
 import Tools.Allocator;
 export namespace Riddle {
