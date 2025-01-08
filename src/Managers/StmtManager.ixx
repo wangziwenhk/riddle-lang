@@ -3,7 +3,7 @@ module;
 #include <support/CPPUtils.h>
 #include <utility>
 #include <vector>
-export module managers.StmtManager;
+export module Manager.StmtManager;
 
 import IR.Statements;
 

@@ -5,7 +5,7 @@ module;
 #include <llvm/IR/Type.h>
 #include <unordered_map>
 #include <unordered_set>
-export module managers.ClassManager;
+export module Manager.ClassManager;
 import Types.Class;
 
 export namespace Riddle {

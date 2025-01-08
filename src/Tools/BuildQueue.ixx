@@ -9,7 +9,7 @@ module;
 export module Tools.BuildQueue;
 import Types.Unit;
 import IR.ParserStmt;
-import managers.ErrorManager;
+import Manager.ErrorManager;
 export namespace Riddle {
     class BuildQueue {
     private:

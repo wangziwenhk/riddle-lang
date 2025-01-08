@@ -3,7 +3,7 @@
 
 #include <RiddleParserBaseVisitor.h>
 
-import managers.StmtManager;
+import Manager.StmtManager;
 import IR.Context;
 import IR.Statements;
 

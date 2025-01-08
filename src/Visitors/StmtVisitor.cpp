@@ -1,6 +1,6 @@
 #include "StmtVisitor.h"
 #include <llvm/IR/DerivedTypes.h>
-import managers.StmtManager;
+import Manager.StmtManager;
 
 namespace Riddle {
     std::any StmtVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
