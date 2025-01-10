@@ -159,6 +159,14 @@ public:
 
     virtual std::any visitId(RiddleParser::IdContext *context) = 0;
 
+    virtual std::any visitModifier(RiddleParser::ModifierContext *context) = 0;
+
+    virtual std::any visitModifierList(RiddleParser::ModifierListContext *context) = 0;
+
+    virtual std::any visitFuncModifier(RiddleParser::FuncModifierContext *context) = 0;
+
+    virtual std::any visitFuncModifierList(RiddleParser::FuncModifierListContext *context) = 0;
+
     virtual std::any visitNumber(RiddleParser::NumberContext *context) = 0;
 
     virtual std::any visitBoolean(RiddleParser::BooleanContext *context) = 0;

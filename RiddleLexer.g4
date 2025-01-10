@@ -13,17 +13,19 @@ Return: 'return' ;
 Import: 'import' ;
 Package: 'package';
 Class:  'class';
-Public: 'public';
-Protected: 'protected';
-Private: 'Private' ;
-Override: 'override';
 True:'true';
 False:'false';
-Static:'static';
-Const:'const';
 Null:'null';
 Try:'try';
 Catch:'catch';
+// 修饰符
+Override: 'override';
+Static:'static';
+Const:'const';
+Public: 'public';
+Protected: 'protected';
+Private: 'private';
+Virtual: 'virtual';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

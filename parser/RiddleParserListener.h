@@ -224,6 +224,18 @@ public:
   virtual void enterId(RiddleParser::IdContext *ctx) = 0;
   virtual void exitId(RiddleParser::IdContext *ctx) = 0;
 
+  virtual void enterModifier(RiddleParser::ModifierContext *ctx) = 0;
+  virtual void exitModifier(RiddleParser::ModifierContext *ctx) = 0;
+
+  virtual void enterModifierList(RiddleParser::ModifierListContext *ctx) = 0;
+  virtual void exitModifierList(RiddleParser::ModifierListContext *ctx) = 0;
+
+  virtual void enterFuncModifier(RiddleParser::FuncModifierContext *ctx) = 0;
+  virtual void exitFuncModifier(RiddleParser::FuncModifierContext *ctx) = 0;
+
+  virtual void enterFuncModifierList(RiddleParser::FuncModifierListContext *ctx) = 0;
+  virtual void exitFuncModifierList(RiddleParser::FuncModifierListContext *ctx) = 0;
+
   virtual void enterNumber(RiddleParser::NumberContext *ctx) = 0;
   virtual void exitNumber(RiddleParser::NumberContext *ctx) = 0;
 

@@ -1,6 +1,7 @@
 #include "StmtVisitor.h"
 #include <llvm/IR/DerivedTypes.h>
 import Manager.StmtManager;
+import Type.Modifier;
 
 namespace Riddle {
     std::any StmtVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -160,7 +161,7 @@ namespace Riddle {
         } else {
             returnType = "void";
         }
-        auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
+        const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
         DefineArgListStmt *args = nullptr;
         if(!ctx->args->children.empty()) {
             args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
@@ -341,8 +342,35 @@ namespace Riddle {
             }
             result = IRContext.stmtManager.getMemberExpr(parent, dynamic_cast<ObjectStmt *>(child), isLoaded);
         } else {
-            throw std::logic_error("visitBlendExpr:What fuck?");
+            throw std::logic_error("visitBlendExpr: Parent Node Type Error");
         }
         return result;
+    }
+
+    std::any StmtVisitor::visitModifier(RiddleParser::ModifierContext *ctx) {
+        const std::string name = ctx->getText();
+        static constexpr std::array<std::pair<std::string_view, Modifier::ModifierType>, 6> modifierMap = {{{"public", Modifier::Public},
+                                                                                                            {"private", Modifier::Private},
+                                                                                                            {"protected", Modifier::Protected},
+                                                                                                            {"virtual", Modifier::Virtual},
+                                                                                                            {"static", Modifier::Static},
+                                                                                                            {"const", Modifier::Const}}};
+
+        const auto it = std::ranges::find_if(modifierMap,
+                                     [&name](const auto &pair) { return pair.first == name; });
+
+        if(it != modifierMap.end()) {
+            return it->second;
+        }
+        throw std::logic_error("StmtVisitor::visitModifier: Unknown Modifier");
+    }
+
+    std::any StmtVisitor::visitModifierList(RiddleParser::ModifierListContext *ctx) {
+        Modifier mod;
+        for(const auto i: ctx->children) {
+            const auto result = std::any_cast<Modifier::ModifierType>(visit(i));
+            mod.addModifier(result);
+        }
+        return mod;
     }
 }// namespace Riddle
