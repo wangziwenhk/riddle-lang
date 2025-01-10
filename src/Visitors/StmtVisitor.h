@@ -69,6 +69,10 @@ namespace Riddle {
         // 类
         std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override;
         std::any visitBlendExpr(RiddleParser::BlendExprContext *ctx) override;
+
+        // 修饰符
+        std::any visitModifier(RiddleParser::ModifierContext *ctx) override;
+        std::any visitModifierList(RiddleParser::ModifierListContext *ctx) override;
     };
 
 }// namespace Riddle

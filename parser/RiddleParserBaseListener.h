@@ -226,6 +226,18 @@ public:
   virtual void enterId(RiddleParser::IdContext * /*ctx*/) override { }
   virtual void exitId(RiddleParser::IdContext * /*ctx*/) override { }
 
+  virtual void enterModifier(RiddleParser::ModifierContext * /*ctx*/) override { }
+  virtual void exitModifier(RiddleParser::ModifierContext * /*ctx*/) override { }
+
+  virtual void enterModifierList(RiddleParser::ModifierListContext * /*ctx*/) override { }
+  virtual void exitModifierList(RiddleParser::ModifierListContext * /*ctx*/) override { }
+
+  virtual void enterFuncModifier(RiddleParser::FuncModifierContext * /*ctx*/) override { }
+  virtual void exitFuncModifier(RiddleParser::FuncModifierContext * /*ctx*/) override { }
+
+  virtual void enterFuncModifierList(RiddleParser::FuncModifierListContext * /*ctx*/) override { }
+  virtual void exitFuncModifierList(RiddleParser::FuncModifierListContext * /*ctx*/) override { }
+
   virtual void enterNumber(RiddleParser::NumberContext * /*ctx*/) override { }
   virtual void exitNumber(RiddleParser::NumberContext * /*ctx*/) override { }
 

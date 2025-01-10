@@ -73,7 +73,7 @@ defineArgs
     ;
 
 funcDefine
-    : Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? body=bodyExpr
+    : funcModifierList Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? body=bodyExpr
     ;
 forStatement
     : For LeftBracket (init=statement)? Semi (termCond=statement)? Semi (selfVar=statement)? RightBracket body=statement_ed
@@ -173,6 +173,26 @@ expression
     ;
 
 id: Identifier;
+
+// 修饰符
+modifier
+    : Public
+    | Protected
+    | Private
+    ;
+
+modifierList
+    : modifier*
+    ;
+
+funcModifier
+    : modifier
+    | Virtual
+    ;
+
+funcModifierList
+    : funcModifier*
+    ;
 
 //这里是指字面量
 number
