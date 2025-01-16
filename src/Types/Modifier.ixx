@@ -30,6 +30,7 @@ export namespace Riddle {
         Modifier(): modifiers(std::bitset<ModifierSize>()) {
             initObjectModifier();
         }
+
         /// @brief 添加一个新的标识符
         /// @param mod 标识符
         void addModifier(const ModifierType mod) {

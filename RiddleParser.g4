@@ -73,7 +73,7 @@ defineArgs
     ;
 
 funcDefine
-    : funcModifierList Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? body=bodyExpr
+    : modifierList Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? body=bodyExpr
     ;
 forStatement
     : For LeftBracket (init=statement)? Semi (termCond=statement)? Semi (selfVar=statement)? RightBracket body=statement_ed
@@ -183,15 +183,6 @@ modifier
 
 modifierList
     : modifier*
-    ;
-
-funcModifier
-    : modifier
-    | Virtual
-    ;
-
-funcModifierList
-    : funcModifier*
     ;
 
 //这里是指字面量
