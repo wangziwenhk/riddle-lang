@@ -6,7 +6,7 @@ module;
 export module Manager.StmtManager;
 
 import IR.Statements;
-
+import Type.Modifier;
 export namespace Riddle {
     class StmtManager {
         std::vector<BaseStmt *> stmts;
@@ -95,8 +95,9 @@ export namespace Riddle {
             return ptr;
         }
 
-        FuncDefineStmt *getFuncDefine(const std::string &name, const std::string &return_type, BaseStmt *body, DefineArgListStmt *args = nullptr) {
-            const auto ptr = new FuncDefineStmt(name, return_type, body, args);
+        FuncDefineStmt *getFuncDefine(const std::string &name, const std::string &return_type,
+                                      BaseStmt *body, const Modifier mod = {}, DefineArgListStmt *args = nullptr ) {
+            const auto ptr = new FuncDefineStmt(name, return_type, body, mod, args);
             stmts.push_back(ptr);
             return ptr;
         }

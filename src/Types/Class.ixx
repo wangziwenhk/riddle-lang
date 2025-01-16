@@ -9,11 +9,12 @@ export namespace Riddle {
     public:
         class ClassFunc {
         public:
-            llvm::FunctionCallee *func;
+            llvm::FunctionCallee func = nullptr;
             Modifier modifier;
-            ClassFunc(llvm::FunctionCallee *func, const Modifier modifier): func(func), modifier(modifier) {}
 
-            [[nodiscard]] llvm::FunctionCallee *getFunc() const {
+            ClassFunc(const llvm::FunctionCallee func, const Modifier modifier): func(func), modifier(modifier) {}
+
+            [[nodiscard]] llvm::FunctionCallee getFunc() const {
                 return func;
             }
 
@@ -54,12 +55,12 @@ export namespace Riddle {
         }
 
         /// @brief 安全的添加一个函数
-        void addFunction(const ClassFunc &func) {
-            const std::string name = func.func->getCallee()->getName().str();
+        void addFunction(ClassFunc &func) {
+            const std::string name = func.func.getCallee()->getName().str();
             if(funcs.contains(name)) {
                 throw std::invalid_argument("Function already exists");
             }
-            funcs[name] = func;
+            funcs.emplace(name, func);
         }
     };
 

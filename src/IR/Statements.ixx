@@ -208,10 +208,11 @@ export namespace Riddle {
         FuncDefineStmt(std::string func_name,
                        std::string return_type,
                        BaseStmt *body,
+                       const Modifier mod = {},
                        DefineArgListStmt *args = nullptr): BaseStmt(StmtTypeID::FuncDefineStmtID),
-                                                           func_name(std::move(func_name)),
-                                                           return_type(std::move(return_type)),
-                                                           args(args), body(body) {}
+                                                             modifier(mod),
+                                                             func_name(std::move(func_name)),
+                                                             return_type(std::move(return_type)), args(args), body(body) {}
 
         Modifier modifier;
         std::string func_name;
