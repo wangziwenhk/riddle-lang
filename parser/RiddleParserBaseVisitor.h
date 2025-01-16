@@ -303,14 +303,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFuncModifier(RiddleParser::FuncModifierContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitFuncModifierList(RiddleParser::FuncModifierListContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitNumber(RiddleParser::NumberContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -35,9 +35,8 @@ public:
     RuleIfStatement = 15, RuleReturnStatement = 16, RuleClassDefine = 17, 
     RuleTryExpr = 18, RuleCatchExpr = 19, RuleExprPtr = 20, RuleExprPtrParser = 21, 
     RuleExpression = 22, RuleId = 23, RuleModifier = 24, RuleModifierList = 25, 
-    RuleFuncModifier = 26, RuleFuncModifierList = 27, RuleNumber = 28, RuleBoolean = 29, 
-    RuleString = 30, RuleFloat = 31, RuleInteger = 32, RuleTemplateArg = 33, 
-    RuleTemplateArgs = 34, RuleTypeName = 35
+    RuleNumber = 26, RuleBoolean = 27, RuleString = 28, RuleFloat = 29, 
+    RuleInteger = 30, RuleTemplateArg = 31, RuleTemplateArgs = 32, RuleTypeName = 33
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -83,8 +82,6 @@ public:
   class IdContext;
   class ModifierContext;
   class ModifierListContext;
-  class FuncModifierContext;
-  class FuncModifierListContext;
   class NumberContext;
   class BooleanContext;
   class StringContext;
@@ -295,7 +292,7 @@ public:
     RiddleParser::BodyExprContext *body = nullptr;
     FuncDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    FuncModifierListContext *funcModifierList();
+    ModifierListContext *modifierList();
     antlr4::tree::TerminalNode *Func();
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
@@ -1290,38 +1287,6 @@ public:
   };
 
   ModifierListContext* modifierList();
-
-  class  FuncModifierContext : public antlr4::ParserRuleContext {
-  public:
-    FuncModifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    ModifierContext *modifier();
-    antlr4::tree::TerminalNode *Virtual();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  FuncModifierContext* funcModifier();
-
-  class  FuncModifierListContext : public antlr4::ParserRuleContext {
-  public:
-    FuncModifierListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<FuncModifierContext *> funcModifier();
-    FuncModifierContext* funcModifier(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  FuncModifierListContext* funcModifierList();
 
   class  NumberContext : public antlr4::ParserRuleContext {
   public:

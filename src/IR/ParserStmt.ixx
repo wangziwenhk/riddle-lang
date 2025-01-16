@@ -150,6 +150,7 @@ export namespace Riddle {
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
         llvm::Function *FuncDefinePs(const FuncDefineStmt *stmt) {
+            const auto mod = stmt->modifier;
             const std::string name = stmt->func_name;
             llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
             auto args = stmt->args;
@@ -221,6 +222,7 @@ export namespace Riddle {
                     it++;
                     i++;
                 }
+                // 配置其他arg
                 for(; it != func->arg_end(); ++it, ++i) {
                     it->setName(argNames[i]);
                     Value *t = ctx->valueManager.getLLVMValue(it, it->getType());

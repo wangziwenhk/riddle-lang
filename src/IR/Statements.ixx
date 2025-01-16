@@ -8,6 +8,7 @@ export module IR.Statements;
 import Type.DefineArg;
 import Manager.ClassManager;
 import Types.Value;
+import Type.Modifier;
 export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {
@@ -212,6 +213,7 @@ export namespace Riddle {
                                                            return_type(std::move(return_type)),
                                                            args(args), body(body) {}
 
+        Modifier modifier;
         std::string func_name;
         std::string return_type;
         DefineArgListStmt *args;
