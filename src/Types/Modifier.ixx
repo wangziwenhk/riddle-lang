@@ -20,9 +20,10 @@ export namespace Riddle {
 
     public:
         enum ModifierType : unsigned char {
+            None = 0,
             Public,
-            Private,
             Protected,
+            Private,
             Virtual,
             Static,
             Const,

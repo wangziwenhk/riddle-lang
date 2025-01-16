@@ -155,6 +155,7 @@ namespace Riddle {
     }
     std::any StmtVisitor::visitFuncDefine(RiddleParser::FuncDefineContext *ctx) {
         const auto funcName = ctx->funcName->getText();
+        const auto mod = std::any_cast<Modifier>(visit(ctx->modifierList()));
         std::string returnType;
         if(ctx->returnType != nullptr) {
             returnType = ctx->returnType->getText();
@@ -166,7 +167,7 @@ namespace Riddle {
         if(!ctx->args->children.empty()) {
             args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
         }
-        BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, args);
+        BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body,mod,args);
         return stmt;
     }
     std::any StmtVisitor::visitBodyExpr(RiddleParser::BodyExprContext *ctx) {

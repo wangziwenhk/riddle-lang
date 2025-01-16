@@ -149,8 +149,7 @@ export namespace Riddle {
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
-        llvm::Function *FuncDefinePs(const FuncDefineStmt *stmt) {
-            const auto mod = stmt->modifier;
+        Class::ClassFunc FuncDefinePs(const FuncDefineStmt *stmt) {
             const std::string name = stmt->func_name;
             llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
             auto args = stmt->args;
@@ -160,17 +159,22 @@ export namespace Riddle {
             }
             std::vector<llvm::Type *> argTypes = args->getArgsTypes(ctx->classManager);
             if(!stmt->theClass.empty()) {
-                const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
-                const auto ptr_theClass = theClass->getPointerTo();
+                const auto theClass = ctx->classManager.getClass(stmt->theClass);
+                const auto theClassTy = theClass->type;
+                const auto ptr_theClass = theClassTy->getPointerTo();
                 argTypes.insert(argTypes.begin(), ptr_theClass);
-                const auto thisArg = ctx->stmtManager.getDefineArg("this", theClass->getName().str(), ctx->stmtManager.getNoneStmt());
+                const auto thisArg = ctx->stmtManager.getDefineArg("this", theClassTy->getName().str(), ctx->stmtManager.getNoneStmt());
                 args->args.insert(args->args.begin(), thisArg);
+                ctx->classManager.pushNowClass(theClass);
+            }else {
+                ctx->classManager.pushNowClass(nullptr);
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
             llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
             ctx->llvmBuilder.SetInsertPoint(entry);
             ctx->funcManager.registerFunction(name, func);
+
 
             // 预处理 varDefine
             std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
@@ -245,8 +249,10 @@ export namespace Riddle {
             }
             ctx->pop();
             parent.pop();
+            ctx->classManager.popNowClass();
 
-            return func;
+            const auto mod = stmt->modifier;
+            return {func, mod};
         }
 
         /// @brief 用于解析变量定义的函数
@@ -477,7 +483,7 @@ export namespace Riddle {
                 std::vector<llvm::Type *> parentTypes;
                 // 将父类的所有成员插入
                 parentTypes.resize(parentClass->members.size());
-                for(const auto& [name, index]: parentClass->members) {
+                for(const auto &[name, index]: parentClass->members) {
                     llvm::Type *type = parentClass->type->getElementType(index);
                     parentTypes[index] = type;
                     theClass->members[name] = cnt;
@@ -486,7 +492,7 @@ export namespace Riddle {
                 types = parentTypes;
                 // 继承方法
                 for(auto i: parentClass->funcs) {
-                    theClass->funcs.insert(i);
+                    theClass->funcs.emplace(i);
                 }
             }
             // 成员创建
@@ -515,8 +521,8 @@ export namespace Riddle {
                 i->func_name = stmt->name + "_" + i->func_name;
                 i->theClass = stmt->name;
 
-                const auto call = std::any_cast<llvm::Function *>(accept(i));
-                theClass->funcs[sourceName] = call;
+                const auto call = std::any_cast<Class::ClassFunc>(accept(i));
+                theClass->funcs.emplace(sourceName, call);
             }
         }
 
@@ -537,6 +543,7 @@ export namespace Riddle {
             const auto object = std::any_cast<Value *>(accept(stmt->object));
             const auto type = object->getType();
             const auto theClass = ctx->classManager.getClassFromType(type);
+            const auto funcName = stmt->call->name;
             // insert self
             const auto argList = stmt->call->args;
             argList->args.insert(argList->args.begin(), stmt->object);
@@ -546,7 +553,8 @@ export namespace Riddle {
                 auto value = std::any_cast<Value *>(accept(i))->toLLVM();
                 args.push_back(value);
             }
-            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(theClass->getFunction(stmt->call->name), args);
+            const llvm::FunctionCallee call = ctx->classManager.getClassFunc(theClass, funcName).getFunc();
+            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(call, args);
             Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
             return result;
         }
