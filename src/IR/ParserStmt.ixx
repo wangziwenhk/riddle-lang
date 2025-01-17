@@ -150,6 +150,17 @@ export namespace Riddle {
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
         Class::ClassFunc FuncDefinePs(const FuncDefineStmt *stmt) {
+            // 判断函数修饰符是否合法
+            if(stmt->theClass.empty()) {
+                if(!stmt->modifier.isFunctionModifier()) {
+                    throw std::logic_error("You are using the wrong modifier for the function: "+stmt->func_name);
+                }
+            }else {
+                if(!stmt->modifier.isMethodModifier()) {
+                    throw std::logic_error("You are using the wrong modifier for the method: "+stmt->theClass+"::"+stmt->func_name);
+                }
+            }
+
             const std::string name = stmt->func_name;
             llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
             auto args = stmt->args;
@@ -214,6 +225,7 @@ export namespace Riddle {
             ctx->push();
             parent.push(func);
 
+            // 配置函数传参
             if(args != nullptr) {
                 const auto argNames = args->getArgsNames();
                 int i = 0;
