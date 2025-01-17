@@ -6,11 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-message("Current operating system: ${CMAKE_SYSTEM_NAME}")
-message("Current C++ compiler: ${CMAKE_CXX_COMPILER_ID}")
-message("Current C compiler: ${CMAKE_C_COMPILER_ID}")
-message("Current build type: ${CMAKE_BUILD_TYPE}")
-message("Current generator: ${CMAKE_GENERATOR}")
+message(STATUS "Current operating system: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Current C++ compiler: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Current C compiler: ${CMAKE_C_COMPILER_ID}")
+message(STATUS "Current build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Current generator: ${CMAKE_GENERATOR}")
 
 # Enter the system type for better searching of the database.
 if (WIN32)

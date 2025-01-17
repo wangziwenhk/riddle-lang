@@ -8,6 +8,8 @@ export namespace Riddle {
     class Modifier {
         std::bitset<ModifierSize> modifiers;
         static std::bitset<ModifierSize> nonObjectModifier;
+        static std::bitset<ModifierSize> nonFuncModifier;
+        static std::bitset<ModifierSize> nonMethodModifier;
 
         static void initObjectModifier() {
             static bool isInit = false;
@@ -16,6 +18,28 @@ export namespace Riddle {
             }
             isInit = true;
             nonObjectModifier[Virtual] = true;
+        }
+
+        static void initFuncModifier() {
+            static bool isInit = false;
+            if(isInit) {
+                return;
+            }
+            isInit = true;
+            nonFuncModifier[Virtual] = true;
+            nonFuncModifier[Public] = true;
+            nonFuncModifier[Protected] = true;
+            nonFuncModifier[Private] = true;
+            nonFuncModifier[Static] = true;
+            nonFuncModifier[Const] = true;
+        }
+
+        static void initMethodModifier() {
+            static bool isInit = false;
+            if(isInit) {
+                return;
+            }
+            isInit = true;
         }
 
     public:
@@ -30,6 +54,8 @@ export namespace Riddle {
         };
         Modifier(): modifiers(std::bitset<ModifierSize>()) {
             initObjectModifier();
+            initFuncModifier();
+            initMethodModifier();
         }
 
         /// @brief 添加一个新的标识符
@@ -71,6 +97,19 @@ export namespace Riddle {
             const auto it = modifiers & nonObjectModifier;
             return !it.any();
         }
+
+        /// @brief 判断当前是否可以作为一个函数的修饰符
+        [[nodiscard]] bool isFunctionModifier() const {
+            const auto it = modifiers & nonFuncModifier;
+            return !it.any();
+        }
+
+        [[nodiscard]] bool isMethodModifier() const {
+            const auto it = modifiers & nonMethodModifier;
+            return !it.any();
+        }
     };
     std::bitset<ModifierSize> Modifier::nonObjectModifier;
+    std::bitset<ModifierSize> Modifier::nonFuncModifier;
+    std::bitset<ModifierSize> Modifier::nonMethodModifier;
 }

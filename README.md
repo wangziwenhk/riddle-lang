@@ -14,6 +14,9 @@
 
 Riddle Language 是一个内存安全的编程语言，用于修复 C/C++ 的不足之处而出现。
 
+如果你需要代码补全和语言支持，请看
+- [VSCode 插件](https://github.com/wangziwenhk/riddle-lang-vscode) 
+
 QQ群号：677741637
 
 # 特性
