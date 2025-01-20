@@ -3,12 +3,14 @@ module;
 #include <iostream>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
-#include <ranges>
 #include <stack>
+#include <utility>
 export module IR.ParserStmt;
 import IR.Statements;
 import Manager.ClassManager;
@@ -18,6 +20,7 @@ import Types.Class;
 import IR.Context;
 import Type.Variable;
 import Types.Value;
+import Types.Unit;
 export namespace Riddle {
     class ParserStmt {
         Context *ctx = nullptr;
@@ -26,9 +29,10 @@ export namespace Riddle {
         std::stack<llvm::BasicBlock *> continueBlocks;
         std::stack<llvm::Function *> parent;
 
+        Unit unit;
+
     public:
-        explicit ParserStmt(Context *ctx): ctx(ctx) {
-        }
+        explicit ParserStmt(Context *ctx, Unit unit): ctx(ctx), unit(std::move(unit)) {}
 
         // 获取从语句得到的结果
         std::any accept(BaseStmt *stmt) {
@@ -145,7 +149,9 @@ export namespace Riddle {
             if(verifyModule(ctx->module, &llvm::errs())) {
                 std::cerr << "Failed to verify module" << std::endl;
             }
-            ctx->module.print(llvm::outs(), nullptr);
+            std::error_code EC;
+            llvm::raw_fd_ostream OS(unit.getFileOption().output, EC, llvm::sys::fs::OF_None);
+            ctx->module.print(OS, nullptr);
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
@@ -153,11 +159,11 @@ export namespace Riddle {
             // 判断函数修饰符是否合法
             if(stmt->theClass.empty()) {
                 if(!stmt->modifier.isFunctionModifier()) {
-                    throw std::logic_error("You are using the wrong modifier for the function: "+stmt->func_name);
+                    throw std::logic_error("You are using the wrong modifier for the function: " + stmt->func_name);
                 }
-            }else {
+            } else {
                 if(!stmt->modifier.isMethodModifier()) {
-                    throw std::logic_error("You are using the wrong modifier for the method: "+stmt->theClass+"::"+stmt->func_name);
+                    throw std::logic_error("You are using the wrong modifier for the method: " + stmt->theClass + "::" + stmt->func_name);
                 }
             }
 
@@ -177,7 +183,7 @@ export namespace Riddle {
                 const auto thisArg = ctx->stmtManager.getDefineArg("this", theClassTy->getName().str(), ctx->stmtManager.getNoneStmt());
                 args->args.insert(args->args.begin(), thisArg);
                 ctx->classManager.pushNowClass(theClass);
-            }else {
+            } else {
                 ctx->classManager.pushNowClass(nullptr);
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);

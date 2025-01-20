@@ -19,7 +19,10 @@ namespace Riddle {
     public:
         explicit StmtVisitor(Context &ctx,RiddleParser* parser): IRContext(ctx), parser(parser) {}
         std::any visitProgram(RiddleParser::ProgramContext *ctx) override;
+
         std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override;
+        std::any visitImportStatement(RiddleParser::ImportStatementContext *context) override;
+
         std::any visitStatement(RiddleParser::StatementContext *ctx) override;
         std::any visitStatement_ed(RiddleParser::Statement_edContext *ctx) override;
         std::any visitInteger(RiddleParser::IntegerContext *ctx) override;
