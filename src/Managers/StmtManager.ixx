@@ -13,17 +13,10 @@ export namespace Riddle {
 
     public:
         ~StmtManager() {
-            const BaseStmt *theNoneStmt = nullptr;
             for(auto &stmt: stmts) {
-                if(stmt->isNoneStmt()) {
-                    theNoneStmt = stmt;
-                    continue;
-                }
                 delete stmt;
                 stmt = nullptr;
             }
-            delete theNoneStmt;
-            theNoneStmt = nullptr;
         }
         IntegerStmt *getConstant(const int value) {
             const auto ptr = new IntegerStmt(value);
@@ -104,7 +97,7 @@ export namespace Riddle {
 
         /// @brief 获取一个无作用的语句
         BaseStmt *getNoneStmt() {
-            static const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
+            const auto ptr = new BaseStmt(BaseStmt::StmtTypeID::NoneStmtID);
             stmts.push_back(ptr);
             return ptr;
         }

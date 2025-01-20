@@ -2,6 +2,7 @@
 #include <llvm/IR/DerivedTypes.h>
 import Manager.StmtManager;
 import Type.Modifier;
+import IR.Statements;
 
 namespace Riddle {
     std::any StmtVisitor::visitProgram(RiddleParser::ProgramContext *ctx) {
@@ -13,7 +14,7 @@ namespace Riddle {
             }
             const auto stmt = std::any_cast<BaseStmt *>(it);
             // 处理空语句
-            if(stmt->getStmtTypeID() == BaseStmt::StmtTypeID::NoneStmtID) {
+            if(stmt->isNoneStmt()) {
                 continue;
             }
             stmts.push_back(stmt);
@@ -26,6 +27,11 @@ namespace Riddle {
         BaseStmt *stmt = IRContext.stmtManager.getNoneStmt();
         return stmt;
     }
+    std::any StmtVisitor::visitImportStatement(RiddleParser::ImportStatementContext *context) {
+        BaseStmt *stmt = IRContext.stmtManager.getNoneStmt();
+        return stmt;
+    }
+
     std::any StmtVisitor::visitStatement(RiddleParser::StatementContext *ctx) {
         try {
             return RiddleParserBaseVisitor::visitStatement(ctx);

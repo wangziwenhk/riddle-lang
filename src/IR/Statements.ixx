@@ -14,7 +14,7 @@ export namespace Riddle {
     class BaseStmt {
     public:
         /// 用于标识语句类型
-        enum class StmtTypeID {
+        enum StmtTypeID : int {
             ProgramStmtID,
             VarDefineStmtID, // 变量定义
             FuncDefineStmtID,// 函数定义
@@ -68,7 +68,9 @@ export namespace Riddle {
             return StmtID;
         }
 
-        [[nodiscard]] inline bool isNoneStmt() const { return StmtID == StmtTypeID::NoneStmtID; }
+        [[nodiscard]] inline bool isNoneStmt() const {
+            return StmtID == NoneStmtID;
+        }
 
         [[nodiscard]] virtual inline int BodyCount() const {
             return 0;
@@ -210,9 +212,9 @@ export namespace Riddle {
                        BaseStmt *body,
                        const Modifier mod = {},
                        DefineArgListStmt *args = nullptr): BaseStmt(StmtTypeID::FuncDefineStmtID),
-                                                             modifier(mod),
-                                                             func_name(std::move(func_name)),
-                                                             return_type(std::move(return_type)), args(args), body(body) {}
+                                                           modifier(mod),
+                                                           func_name(std::move(func_name)),
+                                                           return_type(std::move(return_type)), args(args), body(body) {}
 
         Modifier modifier;
         std::string func_name;
@@ -380,8 +382,8 @@ export namespace Riddle {
         bool isLoaded;
     };
 
-    template <typename T>
-    bool isSameStmt(const BaseStmt* stmt) {
-        return dynamic_cast<const T*>(stmt) != nullptr;
+    template<typename T>
+    bool isSameStmt(const BaseStmt *stmt) {
+        return dynamic_cast<const T *>(stmt) != nullptr;
     }
 }// namespace Riddle

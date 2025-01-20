@@ -4,21 +4,19 @@ module;
 
 #include <antlr4-runtime.h>
 #include <string>
+#include <utility>
 #include <vector>
 export module Types.Unit;
-
-typedef std::string Path;
-
+import Tools.Options;
+using Path = std::string;
 export namespace Riddle {
     class Unit {
         /// @brief 当前单元的包名
         std::string packName;
         /// @brief 导入的库，内容为包名
         std::vector<std::string> imports;
-        /// @brief 文件的目录，用于查找相对于的包
-        Path directoryPath;
         /// @brief 文件的完整路径
-        Path filePath;
+        Option option;
 
     public:
         RiddleParser *parser{};
@@ -26,8 +24,7 @@ export namespace Riddle {
         antlr4::tree::ParseTree *parseTree = nullptr;
 
         Unit() = default;
-        explicit Unit(const Path &selfPath) {
-            this->directoryPath = selfPath;
+        explicit Unit(Option option): option(std::move(option)) {
             parser = nullptr;
         }
 
@@ -41,24 +38,14 @@ export namespace Riddle {
             return packName;
         }
 
-        /// @brief 设置编译单元目录的路径
-        void setDirectoryPath(Path path) {
-            directoryPath = std::move(path);
-        }
-
-        /// @brief 获取编译单元目录的路径
-        [[nodiscard]] Path getDirectoryPath() const {
-            return directoryPath;
-        }
-
         /// @brief 设置源文件的完整路径
-        void setFilePath(const Path &path) {
-            this->filePath = path;
+        void setFileOption(const Option &option) {
+            this->option = option;
         }
 
         /// @brief 获取源文件的完整路径
-        [[nodiscard]] Path getFilePath() const {
-            return filePath;
+        [[nodiscard]] Option getFileOption() const {
+            return this->option;
         }
 
         /// @brief 添加库相关
@@ -86,7 +73,7 @@ export namespace Riddle {
             return this->imports.size() > x.imports.size();
         }
 
-        bool operator<(const Unit &x)const{
+        bool operator<(const Unit &x) const {
             return this->imports.size() < x.imports.size();
         }
     };
