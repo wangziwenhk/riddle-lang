@@ -139,19 +139,19 @@ export namespace Riddle {
             // TestLib start
             llvm::FunctionType *printfType = llvm::FunctionType::get(ctx->llvmBuilder.getVoidTy(), {ctx->llvmBuilder.getPtrTy()}, true);
             llvm::Function *printfFunc = llvm::Function::Create(
-                    printfType, llvm::Function::ExternalLinkage, "printf", ctx->module);
+                    printfType, llvm::Function::ExternalLinkage, "printf", *ctx->module);
             ctx->funcManager.registerFunction("printf", printfFunc);
             // TestLib end
             for(const auto i: stmt->body) {
                 accept(i);
             }
             ctx->pop();
-            if(verifyModule(ctx->module, &llvm::errs())) {
+            if(verifyModule(*ctx->module, &llvm::errs())) {
                 std::cerr << "Failed to verify module" << std::endl;
             }
             std::error_code EC;
             llvm::raw_fd_ostream OS(unit.getFileOption().output, EC, llvm::sys::fs::OF_None);
-            ctx->module.print(OS, nullptr);
+            ctx->module.get()->print(OS, nullptr);
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
@@ -187,7 +187,7 @@ export namespace Riddle {
                 ctx->classManager.pushNowClass(nullptr);
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
-            llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, ctx->module);
+            llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, *ctx->module);
             llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
             ctx->llvmBuilder.SetInsertPoint(entry);
             ctx->funcManager.registerFunction(name, func);
@@ -211,7 +211,7 @@ export namespace Riddle {
                         for(const auto i: it->stmts) {
                             pre_varDefine(i);
                         }
-                        for(auto &i: it->stmts) {
+                        for(const auto &i: it->stmts) {
                             if(const auto t = dynamic_cast<VarDefineStmt *>(i)) {
                                 t->isAlloca = true;
                             }
@@ -304,7 +304,7 @@ export namespace Riddle {
                     throw std::logic_error("VarDefinePs called with nullptr");
                 }
                 auto *CV = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
-                auto ptr = new llvm::GlobalVariable(ctx->module, type, false,
+                auto ptr = new llvm::GlobalVariable(*ctx->module, type, false,
                                                     llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
                 var = ctx->valueManager.getLLVMValue(ptr, type);
             } else {
@@ -584,7 +584,7 @@ export namespace Riddle {
 
             const std::string child = stmt->child->name;
 
-            const int index = theClass->getMember(child);
+            const size_t index = theClass->getMember(child);
             if(object->toLLVM()->getType()->isPointerTy()) {
                 llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
                         theClass->type,
@@ -601,10 +601,9 @@ export namespace Riddle {
                     result = ctx->valueManager.getLLVMValue(ptr, childType);
                 }
                 return result;
-            } else {
-                llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object->toLLVM(), index);
-                return ctx->valueManager.getLLVMValue(ptr, type);
             }
+            llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object->toLLVM(), index);
+            return ctx->valueManager.getLLVMValue(ptr, type);
         }
     };
 }// namespace Riddle

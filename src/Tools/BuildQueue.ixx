@@ -23,7 +23,7 @@ export namespace Riddle {
 
     public:
         /// @brief 用于解析某个源文件
-        void parserFile(Option option) {
+        void parserFile(const Option& option) {
             std::ifstream stream(option.source);
             const auto input = new antlr4::ANTLRInputStream(stream);
             const auto lexer = new RiddleLexer(input);

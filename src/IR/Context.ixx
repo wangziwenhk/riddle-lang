@@ -19,7 +19,7 @@ export namespace Riddle {
 
     public:
         llvm::LLVMContext &llvm_context;
-        llvm::Module module;
+        std::unique_ptr<llvm::Module> module;
         VarManager varManager;
         ClassManager classManager;
         StmtManager stmtManager;
@@ -28,7 +28,7 @@ export namespace Riddle {
         ValueManager valueManager;
         llvm::IRBuilder<> llvmBuilder;
 
-        explicit Context(llvm::LLVMContext &context): llvm_context(context), module("", context),
+        explicit Context(llvm::LLVMContext &context): llvm_context(context), module(new llvm::Module("", context)),
                                                       classManager(context), opManager(context),
                                                       valueManager(llvmBuilder), llvmBuilder(context) {}
 
