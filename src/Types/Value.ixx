@@ -20,6 +20,7 @@ export namespace Riddle {
             StructTyID,
             LLVMValueTyID,
             ObjectTyID,
+            ModuleObjectTyID,
         };
 
         ValueTyID ID;
