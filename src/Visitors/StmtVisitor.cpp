@@ -23,7 +23,7 @@ namespace Riddle {
     }
     std::any StmtVisitor::visitPackStatement(RiddleParser::PackStatementContext *ctx) {
         packageName = ctx->packName->getText();
-        IRContext.module.get()->setModuleIdentifier(packageName);
+        IRContext.module->setModuleIdentifier(packageName);
         BaseStmt *stmt = IRContext.stmtManager.getNoneStmt();
         return stmt;
     }

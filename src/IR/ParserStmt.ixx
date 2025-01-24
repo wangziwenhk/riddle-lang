@@ -18,7 +18,7 @@ import Manager.VarManager;
 import Manager.OpManager;
 import Types.Class;
 import IR.Context;
-import Type.Variable;
+import Type.Var;
 import Types.Value;
 import Types.Unit;
 export namespace Riddle {
@@ -290,7 +290,7 @@ export namespace Riddle {
             }
 
             if(stmt->isAlloca) {
-                ctx->addVariable(Variable(name, stmt->alloca, false));
+                ctx->addVariable(Var(name, stmt->alloca, false));
                 if(value != nullptr) {
                     ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca->toLLVM());
                 }

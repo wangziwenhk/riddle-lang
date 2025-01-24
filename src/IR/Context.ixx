@@ -4,13 +4,9 @@ module;
 #include <llvm/IR/IRBuilder.h>
 #include <stack>
 export module IR.Context;
-
-import Type.Variable;
-import Manager.VarManager;
 import Manager.StmtManager;
 import Manager.ClassManager;
 import Manager.OpManager;
-import Manager.FuncManager;
 import Tools.Allocator;
 import Manager.ValueManager;
 export namespace Riddle {
@@ -20,11 +16,9 @@ export namespace Riddle {
     public:
         llvm::LLVMContext &llvm_context;
         std::unique_ptr<llvm::Module> module;
-        VarManager varManager;
         ClassManager classManager;
         StmtManager stmtManager;
         OpManager opManager;
-        FuncManager funcManager;
         ValueManager valueManager;
         llvm::IRBuilder<> llvmBuilder;
 
@@ -32,13 +26,7 @@ export namespace Riddle {
                                                       classManager(context), opManager(context),
                                                       valueManager(llvmBuilder), llvmBuilder(context) {}
 
-        inline void addVariable(const Variable &var) {
-            varManager.addVar(var);
-        }
-
         inline void push() {
-            varManager.push();
-            funcManager.push();
             _deep++;
         }
 
@@ -46,8 +34,6 @@ export namespace Riddle {
             if(_deep == 0) {
                 throw std::runtime_error("Cannot pop from an empty context");
             }
-            varManager.pop();
-            funcManager.pop();
             _deep--;
         }
 
