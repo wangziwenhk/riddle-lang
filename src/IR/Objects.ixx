@@ -7,6 +7,7 @@ export module IR.Objects;
 import Type.Modifier;
 import IR.Context;
 export namespace Riddle {
+    class Variable;
     // 所有 object 的基本类型
     class Object {
     public:
@@ -55,6 +56,11 @@ export namespace Riddle {
         }
 
         virtual llvm::Type *toLLVM();
+        /// 实例化本类
+        virtual Variable *Instantiate();
+        /// 实例化本类
+        /// @param name 变量名称
+        virtual Variable *Instantiate(const std::string &name);
     };
 
     class IntegerTy : public Type {
@@ -64,6 +70,9 @@ export namespace Riddle {
         llvm::Type *toLLVM() override {
             return llvm::Type::getInt32Ty(ctx->llvm_context);
         }
+
+        Variable *Instantiate() override;
+        Variable *Instantiate(const std::string &name) override;
     };
 
     class FloatTy : public Type {
@@ -73,6 +82,9 @@ export namespace Riddle {
         llvm::Type *toLLVM() override {
             return llvm::Type::getFloatTy(ctx->llvm_context);
         }
+
+        Variable *Instantiate() override;
+        Variable *Instantiate(const std::string &name) override;
     };
 
     class DoubleTy : public Type {
@@ -81,26 +93,9 @@ export namespace Riddle {
         llvm::Type *toLLVM() override {
             return llvm::Type::getDoubleTy(ctx->llvm_context);
         }
-    };
 
-    class Class : public Type {
-        llvm::StructType *structTy;
-        std::unordered_map<std::string, Type *> members;
-
-    public:
-        explicit Class(Context *ctx,
-                       const std::string &name,
-                       const std::vector<std::pair<std::string, Type *>> &member): Type(ClassTyID, ctx) {
-            structTy = llvm::StructType::create(ctx->llvm_context);
-            structTy->setName(name);
-            // 设置成员
-            std::vector<llvm::Type *> memberTypes;
-            for(auto &i: member) {
-                memberTypes.push_back(i.second->toLLVM());
-                members.insert(i);
-            }
-            structTy->setBody(memberTypes);
-        }
+        Variable *Instantiate() override;
+        Variable *Instantiate(const std::string &name) override;
     };
 
     /// 表示一个被实例化的变量
@@ -109,7 +104,7 @@ export namespace Riddle {
         Type *type;
 
     public:
-        Variable(std::string name, Type *type, Context *ctx);
+        Variable(std::string name, Type *type, Context *ctx): Object(VariableTyID, ctx, std::move(name)), type(type) {}
 
         ~Variable() override {
             delete type;
@@ -138,11 +133,64 @@ export namespace Riddle {
         }
     };
 
-}// namespace Riddle
+    class Class : public Type {
+        llvm::StructType *structTy;
+        std::unordered_map<std::string, Type *> members;
 
+    public:
+        explicit Class(Context *ctx,
+                       const std::string &name,
+                       const std::vector<std::pair<std::string, Type *>> &member): Type(ClassTyID, ctx) {
+            structTy = llvm::StructType::create(ctx->llvm_context);
+            structTy->setName(name);
+            // 设置成员
+            std::vector<llvm::Type *> memberTypes;
+            for(auto &i: member) {
+                memberTypes.push_back(i.second->toLLVM());
+                members.insert(i);
+            }
+            structTy->setBody(memberTypes);
+        }
+
+        /// 实例化本类
+        Variable *Instantiate() override {
+            const auto var = new Variable("__tmp", this, ctx);
+            for(auto [name, type]: members) {
+                const auto tmp = type->Instantiate();
+                var->addMember(name, tmp);
+            }
+            return var;
+        }
+
+        llvm::Type *toLLVM() override {
+            return structTy;
+        }
+    };
+}// namespace Riddle
 module IR.Objects.INS;
-export namespace Riddle {
-    Variable::Variable(std::string name, Type *type, Context *ctx): Object(VariableTyID, ctx, std::move(name)), type(type) {
-        throw std::logic_error("Variable: not implement");
+namespace Riddle {
+    Variable *IntegerTy::Instantiate() {
+        const auto var = new Variable("__tmp", this, ctx);
+        return var;
+    }
+    Variable *IntegerTy::Instantiate(const std::string &name) {
+        const auto var = new Variable(name, this, ctx);
+        return var;
+    }
+    Variable *FloatTy::Instantiate() {
+        const auto var = new Variable("__tmp", this, ctx);
+        return var;
+    }
+    Variable *FloatTy::Instantiate(const std::string &name) {
+        const auto var = new Variable(name, this, ctx);
+        return var;
+    }
+    Variable *DoubleTy::Instantiate() {
+        const auto var = new Variable("__tmp", this, ctx);
+        return var;
+    }
+    Variable *DoubleTy::Instantiate(const std::string &name) {
+        const auto var = new Variable(name, this, ctx);
+        return var;
     }
 }// namespace Riddle
