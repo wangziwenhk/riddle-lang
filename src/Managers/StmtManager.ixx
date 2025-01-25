@@ -38,8 +38,8 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
-        StringStmt *getConstant(const std::string &value) {
-            const auto ptr = new StringStmt(value);
+        StringLiteralStmt *getConstant(const std::string &value) {
+            const auto ptr = new StringLiteralStmt(value);
             stmts.push_back(ptr);
             return ptr;
         }
