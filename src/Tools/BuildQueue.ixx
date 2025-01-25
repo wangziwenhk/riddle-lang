@@ -1,6 +1,5 @@
 module;
 #include "RiddleLexer.h"
-#include <Visitors/StmtVisitor.h>
 #include <llvm/IR/LLVMContext.h>
 #include <queue>
 #include <ranges>
@@ -8,6 +7,7 @@ module;
 #include <unordered_map>
 #include <vector>
 export module Tools.BuildQueue;
+import Visitors.StmtVisitor;
 import Types.Unit;
 import IR.ParserStmt;
 import Manager.ErrorManager;

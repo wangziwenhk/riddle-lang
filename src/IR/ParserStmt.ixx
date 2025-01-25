@@ -13,14 +13,10 @@ module;
 #include <utility>
 export module IR.ParserStmt;
 import IR.Statements;
-import Manager.ClassManager;
-import Manager.VarManager;
 import Manager.OpManager;
-import Types.Class;
 import IR.Context;
-import Type.Var;
-import Types.Value;
 import Types.Unit;
+import IR.Objects;
 export namespace Riddle {
     class ParserStmt {
         Context *ctx = nullptr;
@@ -86,8 +82,8 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::FuncCallStmtID:
                     return FuncCallPs(dynamic_cast<FuncCallStmt *>(stmt));
 
-                case BaseStmt::StmtTypeID::StringStmtID:
-                    return StringPs(dynamic_cast<StringStmt *>(stmt));
+                case BaseStmt::StmtTypeID::StringLiteralStmtID:
+                    return StringLiteralPs(dynamic_cast<StringLiteralStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::IfStmtID:
                     IfPs(dynamic_cast<IfStmt *>(stmt));
@@ -114,34 +110,36 @@ export namespace Riddle {
                     throw std::logic_error("Unhandled StmtTypeID");
             }
         }
-        Value *IntegerPs(const IntegerStmt *stmt) const {
-            Value *result = ctx->valueManager.getInteger(stmt->value);
+        Object *IntegerPs(const IntegerStmt *stmt) const {
+            Type *intTy = new IntegerTy(ctx);
+            llvm::Constant *v = ctx->builder.getInt32(stmt->value);
+            Object *result = new Constant(ctx, intTy, v);
             return result;
         }
 
-        Value *DoublePs(const DoubleStmt *stmt) const {
-            Value *result = ctx->valueManager.getFloat(stmt->value);
+        Object *DoublePs(const DoubleStmt *stmt) const {
+            Type *doubleTy = new DoubleTy(ctx);
+            llvm::Value *v = llvm::ConstantFP::get(ctx->builder.getDoubleTy(), stmt->value);
+            Object *result = new Constant(ctx, doubleTy, v);
             return result;
         }
 
-        Value *BooleanPs(const BoolStmt *stmt) const {
-            Value *result = ctx->valueManager.getBool(stmt->value);
+        Object *BooleanPs(const BoolStmt *stmt) const {
+            Type *intTy = new BooleanTy(ctx);
+            llvm::Constant *v = ctx->builder.getInt32(stmt->value);
+            Object *result = new Constant(ctx, intTy, v);
             return result;
         }
 
-        Value *StringPs(const StringStmt *stmt) const {
-            Value *result = ctx->valueManager.getString(stmt->value);
+        Object *StringLiteralPs(const StringLiteralStmt *stmt) const {
+            Type *stringLiteral = new StringLiteralTy(ctx);
+            llvm::Value *v = ctx->builder.CreateGlobalStringPtr(stmt->value);
+            Object *result = new Constant(ctx, stringLiteral, v);
             return result;
         }
 
         void ProgramPs(ProgramStmt *stmt) {
             ctx->push();
-            // TestLib start
-            llvm::FunctionType *printfType = llvm::FunctionType::get(ctx->llvmBuilder.getVoidTy(), {ctx->llvmBuilder.getPtrTy()}, true);
-            llvm::Function *printfFunc = llvm::Function::Create(
-                    printfType, llvm::Function::ExternalLinkage, "printf", *ctx->module);
-            ctx->funcManager.registerFunction("printf", printfFunc);
-            // TestLib end
             for(const auto i: stmt->body) {
                 accept(i);
             }
@@ -151,11 +149,11 @@ export namespace Riddle {
             }
             std::error_code EC;
             llvm::raw_fd_ostream OS(unit.getFileOption().output, EC, llvm::sys::fs::OF_None);
-            ctx->module.get()->print(OS, nullptr);
+            ctx->module->print(OS, nullptr);
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
-        Class::ClassFunc FuncDefinePs(const FuncDefineStmt *stmt) {
+        Object* FuncDefinePs(const FuncDefineStmt *stmt) {
             // 判断函数修饰符是否合法
             if(stmt->theClass.empty()) {
                 if(!stmt->modifier.isFunctionModifier()) {
@@ -168,13 +166,20 @@ export namespace Riddle {
             }
 
             const std::string name = stmt->func_name;
-            llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
+            Object *returnType = ctx->objectManager.getObject(stmt->return_type);
+
             auto args = stmt->args;
             BaseStmt *body = stmt->body;
             if(stmt->args == nullptr) {
                 args = ctx->stmtManager.getDefineArgList({});
             }
-            std::vector<llvm::Type *> argTypes = args->getArgsTypes(ctx->classManager);
+
+            std::vector<llvm::Type *> argTypes;
+            argTypes.reserve(args->args.size());
+            for(const auto arg: args) {
+                argTypes.push_back(ctx->objectManager.getObject(name));
+            }
+
             if(!stmt->theClass.empty()) {
                 const auto theClass = ctx->classManager.getClass(stmt->theClass);
                 const auto theClassTy = theClass->type;
