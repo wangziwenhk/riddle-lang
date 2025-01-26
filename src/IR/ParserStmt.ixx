@@ -16,7 +16,6 @@ import IR.Statements;
 import Manager.OpManager;
 import IR.Context;
 import Types.Unit;
-import IR.Objects;
 export namespace Riddle {
     class ParserStmt {
         Context *ctx = nullptr;
@@ -153,7 +152,7 @@ export namespace Riddle {
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
-        Object* FuncDefinePs(const FuncDefineStmt *stmt) {
+        Object *FuncDefinePs(const FuncDefineStmt *stmt) {
             // 判断函数修饰符是否合法
             if(stmt->theClass.empty()) {
                 if(!stmt->modifier.isFunctionModifier()) {
@@ -166,7 +165,10 @@ export namespace Riddle {
             }
 
             const std::string name = stmt->func_name;
-            Object *returnType = ctx->objectManager.getObject(stmt->return_type);
+            const auto returnType = ctx->objectManager->getType(stmt->return_type);
+            if(returnType == nullptr) {
+                throw std::logic_error(std::format("\'{}\' is not a Type", stmt->return_type));
+            }
 
             auto args = stmt->args;
             BaseStmt *body = stmt->body;
@@ -175,27 +177,31 @@ export namespace Riddle {
             }
 
             std::vector<llvm::Type *> argTypes;
+            std::vector<Type *> riddleArgTypes;
             argTypes.reserve(args->args.size());
-            for(const auto arg: args) {
-                argTypes.push_back(ctx->objectManager.getObject(name));
+            for(const auto arg: args->args) {
+                const auto t = ctx->objectManager->getType(arg->type);
+                riddleArgTypes.push_back(t);
+                argTypes.push_back(t->toLLVM());
             }
 
             if(!stmt->theClass.empty()) {
-                const auto theClass = ctx->classManager.getClass(stmt->theClass);
-                const auto theClassTy = theClass->type;
+                const auto theClass = ctx->objectManager->getClass(stmt->theClass);
+                const auto theClassTy = llvm::dyn_cast<llvm::StructType>(theClass->toLLVM());
                 const auto ptr_theClass = theClassTy->getPointerTo();
                 argTypes.insert(argTypes.begin(), ptr_theClass);
                 const auto thisArg = ctx->stmtManager.getDefineArg("this", theClassTy->getName().str(), ctx->stmtManager.getNoneStmt());
                 args->args.insert(args->args.begin(), thisArg);
-                ctx->classManager.pushNowClass(theClass);
+                ctx->pushNowClass(theClass);
             } else {
-                ctx->classManager.pushNowClass(nullptr);
+                ctx->pushNowClass(nullptr);
             }
-            llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
+            llvm::FunctionType *funcType = llvm::FunctionType::get(returnType->toLLVM(), argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, *ctx->module);
             llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
             ctx->llvmBuilder.SetInsertPoint(entry);
-            ctx->funcManager.registerFunction(name, func);
+            const auto funcObj = new Function(ctx, name, func, returnType, riddleArgTypes, !stmt->theClass.empty());
+            ctx->objectManager->addObject(name, funcObj);
 
 
             // 预处理 varDefine
@@ -243,17 +249,17 @@ export namespace Riddle {
                 auto it = func->arg_begin();
                 if(!stmt->theClass.empty()) {
                     it->setName("this");
-                    const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
-                    Value *t = ctx->valueManager.getLLVMValue(it, theClass);
-                    ctx->varManager.defineVar("this", false, t);
+                    const auto theClass = ctx->objectManager->getClass(stmt->theClass);
+                    const auto t = new Variable("this", theClass, it, ctx);
+                    ctx->objectManager->addObject("this", t);
                     it++;
                     i++;
                 }
                 // 配置其他arg
                 for(; it != func->arg_end(); ++it, ++i) {
                     it->setName(argNames[i]);
-                    Value *t = ctx->valueManager.getLLVMValue(it, it->getType());
-                    ctx->varManager.defineVar(argNames[i], false, t);
+                    const auto t = new Variable(argNames[i], riddleArgTypes[i], it, ctx);
+                    ctx->objectManager->addObject(argNames[i], t);
                 }
             } else if(!stmt->theClass.empty()) {
                 const auto it = func->arg_begin();
