@@ -1,5 +1,6 @@
 module;
 #include "RiddleLexer.h"
+#include "RiddleParser.h"
 #include <llvm/IR/LLVMContext.h>
 #include <queue>
 #include <ranges>
@@ -13,6 +14,8 @@ import IR.ParserStmt;
 import Manager.ErrorManager;
 import Tools.Options;
 import Visitor.PackageVisitor;
+import IR.Context;
+import IR.Statements;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
