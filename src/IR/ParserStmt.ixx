@@ -13,13 +13,8 @@ module;
 #include <utility>
 export module IR.ParserStmt;
 import IR.Statements;
-import Manager.ClassManager;
-import Manager.VarManager;
 import Manager.OpManager;
-import Types.Class;
 import IR.Context;
-import Type.Variable;
-import Types.Value;
 import Types.Unit;
 export namespace Riddle {
     class ParserStmt {
@@ -86,8 +81,8 @@ export namespace Riddle {
                 case BaseStmt::StmtTypeID::FuncCallStmtID:
                     return FuncCallPs(dynamic_cast<FuncCallStmt *>(stmt));
 
-                case BaseStmt::StmtTypeID::StringStmtID:
-                    return StringPs(dynamic_cast<StringStmt *>(stmt));
+                case BaseStmt::StmtTypeID::StringLiteralStmtID:
+                    return StringLiteralPs(dynamic_cast<StringLiteralStmt *>(stmt));
 
                 case BaseStmt::StmtTypeID::IfStmtID:
                     IfPs(dynamic_cast<IfStmt *>(stmt));
@@ -114,34 +109,37 @@ export namespace Riddle {
                     throw std::logic_error("Unhandled StmtTypeID");
             }
         }
-        Value *IntegerPs(const IntegerStmt *stmt) const {
-            Value *result = ctx->valueManager.getInteger(stmt->value);
+        Object *IntegerPs(const IntegerStmt *stmt) const {
+            Type *intTy = new IntegerTy(ctx);
+            llvm::Constant *v = ctx->builder.getInt32(stmt->value);
+            Object *result = new Value(ctx, v, intTy);
             return result;
         }
 
-        Value *DoublePs(const DoubleStmt *stmt) const {
-            Value *result = ctx->valueManager.getFloat(stmt->value);
+        Object *DoublePs(const DoubleStmt *stmt) const {
+            Type *doubleTy = new DoubleTy(ctx);
+            llvm::Value *v = llvm::ConstantFP::get(ctx->builder.getDoubleTy(), stmt->value);
+            Object *result = new Value(ctx, v, doubleTy);
             return result;
         }
 
-        Value *BooleanPs(const BoolStmt *stmt) const {
-            Value *result = ctx->valueManager.getBool(stmt->value);
+        Object *BooleanPs(const BoolStmt *stmt) const {
+            Type *intTy = new BooleanTy(ctx);
+            llvm::Constant *v = ctx->builder.getInt32(stmt->value);
+            Object *result = new Value(ctx, v, intTy);
             return result;
         }
 
-        Value *StringPs(const StringStmt *stmt) const {
-            Value *result = ctx->valueManager.getString(stmt->value);
+        Object *StringLiteralPs(const StringLiteralStmt *stmt) const {
+            Type *stringLiteral = new StringLiteralTy(ctx);
+            llvm::Value *v = ctx->builder.CreateGlobalStringPtr(stmt->value);
+            Object *result = new Value(ctx, v, stringLiteral);
             return result;
         }
 
         void ProgramPs(ProgramStmt *stmt) {
             ctx->push();
-            // TestLib start
-            llvm::FunctionType *printfType = llvm::FunctionType::get(ctx->llvmBuilder.getVoidTy(), {ctx->llvmBuilder.getPtrTy()}, true);
-            llvm::Function *printfFunc = llvm::Function::Create(
-                    printfType, llvm::Function::ExternalLinkage, "printf", *ctx->module);
-            ctx->funcManager.registerFunction("printf", printfFunc);
-            // TestLib end
+            ctx->initBaseTypes();
             for(const auto i: stmt->body) {
                 accept(i);
             }
@@ -151,11 +149,11 @@ export namespace Riddle {
             }
             std::error_code EC;
             llvm::raw_fd_ostream OS(unit.getFileOption().output, EC, llvm::sys::fs::OF_None);
-            ctx->module.get()->print(OS, nullptr);
+            ctx->module->print(OS, nullptr);
         }
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
-        Class::ClassFunc FuncDefinePs(const FuncDefineStmt *stmt) {
+        Object *FuncDefinePs(const FuncDefineStmt *stmt) {
             // 判断函数修饰符是否合法
             if(stmt->theClass.empty()) {
                 if(!stmt->modifier.isFunctionModifier()) {
@@ -168,29 +166,44 @@ export namespace Riddle {
             }
 
             const std::string name = stmt->func_name;
-            llvm::Type *returnType = ctx->classManager.getType(stmt->return_type);
+            const auto returnType = ctx->objectManager->getType(stmt->return_type);
+            if(returnType == nullptr) {
+                throw std::logic_error(std::format("\'{}\' is not a Type", stmt->return_type.toString()));
+            }
+
             auto args = stmt->args;
             BaseStmt *body = stmt->body;
             if(stmt->args == nullptr) {
                 args = ctx->stmtManager.getDefineArgList({});
             }
-            std::vector<llvm::Type *> argTypes = args->getArgsTypes(ctx->classManager);
+
+            std::vector<llvm::Type *> argTypes;
+            std::vector<Type *> riddleArgTypes;
+            argTypes.reserve(args->args.size());
+            for(const auto arg: args->args) {
+                const auto t = ctx->objectManager->getType(arg->type);
+                riddleArgTypes.push_back(t);
+                argTypes.push_back(t->toLLVM());
+            }
+
             if(!stmt->theClass.empty()) {
-                const auto theClass = ctx->classManager.getClass(stmt->theClass);
-                const auto theClassTy = theClass->type;
+                const auto theClass = ctx->objectManager->getClass(stmt->theClass);
+                const auto theClassTy = llvm::dyn_cast<llvm::StructType>(theClass->toLLVM());
                 const auto ptr_theClass = theClassTy->getPointerTo();
                 argTypes.insert(argTypes.begin(), ptr_theClass);
                 const auto thisArg = ctx->stmtManager.getDefineArg("this", theClassTy->getName().str(), ctx->stmtManager.getNoneStmt());
                 args->args.insert(args->args.begin(), thisArg);
-                ctx->classManager.pushNowClass(theClass);
+                ctx->pushNowClass(theClass);
             } else {
-                ctx->classManager.pushNowClass(nullptr);
+                ctx->pushNowClass(nullptr);
             }
-            llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, argTypes, false);
+            llvm::FunctionType *funcType = llvm::FunctionType::get(returnType->toLLVM(), argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, *ctx->module);
             llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
             ctx->llvmBuilder.SetInsertPoint(entry);
-            ctx->funcManager.registerFunction(name, func);
+            const auto mod = stmt->modifier;
+            const auto funcObj = new Function(ctx, name, func, returnType, riddleArgTypes, mod, !stmt->theClass.empty());
+            ctx->objectManager->addObject(name, funcObj);
 
 
             // 预处理 varDefine
@@ -238,24 +251,24 @@ export namespace Riddle {
                 auto it = func->arg_begin();
                 if(!stmt->theClass.empty()) {
                     it->setName("this");
-                    const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
-                    Value *t = ctx->valueManager.getLLVMValue(it, theClass);
-                    ctx->varManager.defineVar("this", false, t);
+                    const auto theClass = ctx->objectManager->getClass(stmt->theClass);
+                    const auto t = new Value(ctx, "this", it, theClass);
+                    ctx->objectManager->addObject("this", t);
                     it++;
                     i++;
                 }
                 // 配置其他arg
                 for(; it != func->arg_end(); ++it, ++i) {
                     it->setName(argNames[i]);
-                    Value *t = ctx->valueManager.getLLVMValue(it, it->getType());
-                    ctx->varManager.defineVar(argNames[i], false, t);
+                    const auto t = new Value(ctx, argNames[i], it, riddleArgTypes[i]);
+                    ctx->objectManager->addObject(argNames[i], t);
                 }
             } else if(!stmt->theClass.empty()) {
                 const auto it = func->arg_begin();
                 it->setName("this");
-                const auto theClass = ctx->classManager.getClass(stmt->theClass)->type;
-                const auto t = ctx->valueManager.getLLVMValue(it, theClass);
-                ctx->varManager.defineVar("this", false, t);
+                const auto theClass = ctx->objectManager->getClass(stmt->theClass);
+                const auto t = new Value(ctx, "this", it, theClass);
+                ctx->objectManager->addObject("this", t);
             }
 
             pre_varDefine(body);
@@ -267,10 +280,9 @@ export namespace Riddle {
             }
             ctx->pop();
             parent.pop();
-            ctx->classManager.popNowClass();
+            ctx->popNowClass();
 
-            const auto mod = stmt->modifier;
-            return {func, mod};
+            return funcObj;
         }
 
         /// @brief 用于解析变量定义的函数
@@ -278,21 +290,22 @@ export namespace Riddle {
         void VarDefinePs(VarDefineStmt *stmt) {
             Value *value = nullptr;
             if(!stmt->value->isNoneStmt()) {
-                value = std::any_cast<Value *>(accept(stmt->value));
+                value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->value)));
             }
             const std::string name = stmt->name;
 
-            llvm::Type *type = nullptr;
+            Type *type = nullptr;
             if(stmt->type.empty() && value != nullptr) {
                 type = value->getType();
             } else {
-                type = ctx->classManager.getType(stmt->type);
+                type = ctx->objectManager->getType(stmt->type);
             }
 
             if(stmt->isAlloca) {
-                ctx->addVariable(Variable(name, stmt->alloca, false));
+                const auto alloca = new Value(ctx, name, stmt->alloca, type);
+                ctx->objectManager->addObject(name, alloca);
                 if(value != nullptr) {
-                    ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca->toLLVM());
+                    ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca);
                 }
                 return;
             }
@@ -304,35 +317,35 @@ export namespace Riddle {
                     throw std::logic_error("VarDefinePs called with nullptr");
                 }
                 auto *CV = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
-                auto ptr = new llvm::GlobalVariable(*ctx->module, type, false,
-                                                    llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
-                var = ctx->valueManager.getLLVMValue(ptr, type);
+                const auto ptr = new llvm::GlobalVariable(*ctx->module, type->toLLVM(), false,
+                                                          llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
+                var = new Value(ctx, name, ptr, type);
             } else {
                 // 实际上此处应该是被提前 Alloca 的时候运行的，不需要赋值，后续会被替换为 = 运算符
-                auto ptr = ctx->llvmBuilder.CreateAlloca(type, nullptr, name);
-                var = ctx->valueManager.getLLVMValue(ptr, type);
+                const auto ptr = ctx->llvmBuilder.CreateAlloca(type->toLLVM(), nullptr, name);
+                var = new Value(ctx, name, ptr, type);
             }
-            stmt->alloca = var;
+            stmt->alloca = var->toLLVM();
         }
 
         // ReSharper disable once CppDFAConstantFunctionResult
-        Value *ObjectPs(const ObjectStmt *stmt) const {
+        Object *ObjectPs(const ObjectStmt *stmt) const {
             const std::string name = stmt->name;
             // ReSharper disable once CppDFAUnreadVariable
             // ReSharper disable once CppDFAUnusedValue
-            const auto ptr = ctx->varManager.getVar(name).var;
+            const auto ptr = ctx->objectManager->getVariable(name);
             const bool isLoaded = stmt->isLoaded;
             if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(ptr->toLLVM()); var != nullptr) {
                 Value *value = nullptr;
                 if(isLoaded) {
                     llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), ptr->toLLVM());
-                    value = ctx->valueManager.getLLVMValue(load, load->getType());
+                    Type *type = ptr->getType();
+                    value = new Value(ctx, load, type);
                 } else {
-                    value = ctx->valueManager.getLLVMValue(var, var->getAllocatedType());
+                    value = ptr;
                 }
                 return value;
             }
-
             return ptr;
         }
 
@@ -340,11 +353,11 @@ export namespace Riddle {
             if(stmt->value == nullptr) {
                 ctx->llvmBuilder.CreateRetVoid();
             }
-            const auto result = std::any_cast<Value *>(accept(stmt->value));
+            const auto result = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->value)));
             ctx->llvmBuilder.CreateRet(result->toLLVM());
         }
 
-        llvm::Value *BlockPs(const BlockStmt *stmt) {
+        Object *BlockPs(const BlockStmt *stmt) {
             ctx->push();
             for(const auto i: stmt->stmts) {
                 accept(i);
@@ -361,7 +374,7 @@ export namespace Riddle {
             ctx->llvmBuilder.CreateBr(condBlock);
             ctx->llvmBuilder.SetInsertPoint(condBlock);
             // cond 是必须要求的
-            const auto cond = std::any_cast<Value *>(accept(stmt->condition));
+            const auto cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)));
             ctx->llvmBuilder.CreateCondBr(cond->toLLVM(), loopBlock, exitBlock);
 
             breakBlocks.push(exitBlock);
@@ -399,7 +412,7 @@ export namespace Riddle {
             // 如果没有 Cond 那么一直运行
             llvm::Value *cond = ctx->llvmBuilder.getInt1(true);
             if(!stmt->condition->isNoneStmt()) {
-                cond = std::any_cast<Value *>(accept(stmt->condition))->toLLVM();
+                cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             }
 
             ctx->llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
@@ -431,21 +444,20 @@ export namespace Riddle {
             ctx->llvmBuilder.CreateBr(continueBlocks.top());
         }
 
-        Value *BinaryExprPs(const BinaryExprStmt *stmt) {
-            const auto lhs = std::any_cast<Value *>(accept(stmt->lhs));
-            const auto rhs = std::any_cast<Value *>(accept(stmt->rhs))->toLLVM();
+        Object *BinaryExprPs(const BinaryExprStmt *stmt) {
+            const auto lhs = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->lhs)));
+            const auto rhs = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->rhs)))->toLLVM();
             const auto op = stmt->opt;
-            if(lhs->getType()->isPointerTy() && op != "=") {
-                const auto load_lhs = ctx->llvmBuilder.CreateLoad(lhs->getType(), lhs->toLLVM());
+            Type *type = lhs->getType();
+            if(lhs->getType()->toLLVM()->isPointerTy() && op != "=") {
+                const auto load_lhs = ctx->llvmBuilder.CreateLoad(lhs->getType()->toLLVM(), lhs->toLLVM());
                 llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{load_lhs->getType(), rhs->getType(), op})(ctx->llvmBuilder, load_lhs, rhs);
-                Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
-                return result;
+                return new Value(ctx, result_t, type);
             }
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上
-            llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{lhs->getType(), rhs->getType(), op})(ctx->llvmBuilder, lhs->toLLVM(), rhs);
-            Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
-            return result;
+            llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{lhs->getType()->toLLVM(), rhs->getType(), op})(ctx->llvmBuilder, lhs->toLLVM(), rhs);
+            return new Value(ctx, result_t, type);
         }
 
 
@@ -463,7 +475,7 @@ export namespace Riddle {
 
             ctx->llvmBuilder.CreateBr(condBlock);
             ctx->llvmBuilder.SetInsertPoint(condBlock);
-            const auto cond = std::any_cast<Value *>(accept(stmt->condition))->toLLVM();
+            const auto cond = dynamic_cast<Value*>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             if(elseBlock == nullptr) {
                 ctx->llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
             } else {
@@ -491,119 +503,109 @@ export namespace Riddle {
         }
 
         void ClassDefinePs(ClassDefineStmt *stmt) {
-            const auto theClass = new Class();
-            theClass->type = llvm::StructType::create(ctx->llvm_context, stmt->name);
-            std::vector<llvm::Type *> types;
-            size_t cnt = 0;
+            const auto theClass = new Class(ctx, stmt->name, {});
             // 构建继承
             if(!stmt->parentClass.empty()) {
-                const auto parentClass = ctx->classManager.getClass(stmt->parentClass);
-                std::vector<llvm::Type *> parentTypes;
-                // 将父类的所有成员插入
-                parentTypes.resize(parentClass->members.size());
-                for(const auto &[name, index]: parentClass->members) {
-                    llvm::Type *type = parentClass->type->getElementType(index);
-                    parentTypes[index] = type;
-                    theClass->members[name] = cnt;
-                    cnt++;
+                const auto parentClass = ctx->objectManager->getClass(stmt->parentClass);
+                for(const auto &[name, type]: parentClass->getAllMembers()) {
+                    theClass->addMember(name, type.first);
                 }
-                types = parentTypes;
+                theClass->updateStructTy();
+
                 // 继承方法
-                for(auto i: parentClass->funcs) {
-                    theClass->funcs.emplace(i);
+                for(const auto &[name, func]: parentClass->getAllFunctions()) {
+                    theClass->addFunction(name, func);
                 }
             }
             // 成员创建
             for(const auto i: stmt->members) {
-                const auto memberName = i->name;
-                llvm::Type *type = nullptr;
-                Value *value = nullptr;
-                if(!i->value->isNoneStmt()) {
-                    value = std::any_cast<Value *>(accept(i->value));
-                }
-                if(i->type.empty() && value != nullptr) {
-                    type = value->getType();
-                } else {
-                    type = ctx->classManager.getType(i->type);
-                }
-                theClass->members[memberName] = cnt;
-                types.push_back(type);
-                ++cnt;
+                std::string_view memberName = i->name;
+                const auto type = ctx->objectManager->getType(i->type);
+                theClass->addMember(memberName.data(), type);
             }
-            theClass->type->setBody(types);
-            ctx->classManager.createClass(theClass);
+            theClass->updateStructTy();
+            ctx->objectManager->addObject(stmt->name, theClass);
 
-            // 方法创建
+            // 函数创建
+            ctx->pushNowClass(theClass);
             for(const auto i: stmt->funcDefines) {
-                std::string sourceName = i->func_name;
-                i->func_name = stmt->name + "_" + i->func_name;
-                i->theClass = stmt->name;
-
-                const auto call = std::any_cast<Class::ClassFunc>(accept(i));
-                theClass->funcs.emplace(sourceName, call);
+                std::string_view name = i->func_name;
+                const auto func = dynamic_cast<Function *>(std::any_cast<Object *>(accept(i)));
+                if(func != nullptr) {
+                    throw std::runtime_error("ClassDefinePs(): Result not a Function");
+                }
+                theClass->addFunction(name.data(), func);
             }
+            ctx->popNowClass();
         }
 
-        Value *FuncCallPs(const FuncCallStmt *stmt) {
+        Object *FuncCallPs(const FuncCallStmt *stmt) {
             const auto name = stmt->name;
             const auto argList = stmt->args;
             std::vector<llvm::Value *> args;
             for(const auto i: argList->args) {
-                auto value = std::any_cast<Value *>(accept(i))->toLLVM();
+                auto value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(i)))->toLLVM();
                 args.push_back(value);
             }
-            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(ctx->funcManager.getFunction(name), args);
-            Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
+            Function *func = ctx->objectManager->getFunction(name);
+            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(func->getCallee(), args);
+            const auto result = new Value(ctx, result_t, func->getType());
             return result;
         }
 
-        Value *MethodCallPs(const MethodCallStmt *stmt) {
-            const auto object = std::any_cast<Value *>(accept(stmt->object));
-            const auto type = object->getType();
-            const auto theClass = ctx->classManager.getClassFromType(type);
-            const auto funcName = stmt->call->name;
+        Object *MethodCallPs(const MethodCallStmt *stmt) {
+            const auto object = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->object)));
+            Type *type = object->getType();
+            if(!type->isClassTy()) {
+                throw std::runtime_error("MethodCallPs(): Result not a Class");
+            }
+            const auto theClass = dynamic_cast<Class *>(type);
+            const std::string_view funcName = stmt->call->name;
             // insert self
             const auto argList = stmt->call->args;
             argList->args.insert(argList->args.begin(), stmt->object);
 
             std::vector<llvm::Value *> args;
             for(const auto i: argList->args) {
-                auto value = std::any_cast<Value *>(accept(i))->toLLVM();
+                auto value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(i)))->toLLVM();
                 args.push_back(value);
             }
-            const llvm::FunctionCallee call = ctx->classManager.getClassFunc(theClass, funcName).getFunc();
+            const llvm::FunctionCallee call = theClass->getFunction(funcName.data())->getCallee();
             llvm::Value *result_t = ctx->llvmBuilder.CreateCall(call, args);
-            Value *result = ctx->valueManager.getLLVMValue(result_t, result_t->getType());
+            const auto result = new Value(ctx, result_t, type);
             return result;
         }
 
-        Value *MemberExprPs(const MemberExprStmt *stmt) {
-            const auto object = std::any_cast<Value *>(accept(stmt->parent));
+        Object *MemberExprPs(const MemberExprStmt *stmt) {
+            const auto object = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->parent)));
             const auto type = object->getType();
-            const auto theClass = ctx->classManager.getClassFromType(type);
+            if(!type->isClassTy()) {
+                throw std::runtime_error("MethodCallPs(): Result not a Class");
+            }
+            const auto theClass = dynamic_cast<Class *>(type);
 
             const std::string child = stmt->child->name;
 
-            const size_t index = theClass->getMember(child);
+            const size_t index = theClass->getMemberIndex(child);
             if(object->toLLVM()->getType()->isPointerTy()) {
                 llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
-                        theClass->type,
+                        theClass->toLLVM(),
                         object->toLLVM(),
                         index);
 
                 Value *result = nullptr;
-                llvm::Type *childType = theClass->type->getElementType(index);
+                Type *childType = theClass->getMember(child);
 
                 if(stmt->isLoaded) {
-                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(childType, ptr);
-                    result = ctx->valueManager.getLLVMValue(load, childType);
+                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(childType->toLLVM(), ptr);
+                    result = new Value(ctx, load, childType);
                 } else {
-                    result = ctx->valueManager.getLLVMValue(ptr, childType);
+                    result = new Value(ctx, ptr, childType);
                 }
                 return result;
             }
             llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object->toLLVM(), index);
-            return ctx->valueManager.getLLVMValue(ptr, type);
+            return new Value(ctx, ptr, type);
         }
     };
 }// namespace Riddle
