@@ -1,14 +1,12 @@
 module;
 #include <llvm/IR/Instructions.h>
-#include <llvm/IR/Type.h>
 #include <string>
 #include <utility>
 #include <vector>
 export module IR.Statements;
 import Type.DefineArg;
-import Manager.ClassManager;
-import Types.Value;
 import Type.Modifier;
+export import Type.Identifier;
 export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {
@@ -37,7 +35,7 @@ export namespace Riddle {
             FloatStmtID,  // float 类型
             DoubleStmtID, // double 类型
             BoolStmtID,   // bool 类型
-            StringStmtID, // string 类型
+            StringLiteralStmtID, // string 类型
             NullStmtID,   // Null
 
             DefineArgStmtID,
@@ -80,7 +78,7 @@ export namespace Riddle {
     class ProgramStmt final : public BaseStmt {
     public:
         std::vector<BaseStmt *> body;
-        explicit ProgramStmt(std::vector<BaseStmt *> body): BaseStmt(StmtTypeID::ProgramStmtID), body{std::move(body)} {}
+        explicit ProgramStmt(std::vector<BaseStmt *> body): BaseStmt(ProgramStmtID), body{std::move(body)} {}
 
         [[nodiscard]] int BodyCount() const override {
             return 1;
@@ -91,7 +89,7 @@ export namespace Riddle {
     class BlockStmt final : public BaseStmt {
     public:
         std::vector<BaseStmt *> stmts;
-        BlockStmt(): BaseStmt(StmtTypeID::BlockStmtID) {}
+        BlockStmt(): BaseStmt(BlockStmtID) {}
 
         [[nodiscard]] int BodyCount() const override {
             return 1;
@@ -110,87 +108,79 @@ export namespace Riddle {
     /// @brief 存储int类型数据
     class IntegerStmt final : public ConstantStmt {
     public:
-        explicit IntegerStmt(const int value): ConstantStmt(StmtTypeID::IntegerStmtID), value(value) {}
+        explicit IntegerStmt(const int value): ConstantStmt(IntegerStmtID), value(value) {}
         int value;
     };
 
     /// @brief 存储 float 数据类型
     class FloatStmt final : public ConstantStmt {
     public:
-        explicit FloatStmt(const float value): ConstantStmt(StmtTypeID::FloatStmtID), value(value) {}
+        explicit FloatStmt(const float value): ConstantStmt(FloatStmtID), value(value) {}
         float value;
     };
 
     /// @brief 存储 Null 数据类型
     class NullStmt final : public ConstantStmt {
     public:
-        NullStmt(): ConstantStmt(StmtTypeID::NullStmtID) {}
+        NullStmt(): ConstantStmt(NullStmtID) {}
     };
 
     /// @brief 存储 double 数据类型
     class DoubleStmt final : public ConstantStmt {
     public:
-        explicit DoubleStmt(const double value): ConstantStmt(StmtTypeID::DoubleStmtID), value(value) {}
+        explicit DoubleStmt(const double value): ConstantStmt(DoubleStmtID), value(value) {}
         double value;
     };
 
     /// @brief 存储 bool 数据类型
     class BoolStmt final : public ConstantStmt {
     public:
-        explicit BoolStmt(const bool value): ConstantStmt(StmtTypeID::BoolStmtID), value(value) {}
+        explicit BoolStmt(const bool value): ConstantStmt(BoolStmtID), value(value) {}
         bool value;
     };
 
     /// @brief 存储 string 数据类型
-    class StringStmt final : public ConstantStmt {
+    class StringLiteralStmt final : public ConstantStmt {
     public:
-        explicit StringStmt(std::string value): ConstantStmt(StmtTypeID::StringStmtID), value(std::move(value)) {}
+        explicit StringLiteralStmt(std::string value): ConstantStmt(StringLiteralStmtID), value(std::move(value)) {}
         std::string value;
     };
 
     /// @brief 用于存储变量定义
     class VarDefineStmt final : public BaseStmt {
     public:
-        VarDefineStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::VarDefineStmtID),
+        VarDefineStmt(std::string name, const std::string &type, BaseStmt *value): BaseStmt(VarDefineStmtID),
                                                                             name(std::move(name)),
-                                                                            type(std::move(type)), value(value) {}
+                                                                            type(type), value(value) {}
 
         std::string name;
-        std::string type;
+        Identifier type;
         /// 对于一个值，一定可以被解析为一个Statement
         BaseStmt *value;
         /// 是否在函数内部时被优化到entry
 
         bool isAlloca = false;
-        Value *alloca = nullptr;
+        llvm::Value *alloca = nullptr;
     };
 
     class DefineArgStmt final : public BaseStmt {
-
     public:
-        DefineArgStmt(std::string name, std::string type, BaseStmt *value): BaseStmt(StmtTypeID::DefineArgStmtID),
+        DefineArgStmt(std::string name, const std::string &type, BaseStmt *value): BaseStmt(DefineArgStmtID),
                                                                             name(std::move(name)),
-                                                                            type(std::move(type)),
+                                                                            type(type),
                                                                             value(value) {}
         std::string name;
-        std::string type;
+        Identifier type;
         /// 默认值
         BaseStmt *value;
     };
 
     class DefineArgListStmt final : public BaseStmt {
     public:
-        explicit DefineArgListStmt(std::vector<DefineArgStmt *> args): BaseStmt(StmtTypeID::DefineArgListStmtID), args(std::move(args)) {}
+        explicit DefineArgListStmt(std::vector<DefineArgStmt *> args): BaseStmt(DefineArgListStmtID), args(std::move(args)) {}
 
         std::vector<DefineArgStmt *> args;
-        [[nodiscard]] std::vector<llvm::Type *> getArgsTypes(ClassManager &manager) const {
-            std::vector<llvm::Type *> argTypes;
-            argTypes.reserve(args.size());
-            for(const auto arg: args) {
-                argTypes.push_back(manager.getType(arg->type));
-            }
-            return argTypes;
-        }
+
         [[nodiscard]] std::vector<std::string> getArgsNames() const {
             if(args.empty()) {
                 return {};
@@ -208,17 +198,17 @@ export namespace Riddle {
     class FuncDefineStmt final : public BaseStmt {
     public:
         FuncDefineStmt(std::string func_name,
-                       std::string return_type,
+                       const std::string &return_type,
                        BaseStmt *body,
                        const Modifier mod = {},
-                       DefineArgListStmt *args = nullptr): BaseStmt(StmtTypeID::FuncDefineStmtID),
+                       DefineArgListStmt *args = nullptr): BaseStmt(FuncDefineStmtID),
                                                            modifier(mod),
                                                            func_name(std::move(func_name)),
-                                                           return_type(std::move(return_type)), args(args), body(body) {}
+                                                           return_type(return_type), args(args), body(body) {}
 
         Modifier modifier;
         std::string func_name;
-        std::string return_type;
+        Identifier return_type;
         DefineArgListStmt *args;
         BaseStmt *body;
         std::string theClass;
@@ -234,7 +224,7 @@ export namespace Riddle {
         ForStmt(BaseStmt *init,
                 BaseStmt *cond,
                 BaseStmt *self_change,
-                BlockStmt *body): BaseStmt(StmtTypeID::ForStmtID), init(init), condition(cond),
+                BlockStmt *body): BaseStmt(ForStmtID), init(init), condition(cond),
                                   self_change(self_change), body(body) {}
 
         BaseStmt *init;
@@ -250,7 +240,7 @@ export namespace Riddle {
     /// @brief 用于存储while循环语句
     class WhileStmt final : public BaseStmt {
     public:
-        WhileStmt(BaseStmt *cond, BlockStmt *body): BaseStmt(StmtTypeID::WhileStmtID), condition(cond), body(body) {}
+        WhileStmt(BaseStmt *cond, BlockStmt *body): BaseStmt(WhileStmtID), condition(cond), body(body) {}
 
         void setBodyStmt(BlockStmt *stmt) {
             body = stmt;
@@ -268,7 +258,7 @@ export namespace Riddle {
     /// @brief 用于存储 try 语句
     class TryStmt final : public BaseStmt {
     public:
-        TryStmt(BaseStmt *tryBody, BaseStmt *catchBody): BaseStmt(StmtTypeID::TryStmtID), tryBody(tryBody), catchBody(catchBody) {}
+        TryStmt(BaseStmt *tryBody, BaseStmt *catchBody): BaseStmt(TryStmtID), tryBody(tryBody), catchBody(catchBody) {}
 
         BaseStmt *tryBody;
         BaseStmt *catchBody;
@@ -281,7 +271,7 @@ export namespace Riddle {
     /// @brief 用于存储 if 语句
     class IfStmt final : public BaseStmt {
     public:
-        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): BaseStmt(StmtTypeID::IfStmtID), condition(cond), thenBody(thenBody), elseBody(elseBody) {}
+        IfStmt(BaseStmt *cond, BaseStmt *thenBody, BaseStmt *elseBody): BaseStmt(IfStmtID), condition(cond), thenBody(thenBody), elseBody(elseBody) {}
 
         BaseStmt *condition;
         BaseStmt *thenBody;
@@ -294,7 +284,7 @@ export namespace Riddle {
 
     class ObjectStmt final : public BaseStmt {
     public:
-        explicit ObjectStmt(std::string name, const bool isLoaded = false): BaseStmt(StmtTypeID::ObjStmtID), name(std::move(name)), isLoaded(isLoaded) {}
+        explicit ObjectStmt(std::string name, const bool isLoaded = false): BaseStmt(ObjStmtID), name(std::move(name)), isLoaded(isLoaded) {}
 
         std::string name;
         bool isLoaded = false;
@@ -302,23 +292,23 @@ export namespace Riddle {
 
     class ReturnStmt final : public BaseStmt {
     public:
-        explicit ReturnStmt(BaseStmt *value): BaseStmt(StmtTypeID::ReturnStmtID), value(value) {}
+        explicit ReturnStmt(BaseStmt *value): BaseStmt(ReturnStmtID), value(value) {}
         BaseStmt *value;
     };
 
     class ContinueStmt final : public BaseStmt {
     public:
-        explicit ContinueStmt(): BaseStmt(StmtTypeID::ContinueStmtID) {}
+        explicit ContinueStmt(): BaseStmt(ContinueStmtID) {}
     };
 
     class BreakStmt final : public BaseStmt {
     public:
-        explicit BreakStmt(): BaseStmt(StmtTypeID::BreakStmtID) {}
+        explicit BreakStmt(): BaseStmt(BreakStmtID) {}
     };
 
     class BinaryExprStmt final : public BaseStmt {
     public:
-        BinaryExprStmt(BaseStmt *lhs, BaseStmt *rhs, std::string opt): BaseStmt(StmtTypeID::BinaryExprStmtID), lhs(lhs), rhs(rhs), opt(std::move(opt)) {}
+        BinaryExprStmt(BaseStmt *lhs, BaseStmt *rhs, std::string opt): BaseStmt(BinaryExprStmtID), lhs(lhs), rhs(rhs), opt(std::move(opt)) {}
 
         BaseStmt *lhs;
         BaseStmt *rhs;
@@ -327,20 +317,20 @@ export namespace Riddle {
 
     class ArgStmt final : public BaseStmt {
     public:
-        explicit ArgStmt(BaseStmt *value): BaseStmt(StmtTypeID::ArgStmtID), value(value) {}
+        explicit ArgStmt(BaseStmt *value): BaseStmt(ArgStmtID), value(value) {}
 
         BaseStmt *value;
     };
 
     class ArgListStmt final : public BaseStmt {
     public:
-        explicit ArgListStmt(std::vector<BaseStmt *> args): BaseStmt(StmtTypeID::ArgListStmtID), args(std::move(args)) {}
+        explicit ArgListStmt(std::vector<BaseStmt *> args): BaseStmt(ArgListStmtID), args(std::move(args)) {}
         std::vector<BaseStmt *> args;
     };
 
     class FuncCallStmt final : public BaseStmt {
     public:
-        explicit FuncCallStmt(std::string name, ArgListStmt *args): BaseStmt(StmtTypeID::FuncCallStmtID), name(std::move(name)), args(args) {}
+        explicit FuncCallStmt(std::string name, ArgListStmt *args): BaseStmt(FuncCallStmtID), name(std::move(name)), args(args) {}
 
         std::string name;
         ArgListStmt *args;
@@ -351,20 +341,20 @@ export namespace Riddle {
         explicit ClassDefineStmt(std::string className,
                                  std::vector<VarDefineStmt *> members,
                                  const std::vector<FuncDefineStmt *> &funcDefines,
-                                 std::string parentClass = ""): BaseStmt(StmtTypeID::ClassDefineStmtID),
+                                 const std::string& parentClass = ""): BaseStmt(ClassDefineStmtID),
                                                                 members(std::move(members)),
                                                                 funcDefines(funcDefines),
-                                                                parentClass(std::move(parentClass)),
+                                                                parentClass(parentClass),
                                                                 name(std::move(className)) {}
         std::vector<VarDefineStmt *> members;
         std::vector<FuncDefineStmt *> funcDefines;
-        std::string parentClass;
+        Identifier parentClass;
         std::string name;
     };
 
     class MethodCallStmt final : public BaseStmt {
     public:
-        MethodCallStmt(BaseStmt *obj, FuncCallStmt *call): BaseStmt(StmtTypeID::MethodCallStmtID), object(obj), call(call) {}
+        MethodCallStmt(BaseStmt *obj, FuncCallStmt *call): BaseStmt(MethodCallStmtID), object(obj), call(call) {}
 
         BaseStmt *object;
         FuncCallStmt *call;
@@ -374,7 +364,7 @@ export namespace Riddle {
     public:
         MemberExprStmt(BaseStmt *parent,
                        ObjectStmt *child,
-                       const bool isLoaded = false): BaseStmt(StmtTypeID::MemberExprStmtID),
+                       const bool isLoaded = false): BaseStmt(MemberExprStmtID),
                                                      parent(parent), child(child),
                                                      isLoaded(isLoaded) {}
         BaseStmt *parent;

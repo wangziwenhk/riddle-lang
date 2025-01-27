@@ -14,8 +14,7 @@ export namespace Riddle {
 
             if (LinkError) {
                 throw std::runtime_error("Linking failed");
-            }
-            // 合并其他的
+            }            // 合并其他的
         }
     };
 }// namespace Riddle
