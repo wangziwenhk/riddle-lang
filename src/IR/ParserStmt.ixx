@@ -139,6 +139,7 @@ export namespace Riddle {
 
         void ProgramPs(ProgramStmt *stmt) {
             ctx->push();
+            ctx->initBaseTypes();
             for(const auto i: stmt->body) {
                 accept(i);
             }
@@ -352,7 +353,7 @@ export namespace Riddle {
             if(stmt->value == nullptr) {
                 ctx->llvmBuilder.CreateRetVoid();
             }
-            const auto result = std::any_cast<Value *>(accept(stmt->value));
+            const auto result = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->value)));
             ctx->llvmBuilder.CreateRet(result->toLLVM());
         }
 
@@ -373,7 +374,7 @@ export namespace Riddle {
             ctx->llvmBuilder.CreateBr(condBlock);
             ctx->llvmBuilder.SetInsertPoint(condBlock);
             // cond 是必须要求的
-            const auto cond = std::any_cast<Value *>(accept(stmt->condition));
+            const auto cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)));
             ctx->llvmBuilder.CreateCondBr(cond->toLLVM(), loopBlock, exitBlock);
 
             breakBlocks.push(exitBlock);
@@ -411,7 +412,7 @@ export namespace Riddle {
             // 如果没有 Cond 那么一直运行
             llvm::Value *cond = ctx->llvmBuilder.getInt1(true);
             if(!stmt->condition->isNoneStmt()) {
-                cond = std::any_cast<Value *>(accept(stmt->condition))->toLLVM();
+                cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             }
 
             ctx->llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
@@ -444,8 +445,8 @@ export namespace Riddle {
         }
 
         Object *BinaryExprPs(const BinaryExprStmt *stmt) {
-            const auto lhs = std::any_cast<Value *>(accept(stmt->lhs));
-            const auto rhs = std::any_cast<Value *>(accept(stmt->rhs))->toLLVM();
+            const auto lhs = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->lhs)));
+            const auto rhs = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->rhs)))->toLLVM();
             const auto op = stmt->opt;
             Type *type = lhs->getType();
             if(lhs->getType()->toLLVM()->isPointerTy() && op != "=") {
@@ -474,7 +475,7 @@ export namespace Riddle {
 
             ctx->llvmBuilder.CreateBr(condBlock);
             ctx->llvmBuilder.SetInsertPoint(condBlock);
-            const auto cond = std::any_cast<Value *>(accept(stmt->condition))->toLLVM();
+            const auto cond = dynamic_cast<Value*>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             if(elseBlock == nullptr) {
                 ctx->llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
             } else {
@@ -543,7 +544,7 @@ export namespace Riddle {
             const auto argList = stmt->args;
             std::vector<llvm::Value *> args;
             for(const auto i: argList->args) {
-                auto value = std::any_cast<Value *>(accept(i))->toLLVM();
+                auto value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(i)))->toLLVM();
                 args.push_back(value);
             }
             Function *func = ctx->objectManager->getFunction(name);
@@ -553,7 +554,7 @@ export namespace Riddle {
         }
 
         Object *MethodCallPs(const MethodCallStmt *stmt) {
-            const auto object = std::any_cast<Value *>(accept(stmt->object));
+            const auto object = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->object)));
             Type *type = object->getType();
             if(!type->isClassTy()) {
                 throw std::runtime_error("MethodCallPs(): Result not a Class");
@@ -566,7 +567,7 @@ export namespace Riddle {
 
             std::vector<llvm::Value *> args;
             for(const auto i: argList->args) {
-                auto value = std::any_cast<Value *>(accept(i))->toLLVM();
+                auto value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(i)))->toLLVM();
                 args.push_back(value);
             }
             const llvm::FunctionCallee call = theClass->getFunction(funcName.data())->getCallee();
@@ -576,7 +577,7 @@ export namespace Riddle {
         }
 
         Object *MemberExprPs(const MemberExprStmt *stmt) {
-            const auto object = std::any_cast<Value *>(accept(stmt->parent));
+            const auto object = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->parent)));
             const auto type = object->getType();
             if(!type->isClassTy()) {
                 throw std::runtime_error("MethodCallPs(): Result not a Class");
