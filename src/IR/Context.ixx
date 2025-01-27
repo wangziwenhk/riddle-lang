@@ -12,8 +12,9 @@ import Tools.Allocator;
 import Type.Identifier;
 
 export namespace Riddle {
+    class Type;
     class Class;
-    class Variable;
+    class Value;
     class ObjectManager;
     class Context {
         int _deep = 0;
@@ -32,7 +33,6 @@ export namespace Riddle {
 
         explicit Context(llvm::LLVMContext &context);
 
-    public:
         inline void push();
 
         inline void pop();
@@ -70,10 +70,7 @@ export namespace Riddle {
             BooleanTyID,
             VoidTyID,
             StringLiteralTyID,
-
-            ConstantTyID,
-
-            VariableTyID,
+            ValueTyID,
             FunctionTyID,
             ModuleTyID,
             ClassTyID,
@@ -85,6 +82,7 @@ export namespace Riddle {
     public:
         // ReSharper disable once CppDFANotInitializedField
         Modifier modifier{};
+        // ReSharper disable once CppDFANotInitializedField
         std::string name;
         std::shared_ptr<Context> ctx = nullptr;
 
@@ -104,6 +102,16 @@ export namespace Riddle {
         [[nodiscard]] virtual bool isType() {
             return false;
         }
+
+        [[nodiscard]] virtual bool isVariable() {
+            return false;
+        }
+
+        [[nodiscard]] virtual bool isFunction() {
+            return false;
+        }
+
+        virtual Type *getType() = 0;
     };
 
     /// 用来表示类型
@@ -123,12 +131,16 @@ export namespace Riddle {
             return true;
         }
 
+        Type *getType() override {
+            return this;
+        }
+
         virtual llvm::Type *toLLVM();
         /// 实例化本类
-        virtual Variable *Instantiate();
+        virtual Value *Instantiate();
         /// 实例化本类
         /// @param name 变量名称
-        virtual Variable *Instantiate(const std::string &name);
+        virtual Value *Instantiate(const std::string &name);
 
         virtual bool isVoidTy() {
             return false;
@@ -189,50 +201,38 @@ export namespace Riddle {
         }
     };
 
-    /// 常量
-    class Constant final : public Object {
+    class Value final : public Object {
+    public:
+        Value(Context *ctx,
+              const std::string &name,
+              llvm::Value *value,
+              Type *type): Object(ValueTyID, ctx, name), type(type), value(value) {}
+
+        Value(Context *ctx,
+              llvm::Value *value,
+              Type *type): Object(ValueTyID, ctx, "__tmp"), type(type), value(value) {}
+
+    protected:
         Type *type;
         llvm::Value *value;
 
     public:
-        Constant(Context *ctx, Type *type, llvm::Value *value): Object(ConstantTyID, ctx, "__constValue"), type(type), value(value) {}
-
-        Object *getObject(const std::string &name) override {
-            throw std::runtime_error("Constant not implemented");
-        }
-
         [[nodiscard]] llvm::Value *toLLVM() const {
             return value;
         }
-    };
 
-    /// 表示一个被实例化的变量
-    class Variable final : public Object {
-        llvm::Value *var;
-        Type *type;
-
-    public:
-        Variable(std::string name, Type *type, llvm::Value *var, Context *ctx): Object(VariableTyID, ctx, std::move(name)), var(var), type(type) {}
-
-        ~Variable() override {
-            delete type;
-        }
-
-        Object *getObject(const std::string &name) override;
-
-        [[nodiscard]] Type *getType() const {
+        Type *getType() override {
             return type;
         }
 
-        [[nodiscard]] llvm::Value *toLLVM() const {
-            return var;
-        }
+        Object *getObject(const std::string &name) override;
     };
 
     class Function final : public Object {
         llvm::Function *llvmFunc;
         Object *returnObject;
-        std::vector<Variable *> parameters;
+        std::vector<Value *> parameters;
+        Modifier modifier;
         bool isMethod;
 
     public:
@@ -241,14 +241,16 @@ export namespace Riddle {
         /// @param llvmFunc 具体函数实现
         /// @param returnType 返回值类型
         /// @param args 参数类型
+        /// @param modifier 函数修饰符
         /// @param isMethod 是否为一个方法
         explicit Function(Context *ctx,// NOLINT(*-pro-type-member-init)
                           const std::string &name,
                           llvm::Function *llvmFunc,
                           Type *returnType,
-                          const std::vector<Type *> &args,
-                          const bool isMethod): Object(FunctionTyID, ctx, name),
-                                                llvmFunc(llvmFunc), isMethod(isMethod) {
+                          const std::vector<Type *> &args = {},
+                          const Modifier modifier = {},
+                          const bool isMethod = false): Object(FunctionTyID, ctx, name),
+                                                        llvmFunc(llvmFunc), modifier(modifier), isMethod(isMethod) {
             auto it = llvmFunc->arg_begin();
             for(int i = 0; i < args.size(); ++i, ++it) {
                 parameters.push_back(args[i]->Instantiate(it->getName().str()));
@@ -264,11 +266,24 @@ export namespace Riddle {
         [[nodiscard]] llvm::Value *createCall(const std::vector<llvm::Value *> &args, llvm::IRBuilder<> builder) const {
             return builder.CreateCall(llvmFunc->getFunctionType(), llvmFunc, args);
         }
+
+        /// 这里实际上获取到的是 returnType
+        Type *getType() override {
+            return returnObject->getType();
+        }
+
+        bool isFunction() override {
+            return true;
+        }
+
+        [[nodiscard]] llvm::FunctionCallee getCallee() const {
+            return llvmFunc;
+        }
     };
 
     class Class final : public Type {
         llvm::StructType *structTy;
-        std::unordered_map<std::string, Type *> members;
+        std::unordered_map<std::string, std::pair<Type *, size_t>> members;
         std::unordered_map<std::string, Function *> functions;
 
     public:
@@ -277,17 +292,60 @@ export namespace Riddle {
                        const std::vector<std::pair<std::string, Type *>> &member): Type(ClassTyID, ctx) {
             structTy = llvm::StructType::create(ctx->llvm_context);
             structTy->setName(name);
-            // 设置成员
+            size_t cnt = 0;
+            for(const auto &[name, type]: member) {
+                members.insert({name, {type, cnt}});
+                cnt++;
+            }
+            updateStructTy();
+        }
+
+        void updateStructTy() {
             std::vector<llvm::Type *> memberTypes;
-            for(auto &i: member) {
-                memberTypes.push_back(i.second->toLLVM());
+            memberTypes.reserve(members.size());
+            for(auto &i: members) {
+                memberTypes.push_back(i.second.first->toLLVM());
                 members.insert(i);
             }
             structTy->setBody(memberTypes);
         }
 
+        /// 向类中添加成员
+        ///
+        /// 你应该在执行完成该函数后 update 结构体
+        void addMember(const std::string &name, Type *type) {
+            if(members.contains(name)) {
+                throw std::runtime_error("Member '" + name + "' already exists");
+            }
+            members[name].first = type;
+            members[name].second = members.size();
+        }
+
+        /// 向类中添加方法
+        void addFunction(const std::string &name, Function *function) {
+            if(functions.contains(name)) {
+                throw std::runtime_error("Function '" + name + "' already exists");
+            }
+            functions[name] = function;
+        }
+
         llvm::Type *toLLVM() override {
+            if(structTy->elements().size() != members.size()) {
+                throw std::runtime_error("StructTy doesn't have the same number of members");
+            }
             return structTy;
+        }
+
+        const auto &getAllMembers() const {
+            return members;
+        }
+
+        const auto &getAllFunctions() const {
+            return functions;
+        }
+
+        size_t getMemberSize() const {
+            return members.size();
         }
 
         /// @warning 无效的
@@ -300,7 +358,15 @@ export namespace Riddle {
             if(it == members.end()) {
                 throw std::runtime_error("Member not found");
             }
-            return it->second;
+            return it->second.first;
+        }
+
+        size_t getMemberIndex(const std::string &name) {
+            const auto it = members.find(name);
+            if(it == members.end()) {
+                throw std::runtime_error("Member not found");
+            }
+            return it->second.second;
         }
 
         Function *getFunction(const std::string &name) {
@@ -317,6 +383,10 @@ export namespace Riddle {
 
         bool isMember(const std::string &name) const {
             return members.contains(name);
+        }
+
+        Type *getType() override {
+            throw std::runtime_error("Type not implemented");
         }
     };
 
@@ -339,6 +409,10 @@ export namespace Riddle {
                 throw std::runtime_error("Member already exists");
             }
             members[name] = obj;
+        }
+
+        Type *getType() override {
+            throw std::runtime_error("Type not implemented");
         }
     };
 
@@ -430,7 +504,48 @@ export namespace Riddle {
                 throw std::runtime_error("ObjectManager::getClass(): object not Class");
             }
             return dynamic_cast<Class *>(obj);
+        }
 
+        Value *getVariable(const std::string &name) {
+            Object *obj = getObject(name);
+            if(!obj->isVariable()) {
+                throw std::runtime_error("ObjectManager::getValue(): object not variable");
+            }
+            return dynamic_cast<Value *>(obj);
+        }
+
+        Value *getVariable(const Identifier &id) {
+            Object *obj = getObject(id);
+            if(!obj->isVariable()) {
+                throw std::runtime_error("ObjectManager::getValue(): object not variable");
+            }
+            return dynamic_cast<Value *>(obj);
+        }
+
+        Value *getValue(const std::string &name) {
+            Object *obj = getObject(name);
+            return dynamic_cast<Value *>(obj);
+        }
+
+        Value *getValue(const Identifier &id) {
+            Object *obj = getObject(id);
+            return dynamic_cast<Value *>(obj);
+        }
+
+        Function *getFunction(const std::string &name) {
+            Object *obj = getObject(name);
+            if(!obj->isFunction()) {
+                throw std::runtime_error("ObjectManager::getFunction(): object not function");
+            }
+            return dynamic_cast<Function *>(obj);
+        }
+
+        Function *getFunction(const Identifier &id) {
+            Object *obj = getObject(id);
+            if(!obj->isFunction()) {
+                throw std::runtime_error("ObjectManager::getFunction(): object not function");
+            }
+            return dynamic_cast<Function *>(obj);
         }
     };
 
@@ -456,15 +571,15 @@ namespace Riddle {
     llvm::Type *Type::toLLVM() {
         throw std::runtime_error("Type not implemented");
     }
-    Variable *Type::Instantiate() {
+    Value *Type::Instantiate() {
         const auto var = ctx->builder.CreateAlloca(this->toLLVM());
-        return new Variable("__tmp", this, var, ctx.get());
+        return new Value(ctx.get(), "__tmp", var, this);
     }
-    Variable *Type::Instantiate(const std::string &name) {
+    Value *Type::Instantiate(const std::string &name) {
         const auto var = ctx->builder.CreateAlloca(this->toLLVM());
-        return new Variable(name, this, var, ctx.get());
+        return new Value(ctx.get(), name, var, this);
     }
-    Object *Variable::getObject(const std::string &name) {
+    Object *Value::getObject(const std::string &name) {
         if(!type->isClassTy()) {
             throw std::logic_error("Variable: Object is not a struct");
         }

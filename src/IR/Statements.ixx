@@ -6,8 +6,7 @@ module;
 export module IR.Statements;
 import Type.DefineArg;
 import Type.Modifier;
-import Type.Identifier;
-class Variable;
+export import Type.Identifier;
 export namespace Riddle {
     /// @brief 所有语句的基本语句
     class BaseStmt {
@@ -161,7 +160,7 @@ export namespace Riddle {
         /// 是否在函数内部时被优化到entry
 
         bool isAlloca = false;
-        Variable *alloca = nullptr;
+        llvm::Value *alloca = nullptr;
     };
 
     class DefineArgStmt final : public BaseStmt {
