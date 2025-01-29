@@ -15,6 +15,7 @@ export namespace Riddle {
         std::string packageName;
         RiddleParser *parser;
         size_t deep = 0;
+        std::stack<std::string> parentClass;
 
     public:
         explicit StmtVisitor(Context &ctx, RiddleParser *parser): IRContext(ctx), parser(parser) {}
@@ -195,8 +196,12 @@ export namespace Riddle {
             if(!ctx->args->children.empty()) {
                 args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
             }
-            BaseStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, mod, args);
-            return stmt;
+            FuncDefineStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, mod, args);
+            if(!parentClass.empty()) {
+                stmt->theClass = parentClass.top();
+            }
+            BaseStmt* result = stmt;
+            return result;
         }
 
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override {
@@ -349,11 +354,14 @@ export namespace Riddle {
         // 类
         std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override {
             const std::string className = ctx->className->getText();
+            parentClass.push(className);
             const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
             const auto body = dynamic_cast<BlockStmt *>(t_body);
+            parentClass.pop();
 
             std::vector<VarDefineStmt *> varDefs;
             std::vector<FuncDefineStmt *> funcDefines;
+
             for(const auto i: body->stmts) {
                 if(i->getStmtTypeID() == BaseStmt::StmtTypeID::VarDefineStmtID) {
                     varDefs.push_back(dynamic_cast<VarDefineStmt *>(i));

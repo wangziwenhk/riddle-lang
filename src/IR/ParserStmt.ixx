@@ -252,7 +252,7 @@ export namespace Riddle {
                 if(!stmt->theClass.empty()) {
                     it->setName("this");
                     const auto theClass = ctx->objectManager->getClass(stmt->theClass);
-                    const auto t = new Value(ctx, "this", it, theClass);
+                    const auto t = new Value(ctx, "this", it, theClass, true);
                     ctx->objectManager->addObject("this", t);
                     it++;
                     i++;
@@ -260,14 +260,14 @@ export namespace Riddle {
                 // 配置其他arg
                 for(; it != func->arg_end(); ++it, ++i) {
                     it->setName(argNames[i]);
-                    const auto t = new Value(ctx, argNames[i], it, riddleArgTypes[i]);
+                    const auto t = new Value(ctx, argNames[i], it, riddleArgTypes[i], true);
                     ctx->objectManager->addObject(argNames[i], t);
                 }
             } else if(!stmt->theClass.empty()) {
                 const auto it = func->arg_begin();
                 it->setName("this");
                 const auto theClass = ctx->objectManager->getClass(stmt->theClass);
-                const auto t = new Value(ctx, "this", it, theClass);
+                const auto t = new Value(ctx, "this", it, theClass, true);
                 ctx->objectManager->addObject("this", t);
             }
 
@@ -302,7 +302,7 @@ export namespace Riddle {
             }
 
             if(stmt->isAlloca) {
-                const auto alloca = new Value(ctx, name, stmt->alloca, type);
+                const auto alloca = new Value(ctx, name, stmt->alloca, type, true);
                 ctx->objectManager->addObject(name, alloca);
                 if(value != nullptr) {
                     ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca);
@@ -326,6 +326,7 @@ export namespace Riddle {
                 var = new Value(ctx, name, ptr, type);
             }
             stmt->alloca = var->toLLVM();
+            delete var;
         }
 
         // ReSharper disable once CppDFAConstantFunctionResult
@@ -333,18 +334,21 @@ export namespace Riddle {
             const std::string name = stmt->name;
             // ReSharper disable once CppDFAUnreadVariable
             // ReSharper disable once CppDFAUnusedValue
-            const auto ptr = ctx->objectManager->getVariable(name);
+            const auto ptr = ctx->objectManager->getObject(name);
             const bool isLoaded = stmt->isLoaded;
-            if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(ptr->toLLVM()); var != nullptr) {
-                Value *value = nullptr;
-                if(isLoaded) {
-                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), ptr->toLLVM());
-                    Type *type = ptr->getType();
-                    value = new Value(ctx, load, type);
-                } else {
-                    value = ptr;
+            const auto t = dynamic_cast<Value *>(ptr);
+            if(t != nullptr) {
+                if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(t->toLLVM()); var != nullptr) {
+                    Value *value = nullptr;
+                    if(isLoaded) {
+                        llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), t->toLLVM());
+                        Type *type = ptr->getType();
+                        value = new Value(ctx, load, type);
+                    } else {
+                        value = dynamic_cast<Value *>(ptr);
+                    }
+                    return value;
                 }
-                return value;
             }
             return ptr;
         }
@@ -475,7 +479,7 @@ export namespace Riddle {
 
             ctx->llvmBuilder.CreateBr(condBlock);
             ctx->llvmBuilder.SetInsertPoint(condBlock);
-            const auto cond = dynamic_cast<Value*>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
+            const auto cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             if(elseBlock == nullptr) {
                 ctx->llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
             } else {
@@ -531,7 +535,7 @@ export namespace Riddle {
             for(const auto i: stmt->funcDefines) {
                 std::string_view name = i->func_name;
                 const auto func = dynamic_cast<Function *>(std::any_cast<Object *>(accept(i)));
-                if(func != nullptr) {
+                if(func == nullptr) {
                     throw std::runtime_error("ClassDefinePs(): Result not a Function");
                 }
                 theClass->addFunction(name.data(), func);

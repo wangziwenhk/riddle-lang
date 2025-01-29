@@ -211,19 +211,26 @@ export namespace Riddle {
         Value(Context *ctx,
               const std::string &name,
               llvm::Value *value,
-              Type *type): Object(ValueTyID, ctx, name), type(type), value(value) {}
+              Type *type,
+              const bool isVar = false): Object(ValueTyID, ctx, name), type(type), value(value),isVar(isVar) {}
 
         Value(Context *ctx,
               llvm::Value *value,
-              Type *type): Object(ValueTyID, ctx, "__tmp"), type(type), value(value) {}
+              Type *type,
+              const bool isVar = false): Object(ValueTyID, ctx, "__tmp"), type(type), value(value),isVar(isVar) {}
 
         ~Value() override = default;
 
     protected:
         Type *type;
         llvm::Value *value;
+        bool isVar = false;
 
     public:
+        bool isVariable() override {
+            return isVar;
+        }
+
         [[nodiscard]] llvm::Value *toLLVM() const {
             return value;
         }
@@ -395,6 +402,10 @@ export namespace Riddle {
         Type *getType() override {
             throw std::runtime_error("Type not implemented");
         }
+
+        bool isClassTy() override {
+            return true;
+        }
     };
 
     class Module final : public Object {
@@ -464,7 +475,7 @@ export namespace Riddle {
             }
             const auto it = objects.find(name);
             if(it == objects.end()) {
-                throw std::runtime_error("ObjectManager::getObject(): object not found");
+                throw std::runtime_error("ObjectManager::getObject(): object \'"+name+"\' not found");
             }
             return it->second.top();
         }
