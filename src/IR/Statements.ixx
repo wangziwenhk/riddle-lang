@@ -31,12 +31,12 @@ export namespace Riddle {
             ContinueStmtID,// 跳过当前循环
             BreakStmtID,   // 跳出当前循环
 
-            IntegerStmtID,// int 类型
-            FloatStmtID,  // float 类型
-            DoubleStmtID, // double 类型
-            BoolStmtID,   // bool 类型
-            StringLiteralStmtID, // string 类型
-            NullStmtID,   // Null
+            IntegerStmtID,      // int 类型
+            FloatStmtID,        // float 类型
+            DoubleStmtID,       // double 类型
+            BoolStmtID,         // bool 类型
+            StringLiteralStmtID,// string 类型
+            NullStmtID,         // Null
 
             DefineArgStmtID,
             DefineArgListStmtID,
@@ -53,12 +53,15 @@ export namespace Riddle {
     protected:
         StmtTypeID StmtID;
 
+        // 表示当前是否只推断类型
+        bool isBuild = true;
+
     public:
         BaseStmt() = delete;
         explicit BaseStmt(const StmtTypeID stmtTypeID): StmtID(stmtTypeID) {}
         virtual ~BaseStmt() = default;
 
-        virtual bool isConstant() {
+        [[nodiscard]] virtual bool isConstant() const {
             return false;
         }
 
@@ -72,6 +75,14 @@ export namespace Riddle {
 
         [[nodiscard]] virtual inline int BodyCount() const {
             return 0;
+        }
+
+        [[nodiscard]] bool getIsBuild() const {
+            return isBuild;
+        }
+
+        virtual void setIsBuild(const bool is_build) {
+            this->isBuild = is_build;
         }
     };
 
@@ -100,7 +111,7 @@ export namespace Riddle {
     class ConstantStmt : public BaseStmt {
     public:
         explicit ConstantStmt(const StmtTypeID TypeID): BaseStmt(TypeID) {}
-        bool isConstant() override {
+        [[nodiscard]] bool isConstant() const override {
             return true;
         }
     };
@@ -150,8 +161,8 @@ export namespace Riddle {
     class VarDefineStmt final : public BaseStmt {
     public:
         VarDefineStmt(std::string name, const std::string &type, BaseStmt *value): BaseStmt(VarDefineStmtID),
-                                                                            name(std::move(name)),
-                                                                            type(type), value(value) {}
+                                                                                   name(std::move(name)),
+                                                                                   type(type), value(value) {}
 
         std::string name;
         Identifier type;
@@ -161,18 +172,28 @@ export namespace Riddle {
 
         bool isAlloca = false;
         llvm::Value *alloca = nullptr;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            value->setIsBuild(is_build);
+        }
     };
 
     class DefineArgStmt final : public BaseStmt {
     public:
         DefineArgStmt(std::string name, const std::string &type, BaseStmt *value): BaseStmt(DefineArgStmtID),
-                                                                            name(std::move(name)),
-                                                                            type(type),
-                                                                            value(value) {}
+                                                                                   name(std::move(name)),
+                                                                                   type(type),
+                                                                                   value(value) {}
         std::string name;
         Identifier type;
         /// 默认值
         BaseStmt *value;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            value->setIsBuild(is_build);
+        }
     };
 
     class DefineArgListStmt final : public BaseStmt {
@@ -192,6 +213,13 @@ export namespace Riddle {
             }
             return names;
         }
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            for(const auto i: args) {
+                i->setIsBuild(is_build);
+            }
+        }
     };
 
     /// @brief 用于存储函数定义
@@ -209,12 +237,18 @@ export namespace Riddle {
         Modifier modifier;
         std::string func_name;
         Identifier return_type;
-        DefineArgListStmt *args;
-        BaseStmt *body;
+        DefineArgListStmt *args = nullptr;
+        BaseStmt *body = nullptr;
         std::string theClass;
 
         [[nodiscard]] int BodyCount() const override {
             return 1;
+        }
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            body->setIsBuild(is_build);
+            args->setIsBuild(is_build);
         }
     };
 
@@ -235,6 +269,14 @@ export namespace Riddle {
         [[nodiscard]] inline int BodyCount() const override {
             return 1;
         }
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            init->setIsBuild(is_build);
+            condition->setIsBuild(is_build);
+            self_change->setIsBuild(is_build);
+            body->setIsBuild(is_build);
+        }
     };
 
     /// @brief 用于存储while循环语句
@@ -253,6 +295,12 @@ export namespace Riddle {
         [[nodiscard]] inline int BodyCount() const override {
             return 1;
         }
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            condition->setIsBuild(is_build);
+            body->setIsBuild(is_build);
+        }
     };
 
     /// @brief 用于存储 try 语句
@@ -265,6 +313,12 @@ export namespace Riddle {
 
         [[nodiscard]] inline int BodyCount() const override {
             return 2;
+        }
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            tryBody->setIsBuild(is_build);
+            catchBody->setIsBuild(is_build);
         }
     };
 
@@ -280,6 +334,13 @@ export namespace Riddle {
         [[nodiscard]] inline int BodyCount() const override {
             return elseBody == nullptr ? 1 : 2;
         }
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            condition->setIsBuild(is_build);
+            thenBody->setIsBuild(is_build);
+            elseBody->setIsBuild(is_build);
+        }
     };
 
     class ObjectStmt final : public BaseStmt {
@@ -288,12 +349,21 @@ export namespace Riddle {
 
         std::string name;
         bool isLoaded = false;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+        }
     };
 
     class ReturnStmt final : public BaseStmt {
     public:
         explicit ReturnStmt(BaseStmt *value): BaseStmt(ReturnStmtID), value(value) {}
         BaseStmt *value;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            value->setIsBuild(is_build);
+        }
     };
 
     class ContinueStmt final : public BaseStmt {
@@ -313,6 +383,12 @@ export namespace Riddle {
         BaseStmt *lhs;
         BaseStmt *rhs;
         std::string opt;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            lhs->setIsBuild(is_build);
+            rhs->setIsBuild(is_build);
+        }
     };
 
     class ArgStmt final : public BaseStmt {
@@ -320,12 +396,24 @@ export namespace Riddle {
         explicit ArgStmt(BaseStmt *value): BaseStmt(ArgStmtID), value(value) {}
 
         BaseStmt *value;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            value->setIsBuild(is_build);
+        }
     };
 
     class ArgListStmt final : public BaseStmt {
     public:
         explicit ArgListStmt(std::vector<BaseStmt *> args): BaseStmt(ArgListStmtID), args(std::move(args)) {}
         std::vector<BaseStmt *> args;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            for(const auto arg: args) {
+                arg->setIsBuild(is_build);
+            }
+        }
     };
 
     class FuncCallStmt final : public BaseStmt {
@@ -334,6 +422,13 @@ export namespace Riddle {
 
         std::string name;
         ArgListStmt *args;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            for(const auto arg: args->args) {
+                arg->setIsBuild(is_build);
+            }
+        }
     };
 
     class ClassDefineStmt final : public BaseStmt {
@@ -341,15 +436,25 @@ export namespace Riddle {
         explicit ClassDefineStmt(std::string className,
                                  std::vector<VarDefineStmt *> members,
                                  const std::vector<FuncDefineStmt *> &funcDefines,
-                                 const std::string& parentClass = ""): BaseStmt(ClassDefineStmtID),
-                                                                members(std::move(members)),
-                                                                funcDefines(funcDefines),
-                                                                parentClass(parentClass),
-                                                                name(std::move(className)) {}
+                                 const std::string &parentClass = ""): BaseStmt(ClassDefineStmtID),
+                                                                       members(std::move(members)),
+                                                                       funcDefines(funcDefines),
+                                                                       parentClass(parentClass),
+                                                                       name(std::move(className)) {}
         std::vector<VarDefineStmt *> members;
         std::vector<FuncDefineStmt *> funcDefines;
         Identifier parentClass;
         std::string name;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            for(const auto var: members) {
+                var->setIsBuild(is_build);
+            }
+            for(const auto func: funcDefines) {
+                func->setIsBuild(is_build);
+            }
+        }
     };
 
     class MethodCallStmt final : public BaseStmt {
@@ -358,6 +463,12 @@ export namespace Riddle {
 
         BaseStmt *object;
         FuncCallStmt *call;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            object->setIsBuild(is_build);
+            call->setIsBuild(is_build);
+        }
     };
 
     class MemberExprStmt final : public BaseStmt {
@@ -370,6 +481,12 @@ export namespace Riddle {
         BaseStmt *parent;
         ObjectStmt *child;
         bool isLoaded;
+
+        void setIsBuild(const bool is_build) override {
+            BaseStmt::setIsBuild(is_build);
+            parent->setIsBuild(is_build);
+            child->setIsBuild(is_build);
+        }
     };
 
     template<typename T>
