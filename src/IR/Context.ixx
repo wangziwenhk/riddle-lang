@@ -331,8 +331,9 @@ export namespace Riddle {
             if(members.contains(name)) {
                 throw std::runtime_error("Member '" + name + "' already exists");
             }
+            const size_t idx = members.size();
+            members[name].second = idx;
             members[name].first = type;
-            members[name].second = members.size();
         }
 
         /// 向类中添加方法

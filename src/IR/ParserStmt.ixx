@@ -152,6 +152,40 @@ export namespace Riddle {
             ctx->module->print(OS, nullptr);
         }
 
+        /// @brief 预处理 varDefine
+        void PreVarDefinePs(BaseStmt *s) {
+            if(const auto it = dynamic_cast<VarDefineStmt *>(s);it) {
+                s->setIsBuild(false);
+                VarDefinePs(it);
+                s->setIsBuild(true);
+                return;
+            }
+            if(s->BodyCount() == 1) {
+                if(const auto it = dynamic_cast<ForStmt *>(s)) {
+                    PreVarDefinePs(it->body);
+                    return;
+                }
+                if(const auto it = dynamic_cast<WhileStmt *>(s)) {
+                    PreVarDefinePs(it->body);
+                    return;
+                }
+                if(const auto it = dynamic_cast<BlockStmt *>(s)) {
+                    for(const auto i: it->stmts) {
+                        PreVarDefinePs(i);
+                    }
+                    return;
+                }
+                if(const auto it = dynamic_cast<IfStmt *>(s)) {
+                    PreVarDefinePs(it->thenBody);
+                }
+            } else if(s->BodyCount() == 2) {
+                if(const auto it = dynamic_cast<IfStmt *>(s)) {
+                    PreVarDefinePs(it->thenBody);
+                    PreVarDefinePs(it->elseBody);
+                }
+            }
+        }
+
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
         Object *FuncDefinePs(const FuncDefineStmt *stmt) {
             // 判断函数修饰符是否合法
@@ -205,46 +239,19 @@ export namespace Riddle {
             const auto funcObj = new Function(ctx, name, func, returnType, riddleArgTypes, mod, !stmt->theClass.empty());
             ctx->objectManager->addObject(name, funcObj);
 
-
-            // 预处理 varDefine
-            std::function<void(BaseStmt *)> pre_varDefine = [&](BaseStmt *s) {
-                // 立刻分配空间
-                if(const auto it = dynamic_cast<VarDefineStmt *>(s)) {
-                    accept(it);
-                    return;
-                }
-                if(s->BodyCount() == 1) {
-                    if(const auto it = dynamic_cast<ForStmt *>(s)) {
-                        pre_varDefine(it->body);
-                    }
-                    if(const auto it = dynamic_cast<WhileStmt *>(s)) {
-                        pre_varDefine(it->body);
-                    }
-                    if(const auto it = dynamic_cast<BlockStmt *>(s)) {
-                        for(const auto i: it->stmts) {
-                            pre_varDefine(i);
-                        }
-                        for(const auto &i: it->stmts) {
-                            if(const auto t = dynamic_cast<VarDefineStmt *>(i)) {
-                                t->isAlloca = true;
-                            }
-                        }
-                    }
-                    if(const auto it = dynamic_cast<IfStmt *>(s)) {
-                        pre_varDefine(it->thenBody);
-                    }
-                } else if(s->BodyCount() == 2) {
-                    if(const auto it = dynamic_cast<IfStmt *>(s)) {
-                        pre_varDefine(it->thenBody);
-                        pre_varDefine(it->elseBody);
-                    }
-                }
-            };
+            // 预处理对象分配
+            ctx->push();
+            parent.push(func);
+            PreVarDefinePs(stmt->body);
+            ctx->pop();
+            parent.pop();
 
             ctx->push();
             parent.push(func);
 
+
             // 配置函数传参
+            // ReSharper disable once CppDFAConstantConditions
             if(args != nullptr) {
                 const auto argNames = args->getArgsNames();
                 int i = 0;
@@ -263,6 +270,7 @@ export namespace Riddle {
                     const auto t = new Value(ctx, argNames[i], it, riddleArgTypes[i], true);
                     ctx->objectManager->addObject(argNames[i], t);
                 }
+                // ReSharper disable once CppDFAUnreachableCode
             } else if(!stmt->theClass.empty()) {
                 const auto it = func->arg_begin();
                 it->setName("this");
@@ -270,8 +278,6 @@ export namespace Riddle {
                 const auto t = new Value(ctx, "this", it, theClass, true);
                 ctx->objectManager->addObject("this", t);
             }
-
-            pre_varDefine(body);
 
             accept(body);
             if(returnType->isVoidTy()) {
@@ -288,22 +294,28 @@ export namespace Riddle {
         /// @brief 用于解析变量定义的函数
         /// @param stmt 语句
         void VarDefinePs(VarDefineStmt *stmt) {
+            const std::string_view name = stmt->name;
+            Type *type = nullptr;
+            if(!stmt->type.empty()) {
+                type = ctx->objectManager->getType(stmt->type);
+            }
+
             Value *value = nullptr;
             if(!stmt->value->isNoneStmt()) {
                 value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->value)));
             }
-            const std::string name = stmt->name;
-
-            Type *type = nullptr;
-            if(stmt->type.empty() && value != nullptr) {
+            if(type == nullptr && value != nullptr) {
                 type = value->getType();
-            } else {
-                type = ctx->objectManager->getType(stmt->type);
+            }
+            // 推断判断是否失败
+            if(type == nullptr) {
+                throw std::logic_error(std::format("Failed to infer the type of \'{}\'", stmt->name));
             }
 
+            // 如果已经被预处理完成
             if(stmt->isAlloca) {
-                const auto alloca = new Value(ctx, name, stmt->alloca, type, true);
-                ctx->objectManager->addObject(name, alloca);
+                const auto alloca = new Value(ctx, name.data(), stmt->alloca, type, true);
+                ctx->objectManager->addObject(name.data(), alloca);
                 if(value != nullptr) {
                     ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca);
                 }
@@ -311,22 +323,24 @@ export namespace Riddle {
             }
 
             Value *var;
-            // 对全局变量特判
+
+            // 否则进行预处理/全局变量处理
             if(ctx->deep() <= 1) {
+                // 全局变量
                 if(value == nullptr) {
-                    throw std::logic_error("VarDefinePs called with nullptr");
+                    throw std::logic_error("VarDefinePs(): called with nullptr");
                 }
-                auto *CV = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
+                auto *c = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
                 const auto ptr = new llvm::GlobalVariable(*ctx->module, type->toLLVM(), false,
-                                                          llvm::GlobalVariable::LinkageTypes::ExternalLinkage, CV, name);
-                var = new Value(ctx, name, ptr, type);
+                                                          llvm::GlobalVariable::LinkageTypes::ExternalLinkage, c, name);
+                var = new Value(ctx, name.data(), ptr, type);
             } else {
-                // 实际上此处应该是被提前 Alloca 的时候运行的，不需要赋值，后续会被替换为 = 运算符
                 const auto ptr = ctx->llvmBuilder.CreateAlloca(type->toLLVM(), nullptr, name);
-                var = new Value(ctx, name, ptr, type);
+                var = new Value(ctx, name.data(), ptr, type);
             }
             stmt->alloca = var->toLLVM();
-            delete var;
+            stmt->isAlloca = true;
+            ctx->objectManager->addObject(name.data(), var);
         }
 
         // ReSharper disable once CppDFAConstantFunctionResult
@@ -337,6 +351,9 @@ export namespace Riddle {
             const auto ptr = ctx->objectManager->getObject(name);
             const bool isLoaded = stmt->isLoaded;
             const auto t = dynamic_cast<Value *>(ptr);
+            if(!stmt->getIsBuild()) {
+                return ptr;
+            }
             if(t != nullptr) {
                 if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(t->toLLVM()); var != nullptr) {
                     Value *value = nullptr;
@@ -552,6 +569,10 @@ export namespace Riddle {
                 args.push_back(value);
             }
             Function *func = ctx->objectManager->getFunction(name);
+            if(!stmt->getIsBuild()) {
+                const auto result = new Value(ctx,nullptr,func->getType());
+                return result;
+            }
             llvm::Value *result_t = ctx->llvmBuilder.CreateCall(func->getCallee(), args);
             const auto result = new Value(ctx, result_t, func->getType());
             return result;
