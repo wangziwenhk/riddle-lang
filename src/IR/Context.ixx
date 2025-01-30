@@ -233,7 +233,9 @@ export namespace Riddle {
               llvm::Value *value,
               Type *type,
               const bool isVar = false): Object(ValueTyID, ctx, "__tmp"), type(type), value(value), isVar(isVar) {
-            oldValueLLVMName = value->getName();
+            if(value) {
+                oldValueLLVMName = value->getName();
+            }
         }
 
         ~Value() override = default;
