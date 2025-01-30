@@ -151,7 +151,7 @@ export namespace Riddle {
 
         /// @brief 预处理 varDefine
         void PreVarDefinePs(BaseStmt *s) {
-            if(const auto it = dynamic_cast<VarDefineStmt *>(s);it) {
+            if(const auto it = dynamic_cast<VarDefineStmt *>(s); it) {
                 s->setIsBuild(false);
                 VarDefinePs(it);
                 s->setIsBuild(true);
@@ -330,10 +330,10 @@ export namespace Riddle {
                 auto *c = llvm::dyn_cast<llvm::Constant>(value->toLLVM());
                 const auto ptr = new llvm::GlobalVariable(*ctx->module, type->toLLVM(), false,
                                                           llvm::GlobalVariable::LinkageTypes::ExternalLinkage, c, name);
-                var = new Value(ctx, name.data(), ptr, type);
+                var = new Value(ctx, name.data(), ptr, type, true);
             } else {
                 const auto ptr = ctx->builder.CreateAlloca(type->toLLVM(), nullptr, name);
-                var = new Value(ctx, name.data(), ptr, type);
+                var = new Value(ctx, name.data(), ptr, type, true);
             }
             stmt->alloca = var->toLLVM();
             stmt->isAlloca = true;
@@ -567,7 +567,7 @@ export namespace Riddle {
             }
             Function *func = ctx->objectManager->getFunction(name);
             if(!stmt->getIsBuild()) {
-                const auto result = new Value(ctx,nullptr,func->getType());
+                const auto result = new Value(ctx, nullptr, func->getType());
                 return result;
             }
             llvm::Value *result_t = ctx->builder.CreateCall(func->getCallee(), args);
@@ -613,7 +613,7 @@ export namespace Riddle {
 
             const size_t index = theClass->getMemberIndex(child);
             if(!stmt->getIsBuild()) {
-                const auto obj = new Value(ctx,nullptr,theClass->getMember(stmt->child->name));
+                const auto obj = new Value(ctx, nullptr, theClass->getMember(stmt->child->name));
                 return obj;
             }
             if(object->toLLVM()->getType()->isPointerTy()) {
