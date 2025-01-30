@@ -4,7 +4,7 @@ module;
 export module Visitor.PackageVisitor;
 
 import Types.Unit;
-import Tools.Options;
+import Support.Options;
 export namespace Riddle {
     /// @brief 用于解析库和包的类，对于每个源文件都需要单独实例化
     class PackageVisitor final : public RiddleParserBaseVisitor {

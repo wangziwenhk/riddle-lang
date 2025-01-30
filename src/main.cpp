@@ -1,7 +1,7 @@
 #include <cstdint>
 #include "termcolor/termcolor.hpp"
-import Tools.BuildQueue;
-import Tools.Options;
+import Support.BuildQueue;
+import Support.Options;
 using namespace std;
 int main(const int argc, char *argv[]) {
     std::setlocale(LC_ALL, "en_US.UTF-8");

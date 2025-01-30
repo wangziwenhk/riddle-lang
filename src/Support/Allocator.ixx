@@ -1,6 +1,6 @@
 module;
 #include <vector>
-export module Tools.Allocator;
+export module Support.Allocator;
 export namespace Riddle {
     template<typename Tp>
     class Allocator final {

@@ -18,6 +18,10 @@ export namespace Riddle {
                 stmt = nullptr;
             }
         }
+        [[nodiscard]] std::vector<BaseStmt*>& getAllStmt(){
+            return stmts;
+        }
+
         IntegerStmt *getConstant(const int value) {
             const auto ptr = new IntegerStmt(value);
             stmts.push_back(ptr);
