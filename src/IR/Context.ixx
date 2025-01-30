@@ -1,15 +1,18 @@
 module;
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+
+#include <format>
 #include <llvm/IR/IRBuilder.h>
 #include <memory>
+#include <ranges>
 #include <stack>
 #include <unordered_set>
 export module IR.Context;
 import Manager.StmtManager;
 import Manager.OpManager;
 import Type.Modifier;
-import Tools.Allocator;
+import Support.Allocator;
 import Type.Identifier;
 
 export namespace Riddle {
@@ -22,17 +25,19 @@ export namespace Riddle {
         std::stack<Class *> classStack;
         int classStackDepth = 0;
 
+
     public:
-        llvm::LLVMContext &llvm_context;
+        llvm::LLVMContext *llvm_context;
         std::unique_ptr<llvm::Module> module;
         llvm::IRBuilder<> builder;
         StmtManager stmtManager;
         OpManager opManager;
         ObjectManager *objectManager;
-        llvm::IRBuilder<> llvmBuilder;
+        std::unordered_map<std::string, Type *> baseTypeMap;
+        bool isLinked = false;// 是否已经被链接，这对于析构函数十分重要
 
 
-        explicit Context(llvm::LLVMContext &context);
+        explicit Context(llvm::LLVMContext *context);
         ~Context();
 
         inline void push();
@@ -88,7 +93,7 @@ export namespace Riddle {
         Modifier modifier{};
         // ReSharper disable once CppDFANotInitializedField
         std::string name;
-        Context* ctx = nullptr;
+        Context *ctx = nullptr;
 
         Object() = delete;
 
@@ -117,6 +122,14 @@ export namespace Riddle {
         }
 
         virtual Type *getType() = 0;
+
+        virtual void setContext(Context *ctx) {
+            this->ctx = ctx;
+        }
+
+        [[nodiscard]] Context *getContext() const {
+            return this->ctx;
+        }
     };
 
     /// 用来表示类型
@@ -157,7 +170,7 @@ export namespace Riddle {
         explicit IntegerTy(Context *ctx): Type(IntegerTyID, ctx) {}
 
         llvm::Type *toLLVM() override {
-            return llvm::Type::getInt32Ty(ctx->llvm_context);
+            return llvm::Type::getInt32Ty(*ctx->llvm_context);
         }
     };
 
@@ -166,7 +179,7 @@ export namespace Riddle {
         explicit FloatTy(Context *ctx): Type(FloatTyID, ctx) {}
 
         llvm::Type *toLLVM() override {
-            return llvm::Type::getFloatTy(ctx->llvm_context);
+            return llvm::Type::getFloatTy(*ctx->llvm_context);
         }
     };
 
@@ -174,7 +187,7 @@ export namespace Riddle {
     public:
         explicit DoubleTy(Context *ctx): Type(DoubleTyID, ctx) {}
         llvm::Type *toLLVM() override {
-            return llvm::Type::getDoubleTy(ctx->llvm_context);
+            return llvm::Type::getDoubleTy(*ctx->llvm_context);
         }
     };
 
@@ -182,7 +195,7 @@ export namespace Riddle {
     public:
         explicit BooleanTy(Context *ctx): Type(BooleanTyID, ctx) {}
         llvm::Type *toLLVM() override {
-            return llvm::Type::getInt1Ty(ctx->llvm_context);
+            return llvm::Type::getInt1Ty(*ctx->llvm_context);
         }
     };
 
@@ -198,7 +211,7 @@ export namespace Riddle {
     public:
         explicit VoidTy(Context *ctx): Type(VoidTyID, ctx) {}
         llvm::Type *toLLVM() override {
-            return llvm::Type::getVoidTy(ctx->llvm_context);
+            return llvm::Type::getVoidTy(*ctx->llvm_context);
         }
 
         bool isVoidTy() override {
@@ -212,12 +225,12 @@ export namespace Riddle {
               const std::string &name,
               llvm::Value *value,
               Type *type,
-              const bool isVar = false): Object(ValueTyID, ctx, name), type(type), value(value),isVar(isVar) {}
+              const bool isVar = false): Object(ValueTyID, ctx, name), type(type), value(value), isVar(isVar) {}
 
         Value(Context *ctx,
               llvm::Value *value,
               Type *type,
-              const bool isVar = false): Object(ValueTyID, ctx, "__tmp"), type(type), value(value),isVar(isVar) {}
+              const bool isVar = false): Object(ValueTyID, ctx, "__tmp"), type(type), value(value), isVar(isVar) {}
 
         ~Value() override = default;
 
@@ -240,6 +253,11 @@ export namespace Riddle {
         }
 
         Object *getObject(const std::string &name) override;
+
+        void setContext(Context *ctx) override {
+            Object::setContext(ctx);
+            type->setContext(ctx);
+        }
     };
 
     class Function final : public Object {
@@ -247,7 +265,8 @@ export namespace Riddle {
         Type *returnType;
         std::vector<Value *> parameters;
         Modifier modifier;
-        bool isMethod;
+        Class *theClass = nullptr;
+        std::string oldLLVMFuncName;
 
     public:
         /// @param ctx 上下文
@@ -256,20 +275,21 @@ export namespace Riddle {
         /// @param returnType 返回值类型
         /// @param args 参数类型
         /// @param modifier 函数修饰符
-        /// @param isMethod 是否为一个方法
+        /// @param theClass 依靠的类
         explicit Function(Context *ctx,// NOLINT(*-pro-type-member-init)
                           const std::string &name,
                           llvm::Function *llvmFunc,
                           Type *returnType,
                           const std::vector<Type *> &args = {},
                           const Modifier modifier = {},
-                          const bool isMethod = false): Object(FunctionTyID, ctx, name),
-                                                        llvmFunc(llvmFunc), returnType(returnType),
-                                                        modifier(modifier), isMethod(isMethod) {
+                          Class *theClass = nullptr): Object(FunctionTyID, ctx, name),
+                                                      llvmFunc(llvmFunc), returnType(returnType),
+                                                      modifier(modifier), theClass(theClass) {
             auto it = llvmFunc->arg_begin();
             for(int i = 0; i < args.size(); ++i, ++it) {
                 parameters.push_back(args[i]->Instantiate(it->getName().str()));
             }
+            oldLLVMFuncName = llvmFunc->getName().str();
         }
 
         /// 这里获取到的 object 是返回值的object
@@ -293,6 +313,15 @@ export namespace Riddle {
         [[nodiscard]] llvm::FunctionCallee getCallee() const {
             return llvmFunc;
         }
+
+        void setContext(Context *ctx) override {
+            Object::setContext(ctx);
+            returnType->setContext(ctx);
+            llvmFunc = ctx->module->getFunction(oldLLVMFuncName);
+            for(const auto i: parameters) {
+                i->setContext(ctx);
+            }
+        }
     };
 
     class Class final : public Type {
@@ -304,7 +333,7 @@ export namespace Riddle {
         explicit Class(Context *ctx,
                        const std::string &name,
                        const std::vector<std::pair<std::string, Type *>> &member): Type(ClassTyID, ctx) {
-            structTy = llvm::StructType::create(ctx->llvm_context);
+            structTy = llvm::StructType::create(*ctx->llvm_context);
             structTy->setName(name);
             size_t cnt = 0;
             for(const auto &[name, type]: member) {
@@ -312,6 +341,18 @@ export namespace Riddle {
                 cnt++;
             }
             updateStructTy();
+        }
+
+        void setContext(Context *ctx) override {
+            Object::setContext(ctx);
+            const std::string oldLLVMClassName = structTy->getName().str();
+            structTy = llvm::StructType::getTypeByName(*ctx->llvm_context, oldLLVMClassName);
+            for(const auto i: members | std::views::values | std::views::keys) {
+                i->setContext(ctx);
+            }
+            for(const auto i: functions | std::views::values) {
+                i->setContext(ctx);
+            }
         }
 
         void updateStructTy() {
@@ -433,6 +474,13 @@ export namespace Riddle {
         Type *getType() override {
             throw std::runtime_error("Type not implemented");
         }
+
+        void setContext(Context *ctx) override {
+            Object::setContext(ctx);
+            for(auto &val: members | std::views::values) {
+                val->setContext(ctx);
+            }
+        }
     };
 
     class ObjectManager {
@@ -444,6 +492,10 @@ export namespace Riddle {
 
         void push() {
             isDefined.emplace();
+        }
+
+        auto &getObjects() {
+            return objects;
         }
 
         void pop() {
@@ -463,10 +515,15 @@ export namespace Riddle {
         /// 向 Manager 中添加一个 Object
         void addObject(const std::string &name, Object *object) {
             if(isDefined.top().contains(name)) {
-                throw std::runtime_error("ObjectManager::addObject(): object already exists");
+                throw std::runtime_error(std::format("ObjectManager::addObject(): object \'{}\' already exists", name));
             }
             isDefined.top().insert(name);
             objects[name].push(object);
+        }
+
+        /// 检查一个标识符是否对于一个 Object
+        bool isFactObject(const std::string &name) {
+            return isDefined.top().contains(name);
         }
 
         // 单一获取
@@ -476,7 +533,7 @@ export namespace Riddle {
             }
             const auto it = objects.find(name);
             if(it == objects.end()) {
-                throw std::runtime_error("ObjectManager::getObject(): object \'"+name+"\' not found");
+                throw std::runtime_error("ObjectManager::getObject(): object \'" + name + "\' not found");
             }
             return it->second.top();
         }
@@ -565,15 +622,30 @@ export namespace Riddle {
             }
             return dynamic_cast<Function *>(obj);
         }
+
+        void setContext(Context *context) {
+            for(auto val: objects | std::views::values) {
+                val.top()->setContext(context);
+            }
+        }
     };
 
 
 }// namespace Riddle
 namespace Riddle {
-    Context::Context(llvm::LLVMContext &context): llvm_context(context), module(new llvm::Module("", context)), builder(context),
-                                                  opManager(context), objectManager(new ObjectManager()), llvmBuilder(context) {
+    Context::Context(llvm::LLVMContext *context): llvm_context(context), module(new llvm::Module("", *context)), builder(*context),
+                                                  opManager(context), objectManager(new ObjectManager()) {
+        this->push();
+        this->initBaseTypes();
+        baseTypeMap.insert({"int", new IntegerTy(this)});
+        baseTypeMap.insert({"double", new DoubleTy(this)});
+        baseTypeMap.insert({"float", new FloatTy(this)});
+        baseTypeMap.insert({"bool", new BooleanTy(this)});
+        baseTypeMap.insert({"void", new VoidTy(this)});
+        initBaseTypes();
     }
     Context::~Context() {
+        if(!isLinked) this->pop();
         delete objectManager;
     }
     void Context::push() {
@@ -588,11 +660,9 @@ namespace Riddle {
         _deep--;
     }
     void Context::initBaseTypes() {
-        objectManager->addObject("int", new IntegerTy(this));
-        objectManager->addObject("float", new FloatTy(this));
-        objectManager->addObject("double", new DoubleTy(this));
-        objectManager->addObject("bool", new BooleanTy(this));
-        objectManager->addObject("void", new VoidTy(this));
+        for(const auto &[name, type]: baseTypeMap) {
+            objectManager->addObject(name, type);
+        }
     }
     llvm::Type *Type::toLLVM() {
         throw std::runtime_error("Type not implemented");

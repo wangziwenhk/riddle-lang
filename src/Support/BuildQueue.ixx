@@ -1,21 +1,24 @@
 module;
 #include "RiddleLexer.h"
 #include "RiddleParser.h"
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Linker/Linker.h>
 #include <queue>
 #include <ranges>
 #include <string>
 #include <unordered_map>
 #include <vector>
-export module Tools.BuildQueue;
+export module Support.BuildQueue;
 import Visitors.StmtVisitor;
 import Types.Unit;
 import IR.ParserStmt;
 import Manager.ErrorManager;
-import Tools.Options;
+import Support.Options;
 import Visitor.PackageVisitor;
 import IR.Context;
 import IR.Statements;
+import Support.Linker;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -58,14 +61,13 @@ export namespace Riddle {
             libSource[unit.getPackName()].push_back(unit);
             // 建模块关系图
             // libGraph 指向依赖自己的库
+            libGraph[unit.getPackName()];
             for(const auto &i: unit.getImports()) {
                 libGraph[i].push_back(unit.getPackName());
             }
         }
         // 拓扑排序
         void start() {
-            // todo 实现解析包相关的东西
-            // 暂时还不写，先完成编译main
             if(!libSource.contains("main")) {
                 std::cerr << R"(Not Found "main" package)" << std::endl;
             }
@@ -101,16 +103,28 @@ export namespace Riddle {
                 }
             }
 
+            std::unordered_map<std::string,Context*> libContexts;
+
+            auto llvm_ctx = new llvm::LLVMContext();
             // 依次编译
             for(auto i: buildList) {
-                llvm::LLVMContext llvm_ctx;
-                Context context(llvm_ctx);
+                auto context = new Context(llvm_ctx);
+                libContexts[i.data()] = context;
+                // 编译同一个包下的所有对象
                 for(const auto &j: libSource[i.data()]) {
-                    StmtVisitor visitor(context, j.parser);
+                    // link 其他 Context
+                    for(const auto& lib :j.getImports()) {
+                        Linker::linkContext(*context,*libContexts[lib]);
+                    }
+                    StmtVisitor visitor(*context, j.parser);
                     const auto it = any_cast<ProgramStmt *>(visitor.visit(j.parseTree));
-                    ParserStmt ps(&context, j);
+                    ParserStmt ps(context, j);
                     ps.accept(it);
                 }
+            }
+
+            for(auto val: libContexts | std::views::values) {
+                delete val;
             }
         }
     };

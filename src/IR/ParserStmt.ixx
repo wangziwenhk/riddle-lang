@@ -138,12 +138,9 @@ export namespace Riddle {
         }
 
         void ProgramPs(ProgramStmt *stmt) {
-            ctx->push();
-            ctx->initBaseTypes();
             for(const auto i: stmt->body) {
                 accept(i);
             }
-            ctx->pop();
             if(verifyModule(*ctx->module, &llvm::errs())) {
                 std::cerr << "Failed to verify module" << std::endl;
             }
@@ -233,10 +230,10 @@ export namespace Riddle {
             }
             llvm::FunctionType *funcType = llvm::FunctionType::get(returnType->toLLVM(), argTypes, false);
             llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, name, *ctx->module);
-            llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx->llvm_context, "entry", func);
-            ctx->llvmBuilder.SetInsertPoint(entry);
+            llvm::BasicBlock *entry = llvm::BasicBlock::Create(*ctx->llvm_context, "entry", func);
+            ctx->builder.SetInsertPoint(entry);
             const auto mod = stmt->modifier;
-            const auto funcObj = new Function(ctx, name, func, returnType, riddleArgTypes, mod, !stmt->theClass.empty());
+            const auto funcObj = new Function(ctx, name, func, returnType, riddleArgTypes, mod, ctx->getNowClass());
             ctx->objectManager->addObject(name, funcObj);
 
             // 预处理对象分配
@@ -317,7 +314,7 @@ export namespace Riddle {
                 const auto alloca = new Value(ctx, name.data(), stmt->alloca, type, true);
                 ctx->objectManager->addObject(name.data(), alloca);
                 if(value != nullptr) {
-                    ctx->llvmBuilder.CreateStore(value->toLLVM(), stmt->alloca);
+                    ctx->builder.CreateStore(value->toLLVM(), stmt->alloca);
                 }
                 return;
             }
@@ -335,7 +332,7 @@ export namespace Riddle {
                                                           llvm::GlobalVariable::LinkageTypes::ExternalLinkage, c, name);
                 var = new Value(ctx, name.data(), ptr, type);
             } else {
-                const auto ptr = ctx->llvmBuilder.CreateAlloca(type->toLLVM(), nullptr, name);
+                const auto ptr = ctx->builder.CreateAlloca(type->toLLVM(), nullptr, name);
                 var = new Value(ctx, name.data(), ptr, type);
             }
             stmt->alloca = var->toLLVM();
@@ -358,7 +355,7 @@ export namespace Riddle {
                 if(const auto var = llvm::dyn_cast<llvm::AllocaInst>(t->toLLVM()); var != nullptr) {
                     Value *value = nullptr;
                     if(isLoaded) {
-                        llvm::Value *load = ctx->llvmBuilder.CreateLoad(var->getAllocatedType(), t->toLLVM());
+                        llvm::Value *load = ctx->builder.CreateLoad(var->getAllocatedType(), t->toLLVM());
                         Type *type = ptr->getType();
                         value = new Value(ctx, load, type);
                     } else {
@@ -372,10 +369,10 @@ export namespace Riddle {
 
         void ReturnPs(const ReturnStmt *stmt) {
             if(stmt->value == nullptr) {
-                ctx->llvmBuilder.CreateRetVoid();
+                ctx->builder.CreateRetVoid();
             }
             const auto result = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->value)));
-            ctx->llvmBuilder.CreateRet(result->toLLVM());
+            ctx->builder.CreateRet(result->toLLVM());
         }
 
         Object *BlockPs(const BlockStmt *stmt) {
@@ -388,35 +385,35 @@ export namespace Riddle {
         }
 
         void WhilePs(const WhileStmt *stmt) {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.cond", parent.top());
-            llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.loop", parent.top());
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "while.exit", parent.top());
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "while.cond", parent.top());
+            llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "while.loop", parent.top());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "while.exit", parent.top());
 
-            ctx->llvmBuilder.CreateBr(condBlock);
-            ctx->llvmBuilder.SetInsertPoint(condBlock);
+            ctx->builder.CreateBr(condBlock);
+            ctx->builder.SetInsertPoint(condBlock);
             // cond 是必须要求的
             const auto cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)));
-            ctx->llvmBuilder.CreateCondBr(cond->toLLVM(), loopBlock, exitBlock);
+            ctx->builder.CreateCondBr(cond->toLLVM(), loopBlock, exitBlock);
 
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
 
             ctx->push();
-            ctx->llvmBuilder.SetInsertPoint(loopBlock);
+            ctx->builder.SetInsertPoint(loopBlock);
             accept(stmt->body);
-            ctx->llvmBuilder.CreateBr(condBlock);
+            ctx->builder.CreateBr(condBlock);
             ctx->pop();
 
             breakBlocks.pop();
             continueBlocks.pop();
 
-            ctx->llvmBuilder.SetInsertPoint(exitBlock);
+            ctx->builder.SetInsertPoint(exitBlock);
         }
 
         void ForPs(const ForStmt *stmt) {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.cond", parent.top());
-            llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.loop", parent.top());
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "for.exit", parent.top());
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "for.cond", parent.top());
+            llvm::BasicBlock *loopBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "for.loop", parent.top());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "for.exit", parent.top());
 
             if(!stmt->init->isNoneStmt()) {
                 accept(stmt->init);
@@ -428,28 +425,28 @@ export namespace Riddle {
                 accept(stmt->init);
             }
 
-            ctx->llvmBuilder.CreateBr(condBlock);
-            ctx->llvmBuilder.SetInsertPoint(condBlock);
+            ctx->builder.CreateBr(condBlock);
+            ctx->builder.SetInsertPoint(condBlock);
             // 如果没有 Cond 那么一直运行
-            llvm::Value *cond = ctx->llvmBuilder.getInt1(true);
+            llvm::Value *cond = ctx->builder.getInt1(true);
             if(!stmt->condition->isNoneStmt()) {
                 cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             }
 
-            ctx->llvmBuilder.CreateCondBr(cond, loopBlock, exitBlock);
+            ctx->builder.CreateCondBr(cond, loopBlock, exitBlock);
 
             // 设置当前 break 和 continue 执行的对象
             breakBlocks.push(exitBlock);
             continueBlocks.push(condBlock);
 
-            ctx->llvmBuilder.SetInsertPoint(loopBlock);
+            ctx->builder.SetInsertPoint(loopBlock);
             if(!stmt->self_change->isNoneStmt()) {
                 accept(stmt->self_change);
             }
             accept(stmt->body);
-            ctx->llvmBuilder.CreateBr(condBlock);
+            ctx->builder.CreateBr(condBlock);
 
-            ctx->llvmBuilder.SetInsertPoint(exitBlock);
+            ctx->builder.SetInsertPoint(exitBlock);
 
             ctx->pop();
 
@@ -458,11 +455,11 @@ export namespace Riddle {
         }
 
         void BreakPs() {
-            ctx->llvmBuilder.CreateBr(breakBlocks.top());
+            ctx->builder.CreateBr(breakBlocks.top());
         }
 
         void ContinuePs() {
-            ctx->llvmBuilder.CreateBr(continueBlocks.top());
+            ctx->builder.CreateBr(continueBlocks.top());
         }
 
         Object *BinaryExprPs(const BinaryExprStmt *stmt) {
@@ -471,56 +468,56 @@ export namespace Riddle {
             const auto op = stmt->opt;
             Type *type = lhs->getType();
             if(lhs->getType()->toLLVM()->isPointerTy() && op != "=") {
-                const auto load_lhs = ctx->llvmBuilder.CreateLoad(lhs->getType()->toLLVM(), lhs->toLLVM());
-                llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{load_lhs->getType(), rhs->getType(), op})(ctx->llvmBuilder, load_lhs, rhs);
+                const auto load_lhs = ctx->builder.CreateLoad(lhs->getType()->toLLVM(), lhs->toLLVM());
+                llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{load_lhs->getType(), rhs->getType(), op})(ctx->builder, load_lhs, rhs);
                 return new Value(ctx, result_t, type);
             }
             // 由于可能的运算符的数量过多，我们使用一个Manager来控制
             // 虽然 ptr 类型无法获取到实际存储的类型，但是仍然可以匹配上
-            llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{lhs->getType()->toLLVM(), rhs->getType(), op})(ctx->llvmBuilder, lhs->toLLVM(), rhs);
+            llvm::Value *result_t = ctx->opManager.getOpFunc(OpGroup{lhs->getType()->toLLVM(), rhs->getType(), op})(ctx->builder, lhs->toLLVM(), rhs);
             return new Value(ctx, result_t, type);
         }
 
 
         void IfPs(const IfStmt *stmt) {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.cond", parent.top());
-            llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.then", parent.top());
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "if.cond", parent.top());
+            llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "if.then", parent.top());
             llvm::BasicBlock *elseBlock = nullptr;
             if(!stmt->elseBody->isNoneStmt()) {
-                elseBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.else", parent.top());
+                elseBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "if.else", parent.top());
             }
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(ctx->llvm_context, "if.exit", parent.top());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*ctx->llvm_context, "if.exit", parent.top());
 
 
             ctx->push();
 
-            ctx->llvmBuilder.CreateBr(condBlock);
-            ctx->llvmBuilder.SetInsertPoint(condBlock);
+            ctx->builder.CreateBr(condBlock);
+            ctx->builder.SetInsertPoint(condBlock);
             const auto cond = dynamic_cast<Value *>(std::any_cast<Object *>(accept(stmt->condition)))->toLLVM();
             if(elseBlock == nullptr) {
-                ctx->llvmBuilder.CreateCondBr(cond, thenBlock, exitBlock);
+                ctx->builder.CreateCondBr(cond, thenBlock, exitBlock);
             } else {
-                ctx->llvmBuilder.CreateCondBr(cond, thenBlock, elseBlock);
+                ctx->builder.CreateCondBr(cond, thenBlock, elseBlock);
             }
 
             // if true
             ctx->push();
-            ctx->llvmBuilder.SetInsertPoint(thenBlock);
+            ctx->builder.SetInsertPoint(thenBlock);
             accept(stmt->thenBody);
-            ctx->llvmBuilder.CreateBr(exitBlock);
+            ctx->builder.CreateBr(exitBlock);
             ctx->pop();
 
             // if false
             if(elseBlock != nullptr) {
                 ctx->push();
-                ctx->llvmBuilder.SetInsertPoint(elseBlock);
+                ctx->builder.SetInsertPoint(elseBlock);
                 accept(stmt->elseBody);
-                ctx->llvmBuilder.CreateBr(exitBlock);
+                ctx->builder.CreateBr(exitBlock);
                 ctx->pop();
             }
 
             ctx->pop();
-            ctx->llvmBuilder.SetInsertPoint(exitBlock);
+            ctx->builder.SetInsertPoint(exitBlock);
         }
 
         void ClassDefinePs(ClassDefineStmt *stmt) {
@@ -573,7 +570,7 @@ export namespace Riddle {
                 const auto result = new Value(ctx,nullptr,func->getType());
                 return result;
             }
-            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(func->getCallee(), args);
+            llvm::Value *result_t = ctx->builder.CreateCall(func->getCallee(), args);
             const auto result = new Value(ctx, result_t, func->getType());
             return result;
         }
@@ -595,8 +592,11 @@ export namespace Riddle {
                 auto value = dynamic_cast<Value *>(std::any_cast<Object *>(accept(i)))->toLLVM();
                 args.push_back(value);
             }
+            if(!stmt->getIsBuild()) {
+                return theClass->getFunction(funcName.data())->getType();
+            }
             const llvm::FunctionCallee call = theClass->getFunction(funcName.data())->getCallee();
-            llvm::Value *result_t = ctx->llvmBuilder.CreateCall(call, args);
+            llvm::Value *result_t = ctx->builder.CreateCall(call, args);
             const auto result = new Value(ctx, result_t, type);
             return result;
         }
@@ -612,8 +612,12 @@ export namespace Riddle {
             const std::string child = stmt->child->name;
 
             const size_t index = theClass->getMemberIndex(child);
+            if(!stmt->getIsBuild()) {
+                const auto obj = new Value(ctx,nullptr,theClass->getMember(stmt->child->name));
+                return obj;
+            }
             if(object->toLLVM()->getType()->isPointerTy()) {
-                llvm::Value *ptr = ctx->llvmBuilder.CreateStructGEP(
+                llvm::Value *ptr = ctx->builder.CreateStructGEP(
                         theClass->toLLVM(),
                         object->toLLVM(),
                         index);
@@ -622,14 +626,14 @@ export namespace Riddle {
                 Type *childType = theClass->getMember(child);
 
                 if(stmt->isLoaded) {
-                    llvm::Value *load = ctx->llvmBuilder.CreateLoad(childType->toLLVM(), ptr);
+                    llvm::Value *load = ctx->builder.CreateLoad(childType->toLLVM(), ptr);
                     result = new Value(ctx, load, childType);
                 } else {
                     result = new Value(ctx, ptr, childType);
                 }
                 return result;
             }
-            llvm::Value *ptr = ctx->llvmBuilder.CreateExtractValue(object->toLLVM(), index);
+            llvm::Value *ptr = ctx->builder.CreateExtractValue(object->toLLVM(), index);
             return new Value(ctx, ptr, type);
         }
     };

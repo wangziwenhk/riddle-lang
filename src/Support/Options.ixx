@@ -1,7 +1,7 @@
 module;
 #include <string>
 #include <utility>
-export module Tools.Options;
+export module Support.Options;
 export namespace Riddle {
     class Option {
     public:

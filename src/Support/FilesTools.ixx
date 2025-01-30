@@ -4,7 +4,7 @@ module;
 #include <iostream>
 #include <string>
 #include <vector>
-export module Tools.Files;
+export module Support.Files;
 namespace fs = std::filesystem;
 export namespace Riddle {
     class FilesTools {

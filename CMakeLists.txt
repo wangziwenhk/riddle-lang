@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.22)
 
 project(Riddle_Language)
 
@@ -59,7 +59,7 @@ endif ()
 target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
 #target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
 
-llvm_map_components_to_libnames(llvm_libs core irreader support analysis)
+llvm_map_components_to_libnames(llvm_libs linker core irreader support analysis passes)
 message(STATUS "LLVM libraries: ${llvm_libs}")
 
 target_link_libraries(Riddle_Language ${llvm_libs})

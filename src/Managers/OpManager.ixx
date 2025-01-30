@@ -4,6 +4,7 @@ module;
 #include <llvm/IR/Type.h>
 
 #include <map>
+#include <utility>
 export module Manager.OpManager;
 import IR.Statements;
 #define FIW std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>
@@ -23,12 +24,12 @@ export namespace Riddle {
             return op > other.op;
         }
 
-        OpGroup(llvm::Type *lhs, llvm::Type *rhs, const std::string &op): lhs(lhs), rhs(rhs), op(op) {}
+        OpGroup(llvm::Type *lhs, llvm::Type *rhs, std::string op): lhs(lhs), rhs(rhs), op(std::move(op)) {}
     };
 }// namespace Riddle
 
-const std::vector<std::pair<Riddle::OpGroup, FIW>> &getBaseOpGroups(llvm::LLVMContext &ctx) {
-    const auto i32Ty = llvm::Type::getInt32Ty(ctx);
+const std::vector<std::pair<Riddle::OpGroup, FIW>> &getBaseOpGroups(llvm::LLVMContext *ctx) {
+    const auto i32Ty = llvm::Type::getInt32Ty(*ctx);
     static const std::vector<std::pair<Riddle::OpGroup, FIW>> baseOpGroups = {
             {{i32Ty, i32Ty, "="}, [](FIA) -> llvm::Value * {
                  return builder.CreateStore(rhs, lhs);
@@ -84,14 +85,14 @@ export namespace Riddle {
     class OpManager {
         // 这个成员中存的是一个function用于生成不同类型的llvm ir Create
         std::map<OpGroup, FIW> opMap;
-        llvm::LLVMContext &ctx;
+        llvm::LLVMContext *ctx;
 
     public:
-        explicit OpManager(llvm::LLVMContext &ctx): ctx(ctx) {
+        explicit OpManager(llvm::LLVMContext *ctx): ctx(ctx) {
             //基础类型的运算符实现
             // ReSharper disable once CppTooWideScopeInitStatement
             auto baseOpGroups = getBaseOpGroups(ctx);
-            for(auto [group, func]: baseOpGroups) {
+            for(const auto &[group, func]: baseOpGroups) {
                 opMap[group] = func;
             }
         }
