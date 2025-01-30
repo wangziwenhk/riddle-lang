@@ -225,22 +225,28 @@ export namespace Riddle {
               const std::string &name,
               llvm::Value *value,
               Type *type,
-              const bool isVar = false): Object(ValueTyID, ctx, name), type(type), value(value), isVar(isVar) {}
+              const bool isVar = false): Object(ValueTyID, ctx, name), type(type), value(value), isVar(isVar) {
+            oldValueLLVMName = value->getName();
+        }
 
         Value(Context *ctx,
               llvm::Value *value,
               Type *type,
-              const bool isVar = false): Object(ValueTyID, ctx, "__tmp"), type(type), value(value), isVar(isVar) {}
+              const bool isVar = false): Object(ValueTyID, ctx, "__tmp"), type(type), value(value), isVar(isVar) {
+            oldValueLLVMName = value->getName();
+        }
 
         ~Value() override = default;
 
+    private:
+        std::string oldValueLLVMName;
     protected:
         Type *type;
         llvm::Value *value;
         bool isVar = false;
 
     public:
-        bool isVariable() override {
+        bool inline isVariable() override {
             return isVar;
         }
 
@@ -257,6 +263,9 @@ export namespace Riddle {
         void setContext(Context *ctx) override {
             Object::setContext(ctx);
             type->setContext(ctx);
+            if(isVar) {
+                value = ctx->module->getGlobalVariable(oldValueLLVMName);
+            }
         }
     };
 
@@ -477,7 +486,7 @@ export namespace Riddle {
 
         void setContext(Context *ctx) override {
             Object::setContext(ctx);
-            for(auto &val: members | std::views::values) {
+            for(const auto &val: members | std::views::values) {
                 val->setContext(ctx);
             }
         }
