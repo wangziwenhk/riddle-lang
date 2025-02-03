@@ -10,12 +10,12 @@ module;
 #include <unordered_map>
 #include <vector>
 export module Support.BuildQueue;
-import Visitors.StmtVisitor;
+import Parsing.StmtVisitor;
 import Types.Unit;
 import IR.ParserStmt;
 import Manager.ErrorManager;
 import Support.Options;
-import Visitor.PackageVisitor;
+import Parsing.PackageVisitor;
 import IR.Context;
 import IR.Statements;
 import Support.Linker;
