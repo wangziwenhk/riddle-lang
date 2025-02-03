@@ -1,6 +1,7 @@
 module;
 #include <RiddleParserBaseVisitor.h>
 #include <array>
+#include <llvm/Support/Casting.h>
 export module Visitors.StmtVisitor;
 import Manager.StmtManager;
 import IR.Context;
@@ -92,12 +93,11 @@ export namespace Riddle {
                 throw std::logic_error("name is null");
             }
             const std::string name = ctx->name->getText();
-            std::string type;
+            TypeStmt *type = nullptr;
             if(ctx->type != nullptr) {
-                type = ctx->type->getText();
+                type = dynamic_cast<TypeStmt *>(std::any_cast<BaseStmt *>(visit(ctx->type)));
             }
             BaseStmt *value = IRContext.stmtManager.getNoneStmt();
-            ;
             if(ctx->value != nullptr) {
                 value = std::any_cast<BaseStmt *>(visit(ctx->value));
             }
@@ -184,23 +184,26 @@ export namespace Riddle {
 
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
             const auto funcName = ctx->funcName->getText();
-            const auto mod = std::any_cast<Modifier>(visit(ctx->modifierList()));
-            std::string returnType;
+            const auto mod = std::any_cast<Modifier>(visit(ctx->mod));
+            TmplDefineStmt* tmpl = nullptr;
+            if(ctx->tmpl != nullptr) {
+                const auto t_tmpl = std::any_cast<BaseStmt *>(visit(ctx->tmpl));
+                tmpl = dynamic_cast<TmplDefineStmt *>(t_tmpl);
+            }
+            auto returnType = new TypeStmt("void");
             if(ctx->returnType != nullptr) {
-                returnType = ctx->returnType->getText();
-            } else {
-                returnType = "void";
+                returnType = dynamic_cast<TypeStmt *>(std::any_cast<BaseStmt *>(visit(ctx->returnType)));
             }
             const auto body = std::any_cast<BaseStmt *>(visit(ctx->body));
             DefineArgListStmt *args = nullptr;
             if(!ctx->args->children.empty()) {
                 args = dynamic_cast<DefineArgListStmt *>(std::any_cast<BaseStmt *>(visit(ctx->args)));
             }
-            FuncDefineStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, mod, args);
+            FuncDefineStmt *stmt = IRContext.stmtManager.getFuncDefine(funcName, returnType, body, tmpl, mod, args);
             if(!parentClass.empty()) {
                 stmt->theClass = parentClass.top();
             }
-            BaseStmt* result = stmt;
+            BaseStmt *result = stmt;
             return result;
         }
 
@@ -357,6 +360,8 @@ export namespace Riddle {
             parentClass.push(className);
             const auto t_body = std::any_cast<BaseStmt *>(visit(ctx->body));
             const auto body = dynamic_cast<BlockStmt *>(t_body);
+            const auto t_tmplDef = std::any_cast<BaseStmt *>(visit(ctx->tmpl));
+            const auto tmplDef = dynamic_cast<TmplDefineStmt *>(t_tmplDef);
             parentClass.pop();
 
             std::vector<VarDefineStmt *> varDefs;
@@ -373,7 +378,7 @@ export namespace Riddle {
             if(ctx->parentClass) {
                 parentClassName = ctx->parentClass->getText();
             }
-            BaseStmt *stmt = IRContext.stmtManager.getClassDefine(className, varDefs, funcDefines, parentClassName);
+            BaseStmt *stmt = IRContext.stmtManager.getClassDefine(className, varDefs, funcDefines, tmplDef, parentClassName);
             return stmt;
         }
 
@@ -422,6 +427,39 @@ export namespace Riddle {
                 mod.addModifier(result);
             }
             return mod;
+        }
+
+        std::any visitTmplDefineArg(RiddleParser::TmplDefineArgContext *ctx) override {
+            const std::string name = ctx->name->getText();
+            if(antlrcpp::is<antlr4::tree::TerminalNode*>(ctx->children[0])) {
+                BaseStmt* result = IRContext.stmtManager.getTmplDefineArg(TmplDefineArgStmt::TypeNameID,name);
+                return result;
+            }
+            throw std::logic_error("StmtVisitor::visitTmplDefineArg: Unknown Template");
+        }
+
+        std::any visitTmpleDefine(RiddleParser::TmpleDefineContext *ctx) override {
+            std::vector<TmplDefineArgStmt *> args;
+            for(const auto i: ctx->children) {
+                if(!antlrcpp::is<antlr4::tree::TerminalNode*>(i)) {
+                    args.push_back(dynamic_cast<TmplDefineArgStmt *>(std::any_cast<BaseStmt *>(visit(i))));
+                }
+            }
+            BaseStmt *stmt = IRContext.stmtManager.getTmplDefineStmt(args);
+            return stmt;
+        }
+
+        std::any visitBaseType(RiddleParser::BaseTypeContext *ctx) override {
+            const std::string name = ctx->name->getText();
+            BaseStmt *result = IRContext.stmtManager.getTypeStmt(name);
+            return result;
+        }
+
+        std::any visitTmplType(RiddleParser::TmplTypeContext *ctx) override {
+            const std::string name = ctx->name->getText();
+            const auto TmplArgs = std::any_cast<std::vector<BaseStmt *>>(visit(ctx->tmpl));
+            BaseStmt *result = IRContext.stmtManager.getTmplTypeStmt(name, TmplArgs);
+            return result;
         }
     };
 

@@ -16,6 +16,7 @@ import IR.Statements;
 import Manager.OpManager;
 import IR.Context;
 import Types.Unit;
+import Type.Template;
 export namespace Riddle {
     class ParserStmt {
         Context *ctx = nullptr;
@@ -185,6 +186,9 @@ export namespace Riddle {
 
         /// @brief 定义一个函数的具体实现，根据给定的函数定义语句创建LLVM函数
         Object *FuncDefinePs(const FuncDefineStmt *stmt) {
+            if(stmt->return_type->isTmplType()) {
+                throw std::logic_error("Functions not implemented");
+            }
             // 判断函数修饰符是否合法
             if(stmt->theClass.empty()) {
                 if(!stmt->modifier.isFunctionModifier()) {
@@ -197,10 +201,11 @@ export namespace Riddle {
             }
 
             const std::string name = stmt->func_name;
-            const auto returnType = ctx->objectManager->getType(stmt->return_type);
+            const auto returnType = ctx->objectManager->getType(stmt->return_type->id);
             if(returnType == nullptr) {
-                throw std::logic_error(std::format("\'{}\' is not a Type", stmt->return_type.toString()));
+                throw std::logic_error(std::format("\'{}\' is not a Type", stmt->return_type->id.toString()));
             }
+
 
             auto args = stmt->args;
             BaseStmt *body = stmt->body;
@@ -293,8 +298,8 @@ export namespace Riddle {
         void VarDefinePs(VarDefineStmt *stmt) {
             const std::string_view name = stmt->name;
             Type *type = nullptr;
-            if(!stmt->type.empty()) {
-                type = ctx->objectManager->getType(stmt->type);
+            if(stmt->type != nullptr) {
+                type = ctx->objectManager->getType(stmt->type->id);
             }
 
             Value *value = nullptr;
@@ -521,7 +526,8 @@ export namespace Riddle {
         }
 
         void ClassDefinePs(ClassDefineStmt *stmt) {
-            const auto theClass = new Class(ctx, stmt->name, {});
+            const auto tmpl = Template(stmt->tmplDef);
+            const auto theClass = new Class(ctx, stmt->name, {}, tmpl);
             // 构建继承
             if(!stmt->parentClass.empty()) {
                 const auto parentClass = ctx->objectManager->getClass(stmt->parentClass);
@@ -538,7 +544,10 @@ export namespace Riddle {
             // 成员创建
             for(const auto i: stmt->members) {
                 std::string_view memberName = i->name;
-                const auto type = ctx->objectManager->getType(i->type);
+                const auto type = ctx->objectManager->getType(i->type->id);
+                if(i->type->isTmplType()) {
+                    throw std::logic_error("Function not implemented");
+                }
                 theClass->addMember(memberName.data(), type);
             }
             theClass->updateStructTy();

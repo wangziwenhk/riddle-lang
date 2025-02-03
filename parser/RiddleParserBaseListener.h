@@ -247,14 +247,29 @@ public:
   virtual void enterInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
   virtual void exitInteger(RiddleParser::IntegerContext * /*ctx*/) override { }
 
-  virtual void enterTemplateArg(RiddleParser::TemplateArgContext * /*ctx*/) override { }
-  virtual void exitTemplateArg(RiddleParser::TemplateArgContext * /*ctx*/) override { }
+  virtual void enterTmpleDefine(RiddleParser::TmpleDefineContext * /*ctx*/) override { }
+  virtual void exitTmpleDefine(RiddleParser::TmpleDefineContext * /*ctx*/) override { }
 
-  virtual void enterTemplateArgs(RiddleParser::TemplateArgsContext * /*ctx*/) override { }
-  virtual void exitTemplateArgs(RiddleParser::TemplateArgsContext * /*ctx*/) override { }
+  virtual void enterTmplDefineArg(RiddleParser::TmplDefineArgContext * /*ctx*/) override { }
+  virtual void exitTmplDefineArg(RiddleParser::TmplDefineArgContext * /*ctx*/) override { }
 
-  virtual void enterTypeName(RiddleParser::TypeNameContext * /*ctx*/) override { }
-  virtual void exitTypeName(RiddleParser::TypeNameContext * /*ctx*/) override { }
+  virtual void enterTmplUsed(RiddleParser::TmplUsedContext * /*ctx*/) override { }
+  virtual void exitTmplUsed(RiddleParser::TmplUsedContext * /*ctx*/) override { }
+
+  virtual void enterTmplArg(RiddleParser::TmplArgContext * /*ctx*/) override { }
+  virtual void exitTmplArg(RiddleParser::TmplArgContext * /*ctx*/) override { }
+
+  virtual void enterTmplArgList(RiddleParser::TmplArgListContext * /*ctx*/) override { }
+  virtual void exitTmplArgList(RiddleParser::TmplArgListContext * /*ctx*/) override { }
+
+  virtual void enterArrayType(RiddleParser::ArrayTypeContext * /*ctx*/) override { }
+  virtual void exitArrayType(RiddleParser::ArrayTypeContext * /*ctx*/) override { }
+
+  virtual void enterTmplType(RiddleParser::TmplTypeContext * /*ctx*/) override { }
+  virtual void exitTmplType(RiddleParser::TmplTypeContext * /*ctx*/) override { }
+
+  virtual void enterBaseType(RiddleParser::BaseTypeContext * /*ctx*/) override { }
+  virtual void exitBaseType(RiddleParser::BaseTypeContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }
