@@ -173,11 +173,21 @@ public:
 
     virtual std::any visitInteger(RiddleParser::IntegerContext *context) = 0;
 
-    virtual std::any visitTemplateArg(RiddleParser::TemplateArgContext *context) = 0;
+    virtual std::any visitTmpleDefine(RiddleParser::TmpleDefineContext *context) = 0;
 
-    virtual std::any visitTemplateArgs(RiddleParser::TemplateArgsContext *context) = 0;
+    virtual std::any visitTmplDefineArg(RiddleParser::TmplDefineArgContext *context) = 0;
 
-    virtual std::any visitTypeName(RiddleParser::TypeNameContext *context) = 0;
+    virtual std::any visitTmplUsed(RiddleParser::TmplUsedContext *context) = 0;
+
+    virtual std::any visitTmplArg(RiddleParser::TmplArgContext *context) = 0;
+
+    virtual std::any visitTmplArgList(RiddleParser::TmplArgListContext *context) = 0;
+
+    virtual std::any visitArrayType(RiddleParser::ArrayTypeContext *context) = 0;
+
+    virtual std::any visitTmplType(RiddleParser::TmplTypeContext *context) = 0;
+
+    virtual std::any visitBaseType(RiddleParser::BaseTypeContext *context) = 0;
 
 
 };

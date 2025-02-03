@@ -27,6 +27,13 @@ export namespace Riddle {
             ObjStmtID,       // 获取对象
             BlockStmtID,     // 组合语句 {}
 
+            TypeStmtID,
+            IntTypeStmtID,
+            FloatTypeStmtID,
+            DoubleTypeStmtID,
+            BoolTypeStmtID,
+            VoidTypeStmtID,
+
             ReturnStmtID,  // 返回语句
             ContinueStmtID,// 跳过当前循环
             BreakStmtID,   // 跳出当前循环
@@ -37,6 +44,11 @@ export namespace Riddle {
             BoolStmtID,         // bool 类型
             StringLiteralStmtID,// string 类型
             NullStmtID,         // Null
+
+            TmplDefineStmtID,
+            TmplDefineArgStmtID,
+            TmplStmtID,
+            TmplArgStmtID,
 
             DefineArgStmtID,
             DefineArgListStmtID,
@@ -84,6 +96,53 @@ export namespace Riddle {
         virtual void setIsBuild(const bool is_build) {
             this->isBuild = is_build;
         }
+    };
+
+    class TypeStmt : public BaseStmt {
+    public:
+        Identifier id;
+
+        explicit TypeStmt(const std::string &name, const StmtTypeID type_id = TypeStmtID): BaseStmt(type_id), id(name) {}
+        explicit TypeStmt(Identifier id, const StmtTypeID type_id = TypeStmtID): BaseStmt(type_id), id(std::move(id)) {}
+
+        virtual bool isTmplType() const {
+            return false;
+        }
+    };
+
+    // 表示一个具有模板的type
+    class TmplTypeStmt final : public TypeStmt {
+    public:
+        std::vector<BaseStmt *> args;
+
+        TmplTypeStmt(const std::string &name,
+                     const std::vector<BaseStmt *> &args): TypeStmt(name, TmplStmtID),
+                                                           args(args) {}
+
+        bool isTmplType() const override {
+            return true;
+        }
+    };
+
+    class TmplDefineArgStmt final : public BaseStmt {
+    public:
+        enum TmplTypeID {
+            TypeNameID
+        };
+
+        std::string name;
+        TmplTypeID tmplTypeID;
+        explicit TmplDefineArgStmt(std::string name,
+                                   const TmplTypeID id): BaseStmt(TmplDefineArgStmtID),
+                                                         name(std::move(name)),
+                                                         tmplTypeID(id) {
+        }
+    };
+
+    class TmplDefineStmt final : public BaseStmt {
+    public:
+        std::vector<TmplDefineArgStmt *> args;
+        explicit TmplDefineStmt(std::vector<TmplDefineArgStmt *> args): BaseStmt(TmplDefineStmtID), args(std::move(args)) {}
     };
 
     class ProgramStmt final : public BaseStmt {
@@ -160,12 +219,12 @@ export namespace Riddle {
     /// @brief 用于存储变量定义
     class VarDefineStmt final : public BaseStmt {
     public:
-        VarDefineStmt(std::string name, const std::string &type, BaseStmt *value): BaseStmt(VarDefineStmtID),
-                                                                                   name(std::move(name)),
-                                                                                   type(type), value(value) {}
+        VarDefineStmt(std::string name, TypeStmt *type, BaseStmt *value): BaseStmt(VarDefineStmtID),
+                                                                          name(std::move(name)),
+                                                                          type(type), value(value) {}
 
         std::string name;
-        Identifier type;
+        TypeStmt *type;
         /// 对于一个值，一定可以被解析为一个Statement
         BaseStmt *value;
         /// 是否在函数内部时被优化到entry
@@ -226,17 +285,22 @@ export namespace Riddle {
     class FuncDefineStmt final : public BaseStmt {
     public:
         FuncDefineStmt(std::string func_name,
-                       const std::string &return_type,
+                       TypeStmt *return_type,
                        BaseStmt *body,
+                       TmplDefineStmt *tmpl = {},
                        const Modifier mod = {},
                        DefineArgListStmt *args = nullptr): BaseStmt(FuncDefineStmtID),
+                                                           tmplDef(tmpl),
                                                            modifier(mod),
                                                            func_name(std::move(func_name)),
-                                                           return_type(return_type), args(args), body(body) {}
+                                                           return_type(return_type),
+                                                           args(args),
+                                                           body(body) {}
 
+        TmplDefineStmt *tmplDef;
         Modifier modifier;
         std::string func_name;
-        Identifier return_type;
+        TypeStmt *return_type;
         DefineArgListStmt *args = nullptr;
         BaseStmt *body = nullptr;
         std::string theClass;
@@ -436,11 +500,14 @@ export namespace Riddle {
         explicit ClassDefineStmt(std::string className,
                                  std::vector<VarDefineStmt *> members,
                                  const std::vector<FuncDefineStmt *> &funcDefines,
+                                 TmplDefineStmt *tmplDef = {},
                                  const std::string &parentClass = ""): BaseStmt(ClassDefineStmtID),
+                                                                       tmplDef(tmplDef),
                                                                        members(std::move(members)),
                                                                        funcDefines(funcDefines),
                                                                        parentClass(parentClass),
                                                                        name(std::move(className)) {}
+        TmplDefineStmt *tmplDef;
         std::vector<VarDefineStmt *> members;
         std::vector<FuncDefineStmt *> funcDefines;
         Identifier parentClass;

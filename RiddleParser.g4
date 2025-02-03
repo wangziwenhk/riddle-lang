@@ -59,9 +59,9 @@ importStatement
     ;
 
 varDefineStatement
-    : Var name=Identifier Colon type=typeName
+    : Var name=Identifier Colon type=typeUsed
     | Var name=Identifier Assign value=expression
-    | Var name=Identifier Colon type=typeName Assign value=expression
+    | Var name=Identifier Colon type=typeUsed Assign value=expression
     ;
 
 argsExpr
@@ -69,11 +69,11 @@ argsExpr
     ;
 
 defineArgs
-    : ((Identifier Colon typeName Comma)* (Identifier Colon typeName))?
+    : ((Identifier Colon typeUsed Comma)* (Identifier Colon typeUsed))?
     ;
 
 funcDefine
-    : modifierList Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeName)? body=bodyExpr
+    : (tmpl=tmpleDefine)? Endl? mod=modifierList Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeUsed)? body=bodyExpr
     ;
 forStatement
     : For LeftBracket (init=statement)? Semi (termCond=statement)? Semi (selfVar=statement)? RightBracket body=statement_ed
@@ -101,7 +101,7 @@ returnStatement
     ;
 
 classDefine
-    : Class className = id (Colon parentClass=id)? body=bodyExpr
+    : (tmpl=tmpleDefine)? Class className = id (Colon parentClass=id)? body=bodyExpr
     ;
 
 tryExpr
@@ -114,7 +114,7 @@ catchExpr
 
 // 这一块就是使用
 exprPtr
-    : funcName=Identifier LeftBracket args=argsExpr RightBracket    #funcExpr
+    : funcName=Identifier (tmpl=tmplUsed)? LeftBracket args=argsExpr RightBracket    #funcExpr
     | Identifier                                                    #objectExpr
     | parents=exprPtr Dot child=exprPtr                             #blendExpr
     ;
@@ -124,7 +124,7 @@ exprPtrParser
     ;
 
 expression
-    : Less type=typeName Greater LeftBracket value=exprPtrParser RightBracket #castExpr
+    : Less type=typeUsed Greater LeftBracket value=exprPtrParser RightBracket #castExpr
     | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
@@ -221,17 +221,30 @@ integer returns [int value]
     }
     ;
 
-templateArg
+tmpleDefine
+    : Template Less tmplDefineArg (Comma tmplDefineArg)* Greater
+    ;
+
+tmplDefineArg
+    : TypeName name=id // 表示一个 类型
+    | typeUsed name=id // 表示一个 常量
+    ;
+
+tmplUsed
+    : Less args=tmplArgList Greater
+    ;
+
+tmplArg
     : expression
-    | typeName
+    | typeUsed
     ;
 
-templateArgs
-    : ((templateArg Comma)* templateArg)?
+tmplArgList
+    : ((tmplArg Comma)* tmplArg)?
     ;
 
-typeName
-    : name=id
-    | name=id Less args=templateArgs Greater
-    | baseType=typeName LeftSquare size=expression RightSquare
+typeUsed
+    : name=id                                                  #baseType      // 普通名称
+    | name=id tmpl=tmplUsed                                    #tmplType      // 模板
+    | baseType=typeUsed LeftSquare size=expression RightSquare #arrayType     // 数组
     ;

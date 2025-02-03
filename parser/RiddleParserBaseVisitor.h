@@ -323,15 +323,35 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitTemplateArg(RiddleParser::TemplateArgContext *ctx) override {
+  virtual std::any visitTmpleDefine(RiddleParser::TmpleDefineContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitTemplateArgs(RiddleParser::TemplateArgsContext *ctx) override {
+  virtual std::any visitTmplDefineArg(RiddleParser::TmplDefineArgContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitTypeName(RiddleParser::TypeNameContext *ctx) override {
+  virtual std::any visitTmplUsed(RiddleParser::TmplUsedContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTmplArg(RiddleParser::TmplArgContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTmplArgList(RiddleParser::TmplArgListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitArrayType(RiddleParser::ArrayTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTmplType(RiddleParser::TmplTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBaseType(RiddleParser::BaseTypeContext *ctx) override {
     return visitChildren(ctx);
   }
 

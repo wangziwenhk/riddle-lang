@@ -18,7 +18,7 @@ export namespace Riddle {
                 stmt = nullptr;
             }
         }
-        [[nodiscard]] std::vector<BaseStmt*>& getAllStmt(){
+        [[nodiscard]] std::vector<BaseStmt *> &getAllStmt() {
             return stmts;
         }
 
@@ -52,7 +52,7 @@ export namespace Riddle {
             stmts.push_back(ptr);
             return ptr;
         }
-        VarDefineStmt *getVarDefine(const std::string &name, const std::string &type, BaseStmt *value) {
+        VarDefineStmt *getVarDefine(const std::string &name, TypeStmt *type, BaseStmt *value) {
             const auto ptr = new VarDefineStmt(name, type, value);
             stmts.push_back(ptr);
             return ptr;
@@ -92,9 +92,9 @@ export namespace Riddle {
             return ptr;
         }
 
-        FuncDefineStmt *getFuncDefine(const std::string &name, const std::string &return_type,
-                                      BaseStmt *body, const Modifier mod = {}, DefineArgListStmt *args = nullptr ) {
-            const auto ptr = new FuncDefineStmt(name, return_type, body, mod, args);
+        FuncDefineStmt *getFuncDefine(const std::string &name, TypeStmt *return_type,
+                                      BaseStmt *body, TmplDefineStmt *tmplDef = {}, const Modifier mod = {}, DefineArgListStmt *args = nullptr) {
+            const auto ptr = new FuncDefineStmt(name, return_type, body, tmplDef, mod, args);
             stmts.push_back(ptr);
             return ptr;
         }
@@ -168,10 +168,11 @@ export namespace Riddle {
         }
 
         ClassDefineStmt *getClassDefine(const std::string &name,
-                                        std::vector<VarDefineStmt *> varDefs,
+                                        const std::vector<VarDefineStmt *> &varDefs,
                                         const std::vector<FuncDefineStmt *> &funcDefines,
+                                        TmplDefineStmt *tmplDef = {},
                                         const std::string &parentClass = "") {
-            const auto ptr = new ClassDefineStmt(name, std::move(varDefs), funcDefines, parentClass);
+            const auto ptr = new ClassDefineStmt(name, std::move(varDefs), funcDefines, tmplDef, parentClass);
             stmts.push_back(ptr);
             return ptr;
         }
@@ -184,6 +185,30 @@ export namespace Riddle {
 
         MemberExprStmt *getMemberExpr(BaseStmt *parent, ObjectStmt *child, const bool isLoaded = false) {
             const auto ptr = new MemberExprStmt(parent, child, isLoaded);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        TypeStmt *getTypeStmt(const std::string &name) {
+            const auto ptr = new TypeStmt(name);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        TmplTypeStmt *getTmplTypeStmt(const std::string &name, std::vector<BaseStmt *> args) {
+            const auto ptr = new TmplTypeStmt(name, args);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        TmplDefineArgStmt *getTmplDefineArg(TmplDefineArgStmt::TmplTypeID type_id, std::string name) {
+            const auto ptr = new TmplDefineArgStmt(name, type_id);
+            stmts.push_back(ptr);
+            return ptr;
+        }
+
+        TmplDefineStmt *getTmplDefineStmt(const std::vector<TmplDefineArgStmt *> &stmtList) {
+            const auto ptr = new TmplDefineStmt(stmtList);
             stmts.push_back(ptr);
             return ptr;
         }

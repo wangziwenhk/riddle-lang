@@ -14,6 +14,7 @@ import Manager.OpManager;
 import Type.Modifier;
 import Support.Allocator;
 import Type.Identifier;
+import Type.Template;
 
 export namespace Riddle {
     class Type;
@@ -242,6 +243,7 @@ export namespace Riddle {
 
     private:
         std::string oldValueLLVMName;
+
     protected:
         Type *type;
         llvm::Value *value;
@@ -339,11 +341,13 @@ export namespace Riddle {
         llvm::StructType *structTy;
         std::unordered_map<std::string, std::pair<Type *, size_t>> members;
         std::unordered_map<std::string, Function *> functions;
+        Template tmpl;
 
     public:
         explicit Class(Context *ctx,
                        const std::string &name,
-                       const std::vector<std::pair<std::string, Type *>> &member): Type(ClassTyID, ctx) {
+                       const std::vector<std::pair<std::string, Type *>> &member,
+                       Template tmpl): Type(ClassTyID, ctx), tmpl(tmpl) {
             structTy = llvm::StructType::create(*ctx->llvm_context);
             structTy->setName(name);
             size_t cnt = 0;

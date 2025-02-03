@@ -16,15 +16,15 @@ public:
     Else = 8, Func = 9, Return = 10, Import = 11, Package = 12, Class = 13, 
     True = 14, False = 15, Null = 16, Try = 17, Catch = 18, Override = 19, 
     Static = 20, Const = 21, Public = 22, Protected = 23, Private = 24, 
-    Virtual = 25, LeftBracket = 26, RightBracket = 27, LeftSquare = 28, 
-    RightSquare = 29, LeftCurly = 30, RightCurly = 31, Colon = 32, Semi = 33, 
-    Comma = 34, Equal = 35, Assign = 36, Greater = 37, Less = 38, LeftLeft = 39, 
-    RightRight = 40, RightRightRight = 41, Add = 42, Sub = 43, Star = 44, 
-    Div = 45, Mod = 46, Not = 47, And = 48, Or = 49, Xor = 50, Dot = 51, 
-    DoubleQuotes = 52, Quotes = 53, Endl = 54, Identifier = 55, Hexadecimal = 56, 
-    Decimal = 57, Octal = 58, Binary = 59, Float = 60, IntegerSequence = 61, 
-    HEX_DIGIT = 62, OCTAL_DIGIT = 63, BINARY_DIGIT = 64, DIGIT = 65, STRING = 66, 
-    LINE_COMMENT = 67, BLOCK_COMMENT = 68, WHITESPACE = 69
+    Virtual = 25, Template = 26, TypeName = 27, LeftBracket = 28, RightBracket = 29, 
+    LeftSquare = 30, RightSquare = 31, LeftCurly = 32, RightCurly = 33, 
+    Colon = 34, Semi = 35, Comma = 36, Equal = 37, Assign = 38, Greater = 39, 
+    Less = 40, LeftLeft = 41, RightRight = 42, RightRightRight = 43, Add = 44, 
+    Sub = 45, Star = 46, Div = 47, Mod = 48, Not = 49, And = 50, Or = 51, 
+    Xor = 52, Dot = 53, DoubleQuotes = 54, Quotes = 55, Endl = 56, Identifier = 57, 
+    Hexadecimal = 58, Decimal = 59, Octal = 60, Binary = 61, Float = 62, 
+    IntegerSequence = 63, HEX_DIGIT = 64, OCTAL_DIGIT = 65, BINARY_DIGIT = 66, 
+    DIGIT = 67, STRING = 68, LINE_COMMENT = 69, BLOCK_COMMENT = 70, WHITESPACE = 71
   };
 
   enum {
@@ -36,7 +36,8 @@ public:
     RuleTryExpr = 18, RuleCatchExpr = 19, RuleExprPtr = 20, RuleExprPtrParser = 21, 
     RuleExpression = 22, RuleId = 23, RuleModifier = 24, RuleModifierList = 25, 
     RuleNumber = 26, RuleBoolean = 27, RuleString = 28, RuleFloat = 29, 
-    RuleInteger = 30, RuleTemplateArg = 31, RuleTemplateArgs = 32, RuleTypeName = 33
+    RuleInteger = 30, RuleTmpleDefine = 31, RuleTmplDefineArg = 32, RuleTmplUsed = 33, 
+    RuleTmplArg = 34, RuleTmplArgList = 35, RuleTypeName = 36
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -87,8 +88,11 @@ public:
   class StringContext;
   class FloatContext;
   class IntegerContext;
-  class TemplateArgContext;
-  class TemplateArgsContext;
+  class TmpleDefineContext;
+  class TmplDefineArgContext;
+  class TmplUsedContext;
+  class TmplArgContext;
+  class TmplArgListContext;
   class TypeNameContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
@@ -286,21 +290,25 @@ public:
 
   class  FuncDefineContext : public antlr4::ParserRuleContext {
   public:
+    RiddleParser::TmpleDefineContext *tmpl = nullptr;
+    RiddleParser::ModifierListContext *mod = nullptr;
     antlr4::Token *funcName = nullptr;
     RiddleParser::DefineArgsContext *args = nullptr;
     RiddleParser::TypeNameContext *returnType = nullptr;
     RiddleParser::BodyExprContext *body = nullptr;
     FuncDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    ModifierListContext *modifierList();
     antlr4::tree::TerminalNode *Func();
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
+    ModifierListContext *modifierList();
     antlr4::tree::TerminalNode *Identifier();
     DefineArgsContext *defineArgs();
     BodyExprContext *bodyExpr();
+    antlr4::tree::TerminalNode *Endl();
     antlr4::tree::TerminalNode *Sub();
     antlr4::tree::TerminalNode *Greater();
+    TmpleDefineContext *tmpleDefine();
     TypeNameContext *typeName();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -433,6 +441,7 @@ public:
 
   class  ClassDefineContext : public antlr4::ParserRuleContext {
   public:
+    RiddleParser::TmpleDefineContext *tmpl = nullptr;
     RiddleParser::IdContext *className = nullptr;
     RiddleParser::IdContext *parentClass = nullptr;
     RiddleParser::BodyExprContext *body = nullptr;
@@ -443,6 +452,7 @@ public:
     IdContext* id(size_t i);
     BodyExprContext *bodyExpr();
     antlr4::tree::TerminalNode *Colon();
+    TmpleDefineContext *tmpleDefine();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -508,10 +518,12 @@ public:
     FuncExprContext(ExprPtrContext *ctx);
 
     antlr4::Token *funcName = nullptr;
+    RiddleParser::TmplUsedContext *tmpl = nullptr;
     RiddleParser::ArgsExprContext *args = nullptr;
     antlr4::tree::TerminalNode *LeftBracket();
     antlr4::tree::TerminalNode *RightBracket();
     antlr4::tree::TerminalNode *Identifier();
+    TmplUsedContext *tmplUsed();
     ArgsExprContext *argsExpr();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1376,28 +1388,15 @@ public:
 
   IntegerContext* integer();
 
-  class  TemplateArgContext : public antlr4::ParserRuleContext {
+  class  TmpleDefineContext : public antlr4::ParserRuleContext {
   public:
-    TemplateArgContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    TmpleDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    ExpressionContext *expression();
-    TypeNameContext *typeName();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  TemplateArgContext* templateArg();
-
-  class  TemplateArgsContext : public antlr4::ParserRuleContext {
-  public:
-    TemplateArgsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<TemplateArgContext *> templateArg();
-    TemplateArgContext* templateArg(size_t i);
+    antlr4::tree::TerminalNode *Template();
+    antlr4::tree::TerminalNode *Less();
+    std::vector<TmplDefineArgContext *> tmplDefineArg();
+    TmplDefineArgContext* tmplDefineArg(size_t i);
+    antlr4::tree::TerminalNode *Greater();
     std::vector<antlr4::tree::TerminalNode *> Comma();
     antlr4::tree::TerminalNode* Comma(size_t i);
 
@@ -1408,30 +1407,130 @@ public:
    
   };
 
-  TemplateArgsContext* templateArgs();
+  TmpleDefineContext* tmpleDefine();
 
-  class  TypeNameContext : public antlr4::ParserRuleContext {
+  class  TmplDefineArgContext : public antlr4::ParserRuleContext {
   public:
-    RiddleParser::TypeNameContext *baseType = nullptr;
     RiddleParser::IdContext *name = nullptr;
-    RiddleParser::TemplateArgsContext *args = nullptr;
-    RiddleParser::ExpressionContext *size = nullptr;
-    TypeNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    TmplDefineArgContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *TypeName();
     IdContext *id();
-    antlr4::tree::TerminalNode *Less();
-    antlr4::tree::TerminalNode *Greater();
-    TemplateArgsContext *templateArgs();
-    antlr4::tree::TerminalNode *LeftSquare();
-    antlr4::tree::TerminalNode *RightSquare();
-    TypeNameContext *typeName();
-    ExpressionContext *expression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
+  };
+
+  TmplDefineArgContext* tmplDefineArg();
+
+  class  TmplUsedContext : public antlr4::ParserRuleContext {
+  public:
+    RiddleParser::TmplArgListContext *args = nullptr;
+    TmplUsedContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *Less();
+    antlr4::tree::TerminalNode *Greater();
+    TmplArgListContext *tmplArgList();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TmplUsedContext* tmplUsed();
+
+  class  TmplArgContext : public antlr4::ParserRuleContext {
+  public:
+    TmplArgContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExpressionContext *expression();
+    TypeNameContext *typeName();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TmplArgContext* tmplArg();
+
+  class  TmplArgListContext : public antlr4::ParserRuleContext {
+  public:
+    TmplArgListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<TmplArgContext *> tmplArg();
+    TmplArgContext* tmplArg(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> Comma();
+    antlr4::tree::TerminalNode* Comma(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TmplArgListContext* tmplArgList();
+
+  class  TypeNameContext : public antlr4::ParserRuleContext {
+  public:
+    TypeNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    TypeNameContext() = default;
+    void copyFrom(TypeNameContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  ArrayTypeContext : public TypeNameContext {
+  public:
+    ArrayTypeContext(TypeNameContext *ctx);
+
+    RiddleParser::TypeNameContext *baseType = nullptr;
+    RiddleParser::ExpressionContext *size = nullptr;
+    antlr4::tree::TerminalNode *LeftSquare();
+    antlr4::tree::TerminalNode *RightSquare();
+    TypeNameContext *typeName();
+    ExpressionContext *expression();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  TmplTypeContext : public TypeNameContext {
+  public:
+    TmplTypeContext(TypeNameContext *ctx);
+
+    RiddleParser::IdContext *name = nullptr;
+    RiddleParser::TmplUsedContext *tmpl = nullptr;
+    IdContext *id();
+    TmplUsedContext *tmplUsed();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  BaseTypeContext : public TypeNameContext {
+  public:
+    BaseTypeContext(TypeNameContext *ctx);
+
+    RiddleParser::IdContext *name = nullptr;
+    IdContext *id();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   TypeNameContext* typeName();

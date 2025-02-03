@@ -245,14 +245,29 @@ public:
   virtual void enterInteger(RiddleParser::IntegerContext *ctx) = 0;
   virtual void exitInteger(RiddleParser::IntegerContext *ctx) = 0;
 
-  virtual void enterTemplateArg(RiddleParser::TemplateArgContext *ctx) = 0;
-  virtual void exitTemplateArg(RiddleParser::TemplateArgContext *ctx) = 0;
+  virtual void enterTmpleDefine(RiddleParser::TmpleDefineContext *ctx) = 0;
+  virtual void exitTmpleDefine(RiddleParser::TmpleDefineContext *ctx) = 0;
 
-  virtual void enterTemplateArgs(RiddleParser::TemplateArgsContext *ctx) = 0;
-  virtual void exitTemplateArgs(RiddleParser::TemplateArgsContext *ctx) = 0;
+  virtual void enterTmplDefineArg(RiddleParser::TmplDefineArgContext *ctx) = 0;
+  virtual void exitTmplDefineArg(RiddleParser::TmplDefineArgContext *ctx) = 0;
 
-  virtual void enterTypeName(RiddleParser::TypeNameContext *ctx) = 0;
-  virtual void exitTypeName(RiddleParser::TypeNameContext *ctx) = 0;
+  virtual void enterTmplUsed(RiddleParser::TmplUsedContext *ctx) = 0;
+  virtual void exitTmplUsed(RiddleParser::TmplUsedContext *ctx) = 0;
+
+  virtual void enterTmplArg(RiddleParser::TmplArgContext *ctx) = 0;
+  virtual void exitTmplArg(RiddleParser::TmplArgContext *ctx) = 0;
+
+  virtual void enterTmplArgList(RiddleParser::TmplArgListContext *ctx) = 0;
+  virtual void exitTmplArgList(RiddleParser::TmplArgListContext *ctx) = 0;
+
+  virtual void enterArrayType(RiddleParser::ArrayTypeContext *ctx) = 0;
+  virtual void exitArrayType(RiddleParser::ArrayTypeContext *ctx) = 0;
+
+  virtual void enterTmplType(RiddleParser::TmplTypeContext *ctx) = 0;
+  virtual void exitTmplType(RiddleParser::TmplTypeContext *ctx) = 0;
+
+  virtual void enterBaseType(RiddleParser::BaseTypeContext *ctx) = 0;
+  virtual void exitBaseType(RiddleParser::BaseTypeContext *ctx) = 0;
 
 
 };

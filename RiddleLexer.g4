@@ -26,6 +26,9 @@ Public: 'public';
 Protected: 'protected';
 Private: 'private';
 Virtual: 'virtual';
+// 模板
+Template: 'template';
+TypeName: 'typename';
 //可见字符
 //基本运算符
 LeftBracket:    '(';
