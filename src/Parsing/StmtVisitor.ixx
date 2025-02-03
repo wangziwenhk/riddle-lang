@@ -2,7 +2,7 @@ module;
 #include <RiddleParserBaseVisitor.h>
 #include <array>
 #include <llvm/Support/Casting.h>
-export module Visitors.StmtVisitor;
+export module Parsing.StmtVisitor;
 import Manager.StmtManager;
 import IR.Context;
 import IR.Statements;

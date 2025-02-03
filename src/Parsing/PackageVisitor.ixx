@@ -1,7 +1,7 @@
 module;
 #include <RiddleParserBaseVisitor.h>
 #include <antlr4-runtime.h>
-export module Visitor.PackageVisitor;
+export module Parsing.PackageVisitor;
 
 import Types.Unit;
 import Support.Options;
