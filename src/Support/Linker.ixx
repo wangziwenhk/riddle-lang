@@ -21,23 +21,7 @@ export namespace Riddle {
             if(LinkError) {
                 throw std::runtime_error("Linking failed");
             }
-            // 合并 stmtManager
-            for(auto& i: lib.stmtManager.getAllStmt()) {
-                target.stmtManager.getAllStmt().push_back(i);
-                i = nullptr;
-            }
-            // 合并 objectManager
-            for(auto [name, stk]: lib.objectManager->getObjects()) {
-                if(lib.baseTypeMap.contains(name)) {
-                    continue;
-                }
-                if(target.objectManager->isFactObject(name)) {
-                    throw std::runtime_error("Object '" + name + "' already exists");
-                }
-                stk.top()->setContext(&target);
-                target.objectManager->addObject(name, stk.top());
-            }
-            target.isLinked = true;
+            throw std::runtime_error("Linking succeeded");
         }
     };
 }// namespace Riddle
