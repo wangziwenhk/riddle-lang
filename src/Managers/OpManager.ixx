@@ -6,7 +6,6 @@ module;
 #include <map>
 #include <utility>
 export module Manager.OpManager;
-import IR.Statements;
 #define FIW std::function<llvm::Value *(llvm::IRBuilder<> &, llvm::Value *, llvm::Value *)>
 #define FIA llvm::IRBuilder<> &builder, llvm::Value *lhs, llvm::Value *rhs
 

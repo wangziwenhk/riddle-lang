@@ -3,22 +3,19 @@ module;
 #include "RiddleParser.h"
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
-#include <llvm/Linker/Linker.h>
 #include <queue>
 #include <ranges>
 #include <string>
 #include <unordered_map>
 #include <vector>
 export module Support.BuildQueue;
-import Parsing.StmtVisitor;
 import Types.Unit;
-import IR.ParserStmt;
 import Manager.ErrorManager;
 import Support.Options;
 import Parsing.PackageVisitor;
 import IR.Context;
-import IR.Statements;
 import Support.Linker;
+import Parsing.GramAnalysis;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -103,12 +100,12 @@ export namespace Riddle {
                 }
             }
 
-            std::unordered_map<std::string,Context*> libContexts;
+            std::unordered_map<std::string, Context *> libContexts;
 
-            auto llvm_ctx = new llvm::LLVMContext();
+            const auto llvm_ctx = new llvm::LLVMContext();
             // 依次编译
             for(auto i: buildList) {
-                auto context = new Context(llvm_ctx);
+                const auto context = new Context(llvm_ctx);
                 libContexts[i.data()] = context;
                 // 编译同一个包下的所有对象
                 for(const auto &j: libSource[i.data()]) {
@@ -116,14 +113,12 @@ export namespace Riddle {
                     for(const auto& lib :j.getImports()) {
                         Linker::linkContext(*context,*libContexts[lib]);
                     }
-                    StmtVisitor visitor(*context, j.parser);
-                    const auto it = any_cast<ProgramStmt *>(visitor.visit(j.parseTree));
-                    ParserStmt ps(context, j);
-                    ps.accept(it);
+                    GramAnalysis gram(context);
+                    gram.visit(j.parseTree);
                 }
             }
 
-            for(auto val: libContexts | std::views::values) {
+            for(const auto val: libContexts | std::views::values) {
                 delete val;
             }
         }
