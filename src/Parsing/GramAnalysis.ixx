@@ -4,13 +4,12 @@ module;
 #include <format>
 export module Parsing.GramAnalysis;
 import Semantics.SemNode;
-import IR.Context;
 namespace Riddle {
 
     template<typename Tp, typename SrcTp, typename Arg>
-    requires std::is_same_v<std::decay_t<Arg>, std::any>
-    std::shared_ptr<Tp> unpacking(Arg &&src) {
-        return std::shared_ptr<Tp>(dynamic_cast<Tp *>(std::any_cast<SrcTp *>(std::forward<Arg>(src))));
+        requires std::is_same_v<std::decay_t<Arg>, std::any>
+    Tp *unpacking(Arg &&src) {
+        return dynamic_cast<Tp *>(std::any_cast<SrcTp *>(std::forward<Arg>(src)));
     }
 
     template<typename Tp>
@@ -24,10 +23,14 @@ export namespace Riddle {
     public:
         GramAnalysis() = default;
 
+        ProgramNode *root = nullptr;
+
         // 程序根节点
         std::any visitProgram(RiddleParser::ProgramContext *ctx) override {
             const auto body = new BlockNode;
             const auto program = new ProgramNode(body);
+            root = program;
+            root->addSemNode(body);
             for(const auto i: ctx->children) {
                 auto result = visit(i);
                 if(result.type() == typeid(nullptr)) {
@@ -43,6 +46,7 @@ export namespace Riddle {
 
         std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override {
             SemNode *node = new PackageNode(ctx->packName->getText());
+            root->addSemNode(node);
             return node;
         }
 
@@ -55,6 +59,7 @@ export namespace Riddle {
 
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override {
             const auto block = new BlockNode;
+            root->addSemNode(block);
             for(const auto i: ctx->children) {
                 auto result = visit(i);
                 if(!result.has_value()) {
@@ -71,17 +76,20 @@ export namespace Riddle {
         }
 
         std::any visitInteger(RiddleParser::IntegerContext *ctx) override {
-            SemNode *integer = new IntegerLiteralNode(ctx->value);
+            SemNode *integer = new IntegerLiteralNode(ctx->value, root);
+            root->addSemNode(integer);
             return integer;
         }
 
         std::any visitFloat(RiddleParser::FloatContext *ctx) override {
-            SemNode *floating = new FloatLiteralNode(ctx->value);
+            SemNode *floating = new FloatLiteralNode(ctx->value, root);
+            root->addSemNode(floating);
             return floating;
         }
 
         std::any visitBoolean(RiddleParser::BooleanContext *ctx) override {
-            SemNode *boolean = new BoolLiteralNode(ctx->value);
+            SemNode *boolean = new BoolLiteralNode(ctx->value, root);
+            root->addSemNode(boolean);
             return boolean;
         }
 
@@ -112,7 +120,8 @@ export namespace Riddle {
                     result.push_back(ch);
                 }
             }
-            SemNode *node = new StringLiteralNode(result);
+            SemNode *node = new StringLiteralNode(result, root);
+            root->addSemNode(node);
             return node;
         }
 
@@ -125,6 +134,7 @@ export namespace Riddle {
             TypeNode *returnType = nullptr;
             if(ctx->returnType == nullptr) {
                 returnType = new TypeNode("void");
+                root->addSemNode(returnType);
             } else {
                 returnType = dynamic_cast<TypeNode *>(std::any_cast<SemNode *>(visit(ctx->returnType)));
             }
@@ -137,12 +147,13 @@ export namespace Riddle {
                 args = std::any_cast<std::vector<ArgNode *>>(visitDefineArgs(ctx->args));
             }
             SemNode *func = new FuncDefineNode(name, body, returnType, args);
+            root->addSemNode(func);
             return func;
         }
 
         std::any visitDefineArgs(RiddleParser::DefineArgsContext *ctx) override {
             std::string name;
-            std::shared_ptr<TypeNode> type = nullptr;
+            TypeNode *type = nullptr;
             std::vector<ArgNode *> args;
             for(const auto i: ctx->children) {
                 if(antlrcpp::is<RiddleParser::IdContext *>(i)) {
@@ -151,7 +162,7 @@ export namespace Riddle {
                     type = unpacking<TypeNode, SemNode>(visit(i));
                 }
                 if(!name.empty() && type != nullptr) {
-                    auto arg = new ArgNode(name, type.get());
+                    auto arg = new ArgNode(name, type);
                     args.push_back(arg);
                     name.clear();
                     type = nullptr;
@@ -162,23 +173,32 @@ export namespace Riddle {
 
         std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *ctx) override {
             const auto name = ctx->name->getText();
-            std::shared_ptr<TypeNode> type = nullptr;
-            std::shared_ptr<ExprNode> value = nullptr;
+            TypeNode *type = nullptr;
+            ExprNode *value = nullptr;
             if(ctx->type) {
-                // type = std::shared_ptr<TypeNode>(dynamic_cast<TypeNode *>(std::any_cast<SemNode *>(visit(ctx->type))));
                 type = unpacking<TypeNode, SemNode>(visit(ctx->type));
-                if(type == nullptr) {
+                if(!type) {
                     throw std::runtime_error("GramAnalysis: Result node not Type");
                 }
             }
             if(ctx->value) {
                 value = unpacking<ExprNode, SemNode>(visit(ctx->value));
             }
-            if(type == nullptr && value != nullptr) {
-                type = toSPtr(value->getType());
+            if(!type && value) {
+                type = value->getType();
             }
-            SemNode *node = new VarDefineNode(name, value.get(), type.get());
+            SemNode *node = new VarDefineNode(name, value, type);
+            root->addSemNode(node);
             return node;
+        }
+
+        std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override {
+            const std::string name = ctx->getText();
+            const auto type = new TypeNode(TypeNode::unknown);
+            root->addSemNode(type);
+            SemNode* object = new ObjectNode(name, type);
+            root->addSemNode(object);
+            return object;
         }
     };
 }// namespace Riddle

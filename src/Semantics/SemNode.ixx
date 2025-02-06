@@ -26,6 +26,7 @@ export namespace Riddle {
             TypeNodeType,
             BinaryOpNodeType,
             VarDefineNodeType,
+            ObjectNodeType,
         };
 
     protected:
@@ -55,11 +56,11 @@ export namespace Riddle {
             : SemNode(BlockNodeType) {
             body.reserve(vec.size());
             for(const auto ptr: vec) {
-                body.push_back(std::shared_ptr<SemNode>(ptr));
+                body.push_back(ptr);
             }
         }
 
-        std::vector<std::shared_ptr<SemNode>> body;
+        std::vector<SemNode *> body;
 
         auto begin() { return body.begin(); }
         auto end() { return body.end(); }
@@ -67,7 +68,7 @@ export namespace Riddle {
         [[nodiscard]] auto end() const { return body.cend(); }
 
         void push_back(SemNode *node) {
-            body.push_back(std::shared_ptr<SemNode>(node));
+            body.push_back(node);
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -77,10 +78,22 @@ export namespace Riddle {
     class ProgramNode final : public SemNode {
     public:
         explicit ProgramNode(BlockNode *body): SemNode(ProgramNodeType), body(body) {}
+        ~ProgramNode() override {
+            body = nullptr;
+            for(const auto i: allSemNode) {
+                delete i;
+            }
+        }
 
-        std::shared_ptr<BlockNode> body;
+        BlockNode *body;
+
+        std::vector<SemNode *> allSemNode;
 
         std::any accept(SemNodeVisitor &visitor) override;
+
+        void addSemNode(SemNode *node) noexcept {
+            allSemNode.push_back(node);
+        }
     };
 
     class PackageNode final : public SemNode {
@@ -93,23 +106,29 @@ export namespace Riddle {
 
     class TypeNode final : public SemNode {
     public:
+        static constexpr std::string unknown = "@unknown";
+
         explicit TypeNode(std::string name): SemNode(TypeNodeType), name(std::move(name)) {}
 
         std::string name;
 
         std::any accept(SemNodeVisitor &visitor) override;
+
+        [[nodiscard]] bool isUnknown() const {
+            return name == unknown;
+        }
     };
 
     /// 保存有值的 Node
     class ExprNode : public SemNode {
     protected:
-        std::shared_ptr<TypeNode> type;
+        TypeNode *type;
 
     public:
         ExprNode(TypeNode *type, const SemNodeType semType): SemNode(semType), type(type) {}
 
         [[nodiscard]] TypeNode *getType() const {
-            return type.get();
+            return type;
         }
     };
 
@@ -118,11 +137,11 @@ export namespace Riddle {
     public:
         BinaryOpNode(SemNode *left,
                      SemNode *right,
-                     std::string op): ExprNode(new TypeNode("@UnKnown"), BinaryOpNodeType),//延后到语义分析决定
+                     std::string op): ExprNode(new TypeNode(TypeNode::unknown), BinaryOpNodeType),//延后到语义分析决定
                                       left(left), right(right), op(std::move(op)) {}
 
-        std::shared_ptr<SemNode> left;
-        std::shared_ptr<SemNode> right;
+        SemNode *left;
+        SemNode *right;
         std::string op;
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -133,7 +152,7 @@ export namespace Riddle {
         ArgNode(std::string name, TypeNode *type): SemNode(ArgNodeType), name(std::move(name)), type(type) {}
 
         std::string name;
-        std::shared_ptr<TypeNode> type;
+        TypeNode *type;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -148,14 +167,14 @@ export namespace Riddle {
                                                                  body(body),
                                                                  returnType(returnType) {
             for(auto &i: args) {
-                this->args.push_back(std::shared_ptr<ArgNode>(i));
+                this->args.push_back(i);
             }
         }
 
         std::string name;
-        std::vector<std::shared_ptr<ArgNode>> args;
-        std::shared_ptr<BlockNode> body;
-        std::shared_ptr<TypeNode> returnType;
+        std::vector<ArgNode *> args;
+        BlockNode *body;
+        TypeNode *returnType;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -175,7 +194,12 @@ export namespace Riddle {
     public:
         int value;
 
-        explicit IntegerLiteralNode(const int value): LiteralNode(IntegerLiteralNodeType, new TypeNode("int")), value(value) {}
+        explicit IntegerLiteralNode(const int value,
+                                    ProgramNode *root): LiteralNode(IntegerLiteralNodeType,
+                                                                    new TypeNode("int")),
+                                                        value(value) {
+            root->addSemNode(type);
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -184,7 +208,12 @@ export namespace Riddle {
     public:
         double value;
 
-        explicit FloatLiteralNode(const double value): LiteralNode(FloatLiteralNodeType, new TypeNode("float")), value(value) {}
+        explicit FloatLiteralNode(const double value,
+                                  ProgramNode *root): LiteralNode(FloatLiteralNodeType,
+                                                                  new TypeNode("float")),
+                                                      value(value) {
+            root->addSemNode(type);
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -193,7 +222,12 @@ export namespace Riddle {
     public:
         bool value;
 
-        explicit BoolLiteralNode(const bool value): LiteralNode(BoolLiteralNodeType, new TypeNode("bool")), value(value) {}
+        explicit BoolLiteralNode(const bool value,
+                                 ProgramNode *root): LiteralNode(BoolLiteralNodeType,
+                                                                 new TypeNode("bool")),
+                                                     value(value) {
+            root->addSemNode(type);
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -202,7 +236,11 @@ export namespace Riddle {
     public:
         std::string value;
 
-        explicit StringLiteralNode(std::string value): LiteralNode(StringLiteralNodeType, new TypeNode("char*")), value(std::move(value)) {}
+        explicit StringLiteralNode(std::string value, ProgramNode *root): LiteralNode(StringLiteralNodeType,
+                                                                                      new TypeNode("char*")),
+                                                                          value(std::move(value)) {
+            root->addSemNode(type);
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -210,15 +248,24 @@ export namespace Riddle {
     class VarDefineNode final : public SemNode {
     public:
         std::string name;
-        std::shared_ptr<TypeNode> type;
-        std::shared_ptr<SemNode> value;
+        TypeNode *type;
+        ExprNode *value;
 
         VarDefineNode(std::string name,
-                      SemNode *value,
+                      ExprNode *value,
                       TypeNode *type): SemNode(VarDefineNodeType),
                                        name(std::move(name)),
                                        type(type),
                                        value(value) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class ObjectNode final : public ExprNode {
+    public:
+        std::string name;
+        explicit ObjectNode(std::string name, TypeNode *type): ExprNode(type, ObjectNodeType),
+                                                               name(std::move(name)) {}
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -228,7 +275,7 @@ export namespace Riddle {
     /// 访问者接口，后续可以用来做语义检查、类型推导等工作
     class SemNodeVisitor {
     public:
-        virtual std::any visit(SemNode* node) {
+        virtual std::any visit(SemNode *node) {
             return node->accept(*this);
         }
         virtual std::any visitNode(SemNode *node) {
@@ -236,7 +283,7 @@ export namespace Riddle {
         }
         virtual std::any visitProgram(ProgramNode *node) {
             std::any result;
-            for(const auto& i: *node->body) {
+            for(const auto &i: *node->body) {
                 result = i->accept(*this);
             }
             return result;
@@ -247,7 +294,7 @@ export namespace Riddle {
         }
         virtual std::any visitBlock(BlockNode *node) {
             std::any result;
-            for(const auto& i: *node) {
+            for(const auto &i: *node) {
                 result = i->accept(*this);
             }
             return result;
@@ -282,6 +329,9 @@ export namespace Riddle {
             return node->value->accept(*this);
         }
         virtual std::any visitType(TypeNode *node) {
+            return {};
+        }
+        virtual std::any visitObject(ObjectNode* node) {
             return {};
         }
         virtual ~SemNodeVisitor() = default;
@@ -343,6 +393,9 @@ export namespace Riddle {
 
     inline std::any VarDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitVarDefine(this);
+    }
+    inline std::any ObjectNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitObject(this);
     }
 #pragma endregion
 }// namespace Riddle
