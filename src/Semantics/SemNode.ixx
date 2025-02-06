@@ -14,21 +14,25 @@ export namespace Riddle {
         // 存储节点类型用于 RTTI
         enum SemNodeType {
             ProgramNodeType,
-            BinaryOpNodeType,
             FuncDefineNodeType,
             ArgNodeType,
             BlockNodeType,
-            TypeType,
 
             IntegerLiteralNodeType,
             FloatLiteralNodeType,
+            BoolLiteralNodeType,
+            StringLiteralNodeType,
+
+            TypeNodeType,
+            BinaryOpNodeType,
+            VarDefineNodeType,
         };
 
     protected:
-        SemNodeType type;
+        SemNodeType semType;
 
     public:
-        explicit SemNode(const SemNodeType type): type(type) {}
+        explicit SemNode(const SemNodeType type): semType(type) {}
         virtual ~SemNode() = default;
 
         virtual std::any accept(SemNodeVisitor &visitor);
@@ -36,37 +40,34 @@ export namespace Riddle {
         [[nodiscard]] virtual bool isLiteral() const {
             return false;
         }
+
+        [[nodiscard]] SemNodeType getSemType() const {
+            return semType;
+        }
     };
 
     /// 保存一个代码块
     /// @example
     class BlockNode final : public SemNode {
-    protected:
-        std::vector<SemNode *> body;
-
     public:
         BlockNode(): SemNode(BlockNodeType), body({}) {}
-        explicit BlockNode(const std::vector<SemNode *> &body): SemNode(BlockNodeType), body(body) {}
-
-        std::vector<SemNode *> &getBody() {
-            return body;
+        explicit BlockNode(const std::vector<SemNode *> &vec)
+            : SemNode(BlockNodeType) {
+            body.reserve(vec.size());
+            for(const auto ptr: vec) {
+                body.push_back(std::shared_ptr<SemNode>(ptr));
+            }
         }
+
+        std::vector<std::shared_ptr<SemNode>> body;
 
         auto begin() { return body.begin(); }
         auto end() { return body.end(); }
         [[nodiscard]] auto begin() const { return body.cbegin(); }
         [[nodiscard]] auto end() const { return body.cend(); }
 
-        [[nodiscard]] size_t size() const { return body.size(); }
-        [[nodiscard]] bool empty() const { return body.empty(); }
-
-        auto &operator[](const std::size_t i) { return body[i]; }
-        const auto &operator[](const std::size_t i) const { return body[i]; }
-
-        void clear() { body.clear(); }
-
         void push_back(SemNode *node) {
-            body.push_back(node);
+            body.push_back(std::shared_ptr<SemNode>(node));
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -74,13 +75,11 @@ export namespace Riddle {
 
     /// 表示一个程序根节点
     class ProgramNode final : public SemNode {
-    protected:
-        BlockNode *body;
-
     public:
         explicit ProgramNode(BlockNode *body): SemNode(ProgramNodeType), body(body) {}
 
-        [[nodiscard]] BlockNode *getBody() const { return body; }
+        std::shared_ptr<BlockNode> body;
+
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
@@ -92,73 +91,78 @@ export namespace Riddle {
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
-    class Type final : public SemNode {
-    protected:
+    class TypeNode final : public SemNode {
+    public:
+        explicit TypeNode(std::string name): SemNode(TypeNodeType), name(std::move(name)) {}
+
         std::string name;
 
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    /// 保存有值的 Node
+    class ExprNode : public SemNode {
+    protected:
+        std::shared_ptr<TypeNode> type;
+
     public:
-        explicit Type(std::string name): SemNode(TypeType), name(std::move(name)) {}
+        ExprNode(TypeNode *type, const SemNodeType semType): SemNode(semType), type(type) {}
+
+        [[nodiscard]] TypeNode *getType() const {
+            return type.get();
+        }
     };
 
     /// 表示一个二元运算符表达式
-    class BinaryOpNode final : public SemNode {
-    protected:
-        SemNode *left;
-        SemNode *right;
-        std::string op;
-
+    class BinaryOpNode final : public ExprNode {
     public:
-        BinaryOpNode(SemNode *left, SemNode *right, std::string op): SemNode(BinaryOpNodeType), left(left), right(right), op(std::move(op)) {}
+        BinaryOpNode(SemNode *left,
+                     SemNode *right,
+                     std::string op): ExprNode(new TypeNode("@UnKnown"), BinaryOpNodeType),//延后到语义分析决定
+                                      left(left), right(right), op(std::move(op)) {}
 
-        SemNode *&getLeft() { return left; }
-        SemNode *&getRight() { return right; }
-        std::string &getOp() { return op; }
+        std::shared_ptr<SemNode> left;
+        std::shared_ptr<SemNode> right;
+        std::string op;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
     class ArgNode final : public SemNode {
-    protected:
-        std::string name;
-        Type *type;
-
     public:
-        ArgNode(std::string name, Type *type): SemNode(ArgNodeType), name(std::move(name)), type(type) {}
+        ArgNode(std::string name, TypeNode *type): SemNode(ArgNodeType), name(std::move(name)), type(type) {}
 
-        std::string &getName() { return name; }
-        Type *&getType() { return type; }
+        std::string name;
+        std::shared_ptr<TypeNode> type;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
     class FuncDefineNode final : public SemNode {
-    protected:
-        std::string name;
-        std::vector<ArgNode *> args;
-        BlockNode *body;
-        Type *returnType;
-
     public:
         FuncDefineNode(std::string name,
                        BlockNode *body,
-                       Type *returnType,
-                       std::vector<ArgNode *> args = {}): SemNode(FuncDefineNodeType),
-                                                          name(std::move(name)),
-                                                          args(std::move(args)),
-                                                          body(body),
-                                                          returnType(returnType) {}
+                       TypeNode *returnType,
+                       const std::vector<ArgNode *> &args = {}): SemNode(FuncDefineNodeType),
+                                                                 name(std::move(name)),
+                                                                 body(body),
+                                                                 returnType(returnType) {
+            for(auto &i: args) {
+                this->args.push_back(std::shared_ptr<ArgNode>(i));
+            }
+        }
 
-        std::string &getName() { return name; }
-        std::vector<ArgNode *> &getArgs() { return args; }
-        BlockNode *&getBody() { return body; }
-        Type *&getReturnType() { return returnType; }
+        std::string name;
+        std::vector<std::shared_ptr<ArgNode>> args;
+        std::shared_ptr<BlockNode> body;
+        std::shared_ptr<TypeNode> returnType;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
-    class LiteralNode : public SemNode {
+    class LiteralNode : public ExprNode {
     public:
-        explicit LiteralNode(const SemNodeType type): SemNode(type) {}
+        explicit LiteralNode(const SemNodeType semType, TypeNode *type): ExprNode(type, semType) {}
 
         [[nodiscard]] bool isLiteral() const override {
             return true;
@@ -168,27 +172,53 @@ export namespace Riddle {
     };
 
     class IntegerLiteralNode final : public LiteralNode {
-    protected:
+    public:
         int value;
 
-    public:
-        IntegerLiteralNode(): LiteralNode(IntegerLiteralNodeType), value(0) {}
-        explicit IntegerLiteralNode(const int value): LiteralNode(IntegerLiteralNodeType), value(value) {}
-
-        [[nodiscard]] int getValue() const { return value; }
+        explicit IntegerLiteralNode(const int value): LiteralNode(IntegerLiteralNodeType, new TypeNode("int")), value(value) {}
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
     class FloatLiteralNode final : public LiteralNode {
-    protected:
+    public:
         double value;
 
-    public:
-        FloatLiteralNode(): LiteralNode(FloatLiteralNodeType), value(0) {}
-        explicit FloatLiteralNode(const double value): LiteralNode(FloatLiteralNodeType), value(value) {}
+        explicit FloatLiteralNode(const double value): LiteralNode(FloatLiteralNodeType, new TypeNode("float")), value(value) {}
 
-        [[nodiscard]] double getValue() const { return value; }
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class BoolLiteralNode final : public LiteralNode {
+    public:
+        bool value;
+
+        explicit BoolLiteralNode(const bool value): LiteralNode(BoolLiteralNodeType, new TypeNode("bool")), value(value) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class StringLiteralNode final : public LiteralNode {
+    public:
+        std::string value;
+
+        explicit StringLiteralNode(std::string value): LiteralNode(StringLiteralNodeType, new TypeNode("char*")), value(std::move(value)) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class VarDefineNode final : public SemNode {
+    public:
+        std::string name;
+        std::shared_ptr<TypeNode> type;
+        std::shared_ptr<SemNode> value;
+
+        VarDefineNode(std::string name,
+                      SemNode *value,
+                      TypeNode *type): SemNode(VarDefineNodeType),
+                                       name(std::move(name)),
+                                       type(type),
+                                       value(value) {}
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -198,41 +228,60 @@ export namespace Riddle {
     /// 访问者接口，后续可以用来做语义检查、类型推导等工作
     class SemNodeVisitor {
     public:
-        virtual std::any visit(SemNode *node) {
+        virtual std::any visit(SemNode* node) {
             return node->accept(*this);
         }
-        virtual std::any visit(ProgramNode *node) {
+        virtual std::any visitNode(SemNode *node) {
+            return node->accept(*this);
+        }
+        virtual std::any visitProgram(ProgramNode *node) {
             std::any result;
-            for(const auto i: *node->getBody()) {
+            for(const auto& i: *node->body) {
                 result = i->accept(*this);
             }
             return result;
         }
-        virtual std::any visit(BinaryOpNode *node) {
-            node->getLeft()->accept(*this);
-            return node->getRight()->accept(*this);
+        virtual std::any visitBinaryOp(BinaryOpNode *node) {
+            node->left->accept(*this);
+            return node->right->accept(*this);
         }
-        virtual std::any visit(BlockNode *node) {
+        virtual std::any visitBlock(BlockNode *node) {
             std::any result;
-            for(const auto i: *node) {
+            for(const auto& i: *node) {
                 result = i->accept(*this);
             }
             return result;
         }
-        virtual std::any visit(ArgNode *node) {
+        virtual std::any visitArgNode(ArgNode *node) {
             return {};
         }
-        virtual std::any visit(FuncDefineNode *node) {
-            for(const auto i: node->getArgs()) {
+        virtual std::any visitFuncDefine(FuncDefineNode *node) {
+            for(const auto &i: node->args) {
                 i->accept(*this);
             }
-            std::any result = node->getBody()->accept(*this);
+            std::any result = node->body->accept(*this);
             return result;
         }
-        virtual std::any visit(PackageNode *node) {
+        virtual std::any visitPackage(PackageNode *node) {
             return {};
         }
-        virtual std::any visit(IntegerLiteralNode *node) {
+        virtual std::any visitInteger(IntegerLiteralNode *node) {
+            return {};
+        }
+        virtual std::any visitFloat(FloatLiteralNode *node) {
+            return {};
+        }
+        virtual std::any visitBoolean(BoolLiteralNode *node) {
+            return {};
+        }
+        virtual std::any visitString(StringLiteralNode *node) {
+            return {};
+        }
+        virtual std::any visitVarDefine(VarDefineNode *node) {
+            node->type->accept(*this);
+            return node->value->accept(*this);
+        }
+        virtual std::any visitType(TypeNode *node) {
             return {};
         }
         virtual ~SemNodeVisitor() = default;
@@ -242,44 +291,58 @@ export namespace Riddle {
 #pragma region SemNodeAcceptImpl
     // 为各个节点实现 accept 方法
     inline std::any SemNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitNode(this);
     }
 
     inline std::any ProgramNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitProgram(this);
     }
 
     inline std::any BinaryOpNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitBinaryOp(this);
     }
 
     inline std::any BlockNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitBlock(this);
     }
 
     inline std::any FuncDefineNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitFuncDefine(this);
     }
 
     inline std::any ArgNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitArgNode(this);
     }
 
     inline std::any PackageNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitPackage(this);
+    }
+    std::any TypeNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitType(this);
     }
 
     inline std::any LiteralNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitNode(this);
     }
 
     inline std::any IntegerLiteralNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitInteger(this);
     }
 
     inline std::any FloatLiteralNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visit(this);
+        return visitor.visitFloat(this);
     }
 
+    inline std::any BoolLiteralNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitBoolean(this);
+    }
+
+    inline std::any StringLiteralNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitString(this);
+    }
+
+    inline std::any VarDefineNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitVarDefine(this);
+    }
 #pragma endregion
 }// namespace Riddle
