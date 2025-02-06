@@ -9,12 +9,8 @@ export module IR.Context;
 import Manager.OpManager;
 import Manager.SemManager;
 export namespace Riddle {
-    class Type;
-    class Class;
-    class Value;
     class Context {
         int _deep = 0;
-        std::stack<Class *> classStack;
         int classStackDepth = 0;
 
     public:
@@ -45,24 +41,6 @@ export namespace Riddle {
 
         inline unsigned long long deep() const {
             return _deep;
-        }
-
-        void pushNowClass(Class *theClass) {
-            classStack.push(theClass);
-        }
-
-        Class *getNowClass() {
-            if(classStack.empty()) {
-                throw std::runtime_error("Cannot get now class from an empty context");
-            }
-            return classStack.top();
-        }
-
-        void popNowClass() {
-            if(classStack.empty()) {
-                throw std::runtime_error("Cannot get now class from an empty context");
-            }
-            classStack.pop();
         }
     };
 }// namespace Riddle

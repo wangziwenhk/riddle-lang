@@ -14,7 +14,6 @@ import Manager.ErrorManager;
 import Support.Options;
 import Parsing.PackageVisitor;
 import IR.Context;
-import Support.Linker;
 import Parsing.GramAnalysis;
 export namespace Riddle {
     class BuildQueue {
@@ -111,9 +110,9 @@ export namespace Riddle {
                 for(const auto &j: libSource[i.data()]) {
                     // link 其他 Context
                     for(const auto& lib :j.getImports()) {
-                        Linker::linkContext(*context,*libContexts[lib]);
+                        // todo 实现 linker
                     }
-                    GramAnalysis gram(context);
+                    GramAnalysis gram{};
                     gram.visit(j.parseTree);
                 }
             }
