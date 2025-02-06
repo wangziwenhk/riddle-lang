@@ -13,8 +13,9 @@ import Types.Unit;
 import Manager.ErrorManager;
 import Support.Options;
 import Parsing.PackageVisitor;
-import IR.Context;
 import Parsing.GramAnalysis;
+import Semantics.SemAnalysis;
+import Semantics.SemNode;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -99,13 +100,10 @@ export namespace Riddle {
                 }
             }
 
-            std::unordered_map<std::string, Context *> libContexts;
 
             const auto llvm_ctx = new llvm::LLVMContext();
             // 依次编译
             for(auto i: buildList) {
-                const auto context = new Context(llvm_ctx);
-                libContexts[i.data()] = context;
                 // 编译同一个包下的所有对象
                 for(const auto &j: libSource[i.data()]) {
                     // link 其他 Context
@@ -113,13 +111,12 @@ export namespace Riddle {
                         // todo 实现 linker
                     }
                     GramAnalysis gram{};
-                    gram.visit(j.parseTree);
+                    const auto programNode = std::any_cast<ProgramNode*>(gram.visit(j.parseTree));
+                    SemAnalysis sem_analysis{};
+                    sem_analysis.visit(programNode);
                 }
             }
-
-            for(const auto val: libContexts | std::views::values) {
-                delete val;
-            }
+            delete llvm_ctx;
         }
     };
 }// namespace Riddle
