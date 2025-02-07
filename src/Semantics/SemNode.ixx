@@ -27,6 +27,7 @@ export namespace Riddle {
             BinaryOpNodeType,
             VarDefineNodeType,
             ObjectNodeType,
+            FuncCallNodeType,
         };
 
     protected:
@@ -117,6 +118,10 @@ export namespace Riddle {
         [[nodiscard]] bool isUnknown() const {
             return name == unknown;
         }
+
+        bool operator==(const TypeNode &node) const {
+            return name == node.name;
+        }
     };
 
     /// 保存有值的 Node
@@ -127,7 +132,7 @@ export namespace Riddle {
     public:
         ExprNode(TypeNode *type, const SemNodeType semType): SemNode(semType), type(type) {}
 
-        [[nodiscard]] TypeNode *getType() const {
+        TypeNode *&getType() {
             return type;
         }
     };
@@ -269,6 +274,20 @@ export namespace Riddle {
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
+
+    class FuncCallNode final : public ExprNode {
+    public:
+        std::string name;
+        std::vector<ExprNode *> args;
+        explicit FuncCallNode(ProgramNode *root,
+                              std::string name,
+                              std::vector<ExprNode *> args = {}): ExprNode(new TypeNode(TypeNode::unknown), FuncCallNodeType),
+                                                                  name(std::move(name)), args(std::move(args)) {
+            root->addSemNode(type);
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
 #pragma endregion
 
 #pragma region SemNodeVisitor
@@ -331,7 +350,13 @@ export namespace Riddle {
         virtual std::any visitType(TypeNode *node) {
             return {};
         }
-        virtual std::any visitObject(ObjectNode* node) {
+        virtual std::any visitObject(ObjectNode *node) {
+            return {};
+        }
+        virtual std::any visitFuncCall(FuncCallNode *node) {
+            for(const auto i:node->args) {
+                i->accept(*this);
+            }
             return {};
         }
         virtual ~SemNodeVisitor() = default;
@@ -396,6 +421,9 @@ export namespace Riddle {
     }
     inline std::any ObjectNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitObject(this);
+    }
+    inline std::any FuncCallNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitFuncCall(this);
     }
 #pragma endregion
 }// namespace Riddle

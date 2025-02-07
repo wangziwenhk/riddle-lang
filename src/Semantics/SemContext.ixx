@@ -36,7 +36,7 @@ export namespace Riddle {
         VarDefineNode *define;
         explicit SemVariable(VarDefineNode *def): SemObject(Variable), define(def) {}
 
-        [[nodiscard]] TypeNode *getType() const {
+        [[nodiscard]] TypeNode *&getType() const {
             return define->type;
         }
 
@@ -44,8 +44,26 @@ export namespace Riddle {
             return define->name;
         }
 
-        [[nodiscard]] ExprNode *getValue() const {
+        [[nodiscard]] ExprNode *&getValue() const {
             return define->value;
+        }
+    };
+
+    class SemFunction final : public SemObject {
+    public:
+        FuncDefineNode *define;
+        explicit SemFunction(FuncDefineNode *def): SemObject(Function), define(def) {}
+
+        [[nodiscard]] TypeNode *&getReturnType() const {
+            return define->returnType;
+        }
+
+        [[nodiscard]] std::string getName() const override {
+            return define->name;
+        }
+
+        [[nodiscard]] ArgNode *&getArgument(const size_t index) const {
+            return define->args.at(index);
         }
     };
 
