@@ -151,6 +151,13 @@ export namespace Riddle {
             return func;
         }
 
+        std::any visitBaseType(RiddleParser::BaseTypeContext *ctx) override {
+            const auto name = ctx->name->getText();
+            SemNode* node = new TypeNode(name);
+            root->addSemNode(node);
+            return node;
+        }
+
         std::any visitDefineArgs(RiddleParser::DefineArgsContext *ctx) override {
             std::string name;
             TypeNode *type = nullptr;
@@ -196,9 +203,27 @@ export namespace Riddle {
             const std::string name = ctx->getText();
             const auto type = new TypeNode(TypeNode::unknown);
             root->addSemNode(type);
-            SemNode* object = new ObjectNode(name, type);
+            SemNode *object = new ObjectNode(name, type);
             root->addSemNode(object);
             return object;
+        }
+
+        std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override {
+            std::vector<ExprNode *> args;
+            args.reserve((ctx->children.size() >> 1) + 1);
+            for(const auto i: ctx->children) {
+                auto it = unpacking<ExprNode, SemNode>(visit(i));
+                args.emplace_back(it);
+            }
+            return args;
+        }
+
+        std::any visitFuncExpr(RiddleParser::FuncExprContext *context) override {
+            const auto name = context->funcName->getText();
+            const auto args = std::any_cast<std::vector<ExprNode *>>(visit(context->args));
+            SemNode *node = new FuncCallNode(root, name, args);
+            root->addSemNode(node);
+            return node;
         }
     };
 }// namespace Riddle
