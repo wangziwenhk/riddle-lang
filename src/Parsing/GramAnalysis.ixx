@@ -6,7 +6,7 @@ export module Parsing.GramAnalysis;
 import Semantics.SemNode;
 namespace Riddle {
 
-    template<typename Tp, typename SrcTp, typename Arg>
+    template<typename Tp, typename SrcTp = SemNode, typename Arg>
         requires std::is_same_v<std::decay_t<Arg>, std::any>
     Tp *unpacking(Arg &&src) {
         return dynamic_cast<Tp *>(std::any_cast<SrcTp *>(std::forward<Arg>(src)));
@@ -197,7 +197,7 @@ export namespace Riddle {
                 if(antlrcpp::is<RiddleParser::IdContext *>(i)) {
                     name = i->getText();
                 } else if(antlrcpp::is<RiddleParser::TypeUsedContext *>(i)) {
-                    type = unpacking<TypeNode, SemNode>(visit(i));
+                    type = unpacking<TypeNode>(visit(i));
                 }
                 if(!name.empty() && type != nullptr) {
                     auto arg = new ArgNode(name, type);
@@ -214,13 +214,13 @@ export namespace Riddle {
             TypeNode *type = nullptr;
             ExprNode *value = nullptr;
             if(ctx->type) {
-                type = unpacking<TypeNode, SemNode>(visit(ctx->type));
+                type = unpacking<TypeNode>(visit(ctx->type));
                 if(!type) {
                     throw std::runtime_error("GramAnalysis: Result node not Type");
                 }
             }
             if(ctx->value) {
-                value = unpacking<ExprNode, SemNode>(visit(ctx->value));
+                value = unpacking<ExprNode>(visit(ctx->value));
             }
             if(!type && value) {
                 type = value->getType();
@@ -245,7 +245,7 @@ export namespace Riddle {
             std::vector<ExprNode *> args;
             args.reserve((ctx->children.size() >> 1) + 1);
             for(const auto i: ctx->children) {
-                auto it = unpacking<ExprNode, SemNode>(visit(i));
+                auto it = unpacking<ExprNode>(visit(i));
                 args.emplace_back(it);
             }
             return args;
@@ -256,6 +256,17 @@ export namespace Riddle {
             const auto args = std::any_cast<std::vector<ExprNode *>>(visit(context->args));
             SemNode *node = new FuncCallNode(root, name, args);
             root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitIfStatement(RiddleParser::IfStatementContext *ctx) override {
+            const auto cond = unpacking<ExprNode>(visit(ctx->cond));
+            const auto thenBody = std::any_cast<SemNode*>(visit(ctx->body));
+            SemNode* elseBody = nullptr;
+            if(ctx->elseBody != nullptr) {
+                elseBody = std::any_cast<SemNode *>(visit(ctx->elseBody));
+            }
+            SemNode* node = new IfNode(cond, thenBody, elseBody);
             return node;
         }
     };

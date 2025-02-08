@@ -59,12 +59,14 @@ export namespace Riddle {
             context.builder.SetInsertPoint(entry);
 
             context.push();
+            context.pushFunc(func);
 
             for(const auto i: *node->body) {
                 visit(i);
             }
 
             context.pop();
+            context.popFunc();
             return {};
         }
 
@@ -108,6 +110,41 @@ export namespace Riddle {
             }
             const auto typ = dynamic_cast<GenClass *>(obj);
             return typ->getLLVMType();
+        }
+
+        std::any visitIf(IfNode *node) override {
+            llvm::BasicBlock* thenBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc());
+            llvm::BasicBlock* exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc());
+            llvm::BasicBlock* elseBlock = nullptr;
+            if(node->else_body) {
+                elseBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc());
+            }
+            const auto condition = std::any_cast<llvm::Value*>(visit(node->condition));
+            if(node->else_body) {
+                context.builder.CreateCondBr(condition, thenBlock, elseBlock);
+            }
+            else {
+                context.builder.CreateCondBr(condition, thenBlock, exitBlock);
+            }
+
+            // then块的语句执行
+            context.builder.SetInsertPoint(thenBlock);
+            context.push();
+            visit(node->then_body);
+            context.builder.CreateBr(exitBlock);
+            context.pop();
+
+            if(node->else_body) {
+                context.builder.SetInsertPoint(elseBlock);
+                context.push();
+                visit(node->else_body);
+                context.builder.CreateBr(exitBlock);
+                context.pop();
+            }
+
+            context.builder.SetInsertPoint(exitBlock);
+
+            return {};
         }
     };
 }// namespace Riddle

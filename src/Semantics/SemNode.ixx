@@ -32,6 +32,7 @@ export namespace Riddle {
             ObjectNodeType,
             FuncCallNodeType,
             AllocaNodeType,
+            IfNodeType,
         };
 
     protected:
@@ -128,7 +129,7 @@ export namespace Riddle {
         explicit TypeNode(std::string name): SemNode(TypeNodeType), name(std::move(name)) {}
 
         std::string name;
-        llvm::Type* llvmType = nullptr;
+        llvm::Type *llvmType = nullptr;
 
         std::any accept(SemNodeVisitor &visitor) override;
 
@@ -326,6 +327,20 @@ export namespace Riddle {
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
+
+    class IfNode final : public SemNode {
+    public:
+        ExprNode *condition;
+        SemNode *then_body;
+        SemNode *else_body;
+        IfNode(ExprNode *condition,
+               SemNode *then_body,
+               SemNode *else_body): SemNode(IfNodeType),
+                                    condition(condition),
+                                    then_body(then_body),
+                                    else_body(else_body) {}
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
 #pragma endregion
 
 #pragma region SemNodeVisitor
@@ -400,6 +415,14 @@ export namespace Riddle {
         virtual std::any visitAlloca(AllocaNode *node) {
             return {};
         }
+        virtual std::any visitIf(IfNode* node) {
+            node->condition->accept(*this);
+            node->then_body->accept(*this);
+            if(node->else_body) {
+                node->else_body->accept(*this);
+            }
+            return {};
+        }
         virtual ~SemNodeVisitor() = default;
     };
 #pragma endregion
@@ -468,6 +491,9 @@ export namespace Riddle {
     }
     inline std::any FuncCallNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFuncCall(this);
+    }
+    std::any IfNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitIf(this);
     }
 #pragma endregion
 }// namespace Riddle
