@@ -28,9 +28,40 @@ export namespace Riddle {
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto name = node->name;
             const auto returnType = std::any_cast<llvm::Type *>(visit(node->returnType));
-            const auto funcType = llvm::FunctionType::get(returnType, false);
+
+            // 处理函数参数
+            std::vector<llvm::Type *> paramTypes;
+            for(const auto i: node->args) {
+                auto type = std::any_cast<llvm::Type *>(visit(i->type));
+                paramTypes.push_back(type);
+            }
+
+            const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
             const auto func = llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule.get());
 
+            // 处理函数参数命名
+            int index = 0;
+            for(auto it = func->arg_begin(); it != func->arg_end(); ++it, ++index) {
+                it->setName(node->args.at(index)->name);
+            }
+
+            const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
+            context.builder.SetInsertPoint(entry);
+
+            context.push();
+
+            for(const auto i: *node->body) {
+                visit(i);
+            }
+
+            context.pop();
+            return {};
+        }
+
+        std::any visitAlloca(AllocaNode *node) override {
+            const auto type = std::any_cast<llvm::Type *>(visitType(node->type));
+            llvm::Value* alloca = context.builder.CreateAlloca(type);
+            node->alloca = alloca;
             return {};
         }
 
@@ -51,7 +82,7 @@ export namespace Riddle {
             if(obj->getGenType() != GenObject::Class) {
                 throw std::runtime_error("Object doesn't have a class");
             }
-            const auto typ = dynamic_cast<GenClass*>(obj);
+            const auto typ = dynamic_cast<GenClass *>(obj);
             return typ->getLLVMType();
         }
     };

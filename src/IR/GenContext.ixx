@@ -37,8 +37,8 @@ export namespace Riddle {
         // todo 实现class
         GenClass(): GenObject(Class, "") {}
 
-        [[nodiscard]] llvm::Type *getLLVMType() const {
-            return nullptr;
+        [[nodiscard]] static llvm::Type *getLLVMType() {
+            throw std::runtime_error("Not implemented");
         }
     };
 
