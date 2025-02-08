@@ -25,15 +25,25 @@ export namespace Riddle {
             return {};
         }
 
+        std::any visitInteger(IntegerLiteralNode *node) override {
+            llvm::Value *value = context.builder.getInt32(node->value);
+            return value;
+        }
+
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto name = node->name;
-            const auto returnType = std::any_cast<llvm::Type *>(visit(node->returnType));
+            if(node->returnType->llvmType == nullptr) {
+                node->returnType->llvmType = std::any_cast<llvm::Type *>(visit(node->returnType));
+            }
+            const auto returnType = node->returnType->llvmType;
 
             // 处理函数参数
             std::vector<llvm::Type *> paramTypes;
             for(const auto i: node->args) {
-                auto type = std::any_cast<llvm::Type *>(visit(i->type));
-                paramTypes.push_back(type);
+                if(i->type->llvmType == nullptr) {
+                    i->type->llvmType = std::any_cast<llvm::Type *>(visit(i->type));
+                }
+                paramTypes.push_back(i->type->llvmType);
             }
 
             const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
@@ -59,9 +69,23 @@ export namespace Riddle {
         }
 
         std::any visitAlloca(AllocaNode *node) override {
-            const auto type = std::any_cast<llvm::Type *>(visitType(node->type));
-            llvm::Value* alloca = context.builder.CreateAlloca(type);
+            if(node->type->llvmType == nullptr) {
+                node->type->llvmType = std::any_cast<llvm::Type *>(visitType(node->type));
+            }
+            llvm::Value *alloca = context.builder.CreateAlloca(node->type->llvmType);
             node->alloca = alloca;
+            return {};
+        }
+
+        std::any visitVarDefine(VarDefineNode *node) override {
+            const auto name = node->name;
+            // 已经预先分配空间
+            const auto obj = new GenVariable(node);
+            context.addObject(obj);
+            if(node->value) {
+                const auto value = std::any_cast<llvm::Value *>(visit(node->value));
+                context.builder.CreateStore(value, node->alloca->alloca);
+            }
             return {};
         }
 

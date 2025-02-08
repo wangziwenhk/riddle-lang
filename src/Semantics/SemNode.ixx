@@ -3,6 +3,7 @@ module;
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 export module Semantics.SemNode;
@@ -99,12 +100,16 @@ export namespace Riddle {
 
         BlockNode *body;
 
-        std::vector<SemNode *> allSemNode;
+        std::unordered_set<SemNode *> allSemNode;
 
         std::any accept(SemNodeVisitor &visitor) override;
 
         void addSemNode(SemNode *node) noexcept {
-            allSemNode.push_back(node);
+            allSemNode.insert(node);
+        }
+
+        void deleteSemNode(SemNode *node) noexcept {
+            allSemNode.erase(node);
         }
     };
 
@@ -123,6 +128,7 @@ export namespace Riddle {
         explicit TypeNode(std::string name): SemNode(TypeNodeType), name(std::move(name)) {}
 
         std::string name;
+        llvm::Type* llvmType = nullptr;
 
         std::any accept(SemNodeVisitor &visitor) override;
 
