@@ -1,11 +1,13 @@
 module;
 #include <any>
 #include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
 #include <string>
 #include <utility>
 #include <vector>
 export module Semantics.SemNode;
 export namespace Riddle {
+    class AllocaNode;
     class SemNodeVisitor;
 #pragma region SemNode
     /// 表示一个语义树的节点
@@ -28,6 +30,7 @@ export namespace Riddle {
             VarDefineNodeType,
             ObjectNodeType,
             FuncCallNodeType,
+            AllocaNodeType,
         };
 
     protected:
@@ -45,6 +48,14 @@ export namespace Riddle {
 
         [[nodiscard]] SemNodeType getSemType() const {
             return semType;
+        }
+
+        [[nodiscard]] virtual bool isAlloca() const {
+            return false;
+        }
+
+        [[nodiscard]] virtual AllocaNode *getAlloca() {
+            return nullptr;
         }
     };
 
@@ -250,20 +261,41 @@ export namespace Riddle {
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
+    class AllocaNode final : public SemNode {
+    public:
+        TypeNode *type;
+        llvm::Value *alloca = nullptr;
+        explicit AllocaNode(TypeNode *type): SemNode(AllocaNodeType), type(type) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
     class VarDefineNode final : public SemNode {
     public:
         std::string name;
         TypeNode *type;
         ExprNode *value;
+        AllocaNode *alloca;
 
         VarDefineNode(std::string name,
                       ExprNode *value,
-                      TypeNode *type): SemNode(VarDefineNodeType),
-                                       name(std::move(name)),
-                                       type(type),
-                                       value(value) {}
+                      TypeNode *type,
+                      AllocaNode *alloca): SemNode(VarDefineNodeType),
+                                           name(std::move(name)),
+                                           type(type),
+                                           value(value) {
+            this->alloca = alloca;
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
+
+        [[nodiscard]] bool isAlloca() const override {
+            return alloca != nullptr;
+        }
+
+        [[nodiscard]] AllocaNode *getAlloca() override {
+            return alloca;
+        }
     };
 
     class ObjectNode final : public ExprNode {
@@ -354,9 +386,12 @@ export namespace Riddle {
             return {};
         }
         virtual std::any visitFuncCall(FuncCallNode *node) {
-            for(const auto i:node->args) {
+            for(const auto i: node->args) {
                 i->accept(*this);
             }
+            return {};
+        }
+        virtual std::any visitAlloca(AllocaNode *node) {
             return {};
         }
         virtual ~SemNodeVisitor() = default;
@@ -414,6 +449,9 @@ export namespace Riddle {
 
     inline std::any StringLiteralNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitString(this);
+    }
+    std::any AllocaNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitAlloca(this);
     }
 
     inline std::any VarDefineNode::accept(SemNodeVisitor &visitor) {

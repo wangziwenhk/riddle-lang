@@ -53,9 +53,30 @@ export namespace Riddle {
             return {};
         }
 
+        static std::any visitPreAlloca(SemNode *node, const FuncDefineNode *func) {
+            switch(node->getSemType()) {
+                case SemNode::BlockNodeType: {
+                    for(const auto &i: *dynamic_cast<BlockNode*>(node)) {
+                        visitPreAlloca(i,func);
+                    }
+                    break;
+                }
+                case SemNode::VarDefineNodeType: {
+                    const auto var = dynamic_cast<VarDefineNode*>(node);
+                    func->body->body.insert(func->body->begin(),var->alloca);
+                    break;
+                }
+                default:
+                    break;
+                // todo 支持完整的body
+            }
+            return {};
+        }
+
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto obj = new SemFunction(node);
             context.addSemObject(obj);
+            visitPreAlloca(node->body, node);
             context.push();
             for(const auto i: *node->body) {
                 visit(i);

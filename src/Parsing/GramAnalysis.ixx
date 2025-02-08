@@ -125,6 +125,37 @@ export namespace Riddle {
             return node;
         }
 
+#pragma region Operators
+        std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "+");
+            root->addSemNode(node);
+            return node;
+        }
+        std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "-");
+            root->addSemNode(node);
+            return node;
+        }
+        std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "*");
+            root->addSemNode(node);
+            return node;
+        }
+        std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "/");
+            root->addSemNode(node);
+            return node;
+        }
+#pragma endregion
+
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
             const auto name = ctx->funcName->getText();
             const auto body = dynamic_cast<BlockNode *>(std::any_cast<SemNode *>(visit(ctx->body)));
@@ -153,7 +184,7 @@ export namespace Riddle {
 
         std::any visitBaseType(RiddleParser::BaseTypeContext *ctx) override {
             const auto name = ctx->name->getText();
-            SemNode* node = new TypeNode(name);
+            SemNode *node = new TypeNode(name);
             root->addSemNode(node);
             return node;
         }
@@ -194,7 +225,9 @@ export namespace Riddle {
             if(!type && value) {
                 type = value->getType();
             }
-            SemNode *node = new VarDefineNode(name, value, type);
+            const auto alloca = new AllocaNode(type);
+            root->addSemNode(alloca);
+            SemNode *node = new VarDefineNode(name, value, type, alloca);
             root->addSemNode(node);
             return node;
         }
