@@ -6,7 +6,7 @@ module;
 #include <unordered_map>
 #include <unordered_set>
 export module Semantics.SemContext;
-import Semantics.SemNode;
+export import Semantics.SemNode;
 export namespace Riddle {
     /// 在词法解析过程中产生的 Object
     class SemObject {
@@ -69,11 +69,11 @@ export namespace Riddle {
 
     class SemContext {
     protected:
-        std::pmr::unordered_map<std::string, std::stack<SemObject *>> symbols;
+        std::pmr::unordered_map<std::string, std::stack<std::unique_ptr<SemObject>>> symbols{};
         std::stack<std::unordered_set<std::string>> defines;
 
     public:
-        SemContext() = default;
+        SemContext():defines(){}
 
         void push() {
             defines.emplace();
@@ -81,9 +81,6 @@ export namespace Riddle {
 
         void pop() {
             for(const auto &i: defines.top()) {
-                auto &it = symbols.at(i).top();
-                delete it;
-                it = nullptr;
                 symbols.at(i).pop();
                 if(symbols.at(i).empty()) {
                     symbols.erase(i);
@@ -110,7 +107,7 @@ export namespace Riddle {
             if(it == symbols.end()) {
                 return nullptr;
             }
-            return it->second.top();
+            return it->second.top().get();
         }
     };
 }// namespace Riddle

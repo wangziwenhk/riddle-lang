@@ -20,7 +20,7 @@ export namespace Riddle {
 
     public:
         RiddleParser *parser{};
-        /// @brief 解析树
+        /// 解析树
         antlr4::tree::ParseTree *parseTree = nullptr;
 
         Unit() = default;
@@ -28,27 +28,27 @@ export namespace Riddle {
             parser = nullptr;
         }
 
-        /// @brief 设置包名，通过 PackageVisitor 获取
+        /// 设置包名，通过 PackageVisitor 获取
         void setPackName(Path name) {
             this->packName = std::move(name);
         }
 
-        /// @brief 获取包名
+        /// 获取包名
         [[nodiscard]] Path getPackName() const {
             return packName;
         }
 
-        /// @brief 设置源文件的完整路径
+        /// 设置源文件的完整路径
         void setFileOption(const Option &option) {
             this->option = option;
         }
 
-        /// @brief 获取源文件的完整路径
+        /// 获取源文件的完整路径
         [[nodiscard]] Option getFileOption() const {
             return this->option;
         }
 
-        /// @brief 添加库相关
+        /// 添加库
         /// @param lib 包名
         void addImports(const std::string &lib) {
             imports.push_back(lib);
@@ -68,7 +68,7 @@ export namespace Riddle {
             return imports.size();
         }
 
-        /// @brief 添加优先级比较
+        /// 添加优先级比较
         bool operator>(const Unit &x) const {
             return this->imports.size() > x.imports.size();
         }
