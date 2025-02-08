@@ -45,6 +45,7 @@ export namespace Riddle {
     class GenContext {
         std::unordered_map<std::string, std::stack<std::unique_ptr<GenObject>>> objects;
         std::stack<std::unordered_set<std::string>> defines;
+        std::stack<llvm::Function *> functions;
 
     public:
         llvm::LLVMContext *llvmContext;
@@ -55,6 +56,18 @@ export namespace Riddle {
         explicit GenContext(llvm::LLVMContext *llvmContext): llvmContext(llvmContext),
                                                              llvmModule(new llvm::Module("", *llvmContext)),
                                                              builder(*llvmContext) {}
+
+        void pushFunc(llvm::Function* func) {
+            functions.push(func);
+        }
+
+        void popFunc() {
+            functions.pop();
+        }
+
+        llvm::Function* getNowFunc() {
+            return functions.top();
+        }
 
         void addObject(GenObject *object) {
             if(defines.top().contains(object->name)) {
