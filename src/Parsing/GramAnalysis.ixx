@@ -261,12 +261,20 @@ export namespace Riddle {
 
         std::any visitIfStatement(RiddleParser::IfStatementContext *ctx) override {
             const auto cond = unpacking<ExprNode>(visit(ctx->cond));
-            const auto thenBody = std::any_cast<SemNode*>(visit(ctx->body));
-            SemNode* elseBody = nullptr;
+            const auto thenBody = std::any_cast<SemNode *>(visit(ctx->body));
+            SemNode *elseBody = nullptr;
             if(ctx->elseBody != nullptr) {
                 elseBody = std::any_cast<SemNode *>(visit(ctx->elseBody));
             }
-            SemNode* node = new IfNode(cond, thenBody, elseBody);
+            SemNode *node = new IfNode(cond, thenBody, elseBody);
+            return node;
+        }
+
+        std::any visitWhileStatement(RiddleParser::WhileStatementContext *context) override {
+            const auto cond = unpacking<ExprNode>(visit(context->cond));
+            const auto body = std::any_cast<SemNode *>(visit(context->body));
+            SemNode *node = new WhileNode(cond, body);
+            root->addSemNode(node);
             return node;
         }
     };

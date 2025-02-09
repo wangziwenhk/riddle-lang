@@ -33,6 +33,7 @@ export namespace Riddle {
             FuncCallNodeType,
             AllocaNodeType,
             IfNodeType,
+            WhileNodeType,
         };
 
     protected:
@@ -341,6 +342,18 @@ export namespace Riddle {
                                     else_body(else_body) {}
         std::any accept(SemNodeVisitor &visitor) override;
     };
+
+    class WhileNode final : public SemNode {
+    public:
+        ExprNode *condition;
+        SemNode *body;
+        WhileNode(ExprNode *condition,
+                  SemNode *body): SemNode(WhileNodeType),
+                                  condition(condition),
+                                  body(body) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
 #pragma endregion
 
 #pragma region SemNodeVisitor
@@ -415,12 +428,17 @@ export namespace Riddle {
         virtual std::any visitAlloca(AllocaNode *node) {
             return {};
         }
-        virtual std::any visitIf(IfNode* node) {
+        virtual std::any visitIf(IfNode *node) {
             node->condition->accept(*this);
             node->then_body->accept(*this);
             if(node->else_body) {
                 node->else_body->accept(*this);
             }
+            return {};
+        }
+        virtual std::any visitWhile(WhileNode *node) {
+            node->condition->accept(*this);
+            node->body->accept(*this);
             return {};
         }
         virtual ~SemNodeVisitor() = default;
@@ -494,6 +512,9 @@ export namespace Riddle {
     }
     std::any IfNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitIf(this);
+    }
+    std::any WhileNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitWhile(this);
     }
 #pragma endregion
 }// namespace Riddle
