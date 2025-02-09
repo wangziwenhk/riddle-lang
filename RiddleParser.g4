@@ -80,7 +80,7 @@ forStatement
     ;
 
 whileStatement
-    : While LeftBracket runCond=expression RightBracket body=statement_ed
+    : While LeftBracket cond=expression RightBracket body=statement_ed
     ;
 
 continueStatement

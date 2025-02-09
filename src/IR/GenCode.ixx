@@ -2,6 +2,7 @@ module;
 #include <any>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/Support/raw_ostream.h>
 #include <vector>
 export module IR.GenCode;
@@ -67,13 +68,25 @@ export namespace Riddle {
 
             context.pop();
             context.popFunc();
+
+            verifyFunction(*func);
+
             return {};
         }
 
-        std::any visitAlloca(AllocaNode *node) override {
-            if(node->type->llvmType == nullptr) {
-                node->type->llvmType = std::any_cast<llvm::Type *>(visitType(node->type));
+        std::any visitObject(ObjectNode *node) override {
+            const auto name = node->name;
+            const auto obj = context.getObject(name);
+            if(obj->getGenType() != GenObject::Variable) {
+                throw std::runtime_error("Object is not a variable");
             }
+            const auto var = dynamic_cast<GenVariable *>(obj);
+            // todo 添加是否 load 判断
+            return var->define->alloca->alloca;
+        }
+
+        std::any visitAlloca(AllocaNode *node) override {
+            node->type->llvmType = std::any_cast<llvm::Type *>(visitType(node->type));
             llvm::Value *alloca = context.builder.CreateAlloca(node->type->llvmType);
             node->alloca = alloca;
             return {};
@@ -85,6 +98,9 @@ export namespace Riddle {
             const auto obj = new GenVariable(node);
             context.addObject(obj);
             if(node->value) {
+                if(!node->alloca) {
+                    throw std::runtime_error("Variable does not have alloca");
+                }
                 const auto value = std::any_cast<llvm::Value *>(visit(node->value));
                 context.builder.CreateStore(value, node->alloca->alloca);
             }
@@ -113,17 +129,18 @@ export namespace Riddle {
         }
 
         std::any visitIf(IfNode *node) override {
-            llvm::BasicBlock* thenBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc());
-            llvm::BasicBlock* exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc());
-            llvm::BasicBlock* elseBlock = nullptr;
+            // 生成 Basic Block
+            llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc());
+            llvm::BasicBlock *elseBlock = nullptr;
             if(node->else_body) {
                 elseBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc());
             }
-            const auto condition = std::any_cast<llvm::Value*>(visit(node->condition));
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc());
+
+            const auto condition = std::any_cast<llvm::Value *>(visit(node->condition));
             if(node->else_body) {
                 context.builder.CreateCondBr(condition, thenBlock, elseBlock);
-            }
-            else {
+            } else {
                 context.builder.CreateCondBr(condition, thenBlock, exitBlock);
             }
 
@@ -144,6 +161,27 @@ export namespace Riddle {
 
             context.builder.SetInsertPoint(exitBlock);
 
+            return {};
+        }
+
+        std::any visitWhile(WhileNode *node) override {
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.cond");
+            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body");
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit");
+
+            context.builder.CreateBr(condBlock);
+            context.builder.SetInsertPoint(condBlock);
+
+            const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
+            context.builder.CreateCondBr(cond, bodyBlock, exitBlock);
+
+            context.push();
+            context.builder.SetInsertPoint(bodyBlock);
+            visit(node->body);
+            context.builder.CreateBr(condBlock);
+            context.pop();
+
+            context.builder.SetInsertPoint(exitBlock);
             return {};
         }
     };

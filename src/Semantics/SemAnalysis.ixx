@@ -49,30 +49,29 @@ export namespace Riddle {
                     throw std::runtime_error("Object is not a variable");
                 }
                 const auto var = dynamic_cast<SemVariable *>(obj);
-                root->deleteSemNode(node->getType());
-                delete node->getType();
-                node->getType() = var->getType();
+                *node->getType() = *var->getType();
                 return {};
             }
             return {};
         }
 
-        static std::any visitPreAlloca(SemNode *node, const FuncDefineNode *func) {
+        static void visitPreAlloca(SemNode *node, const FuncDefineNode *func) {
             switch(node->getSemType()) {
                 case SemNode::BlockNodeType: {
-                    for(const auto &i: *dynamic_cast<BlockNode *>(node)) {
+                    auto block = dynamic_cast<BlockNode *>(node)->body;
+                    for(const auto i: block) {
                         visitPreAlloca(i, func);
                     }
-                    break;
+                    return;
                 }
                 case SemNode::VarDefineNodeType: {
                     const auto var = dynamic_cast<VarDefineNode *>(node);
                     func->body->body.insert(func->body->begin(), var->alloca);
-                    break;
+                    return;
                 }
                 case SemNode::FuncDefineNodeType: {
                     visitPreAlloca(dynamic_cast<FuncDefineNode *>(node)->body, func);
-                    break;
+                    return;
                 }
                 case SemNode::IfNodeType: {
                     const auto it = dynamic_cast<IfNode *>(node);
@@ -81,13 +80,17 @@ export namespace Riddle {
                     if(it->else_body) {
                         visitPreAlloca(it->else_body, func);
                     }
-                    break;
+                    return;
+                }
+                case SemNode::WhileNodeType: {
+                    const auto it = dynamic_cast<WhileNode *>(node);
+                    visitPreAlloca(it->condition, func);
+                    visitPreAlloca(it->body, func);
+                    return;
                 }
                 default:
                     break;
-                    // todo 支持完整的body
             }
-            return {};
         }
 
         std::any visitFuncDefine(FuncDefineNode *node) override {
@@ -108,9 +111,7 @@ export namespace Riddle {
             if(obj->getSemObjType() != SemObject::Function) {
                 throw std::runtime_error("Object is not a function");
             }
-            root->deleteSemNode(node->getType());
-            delete node->getType();
-            node->getType() = func->getReturnType();
+            *node->getType() = *func->getReturnType();
             return {};
         }
     };

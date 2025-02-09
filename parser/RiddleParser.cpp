@@ -1733,7 +1733,7 @@ RiddleParser::WhileStatementContext* RiddleParser::whileStatement() {
     setState(209);
     match(RiddleParser::LeftBracket);
     setState(210);
-    antlrcpp::downCast<WhileStatementContext *>(_localctx)->runCond = expression(0);
+    antlrcpp::downCast<WhileStatementContext *>(_localctx)->cond = expression(0);
     setState(211);
     match(RiddleParser::RightBracket);
     setState(212);

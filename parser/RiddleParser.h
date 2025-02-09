@@ -348,7 +348,7 @@ public:
 
   class  WhileStatementContext : public antlr4::ParserRuleContext {
   public:
-    RiddleParser::ExpressionContext *runCond = nullptr;
+    RiddleParser::ExpressionContext *cond = nullptr;
     RiddleParser::Statement_edContext *body = nullptr;
     WhileStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
