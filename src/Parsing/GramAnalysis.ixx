@@ -236,9 +236,13 @@ export namespace Riddle {
             const std::string name = ctx->getText();
             const auto type = new TypeNode(TypeNode::unknown);
             root->addSemNode(type);
-            SemNode *object = new ObjectNode(name, type);
+            const auto object = new ObjectNode(name, type);
+            if(antlrcpp::is<RiddleParser::PtrExprContext*>(ctx->parent)) {
+                object->isLoad = true;
+            }
             root->addSemNode(object);
-            return object;
+            SemNode* node = object;
+            return node;
         }
 
         std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override {

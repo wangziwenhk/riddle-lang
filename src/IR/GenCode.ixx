@@ -80,9 +80,15 @@ export namespace Riddle {
             if(obj->getGenType() != GenObject::Variable) {
                 throw std::runtime_error("Object is not a variable");
             }
+            const auto type = std::any_cast<llvm::Type *>(visitType(node->getType()));
             const auto var = dynamic_cast<GenVariable *>(obj);
+            llvm::Value *result = var->define->alloca->alloca;
             // todo 添加是否 load 判断
-            return var->define->alloca->alloca;
+            if(node->isLoad) {
+                const auto load = context.builder.CreateLoad(type, result);
+                result = load;
+            }
+            return result;
         }
 
         std::any visitAlloca(AllocaNode *node) override {
@@ -165,9 +171,9 @@ export namespace Riddle {
         }
 
         std::any visitWhile(WhileNode *node) override {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.cond");
-            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body");
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit");
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.cond", context.getNowFunc());
+            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc());
 
             context.builder.CreateBr(condBlock);
             context.builder.SetInsertPoint(condBlock);
