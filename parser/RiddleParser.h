@@ -323,8 +323,8 @@ public:
   class  ForStatementContext : public antlr4::ParserRuleContext {
   public:
     RiddleParser::StatementContext *init = nullptr;
-    RiddleParser::StatementContext *termCond = nullptr;
-    RiddleParser::StatementContext *selfVar = nullptr;
+    RiddleParser::StatementContext *cond = nullptr;
+    RiddleParser::StatementContext *incr = nullptr;
     RiddleParser::Statement_edContext *body = nullptr;
     ForStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;

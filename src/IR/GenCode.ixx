@@ -19,9 +19,11 @@ export namespace Riddle {
         explicit GenCode(GenContext &context, const Unit &unit): context(context), unit(unit) {}
         std::any visitProgram(ProgramNode *node) override {
             context.llvmModule->setModuleIdentifier(unit.getPackName());
+            context.push();
             for(const auto i: *node->body) {
                 visit(i);
             }
+            context.pop();
             context.llvmModule->print(llvm::outs(), nullptr);
             return {};
         }
@@ -56,6 +58,9 @@ export namespace Riddle {
                 it->setName(node->args.at(index)->name);
             }
 
+            const auto obj = new GenFunction(node, func);
+            context.addObject(obj);
+
             const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
             context.builder.SetInsertPoint(entry);
 
@@ -83,7 +88,6 @@ export namespace Riddle {
             const auto type = std::any_cast<llvm::Type *>(visitType(node->getType()));
             const auto var = dynamic_cast<GenVariable *>(obj);
             llvm::Value *result = var->define->alloca->alloca;
-            // todo 添加是否 load 判断
             if(node->isLoad) {
                 const auto load = context.builder.CreateLoad(type, result);
                 result = load;
@@ -189,6 +193,46 @@ export namespace Riddle {
 
             context.builder.SetInsertPoint(exitBlock);
             return {};
+        }
+
+        std::any visitFor(ForNode *node) override {
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "for.cond", context.getNowFunc());
+            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "for.body", context.getNowFunc());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "for.exit", context.getNowFunc());
+
+            context.push();
+            // 预先 init
+            visit(node->init);
+            context.builder.CreateBr(condBlock);
+
+            context.builder.SetInsertPoint(condBlock);
+            const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
+            context.builder.CreateCondBr(cond, bodyBlock, exitBlock);
+
+            context.builder.SetInsertPoint(bodyBlock);
+            visit(node->body);
+            visit(node->increment);
+            context.builder.CreateBr(condBlock);
+
+            context.pop();
+            return {};
+        }
+
+        std::any visitFuncCall(FuncCallNode *node) override {
+            const auto name = node->name;
+            const auto obj = context.getObject(name);
+            if(obj->getGenType() != GenObject::Function) {
+                throw std::runtime_error("Object doesn't have a function");
+            }
+            const auto func = dynamic_cast<GenFunction *>(obj);
+            std::vector<llvm::Value *> argValues;
+            argValues.reserve(node->args.size());
+            for(const auto arg: node->args) {
+                auto result = std::any_cast<llvm::Value *>(visit(arg));
+                argValues.push_back(result);
+            }
+            llvm::Value *result = context.builder.CreateCall(func->func, argValues);
+            return result;
         }
     };
 }// namespace Riddle

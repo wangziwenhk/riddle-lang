@@ -34,6 +34,7 @@ export namespace Riddle {
             AllocaNodeType,
             IfNodeType,
             WhileNodeType,
+            ForNodeType,
         };
 
     protected:
@@ -358,6 +359,17 @@ export namespace Riddle {
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
+
+    class ForNode final : public SemNode {
+    public:
+        SemNode *init;
+        ExprNode *condition;
+        SemNode *increment;
+        SemNode* body;
+        ForNode(SemNode *init, ExprNode *cond, SemNode *incr,SemNode* body): SemNode(ForNodeType), init(init), condition(cond), increment(incr),body(body) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
 #pragma endregion
 
 #pragma region SemNodeVisitor
@@ -445,6 +457,13 @@ export namespace Riddle {
             node->body->accept(*this);
             return {};
         }
+        virtual std::any visitFor(ForNode *node) {
+            node->init->accept(*this);
+            node->condition->accept(*this);
+            node->increment->accept(*this);
+            node->body->accept(*this);
+            return {};
+        }
         virtual ~SemNodeVisitor() = default;
     };
 #pragma endregion
@@ -519,6 +538,9 @@ export namespace Riddle {
     }
     std::any WhileNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitWhile(this);
+    }
+    std::any ForNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitFor(this);
     }
 #pragma endregion
 }// namespace Riddle
