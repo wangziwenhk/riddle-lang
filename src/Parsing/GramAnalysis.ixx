@@ -237,11 +237,11 @@ export namespace Riddle {
             const auto type = new TypeNode(TypeNode::unknown);
             root->addSemNode(type);
             const auto object = new ObjectNode(name, type);
-            if(antlrcpp::is<RiddleParser::PtrExprContext*>(ctx->parent)) {
+            if(antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
                 object->isLoad = true;
             }
             root->addSemNode(object);
-            SemNode* node = object;
+            SemNode *node = object;
             return node;
         }
 
@@ -278,6 +278,16 @@ export namespace Riddle {
             const auto cond = unpacking<ExprNode>(visit(context->cond));
             const auto body = std::any_cast<SemNode *>(visit(context->body));
             SemNode *node = new WhileNode(cond, body);
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitForStatement(RiddleParser::ForStatementContext *ctx) override {
+            const auto init = std::any_cast<SemNode *>(visit(ctx->init));
+            const auto cond = unpacking<ExprNode>(visit(ctx->cond));
+            const auto incr = std::any_cast<SemNode *>(visit(ctx->incr));
+            const auto body = std::any_cast<SemNode *>(visit(ctx->body));
+            SemNode *node = new ForNode(init, cond, incr, body);
             root->addSemNode(node);
             return node;
         }

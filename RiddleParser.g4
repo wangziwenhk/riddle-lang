@@ -76,7 +76,7 @@ funcDefine
     : (tmpl=tmpleDefine)? Endl? mod=modifierList Func funcName=id LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeUsed)? body=bodyExpr
     ;
 forStatement
-    : For LeftBracket (init=statement)? Semi (termCond=statement)? Semi (selfVar=statement)? RightBracket body=statement_ed
+    : For LeftBracket (init=statement)? Semi (cond=statement)? Semi (incr=statement)? RightBracket body=statement_ed
     ;
 
 whileStatement

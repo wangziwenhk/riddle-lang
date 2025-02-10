@@ -1636,7 +1636,7 @@ RiddleParser::ForStatementContext* RiddleParser::forStatement() {
     if ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 9151931273500163834) != 0) || _la == RiddleParser::STRING) {
       setState(198);
-      antlrcpp::downCast<ForStatementContext *>(_localctx)->termCond = statement();
+      antlrcpp::downCast<ForStatementContext *>(_localctx)->cond = statement();
     }
     setState(201);
     match(RiddleParser::Semi);
@@ -1647,7 +1647,7 @@ RiddleParser::ForStatementContext* RiddleParser::forStatement() {
     if ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 9151931273500163834) != 0) || _la == RiddleParser::STRING) {
       setState(202);
-      antlrcpp::downCast<ForStatementContext *>(_localctx)->selfVar = statement();
+      antlrcpp::downCast<ForStatementContext *>(_localctx)->incr = statement();
     }
     setState(205);
     match(RiddleParser::RightBracket);

@@ -32,6 +32,13 @@ export namespace Riddle {
         explicit GenVariable(VarDefineNode *define): GenObject(Variable, define->name), define(define) {}
     };
 
+    class GenFunction final : public GenObject {
+    public:
+        FuncDefineNode *define;
+        llvm::FunctionCallee func;
+        GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define), func(func) {}
+    };
+
     class GenClass final : public GenObject {
     public:
         // todo 实现class
@@ -57,7 +64,7 @@ export namespace Riddle {
                                                              llvmModule(new llvm::Module("", *llvmContext)),
                                                              builder(*llvmContext) {}
 
-        void pushFunc(llvm::Function* func) {
+        void pushFunc(llvm::Function *func) {
             functions.push(func);
         }
 
@@ -65,7 +72,7 @@ export namespace Riddle {
             functions.pop();
         }
 
-        llvm::Function* getNowFunc() {
+        llvm::Function *getNowFunc() {
             return functions.top();
         }
 

@@ -45,6 +45,9 @@ export namespace Riddle {
             // 这里仅做类型处理
             if(node->getType()->isUnknown()) {
                 const auto obj = context.getSemObject(node->name);
+                if(obj == nullptr) {
+                    throw std::runtime_error("Null Object");
+                }
                 if(obj->getSemObjType() != SemObject::Variable) {
                     throw std::runtime_error("Object is not a variable");
                 }
@@ -92,6 +95,15 @@ export namespace Riddle {
                     const auto it = dynamic_cast<BinaryOpNode *>(node);
                     visitPreAlloca(it->left, func);
                     visitPreAlloca(it->right, func);
+                    return;
+                }
+                case SemNode::ForNodeType: {
+                    const auto it = dynamic_cast<ForNode *>(node);
+                    visitPreAlloca(it->init, func);
+                    visitPreAlloca(it->condition, func);
+                    visitPreAlloca(it->increment, func);
+                    visitPreAlloca(it->body, func);
+                    return;
                 }
                 default:
                     break;
