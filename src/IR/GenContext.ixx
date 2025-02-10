@@ -29,7 +29,7 @@ export namespace Riddle {
     class GenVariable final : public GenObject {
     public:
         VarDefineNode *define;
-        explicit GenVariable(VarDefineNode *define): GenObject(Variable, std::move(define->name)), define(define) {}
+        explicit GenVariable(VarDefineNode *define): GenObject(Variable, define->name), define(define) {}
     };
 
     class GenClass final : public GenObject {

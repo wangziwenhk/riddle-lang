@@ -76,7 +76,7 @@ export namespace Riddle {
                 case SemNode::IfNodeType: {
                     const auto it = dynamic_cast<IfNode *>(node);
                     visitPreAlloca(it->condition, func);
-                    visitPreAlloca(it->then_body,func);
+                    visitPreAlloca(it->then_body, func);
                     if(it->else_body) {
                         visitPreAlloca(it->else_body, func);
                     }
@@ -87,6 +87,11 @@ export namespace Riddle {
                     visitPreAlloca(it->condition, func);
                     visitPreAlloca(it->body, func);
                     return;
+                }
+                case SemNode::BinaryOpNodeType: {
+                    const auto it = dynamic_cast<BinaryOpNode *>(node);
+                    visitPreAlloca(it->left, func);
+                    visitPreAlloca(it->right, func);
                 }
                 default:
                     break;

@@ -67,13 +67,7 @@ export namespace Riddle {
     class BlockNode final : public SemNode {
     public:
         BlockNode(): SemNode(BlockNodeType), body({}) {}
-        explicit BlockNode(const std::vector<SemNode *> &vec)
-            : SemNode(BlockNodeType) {
-            body.reserve(vec.size());
-            for(const auto ptr: vec) {
-                body.push_back(ptr);
-            }
-        }
+        explicit BlockNode(const std::vector<SemNode *> &vec): SemNode(BlockNodeType), body(vec) {}
 
         std::vector<SemNode *> body;
 
@@ -167,6 +161,15 @@ export namespace Riddle {
         SemNode *left;
         SemNode *right;
         std::string op;
+
+        [[nodiscard]] bool isAssignOp() const {
+            static std::unordered_set<std::string> ops = {
+                    "=", "+=", "-=",
+                    "*=", "/=", "%=",
+                    "&=", "|=", "^=",
+                    "<<=", ">>="};
+            return ops.contains(op);
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -309,6 +312,7 @@ export namespace Riddle {
     class ObjectNode final : public ExprNode {
     public:
         std::string name;
+        bool isLoad = false;
         explicit ObjectNode(std::string name, TypeNode *type): ExprNode(type, ObjectNodeType),
                                                                name(std::move(name)) {}
 
