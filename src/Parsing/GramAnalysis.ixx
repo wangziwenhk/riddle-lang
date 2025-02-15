@@ -154,6 +154,62 @@ export namespace Riddle {
             root->addSemNode(node);
             return node;
         }
+
+        std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "^");
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "&");
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "|");
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "+=");
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "-=");
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "/=");
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) override {
+            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
+            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            SemNode *node = new BinaryOpNode(left, right, "*=");
+            root->addSemNode(node);
+            return node;
+        }
 #pragma endregion
 
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
