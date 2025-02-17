@@ -67,13 +67,24 @@ export namespace Riddle {
         }
     };
 
+    class SemClass final : public SemObject {
+    public:
+        ClassDefineNode *define;
+
+        explicit SemClass(ClassDefineNode *define): SemObject(Class), define(define) {}
+
+        std::string getName() const override {
+            return define->name;
+        }
+    };
+
     class SemContext {
     protected:
         std::pmr::unordered_map<std::string, std::stack<std::unique_ptr<SemObject>>> symbols{};
         std::stack<std::unordered_set<std::string>> defines;
 
     public:
-        SemContext():defines(){}
+        SemContext(): defines() {}
 
         void push() {
             defines.emplace();

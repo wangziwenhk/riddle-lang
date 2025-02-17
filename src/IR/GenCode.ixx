@@ -1,5 +1,7 @@
 module;
 #include <any>
+#include <float.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Verifier.h>
@@ -28,8 +30,23 @@ export namespace Riddle {
             return {};
         }
 
+        std::any visitBoolean(BoolLiteralNode *node) override {
+            llvm::Value* value = context.builder.getInt1(node->value);
+            return value;
+        }
+
         std::any visitInteger(IntegerLiteralNode *node) override {
             llvm::Value *value = context.builder.getInt32(node->value);
+            return value;
+        }
+
+        std::any visitFloat(FloatLiteralNode *node) override {
+            llvm::Value *value = llvm::ConstantFP::get(llvm::Type::getDoubleTy(context.llvmModule->getContext()), node->value);
+            return value;
+        }
+
+        std::any visitString(StringLiteralNode *node) override {
+            llvm::Value *value = context.builder.CreateGlobalStringPtr(node->value);
             return value;
         }
 
@@ -125,7 +142,7 @@ export namespace Riddle {
                     {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
                     {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
                     {"void", llvm::Type::getVoidTy(*context.llvmContext)},
-            };
+                    {"char*", llvm::Type::getInt8Ty(*context.llvmContext)->getPointerTo()}};
             // 尝试获取基本类型
             if(base_types.contains(name)) {
                 return base_types[name];
