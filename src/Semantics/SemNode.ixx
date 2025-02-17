@@ -6,6 +6,7 @@ module;
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <ranges>
 export module Semantics.SemNode;
 export namespace Riddle {
     class AllocaNode;
@@ -35,6 +36,8 @@ export namespace Riddle {
             IfNodeType,
             WhileNodeType,
             ForNodeType,
+
+            ClassDefineNodeType,
         };
 
     protected:
@@ -118,11 +121,11 @@ export namespace Riddle {
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
-    class TypeNode final : public SemNode {
+    class TypeNode : public SemNode {
     public:
         static constexpr std::string unknown = "@unknown";
 
-        explicit TypeNode(std::string name): SemNode(TypeNodeType), name(std::move(name)) {}
+        explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType): SemNode(type_id), name(std::move(name)) {}
 
         std::string name;
         llvm::Type *llvmType = nullptr;
@@ -365,8 +368,19 @@ export namespace Riddle {
         SemNode *init;
         ExprNode *condition;
         SemNode *increment;
-        SemNode* body;
-        ForNode(SemNode *init, ExprNode *cond, SemNode *incr,SemNode* body): SemNode(ForNodeType), init(init), condition(cond), increment(incr),body(body) {}
+        SemNode *body;
+        ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body): SemNode(ForNodeType), init(init), condition(cond), increment(incr), body(body) {}
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class ClassDefineNode final : public TypeNode {
+    public:
+        std::string parentClass;
+        std::vector<VarDefineNode *> members;
+        std::unordered_map<std::string, FuncDefineNode *> functions;
+
+        explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {}
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -464,6 +478,15 @@ export namespace Riddle {
             node->body->accept(*this);
             return {};
         }
+        virtual std::any visitClassDefine(ClassDefineNode *node) {
+            for(const auto i:node->members) {
+                i->accept(*this);
+            }
+            for(const auto i:node->functions | std::views::values) {
+                i->accept(*this);
+            }
+            return {};
+        }
         virtual ~SemNodeVisitor() = default;
     };
 #pragma endregion
@@ -541,6 +564,9 @@ export namespace Riddle {
     }
     std::any ForNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFor(this);
+    }
+    std::any ClassDefineNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitClassDefine(this);
     }
 #pragma endregion
 }// namespace Riddle

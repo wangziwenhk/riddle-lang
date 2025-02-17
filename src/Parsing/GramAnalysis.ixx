@@ -33,7 +33,7 @@ export namespace Riddle {
             root->addSemNode(body);
             for(const auto i: ctx->children) {
                 auto result = visit(i);
-                if(result.type() == typeid(nullptr)) {
+                if(!result.has_value() || result.type() == typeid(nullptr)) {
                     continue;
                 }
                 if(result.type() != typeid(SemNode *)) {
@@ -344,6 +344,37 @@ export namespace Riddle {
             const auto incr = std::any_cast<SemNode *>(visit(ctx->incr));
             const auto body = std::any_cast<SemNode *>(visit(ctx->body));
             SemNode *node = new ForNode(init, cond, incr, body);
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitImportStatement(RiddleParser::ImportStatementContext *ctx) override {
+            if(ctx->depth() != 3) {
+                throw std::runtime_error("GramAnalysis: Import Size Error");
+            }
+            return {};
+        }
+
+        std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override {
+            const auto define = new ClassDefineNode(ctx->className->getText());
+            if(ctx->parentClass) {
+                define->parentClass = ctx->parentClass->getText();
+            }
+            for(const auto i: ctx->body->children) {
+                auto v = visit(i);
+                if(!v.has_value()) continue;
+                const auto result = std::any_cast<SemNode *>(v);
+                if(result->getSemType() == SemNode::VarDefineNodeType) {
+                    define->members.push_back(dynamic_cast<VarDefineNode *>(result));
+                } else if(result->getSemType() == SemNode::FuncDefineNodeType) {
+                    const auto func = dynamic_cast<FuncDefineNode *>(result);
+                    if(define->functions.contains(func->name)) {
+                        throw std::runtime_error(std::format("GramAnalysis: Function {} already exists", func->name));
+                    }
+                    define->functions[func->name] = func;
+                }
+            }
+            SemNode *node = define;
             root->addSemNode(node);
             return node;
         }

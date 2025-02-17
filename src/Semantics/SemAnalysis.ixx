@@ -1,5 +1,6 @@
 module;
 #include <any>
+#include <ranges>
 #include <stdexcept>
 #include <vector>
 export module Semantics.SemAnalysis;
@@ -26,14 +27,16 @@ export namespace Riddle {
         std::any visitVarDefine(VarDefineNode *node) override {
             const auto obj = new SemVariable(node);
             context.addSemObject(obj);
-            visit(node->value);
+            if(node->value) {
+                visit(node->value);
+            }
             if(node->type->isUnknown()) {
                 if(node->value != nullptr) {
                     node->type = node->value->getType();
                 } else {
                     throw std::runtime_error("Null VarDefine");
                 }
-            } else if(*node->type != *node->value->getType()) {
+            } else if(node->value && *node->type != *node->value->getType()) {
                 throw std::runtime_error("Type mismatch");
             }
             return {};
@@ -55,6 +58,36 @@ export namespace Riddle {
                 *node->getType() = *var->getType();
                 return {};
             }
+            return {};
+        }
+
+        std::any visitClassDefine(ClassDefineNode *node) override {
+            if(!node->parentClass.empty()) {
+                const auto obj = context.getSemObject(node->parentClass);
+                if(obj == nullptr) {
+                    throw std::runtime_error("Null ClassDefine");
+                }
+                if(obj->getSemObjType() != SemObject::Class) {
+                    throw std::runtime_error("Object is not a class");
+                }
+                const SemClass *parentClass = dynamic_cast<SemClass *>(obj);
+                // 拷贝成员定义
+                node->members.insert(node->members.begin(), parentClass->define->members.begin(), parentClass->define->members.end());
+                // 拷贝函数定义
+                for(auto i: parentClass->define->functions) {
+                    node->functions.insert(i);
+                }
+            }
+            const auto obj = new SemClass(node);
+            context.addSemObject(obj);
+            context.push();
+            for(const auto i: node->members) {
+                visit(i);
+            }
+            for(const auto i: node->functions | std::views::values) {
+                visit(i);
+            }
+            context.pop();
             return {};
         }
 
