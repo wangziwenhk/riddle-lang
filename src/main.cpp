@@ -16,7 +16,7 @@ int main(const int argc, char *argv[]) {
         buildQueue.start();
     }
     catch(const std::exception &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 
     return 0;
