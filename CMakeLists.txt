@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Riddle_Language VERSION 0.1 LANGUAGES CXX)
+project(riddle-lang VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,12 +43,12 @@ file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 file(GLOB_RECURSE MODULE_FILES "src/*.ixx")
 
 # 添加 模块编译
-add_library(Riddle_Module ${SOURCE_FILES})
+add_library(riddle-module ${SOURCE_FILES})
 
-target_sources(Riddle_Module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
+target_sources(riddle-module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 
 # 添加 主编译目标
-add_executable(Riddle_Language ${SOURCE_FILES} ${AST_FILES})
+add_executable(riddle-lang ${SOURCE_FILES} ${AST_FILES})
 
 if (MSVC)
     add_compile_options(/wd4819)
@@ -56,12 +56,12 @@ endif ()
 
 
 # 添加 编译配置
-target_compile_definitions(Riddle_Language PRIVATE ${PLATFORM_DEFINES})
+target_compile_definitions(riddle-lang PRIVATE ${PLATFORM_DEFINES})
 #target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
 
 llvm_map_components_to_libnames(llvm_libs linker core irreader support analysis passes)
 message(STATUS "LLVM libraries: ${llvm_libs}")
 
-target_link_libraries(Riddle_Language ${llvm_libs})
-target_link_libraries(Riddle_Language Riddle_Module)
-target_link_libraries(Riddle_Language antlr4_shared)
+target_link_libraries(riddle-lang ${llvm_libs})
+target_link_libraries(riddle-lang riddle-module)
+target_link_libraries(riddle-lang antlr4_shared)
