@@ -206,6 +206,7 @@ export namespace Riddle {
         std::vector<ArgNode *> args;
         BlockNode *body;
         TypeNode *returnType;
+        llvm::Function* llvmFunction = nullptr;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };

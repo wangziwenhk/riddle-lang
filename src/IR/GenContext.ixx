@@ -35,24 +35,25 @@ export namespace Riddle {
     class GenFunction final : public GenObject {
     public:
         FuncDefineNode *define;
-        llvm::FunctionCallee func;
-        GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define), func(func) {}
+        llvm::Function* llvmFunction;
+        GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define), llvmFunction(func) {}
     };
 
     class GenClass final : public GenObject {
     public:
-        // todo 实现class
-        GenClass(): GenObject(Class, "") {}
+        ClassDefineNode *define;
+        llvm::StructType *type = nullptr;
+        explicit GenClass(ClassDefineNode *define): GenObject(Class, define->name), define(define) {}
 
-        [[nodiscard]] llvm::Type *getLLVMType() {
-            throw std::runtime_error("Not implemented");
+        [[nodiscard]] llvm::Type *getLLVMType() const {
+            return type;
         }
     };
 
     class GenContext {
         std::unordered_map<std::string, std::stack<std::unique_ptr<GenObject>>> objects;
         std::stack<std::unordered_set<std::string>> defines;
-        std::stack<llvm::Function *> functions;
+        std::stack<GenFunction *> functions;
 
     public:
         llvm::LLVMContext *llvmContext;
@@ -64,7 +65,7 @@ export namespace Riddle {
                                                              llvmModule(new llvm::Module("", *llvmContext)),
                                                              builder(*llvmContext) {}
 
-        void pushFunc(llvm::Function *func) {
+        void pushFunc(GenFunction *func) {
             functions.push(func);
         }
 
@@ -72,7 +73,7 @@ export namespace Riddle {
             functions.pop();
         }
 
-        llvm::Function *getNowFunc() {
+        GenFunction *getNowFunc() {
             return functions.top();
         }
 

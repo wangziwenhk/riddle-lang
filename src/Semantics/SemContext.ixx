@@ -73,7 +73,7 @@ export namespace Riddle {
 
         explicit SemClass(ClassDefineNode *define): SemObject(Class), define(define) {}
 
-        std::string getName() const override {
+        [[nodiscard]] std::string getName() const override {
             return define->name;
         }
     };
