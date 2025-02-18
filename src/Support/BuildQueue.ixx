@@ -3,22 +3,20 @@ module;
 #include "RiddleParser.h"
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
-#include <llvm/Linker/Linker.h>
 #include <queue>
 #include <ranges>
 #include <string>
 #include <unordered_map>
 #include <vector>
 export module Support.BuildQueue;
-import Visitors.StmtVisitor;
 import Types.Unit;
-import IR.ParserStmt;
 import Manager.ErrorManager;
 import Support.Options;
-import Visitor.PackageVisitor;
-import IR.Context;
-import IR.Statements;
-import Support.Linker;
+import Parsing.PackageVisitor;
+import Parsing.GramAnalysis;
+import Semantics.SemAnalysis;
+import Semantics.SemNode;
+import IR.GenCode;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -103,29 +101,26 @@ export namespace Riddle {
                 }
             }
 
-            std::unordered_map<std::string,Context*> libContexts;
 
-            auto llvm_ctx = new llvm::LLVMContext();
+            const auto llvm_ctx = new llvm::LLVMContext();
             // 依次编译
             for(auto i: buildList) {
-                auto context = new Context(llvm_ctx);
-                libContexts[i.data()] = context;
+                GenContext context(llvm_ctx);
                 // 编译同一个包下的所有对象
                 for(const auto &j: libSource[i.data()]) {
                     // link 其他 Context
                     for(const auto& lib :j.getImports()) {
-                        Linker::linkContext(*context,*libContexts[lib]);
+                        // todo 实现 linker
                     }
-                    StmtVisitor visitor(*context, j.parser);
-                    const auto it = any_cast<ProgramStmt *>(visitor.visit(j.parseTree));
-                    ParserStmt ps(context, j);
-                    ps.accept(it);
+                    GramAnalysis gram{};
+                    const auto programNode = std::any_cast<ProgramNode*>(gram.visit(j.parseTree));
+                    SemAnalysis sem_analysis{};
+                    sem_analysis.visit(programNode);
+                    GenCode genCode(context,j);
+                    genCode.visit(programNode);
                 }
             }
-
-            for(auto val: libContexts | std::views::values) {
-                delete val;
-            }
+            delete llvm_ctx;
         }
     };
 }// namespace Riddle

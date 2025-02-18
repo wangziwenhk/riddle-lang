@@ -59,9 +59,9 @@ importStatement
     ;
 
 varDefineStatement
-    : Var name=Identifier Colon type=typeUsed
-    | Var name=Identifier Assign value=expression
-    | Var name=Identifier Colon type=typeUsed Assign value=expression
+    : Var name=id Colon type=typeUsed
+    | Var name=id Assign value=expression
+    | Var name=id Colon type=typeUsed Assign value=expression
     ;
 
 argsExpr
@@ -69,18 +69,18 @@ argsExpr
     ;
 
 defineArgs
-    : ((Identifier Colon typeUsed Comma)* (Identifier Colon typeUsed))?
+    : ((id Colon typeUsed Comma)* (id Colon typeUsed))?
     ;
 
 funcDefine
-    : (tmpl=tmpleDefine)? Endl? mod=modifierList Func funcName=Identifier LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeUsed)? body=bodyExpr
+    : (tmpl=tmpleDefine)? Endl? mod=modifierList Func funcName=id LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeUsed)? body=bodyExpr
     ;
 forStatement
-    : For LeftBracket (init=statement)? Semi (termCond=statement)? Semi (selfVar=statement)? RightBracket body=statement_ed
+    : For LeftBracket (init=statement)? Semi (cond=statement)? Semi (incr=statement)? RightBracket body=statement_ed
     ;
 
 whileStatement
-    : While LeftBracket runCond=expression RightBracket body=statement_ed
+    : While LeftBracket cond=expression RightBracket body=statement_ed
     ;
 
 continueStatement
@@ -114,8 +114,8 @@ catchExpr
 
 // 这一块就是使用
 exprPtr
-    : funcName=Identifier (tmpl=tmplUsed)? LeftBracket args=argsExpr RightBracket    #funcExpr
-    | Identifier                                                    #objectExpr
+    : funcName=id (tmpl=tmplUsed)? LeftBracket args=argsExpr RightBracket    #funcExpr
+    | id                                                    #objectExpr
     | parents=exprPtr Dot child=exprPtr                             #blendExpr
     ;
 
