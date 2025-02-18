@@ -158,6 +158,9 @@ export namespace Riddle {
         std::any visitFuncCall(FuncCallNode *node) override {
             const auto obj = context.getSemObject(node->name);
             const auto func = dynamic_cast<SemFunction *>(obj);
+            if(func == nullptr) {
+                throw std::runtime_error("Null FuncCall");
+            }
             if(obj->getSemObjType() != SemObject::Function) {
                 throw std::runtime_error("Object is not a function");
             }

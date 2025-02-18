@@ -6,6 +6,7 @@ module;
 #include <queue>
 #include <ranges>
 #include <string>
+#include <termcolor/termcolor.hpp>
 #include <unordered_map>
 #include <vector>
 export module Support.BuildQueue;
@@ -67,7 +68,8 @@ export namespace Riddle {
         // 拓扑排序
         void start() {
             if(!libSource.contains("main")) {
-                std::cerr << R"(Not Found "main" package)" << std::endl;
+                std::cout<<termcolor::red << R"(Not Found "main" package)" << std::endl;
+                return;
             }
             // 处理入度
             std::unordered_map<std::string_view, int> in;
