@@ -68,7 +68,7 @@ export namespace Riddle {
         // 拓扑排序
         void start() {
             if(!libSource.contains("main")) {
-                std::cout<<termcolor::red << R"(Not Found "main" package)" << std::endl;
+                std::cerr<< R"(Not Found "main" package)" << std::endl;
                 return;
             }
             // 处理入度
