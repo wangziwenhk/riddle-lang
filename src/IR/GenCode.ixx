@@ -5,17 +5,24 @@ module;
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/raw_ostream.h>
-#include <vector>
 #include <ranges>
+#include <vector>
 export module IR.GenCode;
 export import IR.GenContext;
 import Semantics.SemNode;
 import Types.Unit;
+namespace Riddle {
+    template<typename T, typename SrcT = GenObject>
+    T *unpacking(std::any value) {
+        return dynamic_cast<T *>(std::any_cast<SrcT *>(value));
+    }
+}// namespace Riddle
 export namespace Riddle {
     class GenCode final : public SemNodeVisitor {
-        auto parserType(TypeNode* node) {
-            return std::any_cast<llvm::Type*>(visitType(node));
+        auto parserType(TypeNode *node) {
+            return std::any_cast<llvm::Type *>(visitType(node));
         }
+
     protected:
         GenContext &context;
         const Unit &unit;
@@ -53,6 +60,12 @@ export namespace Riddle {
             return value;
         }
 
+        std::any visitArg(ArgNode *node) override {
+            const auto obj = new GenVariable(node);
+            context.addObject(obj);
+            return {};
+        }
+
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto name = node->name;
             if(node->returnType->llvmType == nullptr) {
@@ -76,6 +89,9 @@ export namespace Riddle {
             }
 
             const auto obj = new GenFunction(node, func);
+            if(node->theClass) {
+                obj->is_weak = true;
+            }
             context.addObject(obj);
 
             const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
@@ -83,6 +99,13 @@ export namespace Riddle {
 
             context.push();
             context.pushFunc(obj);
+
+            auto args = func->arg_begin();
+            for(const auto & arg : node->args) {
+                arg->alloca->alloca = args;
+                args++;
+                visit(arg);
+            }
 
             for(const auto i: *node->body) {
                 visit(i);
@@ -93,7 +116,8 @@ export namespace Riddle {
 
             verifyFunction(*func);
 
-            return {};
+            GenObject *result = obj;
+            return result;
         }
 
         std::any visitObject(ObjectNode *node) override {
@@ -104,7 +128,7 @@ export namespace Riddle {
             }
             const auto type = parserType(node->getType());
             const auto var = dynamic_cast<GenVariable *>(obj);
-            llvm::Value *result = var->define->alloca->alloca;
+            llvm::Value *result = var->alloca;
             if(node->isLoad) {
                 const auto load = context.builder.CreateLoad(type, result);
                 result = load;
@@ -263,13 +287,16 @@ export namespace Riddle {
             context.addObject(obj);
             // 获取memberType
             std::vector<llvm::Type *> memberTypes;
-            for(const auto i:node->members) {
+            for(const auto i: node->members) {
                 memberTypes.push_back(parserType(i->type));
             }
             obj->type->setBody(memberTypes);
-            for(const auto i:node->functions | std::views::values) {
-                visit(i);
+            context.push();
+            for(const auto i: node->functions | std::views::values) {
+                const auto func = unpacking<GenFunction>(visit(i));
+                obj->addFunc(func);
             }
+            context.pop();
             return {};
         }
     };

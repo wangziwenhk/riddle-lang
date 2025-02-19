@@ -4,6 +4,7 @@ module;
 #include <stack>
 #include <unordered_set>
 #include <utility>
+#include <ranges>
 export module IR.GenContext;
 import Semantics.SemNode;
 export namespace Riddle {
@@ -20,6 +21,8 @@ export namespace Riddle {
 
     public:
         std::string name;
+        /// 表示 context 是否拥有该对象的所有权
+        bool is_weak = false;
         explicit GenObject(const GenObjectType type, std::string name): type_id(type), name(std::move(name)) {}
         virtual ~GenObject() = default;
 
@@ -27,9 +30,19 @@ export namespace Riddle {
     };
 
     class GenVariable final : public GenObject {
+
     public:
-        VarDefineNode *define;
-        explicit GenVariable(VarDefineNode *define): GenObject(Variable, define->name), define(define) {}
+        explicit GenVariable(const VarDefineNode *define): GenObject(Variable, define->name) {
+            alloca = define->alloca->alloca;
+            type = define->type;
+        }
+        explicit GenVariable(const ArgNode* define):GenObject(Variable,define->name) {
+            alloca = define->alloca->alloca;
+            type = define->type;
+        }
+
+        llvm::Value* alloca;
+        TypeNode* type;
     };
 
     class GenFunction final : public GenObject {
@@ -40,18 +53,39 @@ export namespace Riddle {
     };
 
     class GenClass final : public GenObject {
+        std::unordered_map<std::string,GenFunction*>functions;
     public:
         ClassDefineNode *define;
         llvm::StructType *type = nullptr;
         explicit GenClass(ClassDefineNode *define): GenObject(Class, define->name), define(define) {}
 
-        [[nodiscard]] llvm::Type *getLLVMType() const {
+        ~GenClass() override {
+            for(const auto i:functions | std::views::values) {
+                delete i;
+            }
+        }
+
+        [[nodiscard]] llvm::Type *getLLVMType() const noexcept{
             return type;
+        }
+
+        void addFunc(GenFunction *func) {
+            if(functions.contains(func->name)) {
+                throw std::logic_error("Function " + func->name + " all exist");
+            }
+            functions[func->name] = func;
+        }
+
+        GenFunction *getFunc(const std::string &name) const {
+            if(!functions.contains(name)) {
+                throw std::logic_error("Function " + name + " does not exist");
+            }
+            return functions.at(name);
         }
     };
 
     class GenContext {
-        std::unordered_map<std::string, std::stack<std::unique_ptr<GenObject>>> objects;
+        std::unordered_map<std::string, std::stack<GenObject*>> objects;
         std::stack<std::unordered_set<std::string>> defines;
         std::stack<GenFunction *> functions;
 
@@ -65,7 +99,7 @@ export namespace Riddle {
                                                              llvmModule(new llvm::Module("", *llvmContext)),
                                                              builder(*llvmContext) {}
 
-        void pushFunc(GenFunction *func) {
+        void pushFunc(GenFunction *func)  {
             functions.push(func);
         }
 
@@ -89,7 +123,7 @@ export namespace Riddle {
             if(!objects.contains(name)) {
                 throw std::runtime_error(std::format("Object '{}' does not exist", name));
             }
-            return objects[name].top().get();
+            return objects[name].top();
         }
 
         void push() {
@@ -98,9 +132,13 @@ export namespace Riddle {
 
         void pop() {
             for(const auto &i: defines.top()) {
+                const auto ptr = objects.at(i).top();
                 objects.at(i).pop();
                 if(objects.at(i).empty()) {
                     objects.erase(i);
+                }
+                if(!ptr->is_weak) {
+                    delete ptr;
                 }
             }
             defines.pop();

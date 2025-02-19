@@ -32,20 +32,32 @@ export namespace Riddle {
     };
 
     class SemVariable final : public SemObject {
-    public:
-        VarDefineNode *define;
-        explicit SemVariable(VarDefineNode *def): SemObject(Variable), define(def) {}
+        TypeNode *type;
+        std::string name;
+        ExprNode *value;
 
-        [[nodiscard]] TypeNode *&getType() const {
-            return define->type;
+    public:
+        explicit SemVariable(const VarDefineNode *def): SemObject(Variable) {
+            type = def->type;
+            name = def->name;
+            value = def->value;
+        }
+
+        explicit SemVariable(const ArgNode *def): SemObject(Variable), value(nullptr) {
+            type = def->type;
+            name = def->name;
+        }
+
+        [[nodiscard]] TypeNode *&getType() {
+            return type;
         }
 
         [[nodiscard]] std::string getName() const override {
-            return define->name;
+            return name;
         }
 
-        [[nodiscard]] ExprNode *&getValue() const {
-            return define->value;
+        [[nodiscard]] ExprNode *&getValue() {
+            return value;
         }
     };
 
@@ -82,6 +94,7 @@ export namespace Riddle {
     protected:
         std::pmr::unordered_map<std::string, std::stack<std::unique_ptr<SemObject>>> symbols{};
         std::stack<std::unordered_set<std::string>> defines;
+        std::stack<SemClass *> classes;
 
     public:
         SemContext(): defines() {}
@@ -98,6 +111,24 @@ export namespace Riddle {
                 }
             }
             defines.pop();
+        }
+
+        void pushClass(SemClass *theClass) {
+            classes.push(theClass);
+        }
+
+        void popClass() {
+            if(classes.empty()) {
+                return;
+            }
+            classes.pop();
+        }
+
+        SemClass *getNowClass() {
+            if(classes.empty()) {
+                return nullptr;
+            }
+            return classes.top();
         }
 
         size_t deep() const {

@@ -84,9 +84,11 @@ export namespace Riddle {
             for(const auto i: node->members) {
                 visit(i);
             }
+            context.pushClass(obj);
             for(const auto i: node->functions | std::views::values) {
                 visit(i);
             }
+            context.popClass();
             context.pop();
             return {};
         }
@@ -143,11 +145,23 @@ export namespace Riddle {
             }
         }
 
+        std::any visitArg(ArgNode *node) override {
+            const auto obj = new SemVariable(node);
+            context.addSemObject(obj);
+            return {};
+        }
+
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto obj = new SemFunction(node);
             context.addSemObject(obj);
             visitPreAlloca(node->body, node);
+            if(context.getNowClass()) {
+                node->theClass = context.getNowClass()->define;
+            }
             context.push();
+            for(const auto i:node->args) {
+                visit(i);
+            }
             for(const auto i: *node->body) {
                 visit(i);
             }
