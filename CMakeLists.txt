@@ -25,11 +25,13 @@ find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
 find_package(LLVM REQUIRED CONFIG)
 find_package(antlr4-runtime CONFIG REQUIRED)
 find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
+find_package(argparse CONFIG REQUIRED)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
 message(STATUS "Found Termcolor include ${TERMCOLOR_INCLUDE_DIRS}")
+message(STATUS "Found ArgParse include ${ARGPARSE_INCLUDE_DIRS}")
 
 include_directories(src)
 include_directories(parser)
@@ -48,7 +50,7 @@ add_library(riddle-module ${SOURCE_FILES})
 target_sources(riddle-module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 
 # 添加 主编译目标
-add_executable(riddle-lang ${SOURCE_FILES} ${AST_FILES})
+add_executable(riddle ${SOURCE_FILES} ${AST_FILES})
 
 if (MSVC)
     add_compile_options(/wd4819)
@@ -56,12 +58,13 @@ endif ()
 
 
 # 添加 编译配置
-target_compile_definitions(riddle-lang PRIVATE ${PLATFORM_DEFINES})
+target_compile_definitions(riddle PRIVATE ${PLATFORM_DEFINES})
 #target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
 
 llvm_map_components_to_libnames(llvm_libs linker core irreader support analysis passes)
 message(STATUS "LLVM libraries: ${llvm_libs}")
 
-target_link_libraries(riddle-lang ${llvm_libs})
-target_link_libraries(riddle-lang riddle-module)
-target_link_libraries(riddle-lang antlr4_shared)
+target_link_libraries(riddle ${llvm_libs})
+target_link_libraries(riddle riddle-module)
+target_link_libraries(riddle antlr4_shared)
+target_link_libraries(riddle argparse::argparse)
