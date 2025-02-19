@@ -256,7 +256,9 @@ export namespace Riddle {
                     type = unpacking<TypeNode>(visit(i));
                 }
                 if(!name.empty() && type != nullptr) {
-                    auto arg = new ArgNode(name, type);
+                    const auto alloca = new AllocaNode(type);
+                    root->addSemNode(alloca);
+                    auto arg = new ArgNode(name, type, alloca);
                     args.push_back(arg);
                     name.clear();
                     type = nullptr;
@@ -305,7 +307,11 @@ export namespace Riddle {
             std::vector<ExprNode *> args;
             args.reserve((ctx->children.size() >> 1) + 1);
             for(const auto i: ctx->children) {
-                auto it = unpacking<ExprNode>(visit(i));
+                auto t = visit(i);
+                if(!t.has_value()) {
+                    continue;
+                }
+                auto it = unpacking<ExprNode>(t);
                 args.emplace_back(it);
             }
             return args;

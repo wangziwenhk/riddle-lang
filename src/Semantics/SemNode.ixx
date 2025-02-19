@@ -2,13 +2,14 @@ module;
 #include <any>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <ranges>
 #include <string>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <ranges>
 export module Semantics.SemNode;
 export namespace Riddle {
+    class ClassDefineNode;
     class AllocaNode;
     class SemNodeVisitor;
 #pragma region SemNode
@@ -180,7 +181,11 @@ export namespace Riddle {
 
     class ArgNode final : public SemNode {
     public:
-        ArgNode(std::string name, TypeNode *type): SemNode(ArgNodeType), name(std::move(name)), type(type) {}
+        ArgNode(std::string name, TypeNode *type, AllocaNode *alloca): SemNode(ArgNodeType), name(std::move(name)), type(type) {
+            this->alloca = alloca;
+        }
+
+        AllocaNode *alloca;
 
         std::string name;
         TypeNode *type;
@@ -206,7 +211,8 @@ export namespace Riddle {
         std::vector<ArgNode *> args;
         BlockNode *body;
         TypeNode *returnType;
-        llvm::Function* llvmFunction = nullptr;
+        llvm::Function *llvmFunction = nullptr;
+        ClassDefineNode *theClass = nullptr;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -415,7 +421,7 @@ export namespace Riddle {
             }
             return result;
         }
-        virtual std::any visitArgNode(ArgNode *node) {
+        virtual std::any visitArg(ArgNode *node) {
             return {};
         }
         virtual std::any visitFuncDefine(FuncDefineNode *node) {
@@ -480,10 +486,10 @@ export namespace Riddle {
             return {};
         }
         virtual std::any visitClassDefine(ClassDefineNode *node) {
-            for(const auto i:node->members) {
+            for(const auto i: node->members) {
                 i->accept(*this);
             }
-            for(const auto i:node->functions | std::views::values) {
+            for(const auto i: node->functions | std::views::values) {
                 i->accept(*this);
             }
             return {};
@@ -515,7 +521,7 @@ export namespace Riddle {
     }
 
     inline std::any ArgNode::accept(SemNodeVisitor &visitor) {
-        return visitor.visitArgNode(this);
+        return visitor.visitArg(this);
     }
 
     inline std::any PackageNode::accept(SemNodeVisitor &visitor) {
