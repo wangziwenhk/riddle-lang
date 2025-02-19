@@ -299,5 +299,10 @@ export namespace Riddle {
             context.pop();
             return {};
         }
+        std::any visitReturn(ReturnNode *node) override {
+            const auto result = std::any_cast<llvm::Value*>(visit(node->value));
+            context.builder.CreateRet(result);
+            return {};
+        }
     };
 }// namespace Riddle

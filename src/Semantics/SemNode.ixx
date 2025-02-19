@@ -37,6 +37,7 @@ export namespace Riddle {
             IfNodeType,
             WhileNodeType,
             ForNodeType,
+            ReturnNodeType,
 
             ClassDefineNodeType,
         };
@@ -213,6 +214,14 @@ export namespace Riddle {
         TypeNode *returnType;
         llvm::Function *llvmFunction = nullptr;
         ClassDefineNode *theClass = nullptr;
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class ReturnNode final : public SemNode {
+    public:
+        ExprNode *value;
+        explicit ReturnNode(ExprNode *value): SemNode(ReturnNodeType), value(value) {}
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -494,6 +503,10 @@ export namespace Riddle {
             }
             return {};
         }
+        virtual std::any visitReturn(ReturnNode *node) {
+            node->value->accept(*this);
+            return {};
+        }
         virtual ~SemNodeVisitor() = default;
     };
 #pragma endregion
@@ -518,6 +531,9 @@ export namespace Riddle {
 
     inline std::any FuncDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFuncDefine(this);
+    }
+    std::any ReturnNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitReturn(this);
     }
 
     inline std::any ArgNode::accept(SemNodeVisitor &visitor) {
