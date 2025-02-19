@@ -290,6 +290,13 @@ export namespace Riddle {
             return node;
         }
 
+        std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override {
+            const auto value = unpacking<ExprNode>(visit(ctx->result));
+            SemNode* node = new ReturnNode(value);
+            root->addSemNode(node);
+            return node;
+        }
+
         std::any visitObjectExpr(RiddleParser::ObjectExprContext *ctx) override {
             const std::string name = ctx->getText();
             const auto type = new TypeNode(TypeNode::unknown);
