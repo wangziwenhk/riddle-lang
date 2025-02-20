@@ -1,10 +1,10 @@
 module;
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
+#include <ranges>
 #include <stack>
 #include <unordered_set>
 #include <utility>
-#include <ranges>
 export module IR.GenContext;
 import Semantics.SemNode;
 export namespace Riddle {
@@ -33,39 +33,46 @@ export namespace Riddle {
 
     public:
         explicit GenVariable(const VarDefineNode *define): GenObject(Variable, define->name) {
+            if(define == nullptr) {
+                throw std::runtime_error("ptr is nullptr");
+            }
             alloca = define->alloca->alloca;
             type = define->type;
         }
-        explicit GenVariable(const ArgNode* define):GenObject(Variable,define->name) {
+        explicit GenVariable(const ArgNode *define): GenObject(Variable, define->name) {
+            if(define == nullptr) {
+                throw std::runtime_error("ptr is nullptr");
+            }
             alloca = define->alloca->alloca;
             type = define->type;
         }
 
-        llvm::Value* alloca;
-        TypeNode* type;
+        llvm::Value *alloca;
+        TypeNode *type;
     };
 
     class GenFunction final : public GenObject {
     public:
         FuncDefineNode *define;
-        llvm::Function* llvmFunction;
+        llvm::Function *llvmFunction;
         GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define), llvmFunction(func) {}
     };
 
     class GenClass final : public GenObject {
-        std::unordered_map<std::string,GenFunction*>functions;
+        std::unordered_map<std::string, GenFunction *> functions;
+
     public:
         ClassDefineNode *define;
         llvm::StructType *type = nullptr;
         explicit GenClass(ClassDefineNode *define): GenObject(Class, define->name), define(define) {}
 
         ~GenClass() override {
-            for(const auto i:functions | std::views::values) {
+            for(const auto i: functions | std::views::values) {
                 delete i;
             }
         }
 
-        [[nodiscard]] llvm::Type *getLLVMType() const noexcept{
+        [[nodiscard]] llvm::Type *getLLVMType() const noexcept {
             return type;
         }
 
@@ -85,7 +92,7 @@ export namespace Riddle {
     };
 
     class GenContext {
-        std::unordered_map<std::string, std::stack<GenObject*>> objects;
+        std::unordered_map<std::string, std::stack<GenObject *>> objects;
         std::stack<std::unordered_set<std::string>> defines;
         std::stack<GenFunction *> functions;
 
@@ -99,7 +106,7 @@ export namespace Riddle {
                                                              llvmModule(new llvm::Module("", *llvmContext)),
                                                              builder(*llvmContext) {}
 
-        void pushFunc(GenFunction *func)  {
+        void pushFunc(GenFunction *func) {
             functions.push(func);
         }
 

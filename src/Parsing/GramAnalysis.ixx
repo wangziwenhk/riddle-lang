@@ -291,8 +291,14 @@ export namespace Riddle {
         }
 
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override {
-            const auto value = unpacking<ExprNode>(visit(ctx->result));
-            SemNode* node = new ReturnNode(value);
+            SemNode* node;
+            if(ctx->result) {
+                const auto value = unpacking<ExprNode>(visit(ctx->result));
+                 node = new ReturnNode(value);
+            }
+            else {
+                node = new ReturnNode();
+            }
             root->addSemNode(node);
             return node;
         }

@@ -126,6 +126,7 @@ export namespace Riddle {
     class TypeNode : public SemNode {
     public:
         static constexpr std::string unknown = "@unknown";
+        static constexpr std::string Void = "void";
 
         explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType): SemNode(type_id), name(std::move(name)) {}
 
@@ -136,6 +137,10 @@ export namespace Riddle {
 
         [[nodiscard]] bool isUnknown() const {
             return name == unknown;
+        }
+
+        [[nodiscard]] bool isVoid() const {
+            return name == Void;
         }
 
         bool operator==(const TypeNode &node) const {
@@ -221,6 +226,7 @@ export namespace Riddle {
     class ReturnNode final : public SemNode {
     public:
         ExprNode *value;
+        ReturnNode(): SemNode(ReturnNodeType), value(nullptr) {}
         explicit ReturnNode(ExprNode *value): SemNode(ReturnNodeType), value(value) {}
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -504,7 +510,7 @@ export namespace Riddle {
             return {};
         }
         virtual std::any visitReturn(ReturnNode *node) {
-            node->value->accept(*this);
+            if(node->value) node->value->accept(*this);
             return {};
         }
         virtual ~SemNodeVisitor() = default;

@@ -1,5 +1,6 @@
 module;
 #include <any>
+#include <format>
 #include <ranges>
 #include <stdexcept>
 #include <vector>
@@ -55,7 +56,11 @@ export namespace Riddle {
                     throw std::runtime_error("Object is not a variable");
                 }
                 const auto var = dynamic_cast<SemVariable *>(obj);
+                if(var->is_arg) {
+                    node->isLoad = false;
+                }
                 *node->getType() = *var->getType();
+
                 return {};
             }
             return {};
@@ -159,12 +164,28 @@ export namespace Riddle {
                 node->theClass = context.getNowClass()->define;
             }
             context.push();
+            context.pushFunc(obj);
             for(const auto i:node->args) {
                 visit(i);
             }
             for(const auto i: *node->body) {
                 visit(i);
             }
+            bool has_return = false;
+            for(const auto i:*node->body) {
+                if(i->getSemType() == SemNode::ReturnNodeType) {
+                    has_return = true;
+                }
+            }
+            if(!has_return) {
+                if(!node->returnType->isVoid()) {
+                    throw std::runtime_error("Not have Return");
+                }
+                const auto s = new ReturnNode();
+                root->allSemNode.insert(s);
+                node->body->push_back(s);
+            }
+            context.popFunc();
             context.pop();
             return {};
         }
@@ -179,6 +200,23 @@ export namespace Riddle {
                 throw std::runtime_error("Object is not a function");
             }
             *node->getType() = *func->getReturnType();
+            return {};
+        }
+
+        std::any visitReturn(ReturnNode *node) override {
+            const TypeNode * type = nullptr;
+            if(node->value) {
+                type = node->value->getType();
+            }
+            const auto func = context.getNowFunc();
+            if(!func->getReturnType()->isVoid() && !type) {
+                throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",func->getReturnType()->name,"void"));
+            }
+            else if(type && func->getReturnType()->name!=type->name) {
+                throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",func->getReturnType()->name,type->name));
+            }else {
+                throw std::runtime_error("Unknown return type ERROR");
+            }
             return {};
         }
     };
