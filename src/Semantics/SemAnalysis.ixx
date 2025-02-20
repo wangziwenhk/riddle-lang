@@ -214,8 +214,6 @@ export namespace Riddle {
             }
             else if(type && func->getReturnType()->name!=type->name) {
                 throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",func->getReturnType()->name,type->name));
-            }else {
-                throw std::runtime_error("Unknown return type ERROR");
             }
             return {};
         }
