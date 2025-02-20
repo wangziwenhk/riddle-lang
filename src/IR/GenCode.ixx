@@ -63,6 +63,7 @@ export namespace Riddle {
         std::any visitArg(ArgNode *node) override {
             const auto obj = new GenVariable(node);
             context.addObject(obj);
+            obj->type->llvmType = parserType(obj->type);
             return {};
         }
 
@@ -114,7 +115,11 @@ export namespace Riddle {
             context.pop();
             context.popFunc();
 
-            verifyFunction(*func);
+            if(verifyFunction(*func, &llvm::errs())) {
+                func->eraseFromParent();
+
+                return {};
+            }
 
             GenObject *result = obj;
             return result;
@@ -300,8 +305,13 @@ export namespace Riddle {
             return {};
         }
         std::any visitReturn(ReturnNode *node) override {
-            const auto result = std::any_cast<llvm::Value*>(visit(node->value));
-            context.builder.CreateRet(result);
+            if(node->value) {
+                const auto result = std::any_cast<llvm::Value*>(visit(node->value));
+                context.builder.CreateRet(result);
+            }
+            else {
+                context.builder.CreateRetVoid();
+            }
             return {};
         }
     };

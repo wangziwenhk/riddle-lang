@@ -37,13 +37,14 @@ export namespace Riddle {
         ExprNode *value;
 
     public:
+        bool is_arg = false;
         explicit SemVariable(const VarDefineNode *def): SemObject(Variable) {
             type = def->type;
             name = def->name;
             value = def->value;
         }
 
-        explicit SemVariable(const ArgNode *def): SemObject(Variable), value(nullptr) {
+        explicit SemVariable(const ArgNode *def): SemObject(Variable), value(nullptr), is_arg(true) {
             type = def->type;
             name = def->name;
         }
@@ -95,6 +96,7 @@ export namespace Riddle {
         std::pmr::unordered_map<std::string, std::stack<std::unique_ptr<SemObject>>> symbols{};
         std::stack<std::unordered_set<std::string>> defines;
         std::stack<SemClass *> classes;
+        std::stack<SemFunction *> functions;
 
     public:
         SemContext(): defines() {}
@@ -129,6 +131,24 @@ export namespace Riddle {
                 return nullptr;
             }
             return classes.top();
+        }
+
+        void pushFunc(SemFunction *func) {
+            functions.push(func);
+        }
+
+        void popFunc() {
+            if(functions.empty()) {
+                return;
+            }
+            functions.pop();
+        }
+
+        SemFunction *getNowFunc() {
+            if(functions.empty()) {
+                return nullptr;
+            }
+            return functions.top();
         }
 
         size_t deep() const {
