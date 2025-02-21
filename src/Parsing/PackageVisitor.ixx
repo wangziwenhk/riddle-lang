@@ -3,8 +3,8 @@ module;
 #include <antlr4-runtime.h>
 export module Parsing.PackageVisitor;
 
-import Types.Unit;
-import Support.Options;
+import Support.Unit;
+import Support.File;
 export namespace Riddle {
     /// @brief 用于解析库和包的类，对于每个源文件都需要单独实例化
     class PackageVisitor final : public RiddleParserBaseVisitor {
@@ -19,7 +19,7 @@ export namespace Riddle {
             unit.addImports(ctx->libName->getText());
             return RiddleParserBaseVisitor::visitImportStatement(ctx);
         }
-        PackageVisitor(const Option &option, antlr4::tree::ParseTree *tree, RiddleParser *parser) {
+        PackageVisitor(const File &option, antlr4::tree::ParseTree *tree, RiddleParser *parser) {
             unit.parseTree = tree;
             unit.parser = parser;
             unit.setFileOption(option);

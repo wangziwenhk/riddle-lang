@@ -38,6 +38,19 @@ include_directories(parser)
 include_directories(${TERMCOLOR_INCLUDE_DIRS})
 include_directories(${ANTLR4_INCLUDE_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${ARGPARSE_INCLUDE_DIRS})
+
+execute_process(
+        COMMAND git describe --tags --always
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+configure_file(
+        "resources/config.h.in"
+        "${CMAKE_SOURCE_DIR}/src/config.h"
+)
 
 file(GLOB_RECURSE AST_FILES "parser/*.cpp" "parser/*.h")
 file(GLOB_RECURSE HEADER_FILES "src/*.h")
@@ -52,10 +65,10 @@ target_sources(riddle-module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 # 添加 主编译目标
 add_executable(riddle ${SOURCE_FILES} ${AST_FILES})
 
+
 if (MSVC)
     add_compile_options(/wd4819)
 endif ()
-
 
 # 添加 编译配置
 target_compile_definitions(riddle PRIVATE ${PLATFORM_DEFINES})

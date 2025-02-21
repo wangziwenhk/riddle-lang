@@ -1,13 +1,13 @@
 module;
-#include "RiddleParser.h"
+#include "../../parser/RiddleParser.h"
 
 
 #include <antlr4-runtime.h>
 #include <string>
 #include <utility>
 #include <vector>
-export module Types.Unit;
-import Support.Options;
+export module Support.Unit;
+import Support.File;
 using Path = std::string;
 export namespace Riddle {
     class Unit {
@@ -16,7 +16,7 @@ export namespace Riddle {
         /// @brief 导入的库，内容为包名
         std::vector<std::string> imports;
         /// @brief 文件的完整路径
-        Option option;
+        File option;
 
     public:
         RiddleParser *parser{};
@@ -24,7 +24,7 @@ export namespace Riddle {
         antlr4::tree::ParseTree *parseTree = nullptr;
 
         Unit() = default;
-        explicit Unit(Option option): option(std::move(option)) {
+        explicit Unit(File option): option(std::move(option)) {
             parser = nullptr;
         }
 
@@ -39,12 +39,12 @@ export namespace Riddle {
         }
 
         /// 设置源文件的完整路径
-        void setFileOption(const Option &option) {
+        void setFileOption(const File &option) {
             this->option = option;
         }
 
         /// 获取源文件的完整路径
-        [[nodiscard]] Option getFileOption() const {
+        [[nodiscard]] File getFileOption() const {
             return this->option;
         }
 

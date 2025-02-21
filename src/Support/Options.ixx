@@ -1,15 +1,15 @@
 module;
 #include <string>
 #include <utility>
-export module Support.Options;
+export module Support.File;
 export namespace Riddle {
-    class Option {
+    class File {
     public:
         std::string source;
         std::string output;
 
-        Option() = default;
-        explicit Option(std::string source): source(std::move(source)) {
+        File() = default;
+        explicit File(std::string source): source(std::move(source)) {
             output = this->source + ".ll";
         }
     };
