@@ -10,9 +10,9 @@ module;
 #include <unordered_map>
 #include <vector>
 export module Support.BuildQueue;
-import Types.Unit;
+import Support.Unit;
 import Manager.ErrorManager;
-import Support.Options;
+import Support.File;
 import Parsing.PackageVisitor;
 import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;
@@ -28,7 +28,7 @@ export namespace Riddle {
 
     public:
         /// @brief 用于解析某个源文件
-        void parserFile(const Option& option) {
+        void parserFile(const File& option) {
             std::ifstream stream(option.source);
             const auto input = new antlr4::ANTLRInputStream(stream);
             const auto lexer = new RiddleLexer(input);
