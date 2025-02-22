@@ -33,7 +33,7 @@ export namespace Riddle {
             }
             if(node->type->isUnknown()) {
                 if(node->value != nullptr) {
-                    node->type = node->value->getType();
+                    *node->type = *node->value->getType();
                 } else {
                     throw std::runtime_error("Null VarDefine");
                 }
@@ -206,6 +206,7 @@ export namespace Riddle {
         std::any visitReturn(ReturnNode *node) override {
             const TypeNode * type = nullptr;
             if(node->value) {
+                visit(node->value);
                 type = node->value->getType();
             }
             const auto func = context.getNowFunc();
