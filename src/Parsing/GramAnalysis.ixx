@@ -367,7 +367,7 @@ export namespace Riddle {
         }
 
         std::any visitImportStatement(RiddleParser::ImportStatementContext *ctx) override {
-            if(ctx->depth() != 3) {
+            if(ctx->depth() != 4) {
                 throw std::runtime_error("GramAnalysis: Import Size Error");
             }
             return {};
@@ -399,13 +399,13 @@ export namespace Riddle {
 
         std::any visitBlendExpr(RiddleParser::BlendExprContext *context) override {
             const auto parent = unpacking<ExprNode>(visit(context->parentNode));
-            const auto child = unpacking<ObjectNode>(visit(context->childNode));
-            const auto node = new BlendNode(parent, child, root);
+            const auto child = unpacking<ExprNode>(visit(context->childNode));
+            const auto node = new BlendNode(parent, child, root, BlendNode::Unknown);
             root->addSemNode(node);
-            if(antlrcpp::is<RiddleParser::PtrExprContext*>(context->parent)) {
+            if(antlrcpp::is<RiddleParser::PtrExprContext *>(context->parent)) {
                 node->isLoad = true;
             }
-            SemNode* result = node;
+            SemNode *result = node;
             return result;
         }
     };

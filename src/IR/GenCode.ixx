@@ -25,10 +25,10 @@ export namespace Riddle {
 
     protected:
         GenContext &context;
-        const Unit &unit;
+        Unit &unit;
 
     public:
-        explicit GenCode(GenContext &context, const Unit &unit): context(context), unit(unit) {}
+        explicit GenCode(GenContext &context, Unit &unit): context(context), unit(unit) {}
         std::any visitProgram(ProgramNode *node) override {
             context.llvmModule->setModuleIdentifier(unit.getPackName());
             for(const auto i: *node->body) {
@@ -133,8 +133,7 @@ export namespace Riddle {
             const auto var = dynamic_cast<GenVariable *>(obj);
             llvm::Value *result = var->alloca;
             if(node->isLoad) {
-                const auto load = context.builder->CreateLoad(type, result);
-                result = load;
+                result = context.builder->CreateLoad(type, result);
             }
             return result;
         }
@@ -316,36 +315,34 @@ export namespace Riddle {
             return {};
         }
 
+
         std::any visitBlend(BlendNode *node) override {
-            const auto parent = std::any_cast<llvm::Value *>(visit(node->parent));
+            if(node->blend_type == BlendNode::Member) {
+                const auto parent = std::any_cast<llvm::Value *>(visit(node->parent));
+                const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
+                if(!theClass) {
+                    throw std::runtime_error("Parent Not a class");
+                }
 
-            const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
+                theClass->define->buildMembers();
+                const auto child = dynamic_cast<ObjectNode *>(node->child);
+                const auto [member, index] = theClass->define->getMember(child->name);
+                llvm::Value *result;
+                const auto parentType = parserType(node->parent->getType());
 
-            if(!theClass) {
-                throw std::runtime_error("Parent Not a class");
+                if(parent->getType()->isPointerTy()) {
+                    result = context.builder->CreateStructGEP(parentType, parent, index);
+                } else {
+                    result = context.builder->CreateExtractValue(parent, index);
+                }
+
+                if(node->isLoad && result->getType()->isPointerTy()) {
+                    result = context.builder->CreateLoad(parserType(member->type), result);
+                }
+
+                return result;
             }
-
-            theClass->define->buildMembers();
-
-            const auto member = theClass->define->getMember(node->child->name);
-            const auto index = member.second;
-            const auto childType = parserType(member.first->type);
-
-            llvm::Value *result;
-
-            const auto parentType = parserType(node->parent->getType());
-
-            if(parent->getType()->isPointerTy()) {
-                result = context.builder->CreateStructGEP(parentType, parent, index);
-            } else {
-                result = context.builder->CreateExtractValue(parent, index);
-            }
-
-            if(node->isLoad && result->getType()->isPointerTy()) {
-                result = context.builder->CreateLoad(childType, result);
-            }
-
-            return result;
+            return {};
         }
     };
 }// namespace Riddle

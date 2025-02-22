@@ -5,6 +5,7 @@ module;
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 export module Semantics.SemContext;
 export import Semantics.SemNode;
 export namespace Riddle {
@@ -15,6 +16,7 @@ export namespace Riddle {
             Variable,
             Function,
             Class,
+            Module,
         };
 
     protected:
@@ -91,15 +93,53 @@ export namespace Riddle {
         }
     };
 
+    class SemModule final : public SemObject {
+    protected:
+        std::unordered_map<std::string, SemObject *> objects;
+        std::string name;
+
+    public:
+        explicit SemModule(std::string name): SemObject(Module),name(std::move(name)) {}
+
+        void addObject(SemObject *obj) {
+            if(objects.contains(obj->getName())) {
+                throw std::runtime_error("Duplicate object name");
+            }
+            objects[obj->getName()] = obj;
+        }
+
+        SemObject* getObject(const std::string &name) const {
+            const auto it = objects.find(name);
+            if(it == objects.end()) {
+                throw std::runtime_error("Duplicate object name");
+            }
+            return it->second;
+        }
+
+        std::string getName() const override {
+            return name;
+        }
+    };
+
     class SemContext {
     protected:
-        std::pmr::unordered_map<std::string, std::stack<std::unique_ptr<SemObject>>> symbols{};
+        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject>>> symbols{};
         std::stack<std::unordered_set<std::string>> defines;
         std::stack<SemClass *> classes;
         std::stack<SemFunction *> functions;
 
     public:
-        SemContext(): defines() {}
+        SemContext(): defines() {
+            push();
+        }
+
+        ~SemContext() {
+            pop();
+        }
+
+        auto& getAllObjects() {
+            return symbols;
+        }
 
         void push() {
             defines.emplace();
