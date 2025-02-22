@@ -124,8 +124,6 @@ export namespace Riddle {
         llvm::IRBuilder<>* builder{};
         std::string name;
 
-        GenContext() = default;
-
         explicit GenContext(llvm::LLVMContext *llvmContext,
                             const std::string &name = ""): llvmContext(llvmContext),
                                                            llvmModule(new llvm::Module(name, *llvmContext)),
@@ -183,7 +181,7 @@ export namespace Riddle {
             defines.pop();
         }
 
-        auto getAllObjects() {
+        auto &getAllObjects() {
             return objects;
         }
     };

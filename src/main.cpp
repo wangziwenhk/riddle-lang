@@ -3,7 +3,6 @@
 #include "termcolor/termcolor.hpp"
 import Support.BuildQueue;
 import Support.File;
-import Support.CommandHelp;
 using namespace std;
 
 void parserArgs(const int argc, char *argv[]) {

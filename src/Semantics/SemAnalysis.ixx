@@ -15,13 +15,15 @@ export namespace Riddle {
         ProgramNode *root = nullptr;
 
     public:
+        SemContext &getSemContext() {
+            return context;
+        }
+
         std::any visitProgram(ProgramNode *node) override {
-            context.push();
             root = node;
             for(const auto &i: *node->body) {
                 visit(i);
             }
-            context.pop();
             return {};
         }
 
@@ -53,7 +55,7 @@ export namespace Riddle {
                     throw std::runtime_error("Null Object");
                 }
                 if(obj->getSemObjType() != SemObject::Variable) {
-                    throw std::runtime_error("Object is not a variable");
+                    return {};
                 }
                 const auto var = dynamic_cast<SemVariable *>(obj);
                 if(var->is_arg) {
@@ -165,14 +167,14 @@ export namespace Riddle {
             }
             context.push();
             context.pushFunc(obj);
-            for(const auto i:node->args) {
+            for(const auto i: node->args) {
                 visit(i);
             }
             for(const auto i: *node->body) {
                 visit(i);
             }
             bool has_return = false;
-            for(const auto i:*node->body) {
+            for(const auto i: *node->body) {
                 if(i->getSemType() == SemNode::ReturnNodeType) {
                     has_return = true;
                 }
@@ -196,14 +198,28 @@ export namespace Riddle {
             if(!parentType->isClass()) {
                 throw std::runtime_error("Parent Not a class");
             }
-            const auto theClass = dynamic_cast<SemClass*>(context.getSemObject(parentType->name));
+            const auto obj = context.getSemObject(parentType->name);
 
-            if(!theClass) {
-                throw std::runtime_error("Parent Not a class");
+            if(obj->getSemObjType() == SemObject::Class && node->child->getSemType() == SemNode::ObjectNodeType) {
+                node->blend_type = BlendNode::Member;
+                const auto theClass = dynamic_cast<SemClass *>(obj);
+                theClass->define->buildMembers();
+                const auto child = dynamic_cast<ObjectNode *>(node->child);
+                *node->getType() = *theClass->define->getMember(child->name).first->type;
             }
-            theClass->define->buildMembers();
+            else if(obj->getSemObjType() == SemObject::Class && node->child->getSemType() == SemNode::FuncCallNodeType) {
+                node->blend_type = BlendNode::Method;
+                const auto theClass = dynamic_cast<SemClass *>(obj);
+                const auto child = dynamic_cast<FuncCallNode *>(node->child);
+                const auto func = theClass->define->functions.at(child->name);
+                *node->getType() = *func->returnType;
+            }
+            else {
+                node->blend_type = BlendNode::Module;
+                const auto theModule = dynamic_cast<SemModule *>(obj);
+                // *node->getType() = *theModule->getObject(node->child->name);
+            }
 
-            *node->getType() = *theClass->define->getMember(node->child->name).first->type;
 
             return {};
         }
@@ -222,7 +238,7 @@ export namespace Riddle {
         }
 
         std::any visitReturn(ReturnNode *node) override {
-            const TypeNode * type = nullptr;
+            const TypeNode *type = nullptr;
             if(node->value) {
                 visit(node->value);
                 type = node->value->getType();
@@ -230,12 +246,10 @@ export namespace Riddle {
             const auto func = context.getNowFunc();
             if(type && type->isUnknown()) {
                 throw std::runtime_error("Value is unknown");
-            }
-            else if(!func->getReturnType()->isVoid() && !type) {
-                throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",func->getReturnType()->name,"void"));
-            }
-            else if(type && func->getReturnType()->name!=type->name) {
-                throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",func->getReturnType()->name,type->name));
+            } else if(!func->getReturnType()->isVoid() && !type) {
+                throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!", func->getReturnType()->name, "void"));
+            } else if(type && func->getReturnType()->name != type->name) {
+                throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!", func->getReturnType()->name, type->name));
             }
             return {};
         }

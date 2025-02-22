@@ -29,7 +29,7 @@ export namespace Riddle {
 
     public:
         /// @brief 用于解析某个源文件
-        void parserFile(const File& option) {
+        void parserFile(const File &option) {
             std::ifstream stream(option.source);
             const auto input = new antlr4::ANTLRInputStream(stream);
             const auto lexer = new RiddleLexer(input);
@@ -69,7 +69,7 @@ export namespace Riddle {
         // 拓扑排序
         void start() {
             if(!libSource.contains("main")) {
-                std::cerr<< R"(Not Found "main" package)" << std::endl;
+                std::cerr << R"(Not Found "main" package)" << std::endl;
                 return;
             }
             // 处理入度
@@ -106,19 +106,17 @@ export namespace Riddle {
 
 
             const auto llvm_ctx = new llvm::LLVMContext();
-            std::unordered_map<std::string,GenContext>contextMap;
+            std::unordered_map<std::string, Module> contextMap;
             // 依次编译
             for(auto i: buildList) {
-                contextMap.emplace(i.data(),GenContext(llvm_ctx,i.data()));
-                // 编译同一个包下的所有对象
-                for(const auto &j: libSource[i.data()]) {
-                    Module module(contextMap[i.data()],j);
-                    // link 其他 Context
-                    for(const auto& lib :j.getImports()) {
-                        module.import(contextMap.at(lib));
-                    }
-                    module.start();
+                auto unit = libSource[i.data()].front();
+                contextMap.emplace(unit.getPackName(), Module(llvm_ctx, unit));
+                auto &module = contextMap.at(unit.getPackName());
+                // link 其他 Context
+                for(const auto &lib: unit.getImports()) {
+                    module.import(contextMap.at(lib));
                 }
+                module.start();
             }
             delete llvm_ctx;
         }

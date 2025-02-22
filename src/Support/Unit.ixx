@@ -8,7 +8,6 @@ module;
 #include <vector>
 export module Support.Unit;
 import Support.File;
-using Path = std::string;
 export namespace Riddle {
     class Unit {
         /// @brief 当前单元的包名
@@ -29,12 +28,12 @@ export namespace Riddle {
         }
 
         /// 设置包名，通过 PackageVisitor 获取
-        void setPackName(Path name) {
+        void setPackName(std::string name) {
             this->packName = std::move(name);
         }
 
         /// 获取包名
-        [[nodiscard]] Path getPackName() const {
+        [[nodiscard]] std::string getPackName() const {
             return packName;
         }
 

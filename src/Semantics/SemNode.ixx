@@ -440,14 +440,23 @@ export namespace Riddle {
 
     class BlendNode final : public ExprNode {
     public:
+        enum BlendType {
+            Member,
+            Module,
+            Method,
+            Unknown
+        };
+
+        BlendType blend_type;
         bool isLoad = false;
         ExprNode *parent;
-        ObjectNode *child;
+        ExprNode *child;
         BlendNode(ExprNode *parent,
-                  ObjectNode *child,
-                  ProgramNode *root): ExprNode(new TypeNode(TypeNode::unknown),
-                                               BlendNodeType),
-                                      parent(parent), child(child) {
+                  ExprNode *child,
+                  ProgramNode *root,
+                  const BlendType blend_type): ExprNode(new TypeNode(TypeNode::unknown),
+                                                  BlendNodeType),
+                                         blend_type(blend_type), parent(parent), child(child) {
             root->addSemNode(type);
         }
 
