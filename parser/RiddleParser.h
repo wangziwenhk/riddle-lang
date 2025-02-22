@@ -546,8 +546,8 @@ public:
   public:
     BlendExprContext(ExprPtrContext *ctx);
 
-    RiddleParser::ExprPtrContext *parents = nullptr;
-    RiddleParser::ExprPtrContext *child = nullptr;
+    RiddleParser::ExprPtrContext *parentNode = nullptr;
+    RiddleParser::ExprPtrContext *childNode = nullptr;
     antlr4::tree::TerminalNode *Dot();
     std::vector<ExprPtrContext *> exprPtr();
     ExprPtrContext* exprPtr(size_t i);

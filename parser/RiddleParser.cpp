@@ -2534,7 +2534,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
         previousContext = _localctx;
         auto newContext = _tracker.createInstance<BlendExprContext>(_tracker.createInstance<ExprPtrContext>(parentContext, parentState));
         _localctx = newContext;
-        newContext->parents = previousContext;
+        newContext->parentNode = previousContext;
         pushNewRecursionContext(newContext, startState, RuleExprPtr);
         setState(275);
 
@@ -2542,7 +2542,7 @@ RiddleParser::ExprPtrContext* RiddleParser::exprPtr(int precedence) {
         setState(276);
         match(RiddleParser::Dot);
         setState(277);
-        antlrcpp::downCast<BlendExprContext *>(_localctx)->child = exprPtr(2); 
+        antlrcpp::downCast<BlendExprContext *>(_localctx)->childNode = exprPtr(2); 
       }
       setState(282);
       _errHandler->sync(this);

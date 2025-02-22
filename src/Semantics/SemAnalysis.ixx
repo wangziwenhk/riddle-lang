@@ -190,6 +190,24 @@ export namespace Riddle {
             return {};
         }
 
+        std::any visitBlend(BlendNode *node) override {
+            visit(node->parent);
+            const auto parentType = node->parent->getType();
+            if(!parentType->isClass()) {
+                throw std::runtime_error("Parent Not a class");
+            }
+            const auto theClass = dynamic_cast<SemClass*>(context.getSemObject(parentType->name));
+
+            if(!theClass) {
+                throw std::runtime_error("Parent Not a class");
+            }
+            theClass->define->buildMembers();
+
+            *node->getType() = *theClass->define->getMember(node->child->name).first->type;
+
+            return {};
+        }
+
         std::any visitFuncCall(FuncCallNode *node) override {
             const auto obj = context.getSemObject(node->name);
             const auto func = dynamic_cast<SemFunction *>(obj);
@@ -210,7 +228,10 @@ export namespace Riddle {
                 type = node->value->getType();
             }
             const auto func = context.getNowFunc();
-            if(!func->getReturnType()->isVoid() && !type) {
+            if(type && type->isUnknown()) {
+                throw std::runtime_error("Value is unknown");
+            }
+            else if(!func->getReturnType()->isVoid() && !type) {
                 throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",func->getReturnType()->name,"void"));
             }
             else if(type && func->getReturnType()->name!=type->name) {

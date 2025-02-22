@@ -291,12 +291,11 @@ export namespace Riddle {
         }
 
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override {
-            SemNode* node;
+            SemNode *node;
             if(ctx->result) {
                 const auto value = unpacking<ExprNode>(visit(ctx->result));
-                 node = new ReturnNode(value);
-            }
-            else {
+                node = new ReturnNode(value);
+            } else {
                 node = new ReturnNode();
             }
             root->addSemNode(node);
@@ -396,6 +395,18 @@ export namespace Riddle {
             SemNode *node = define;
             root->addSemNode(node);
             return node;
+        }
+
+        std::any visitBlendExpr(RiddleParser::BlendExprContext *context) override {
+            const auto parent = unpacking<ExprNode>(visit(context->parentNode));
+            const auto child = unpacking<ObjectNode>(visit(context->childNode));
+            const auto node = new BlendNode(parent, child, root);
+            root->addSemNode(node);
+            if(antlrcpp::is<RiddleParser::PtrExprContext*>(context->parent)) {
+                node->isLoad = true;
+            }
+            SemNode* result = node;
+            return result;
         }
     };
 }// namespace Riddle

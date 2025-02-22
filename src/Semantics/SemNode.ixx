@@ -8,6 +8,7 @@ module;
 #include <utility>
 #include <vector>
 export module Semantics.SemNode;
+import Config.BasicType;
 export namespace Riddle {
     class ClassDefineNode;
     class AllocaNode;
@@ -40,6 +41,7 @@ export namespace Riddle {
             ReturnNodeType,
 
             ClassDefineNodeType,
+            BlendNodeType,
         };
 
     protected:
@@ -145,6 +147,13 @@ export namespace Riddle {
 
         bool operator==(const TypeNode &node) const {
             return name == node.name;
+        }
+
+        [[nodiscard]] bool isClass() const {
+            if(basic_type::set.contains(name)) {
+                return false;
+            }
+            return true;
         }
     };
 
@@ -397,12 +406,50 @@ export namespace Riddle {
     };
 
     class ClassDefineNode final : public TypeNode {
+        std::unordered_map<std::string, std::pair<VarDefineNode *, size_t>> member_map;
+        bool isBuild = false;
+
     public:
         std::string parentClass;
         std::vector<VarDefineNode *> members;
         std::unordered_map<std::string, FuncDefineNode *> functions;
 
         explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {}
+
+        void buildMembers() {
+            if(isBuild) {
+                return;
+            }
+            size_t count = 0;
+            for(auto i: members) {
+                member_map.insert({i->name, {i, count++}});
+            }
+            isBuild = true;
+        }
+
+        std::pair<VarDefineNode *, size_t> getMember(const std::string &name) {
+            const auto it = member_map.find(name);
+            if(it == member_map.end()) {
+                throw std::runtime_error("Member not found");
+            }
+            return it->second;
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class BlendNode final : public ExprNode {
+    public:
+        bool isLoad = false;
+        ExprNode *parent;
+        ObjectNode *child;
+        BlendNode(ExprNode *parent,
+                  ObjectNode *child,
+                  ProgramNode *root): ExprNode(new TypeNode(TypeNode::unknown),
+                                               BlendNodeType),
+                                      parent(parent), child(child) {
+            root->addSemNode(type);
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -513,6 +560,11 @@ export namespace Riddle {
             if(node->value) node->value->accept(*this);
             return {};
         }
+        virtual std::any visitBlend(BlendNode *node) {
+            node->parent->accept(*this);
+            node->child->accept(*this);
+            return {};
+        }
         virtual ~SemNodeVisitor() = default;
     };
 #pragma endregion
@@ -596,6 +648,9 @@ export namespace Riddle {
     }
     std::any ClassDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitClassDefine(this);
+    }
+    std::any BlendNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitBlend(this);
     }
 #pragma endregion
 }// namespace Riddle

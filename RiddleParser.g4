@@ -116,7 +116,7 @@ catchExpr
 exprPtr
     : funcName=id (tmpl=tmplUsed)? LeftBracket args=argsExpr RightBracket    #funcExpr
     | id                                                    #objectExpr
-    | parents=exprPtr Dot child=exprPtr                             #blendExpr
+    | parentNode=exprPtr Dot childNode=exprPtr                             #blendExpr
     ;
 
 exprPtrParser
