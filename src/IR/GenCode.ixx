@@ -168,6 +168,9 @@ export namespace Riddle {
             static std::unordered_map<std::string, llvm::Type *> base_types = {
                     {"bool", llvm::Type::getInt1Ty(*context.llvmContext)},
                     {"int", llvm::Type::getInt32Ty(*context.llvmContext)},
+                    {"long", llvm::Type::getInt64Ty(*context.llvmContext)},
+                    {"short", llvm::Type::getInt16Ty(*context.llvmContext)},
+                    {"char", llvm::Type::getInt8Ty(*context.llvmContext)},
                     {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
                     {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
                     {"void", llvm::Type::getVoidTy(*context.llvmContext)},
@@ -311,6 +314,38 @@ export namespace Riddle {
                 context.builder->CreateRetVoid();
             }
             return {};
+        }
+
+        std::any visitBlend(BlendNode *node) override {
+            const auto parent = std::any_cast<llvm::Value *>(visit(node->parent));
+
+            const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
+
+            if(!theClass) {
+                throw std::runtime_error("Parent Not a class");
+            }
+
+            theClass->define->buildMembers();
+
+            const auto member = theClass->define->getMember(node->child->name);
+            const auto index = member.second;
+            const auto childType = parserType(member.first->type);
+
+            llvm::Value *result;
+
+            const auto parentType = parserType(node->parent->getType());
+
+            if(parent->getType()->isPointerTy()) {
+                result = context.builder->CreateStructGEP(parentType, parent, index);
+            } else {
+                result = context.builder->CreateExtractValue(parent, index);
+            }
+
+            if(node->isLoad && result->getType()->isPointerTy()) {
+                result = context.builder->CreateLoad(childType, result);
+            }
+
+            return result;
         }
     };
 }// namespace Riddle
