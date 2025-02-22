@@ -14,6 +14,7 @@ export namespace Riddle {
             Variable,
             Function,
             Class,
+            Module,
         };
 
     protected:
@@ -91,20 +92,51 @@ export namespace Riddle {
         }
     };
 
+    class GenModule final : public GenObject {
+        std::unordered_map<std::string, GenObject *> objects;
+
+    public:
+        explicit GenModule(std::string name): GenObject(Module, std::move(name)) {}
+
+        void addObject(GenObject *obj) {
+            if(objects.contains(obj->name)) {
+                throw std::logic_error("Object " + obj->name + " already exist");
+            }
+            objects[obj->name] = obj;
+        }
+
+        GenObject *getObject(const std::string &name) const {
+            if(!objects.contains(name)) {
+                throw std::logic_error("Object " + name + " does not exist");
+            }
+            return objects.at(name);
+        }
+    };
+
     class GenContext {
         std::unordered_map<std::string, std::stack<GenObject *>> objects;
         std::stack<std::unordered_set<std::string>> defines;
         std::stack<GenFunction *> functions;
 
     public:
-        llvm::LLVMContext *llvmContext;
-        std::unique_ptr<llvm::Module> llvmModule;
-        llvm::IRBuilder<> builder;
+        llvm::LLVMContext *llvmContext{};
+        llvm::Module* llvmModule{};
+        llvm::IRBuilder<>* builder{};
+        std::string name;
 
+        GenContext() = default;
 
-        explicit GenContext(llvm::LLVMContext *llvmContext): llvmContext(llvmContext),
-                                                             llvmModule(new llvm::Module("", *llvmContext)),
-                                                             builder(*llvmContext) {}
+        explicit GenContext(llvm::LLVMContext *llvmContext,
+                            const std::string &name = ""): llvmContext(llvmContext),
+                                                           llvmModule(new llvm::Module(name, *llvmContext)),
+                                                           builder(new llvm::IRBuilder(*llvmContext)),
+                                                           name(name) {
+            push();
+        }
+
+        ~GenContext() {
+            pop();
+        }
 
         void pushFunc(GenFunction *func) {
             functions.push(func);
@@ -149,6 +181,10 @@ export namespace Riddle {
                 }
             }
             defines.pop();
+        }
+
+        auto getAllObjects() {
+            return objects;
         }
     };
 }// namespace Riddle

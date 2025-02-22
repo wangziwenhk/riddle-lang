@@ -18,6 +18,7 @@ import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;
 import Semantics.SemNode;
 import IR.GenCode;
+import IR.Moudule;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -105,21 +106,18 @@ export namespace Riddle {
 
 
             const auto llvm_ctx = new llvm::LLVMContext();
+            std::unordered_map<std::string,GenContext>contextMap;
             // 依次编译
             for(auto i: buildList) {
-                GenContext context(llvm_ctx);
+                contextMap.emplace(i.data(),GenContext(llvm_ctx,i.data()));
                 // 编译同一个包下的所有对象
                 for(const auto &j: libSource[i.data()]) {
+                    Module module(contextMap[i.data()],j);
                     // link 其他 Context
                     for(const auto& lib :j.getImports()) {
-                        // todo 实现 linker
+                        module.import(contextMap.at(lib));
                     }
-                    GramAnalysis gram{};
-                    const auto programNode = std::any_cast<ProgramNode*>(gram.visit(j.parseTree));
-                    SemAnalysis sem_analysis{};
-                    sem_analysis.visit(programNode);
-                    GenCode genCode(context,j);
-                    genCode.visit(programNode);
+                    module.start();
                 }
             }
             delete llvm_ctx;

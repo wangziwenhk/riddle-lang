@@ -31,22 +31,20 @@ export namespace Riddle {
         explicit GenCode(GenContext &context, const Unit &unit): context(context), unit(unit) {}
         std::any visitProgram(ProgramNode *node) override {
             context.llvmModule->setModuleIdentifier(unit.getPackName());
-            context.push();
             for(const auto i: *node->body) {
                 visit(i);
             }
-            context.pop();
             context.llvmModule->print(llvm::outs(), nullptr);
             return {};
         }
 
         std::any visitBoolean(BoolLiteralNode *node) override {
-            llvm::Value *value = context.builder.getInt1(node->value);
+            llvm::Value *value = context.builder->getInt1(node->value);
             return value;
         }
 
         std::any visitInteger(IntegerLiteralNode *node) override {
-            llvm::Value *value = context.builder.getInt32(node->value);
+            llvm::Value *value = context.builder->getInt32(node->value);
             return value;
         }
 
@@ -56,7 +54,7 @@ export namespace Riddle {
         }
 
         std::any visitString(StringLiteralNode *node) override {
-            llvm::Value *value = context.builder.CreateGlobalStringPtr(node->value);
+            llvm::Value *value = context.builder->CreateGlobalStringPtr(node->value);
             return value;
         }
 
@@ -81,7 +79,7 @@ export namespace Riddle {
             }
 
             const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
-            const auto func = llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule.get());
+            const auto func = llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule);
 
             // 处理函数参数命名
             int index = 0;
@@ -96,13 +94,13 @@ export namespace Riddle {
             context.addObject(obj);
 
             const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
-            context.builder.SetInsertPoint(entry);
+            context.builder->SetInsertPoint(entry);
 
             context.push();
             context.pushFunc(obj);
 
             auto args = func->arg_begin();
-            for(const auto & arg : node->args) {
+            for(const auto &arg: node->args) {
                 arg->alloca->alloca = args;
                 args++;
                 visit(arg);
@@ -135,14 +133,14 @@ export namespace Riddle {
             const auto var = dynamic_cast<GenVariable *>(obj);
             llvm::Value *result = var->alloca;
             if(node->isLoad) {
-                const auto load = context.builder.CreateLoad(type, result);
+                const auto load = context.builder->CreateLoad(type, result);
                 result = load;
             }
             return result;
         }
 
         std::any visitAlloca(AllocaNode *node) override {
-            llvm::Value *alloca = context.builder.CreateAlloca(parserType(node->type));
+            llvm::Value *alloca = context.builder->CreateAlloca(parserType(node->type));
             node->alloca = alloca;
             return {};
         }
@@ -157,7 +155,7 @@ export namespace Riddle {
                     throw std::runtime_error("Variable does not have alloca");
                 }
                 const auto value = std::any_cast<llvm::Value *>(visit(node->value));
-                context.builder.CreateStore(value, node->alloca->alloca);
+                context.builder->CreateStore(value, node->alloca->alloca);
             }
             return {};
         }
@@ -198,27 +196,27 @@ export namespace Riddle {
 
             const auto condition = std::any_cast<llvm::Value *>(visit(node->condition));
             if(node->else_body) {
-                context.builder.CreateCondBr(condition, thenBlock, elseBlock);
+                context.builder->CreateCondBr(condition, thenBlock, elseBlock);
             } else {
-                context.builder.CreateCondBr(condition, thenBlock, exitBlock);
+                context.builder->CreateCondBr(condition, thenBlock, exitBlock);
             }
 
             // then块的语句执行
-            context.builder.SetInsertPoint(thenBlock);
+            context.builder->SetInsertPoint(thenBlock);
             context.push();
             visit(node->then_body);
-            context.builder.CreateBr(exitBlock);
+            context.builder->CreateBr(exitBlock);
             context.pop();
 
             if(node->else_body) {
-                context.builder.SetInsertPoint(elseBlock);
+                context.builder->SetInsertPoint(elseBlock);
                 context.push();
                 visit(node->else_body);
-                context.builder.CreateBr(exitBlock);
+                context.builder->CreateBr(exitBlock);
                 context.pop();
             }
 
-            context.builder.SetInsertPoint(exitBlock);
+            context.builder->SetInsertPoint(exitBlock);
 
             return {};
         }
@@ -228,19 +226,19 @@ export namespace Riddle {
             llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc()->llvmFunction);
             llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc()->llvmFunction);
 
-            context.builder.CreateBr(condBlock);
-            context.builder.SetInsertPoint(condBlock);
+            context.builder->CreateBr(condBlock);
+            context.builder->SetInsertPoint(condBlock);
 
             const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
-            context.builder.CreateCondBr(cond, bodyBlock, exitBlock);
+            context.builder->CreateCondBr(cond, bodyBlock, exitBlock);
 
             context.push();
-            context.builder.SetInsertPoint(bodyBlock);
+            context.builder->SetInsertPoint(bodyBlock);
             visit(node->body);
-            context.builder.CreateBr(condBlock);
+            context.builder->CreateBr(condBlock);
             context.pop();
 
-            context.builder.SetInsertPoint(exitBlock);
+            context.builder->SetInsertPoint(exitBlock);
             return {};
         }
 
@@ -252,16 +250,16 @@ export namespace Riddle {
             context.push();
             // 预先 init
             visit(node->init);
-            context.builder.CreateBr(condBlock);
+            context.builder->CreateBr(condBlock);
 
-            context.builder.SetInsertPoint(condBlock);
+            context.builder->SetInsertPoint(condBlock);
             const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
-            context.builder.CreateCondBr(cond, bodyBlock, exitBlock);
+            context.builder->CreateCondBr(cond, bodyBlock, exitBlock);
 
-            context.builder.SetInsertPoint(bodyBlock);
+            context.builder->SetInsertPoint(bodyBlock);
             visit(node->body);
             visit(node->increment);
-            context.builder.CreateBr(condBlock);
+            context.builder->CreateBr(condBlock);
 
             context.pop();
             return {};
@@ -280,7 +278,7 @@ export namespace Riddle {
                 auto result = std::any_cast<llvm::Value *>(visit(arg));
                 argValues.push_back(result);
             }
-            llvm::Value *result = context.builder.CreateCall(func->llvmFunction, argValues);
+            llvm::Value *result = context.builder->CreateCall(func->llvmFunction, argValues);
             return result;
         }
 
@@ -307,11 +305,10 @@ export namespace Riddle {
 
         std::any visitReturn(ReturnNode *node) override {
             if(node->value) {
-                const auto result = std::any_cast<llvm::Value*>(visit(node->value));
-                context.builder.CreateRet(result);
-            }
-            else {
-                context.builder.CreateRetVoid();
+                const auto result = std::any_cast<llvm::Value *>(visit(node->value));
+                context.builder->CreateRet(result);
+            } else {
+                context.builder->CreateRetVoid();
             }
             return {};
         }
