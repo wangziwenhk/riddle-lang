@@ -28,6 +28,10 @@ export namespace Riddle {
         virtual ~GenObject() = default;
 
         [[nodiscard]] GenObjectType getGenType() const { return type_id; }
+
+        virtual GenObject* clone() {
+            return new GenObject(*this);
+        }
     };
 
     class GenVariable final : public GenObject {
@@ -37,19 +41,24 @@ export namespace Riddle {
             if(define == nullptr) {
                 throw std::runtime_error("ptr is nullptr");
             }
-            alloca = define->alloca->alloca;
+            alloca = define->alloca;
             type = define->type;
+            isGlobal = define->isGlobal;
         }
-        explicit GenVariable(const ArgNode *define): GenObject(Variable, define->name) {
+        explicit GenVariable(const ArgNode *define): GenObject(Variable, define->name),isGlobal(false) {
             if(define == nullptr) {
                 throw std::runtime_error("ptr is nullptr");
             }
-            alloca = define->alloca->alloca;
+            alloca = define->alloca;
             type = define->type;
         }
-
-        llvm::Value *alloca;
+        bool isGlobal;
+        AllocaNode *alloca;
         TypeNode *type;
+
+        GenObject *clone() override {
+            return new GenVariable(*this);
+        }
     };
 
     class GenFunction final : public GenObject {
@@ -57,6 +66,10 @@ export namespace Riddle {
         FuncDefineNode *define;
         llvm::Function *llvmFunction;
         GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define), llvmFunction(func) {}
+
+        GenObject *clone() override {
+            return new GenFunction(*this);
+        }
     };
 
     class GenClass final : public GenObject {
@@ -90,6 +103,10 @@ export namespace Riddle {
             }
             return functions.at(name);
         }
+
+        GenObject *clone() override {
+            return new GenClass(*this);
+        }
     };
 
     class GenModule final : public GenObject {
@@ -111,6 +128,20 @@ export namespace Riddle {
             }
             return objects.at(name);
         }
+
+        ~GenModule() override {
+            for(const auto i: objects | std::views::values) {
+                delete i;
+            }
+        }
+
+        auto &getAllObjects() const noexcept {
+            return objects;
+        }
+
+        GenObject *clone() override {
+            return new GenModule(*this);
+        }
     };
 
     class GenContext {
@@ -120,8 +151,8 @@ export namespace Riddle {
 
     public:
         llvm::LLVMContext *llvmContext{};
-        llvm::Module* llvmModule{};
-        llvm::IRBuilder<>* builder{};
+        llvm::Module *llvmModule{};
+        llvm::IRBuilder<> *builder{};
         std::string name;
 
         explicit GenContext(llvm::LLVMContext *llvmContext,
@@ -134,6 +165,10 @@ export namespace Riddle {
 
         ~GenContext() {
             pop();
+        }
+
+        size_t depth() const noexcept {
+            return objects.size();
         }
 
         void pushFunc(GenFunction *func) {
@@ -181,7 +216,7 @@ export namespace Riddle {
             defines.pop();
         }
 
-        auto &getAllObjects() {
+        std::unordered_map<std::string, std::stack<GenObject *>> &getAllObjects() {
             return objects;
         }
     };

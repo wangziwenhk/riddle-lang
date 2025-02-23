@@ -30,6 +30,9 @@ export namespace Riddle {
         std::any visitVarDefine(VarDefineNode *node) override {
             const auto obj = new SemVariable(node);
             context.addSemObject(obj);
+            if(context.deep() == 1) {
+                node->isGlobal = true;
+            }
             if(node->value) {
                 visit(node->value);
             }
@@ -50,7 +53,12 @@ export namespace Riddle {
         std::any visitObject(ObjectNode *node) override {
             // 这里仅做类型处理
             if(node->getType()->isUnknown()) {
-                const auto obj = context.getSemObject(node->name);
+                SemObject *obj = nullptr;
+                if(!node->s_obj) {
+                    obj = context.getSemObject(node->getName());
+                } else {
+                    obj = static_cast<SemObject *>(node->s_obj);
+                }
                 if(obj == nullptr) {
                     throw std::runtime_error("Null Object");
                 }
@@ -61,7 +69,7 @@ export namespace Riddle {
                 if(var->is_arg) {
                     node->isLoad = false;
                 }
-                *node->getType() = *var->getType();
+                *node->getType() = *var->getConstType();
 
                 return {};
             }
@@ -161,10 +169,17 @@ export namespace Riddle {
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto obj = new SemFunction(node);
             context.addSemObject(obj);
-            visitPreAlloca(node->body, node);
+
             if(context.getNowClass()) {
                 node->theClass = context.getNowClass()->define;
+                const auto selfArg_alloca = new AllocaNode(node->theClass);
+                root->addSemNode(selfArg_alloca);
+                const auto selfArg = new ArgNode("this", node->theClass, selfArg_alloca);
+                root->addSemNode(selfArg);
+                node->args.insert(node->args.begin(), selfArg);
             }
+
+            visitPreAlloca(node->body, node);
             context.push();
             context.pushFunc(obj);
             for(const auto i: node->args) {
@@ -198,34 +213,49 @@ export namespace Riddle {
             if(!parentType->isClass()) {
                 throw std::runtime_error("Parent Not a class");
             }
-            const auto obj = context.getSemObject(parentType->name);
+            auto obj = context.getSemObject(parentType->name);
 
-            if(obj->getSemObjType() == SemObject::Class && node->child->getSemType() == SemNode::ObjectNodeType) {
+            if(obj && obj->getSemObjType() == SemObject::Class && node->child->getSemType() == SemNode::ObjectNodeType) {
                 node->blend_type = BlendNode::Member;
                 const auto theClass = dynamic_cast<SemClass *>(obj);
                 theClass->define->buildMembers();
                 const auto child = dynamic_cast<ObjectNode *>(node->child);
-                *node->getType() = *theClass->define->getMember(child->name).first->type;
-            }
-            else if(obj->getSemObjType() == SemObject::Class && node->child->getSemType() == SemNode::FuncCallNodeType) {
+                *node->getType() = *theClass->define->getMember(child->getName()).first->type;
+            } else if(obj && obj->getSemObjType() == SemObject::Class && node->child->getSemType() == SemNode::FuncCallNodeType) {
                 node->blend_type = BlendNode::Method;
                 const auto theClass = dynamic_cast<SemClass *>(obj);
                 const auto child = dynamic_cast<FuncCallNode *>(node->child);
-                const auto func = theClass->define->functions.at(child->name);
+                const auto func = theClass->define->functions.at(child->getName());
                 *node->getType() = *func->returnType;
-            }
-            else {
+            } else {
+                if(!obj) {
+                    obj = context.getSemObject(node->parent->getName());
+                }
+
                 node->blend_type = BlendNode::Module;
                 const auto theModule = dynamic_cast<SemModule *>(obj);
-                // *node->getType() = *theModule->getObject(node->child->name);
-            }
 
+                if(const auto theObj = dynamic_cast<ObjectNode *>(node->child)) {
+                    theObj->s_obj = theModule->getObject(theObj->getName());
+                    *node->getType() = *theModule->getObject(theObj->getName())->getConstType();
+                    visit(theObj);
+                } else if(const auto theFunc = dynamic_cast<FuncCallNode *>(node->child)) {
+                    theFunc->s_obj = theModule->getObject(theFunc->getName());
+                    *node->getType() = *theModule->getObject(theFunc->getName())->getConstType();
+                    visit(theFunc);
+                }
+            }
 
             return {};
         }
 
         std::any visitFuncCall(FuncCallNode *node) override {
-            const auto obj = context.getSemObject(node->name);
+            SemObject *obj = nullptr;
+            if(!node->s_obj) {
+                obj = context.getSemObject(node->getName());
+            } else {
+                obj = static_cast<SemObject *>(node->s_obj);
+            }
             const auto func = dynamic_cast<SemFunction *>(obj);
             if(func == nullptr) {
                 throw std::runtime_error("Null FuncCall");
