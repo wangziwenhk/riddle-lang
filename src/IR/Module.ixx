@@ -1,6 +1,8 @@
 module;
 #include <any>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Linker/Linker.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 #include <ranges>
 export module IR.Moudule;
 import Parsing.GramAnalysis;
@@ -39,11 +41,45 @@ export namespace Riddle {
 
             const auto gen_lib_module = new GenModule(lib.name);
             // gen 部分的合并
-            for(auto i: lib.context.getAllObjects() | std::ranges::views::values) {
+            for(auto i: lib.context.getAllObjects() | std::views::values) {
                 const auto obj = i.top();
-                gen_lib_module->addObject(obj);
+                gen_lib_module->addObject(obj->clone());
             }
             context.addObject(gen_lib_module);
+
+            // link module
+            llvm::ValueToValueMapTy vmap;
+            auto cloneModule = CloneModule(*lib.context.llvmModule,vmap);
+            llvm::Linker linker(*this->context.llvmModule);
+            linker.linkInModule(std::move(cloneModule));
+
+            // 替换所有原始克隆指针
+            for(const auto i:gen_lib_module->getAllObjects() | std::views::values) {
+                switch(i->getGenType()) {
+                    case GenObject::Variable: {
+                        const auto var = dynamic_cast<GenVariable*>(i);
+                        if(!var->isGlobal) {
+                            var->alloca->alloca = vmap[var->alloca->alloca];
+                        }
+                        else {
+                            var->alloca->alloca = this->context.llvmModule->getGlobalVariable(var->name);
+                        }
+                        break;
+                    }
+                    case GenObject::Function: {
+                        const auto func = dynamic_cast<GenFunction*>(i);
+                        func->llvmFunction = context.llvmModule->getFunction(func->name);
+                        break;
+                    }
+                    // case GenObject::Class: {
+                    //     const auto cls = dynamic_cast<GenClass*>(i);
+                    //     cls->type = llvm::cast<llvm::StructType>(vmap[cls->type]);
+                    // }
+                    default: {
+                        break;
+                    }
+                }
+            }
         }
     };
 }// namespace Riddle

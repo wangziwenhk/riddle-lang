@@ -6,6 +6,7 @@ module;
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#define val const auto
 export module Semantics.SemContext;
 export import Semantics.SemNode;
 export namespace Riddle {
@@ -31,6 +32,8 @@ export namespace Riddle {
         [[nodiscard]] virtual SemObjectType getSemObjType() const noexcept {
             return type;
         }
+
+        virtual TypeNode *getConstType() = 0;
     };
 
     class SemVariable final : public SemObject {
@@ -55,6 +58,11 @@ export namespace Riddle {
             return type;
         }
 
+        TypeNode *getConstType() override {
+            return type;
+        }
+        
+
         [[nodiscard]] std::string getName() const override {
             return name;
         }
@@ -71,6 +79,10 @@ export namespace Riddle {
 
         [[nodiscard]] TypeNode *&getReturnType() const {
             return define->returnType;
+        }
+
+        TypeNode *getConstType() override {
+            return getReturnType();
         }
 
         [[nodiscard]] std::string getName() const override {
@@ -90,6 +102,10 @@ export namespace Riddle {
 
         [[nodiscard]] std::string getName() const override {
             return define->name;
+        }
+
+        [[nodiscard]] TypeNode *getConstType() override {
+            return dynamic_cast<TypeNode *>(define);
         }
     };
 
@@ -118,6 +134,10 @@ export namespace Riddle {
 
         std::string getName() const override {
             return name;
+        }
+
+        TypeNode *getConstType() override {
+            return nullptr;
         }
     };
 

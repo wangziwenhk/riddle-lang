@@ -124,14 +124,14 @@ export namespace Riddle {
         }
 
         std::any visitObject(ObjectNode *node) override {
-            const auto name = node->name;
+            const auto name = node->getName();
             const auto obj = context.getObject(name);
             if(obj->getGenType() != GenObject::Variable) {
                 throw std::runtime_error("Object is not a variable");
             }
             const auto type = parserType(node->getType());
             const auto var = dynamic_cast<GenVariable *>(obj);
-            llvm::Value *result = var->alloca;
+            llvm::Value *result = var->alloca->alloca;
             if(node->isLoad) {
                 result = context.builder->CreateLoad(type, result);
             }
@@ -149,6 +149,19 @@ export namespace Riddle {
             // 已经预先分配空间
             const auto obj = new GenVariable(node);
             context.addObject(obj);
+            if(node->isGlobal) {
+                const auto value = std::any_cast<llvm::Value *>(visit(node->value));
+                const auto cst = llvm::dyn_cast<llvm::Constant>(value);
+                const auto var = new llvm::GlobalVariable(
+                        *context.llvmModule,
+                        parserType(node->type),
+                        false,
+                        llvm::GlobalValue::ExternalLinkage,
+                        cst,
+                        name);
+                node->alloca->alloca = var;
+                return {};
+            }
             if(node->value) {
                 if(!node->alloca) {
                     throw std::runtime_error("Variable does not have alloca");
@@ -268,8 +281,13 @@ export namespace Riddle {
         }
 
         std::any visitFuncCall(FuncCallNode *node) override {
-            const auto name = node->name;
-            const auto obj = context.getObject(name);
+            const auto name = node->getName();
+            GenObject *obj = nullptr;
+            if(!node->g_obj) {
+                obj = context.getObject(name);
+            } else {
+                obj = static_cast<GenObject *>(node->g_obj);
+            }
             if(obj->getGenType() != GenObject::Function) {
                 throw std::runtime_error("Object doesn't have a function");
             }
@@ -295,6 +313,10 @@ export namespace Riddle {
             for(const auto i: node->members) {
                 memberTypes.push_back(parserType(i->type));
             }
+            // 保证对象地址存在
+            if(memberTypes.empty()) {
+                memberTypes.emplace_back(llvm::Type::getInt1Ty(*context.llvmContext));
+            }
             obj->type->setBody(memberTypes);
             context.push();
             for(const auto i: node->functions | std::views::values) {
@@ -317,30 +339,76 @@ export namespace Riddle {
 
 
         std::any visitBlend(BlendNode *node) override {
-            if(node->blend_type == BlendNode::Member) {
-                const auto parent = std::any_cast<llvm::Value *>(visit(node->parent));
-                const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
-                if(!theClass) {
-                    throw std::runtime_error("Parent Not a class");
+            switch(node->blend_type) {
+                case BlendNode::Member: {
+                    const auto parent = std::any_cast<llvm::Value *>(visit(node->parent));
+                    const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
+                    if(!theClass) {
+                        throw std::runtime_error("Parent Not a class");
+                    }
+
+                    theClass->define->buildMembers();
+                    const auto child = dynamic_cast<ObjectNode *>(node->child);
+                    const auto [member, index] = theClass->define->getMember(child->getName());
+                    llvm::Value *result;
+                    const auto parentType = parserType(node->parent->getType());
+
+                    if(parent->getType()->isPointerTy()) {
+                        result = context.builder->CreateStructGEP(parentType, parent, index);
+                    } else {
+                        result = context.builder->CreateExtractValue(parent, index);
+                    }
+
+                    if(node->isLoad && result->getType()->isPointerTy()) {
+                        result = context.builder->CreateLoad(parserType(member->type), result);
+                    }
+
+                    return result;
                 }
+                case BlendNode::Method: {
+                    const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
+                    if(!theClass) {
+                        throw std::runtime_error("Parent Not a class");
+                    }
 
-                theClass->define->buildMembers();
-                const auto child = dynamic_cast<ObjectNode *>(node->child);
-                const auto [member, index] = theClass->define->getMember(child->name);
-                llvm::Value *result;
-                const auto parentType = parserType(node->parent->getType());
-
-                if(parent->getType()->isPointerTy()) {
-                    result = context.builder->CreateStructGEP(parentType, parent, index);
-                } else {
-                    result = context.builder->CreateExtractValue(parent, index);
+                    theClass->define->buildMembers();
+                    const auto child = dynamic_cast<FuncCallNode *>(node->child);
+                    child->args.insert(child->args.begin(), node->parent);
+                    return visit(child);
                 }
+                case BlendNode::Module: {
+                    const auto theModule = dynamic_cast<GenModule *>(context.getObject(node->parent->getName()));
+                    if(!theModule) {
+                        throw std::runtime_error("Parent Not a class");
+                    }
 
-                if(node->isLoad && result->getType()->isPointerTy()) {
-                    result = context.builder->CreateLoad(parserType(member->type), result);
+                    const auto obj = theModule->getObject(node->child->getName());
+
+                    switch(obj->getGenType()) {
+                        case GenObject::Variable: {
+                            const auto var = dynamic_cast<GenVariable *>(obj);
+                            node->getType()->llvmType = var->type->llvmType;
+                            llvm::Value* result = var->alloca->alloca;
+                            return result;
+                        }
+                        case GenObject::Function: {
+                            const auto func = dynamic_cast<GenFunction *>(obj);
+                            node->getType()->llvmType = func->define->returnType->llvmType;
+                            const auto child = dynamic_cast<FuncCallNode *>(node->child);
+                            child->g_obj = theModule->getObject(child->getName());
+                            return visit(node->child);
+                        }
+                        case GenObject::Class: {
+                            const auto type = dynamic_cast<GenClass *>(node->child)->type;
+                            return type;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
                 }
-
-                return result;
+                default:
+                    break;
             }
             return {};
         }
