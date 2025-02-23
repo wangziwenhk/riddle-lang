@@ -62,7 +62,7 @@ export namespace Riddle {
                             var->alloca->alloca = vmap[var->alloca->alloca];
                         }
                         else {
-                            var->alloca->alloca = this->context.llvmModule->getGlobalVariable(var->name);
+                            var->alloca->alloca = context.llvmModule->getGlobalVariable(var->name);
                         }
                         break;
                     }
@@ -73,7 +73,7 @@ export namespace Riddle {
                     }
                     // case GenObject::Class: {
                     //     const auto cls = dynamic_cast<GenClass*>(i);
-                    //     cls->type = llvm::cast<llvm::StructType>(vmap[cls->type]);
+                    //     cls->type = context.m;
                     // }
                     default: {
                         break;
