@@ -57,22 +57,20 @@ file(GLOB_RECURSE HEADER_FILES "src/*.h")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 file(GLOB_RECURSE MODULE_FILES "src/*.ixx")
 
+list(FILTER SOURCE_FILES EXCLUDE REGEX ".*main.cpp$")
+
 # 添加 模块编译
 add_library(riddle-module ${SOURCE_FILES})
 
 target_sources(riddle-module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 
 # 添加 主编译目标
-add_executable(riddle ${SOURCE_FILES} ${AST_FILES})
-
+add_executable(riddle src/main.cpp ${SOURCE_FILES} ${AST_FILES})
+add_executable(test test/test.cpp ${SOURCE_FILES} ${AST_FILES})
 
 if (MSVC)
     add_compile_options(/wd4819)
 endif ()
-
-# 添加 编译配置
-target_compile_definitions(riddle PRIVATE ${PLATFORM_DEFINES})
-#target_compile_options(Riddle_Language PRIVATE -fmodules -fbuiltin-module-map)
 
 llvm_map_components_to_libnames(llvm_libs linker core irreader support analysis passes)
 message(STATUS "LLVM libraries: ${llvm_libs}")
@@ -81,3 +79,8 @@ target_link_libraries(riddle ${llvm_libs})
 target_link_libraries(riddle riddle-module)
 target_link_libraries(riddle antlr4_shared)
 target_link_libraries(riddle argparse::argparse)
+
+target_link_libraries(test ${llvm_libs})
+target_link_libraries(test riddle-module)
+target_link_libraries(test antlr4_shared)
+target_link_libraries(test argparse::argparse)

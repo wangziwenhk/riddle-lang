@@ -4,12 +4,12 @@ module;
 #include <llvm/Linker/Linker.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <ranges>
-export module IR.Moudule;
+export module Gen.Moudule;
 import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;
 import Semantics.SemContext;
 import Semantics.SemNode;
-import IR.GenCode;
+import Gen.GenCode;
 import Support.Unit;
 export namespace Riddle {
     class Module {

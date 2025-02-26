@@ -17,8 +17,8 @@ import Parsing.PackageVisitor;
 import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;
 import Semantics.SemNode;
-import IR.GenCode;
-import IR.Moudule;
+import Gen.GenCode;
+import Gen.Moudule;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
