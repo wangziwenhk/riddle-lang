@@ -5,7 +5,7 @@ module;
 #include <stack>
 #include <unordered_set>
 #include <utility>
-export module IR.GenContext;
+export module Gen.GenContext;
 import Semantics.SemNode;
 export namespace Riddle {
     class GenObject {

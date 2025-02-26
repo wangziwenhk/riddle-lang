@@ -7,8 +7,8 @@ module;
 #include <llvm/Support/raw_ostream.h>
 #include <ranges>
 #include <vector>
-export module IR.GenCode;
-export import IR.GenContext;
+export module Gen.GenCode;
+export import Gen.GenContext;
 import Semantics.SemNode;
 import Support.Unit;
 namespace Riddle {
