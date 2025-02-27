@@ -20,7 +20,7 @@ void parserArgs(const int argc, char *argv[]) {
 
     const auto files = program.get<vector<string>>("files");
     try {
-        // 交由 Options 进行处理
+        // 交由 Files 进行处理
         // Parser
         Riddle::BuildQueue buildQueue;
         for(const auto& i: files) {

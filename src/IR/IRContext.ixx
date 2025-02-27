@@ -16,15 +16,21 @@ export namespace Riddle {
                 switch(i->getInstType()) {
                     case Instruct::Alloca: {
                         const auto alloca = dynamic_cast<AllocaInst *>(i);
-                        os << setw(10) << "alloca" << setw(10) << alloca->type->name << endl;
+                        os << setw(10) << "alloca";
+                        os << setw(10) << alloca->type->name;
+                        os << setw(10) << alloca->var->getName() << endl;
                         break;
                     }
                     case Instruct::FuncCall: {
                         const auto funcCall = dynamic_cast<FuncCallInst *>(i);
                         os << setw(10) << "funcCall" << setw(10) << funcCall->getFuncName();
-                        os << setw(10) << "{";
-                        for(auto it = funcCall->getArgBegin(); it != funcCall->getArgEnd(); ++it) {
-                            os << (*it)->getName() << " ";
+                        os << "{";
+                        for(auto it = funcCall->getArgBegin(); it != funcCall->getArgEnd();) {
+                            os << (*it)->getName();
+                            ++it;
+                            if(it != funcCall->getArgEnd()) {
+                                os << ", ";
+                            }
                         }
                         os << "}" << endl;
                         break;

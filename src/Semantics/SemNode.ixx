@@ -218,8 +218,8 @@ export namespace Riddle {
     class FuncDefineNode final : public SemNode {
     public:
         FuncDefineNode(std::string name,
-                       BlockNode *body,
                        TypeNode *returnType,
+                       BlockNode *body = nullptr,
                        const std::vector<ArgNode *> &args = {}): SemNode(FuncDefineNodeType),
                                                                  name(std::move(name)),
                                                                  body(body),
