@@ -304,12 +304,13 @@ public:
     ModifierListContext *modifierList();
     IdContext *id();
     DefineArgsContext *defineArgs();
-    BodyExprContext *bodyExpr();
+    antlr4::tree::TerminalNode *Semi();
     antlr4::tree::TerminalNode *Endl();
     antlr4::tree::TerminalNode *Sub();
     antlr4::tree::TerminalNode *Greater();
     TmpleDefineContext *tmpleDefine();
     TypeUsedContext *typeUsed();
+    BodyExprContext *bodyExpr();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

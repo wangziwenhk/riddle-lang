@@ -74,20 +74,10 @@ export namespace Riddle {
         std::vector<TypeInst *> body;
     };
 
-    /**
-     * 在栈上开辟一个变量的 IR 表示
-     */
-    class AllocaInst final : public Instruct {
-    public:
-        explicit AllocaInst(TypeInst *type): Instruct(Alloca), type(type) {}
-
-        TypeInst *type;
-    };
-
     class ValueInst final : public Instruct {
     public:
         explicit ValueInst(std::string name = ""): Instruct(Value), name(std::move(name)) {
-            if(name.empty()) {
+            if(this->name.empty()) {
                 this->name = std::to_string(count);
                 count++;
             }
@@ -104,6 +94,16 @@ export namespace Riddle {
 
     size_t ValueInst::count = 0;
 
+    /**
+     * 在栈上开辟一个变量的 IR 表示
+     */
+    class AllocaInst final : public Instruct {
+    public:
+        explicit AllocaInst(TypeInst *type, ValueInst *var): Instruct(Alloca), type(type), var(var) {}
+
+        TypeInst *type;
+        ValueInst *var;
+    };
 
     class FuncCallInst final : public Instruct {
     public:

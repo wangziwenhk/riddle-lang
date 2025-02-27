@@ -92,31 +92,32 @@ export namespace Riddle {
                 obj->is_weak = true;
             }
             context.addObject(obj);
+            if(node->body) {
+                const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
+                context.builder->SetInsertPoint(entry);
 
-            const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
-            context.builder->SetInsertPoint(entry);
+                context.push();
+                context.pushFunc(obj);
 
-            context.push();
-            context.pushFunc(obj);
+                auto args = func->arg_begin();
+                for(const auto &arg: node->args) {
+                    arg->alloca->alloca = args;
+                    args++;
+                    visit(arg);
+                }
 
-            auto args = func->arg_begin();
-            for(const auto &arg: node->args) {
-                arg->alloca->alloca = args;
-                args++;
-                visit(arg);
-            }
+                for(const auto i: *node->body) {
+                    visit(i);
+                }
 
-            for(const auto i: *node->body) {
-                visit(i);
-            }
+                context.pop();
+                context.popFunc();
 
-            context.pop();
-            context.popFunc();
+                if(verifyFunction(*func, &llvm::errs())) {
+                    func->eraseFromParent();
 
-            if(verifyFunction(*func, &llvm::errs())) {
-                func->eraseFromParent();
-
-                return {};
+                    return {};
+                }
             }
 
             GenObject *result = obj;
@@ -388,7 +389,7 @@ export namespace Riddle {
                         case GenObject::Variable: {
                             const auto var = dynamic_cast<GenVariable *>(obj);
                             node->getType()->llvmType = var->type->llvmType;
-                            llvm::Value* result = var->alloca->alloca;
+                            llvm::Value *result = var->alloca->alloca;
                             return result;
                         }
                         case GenObject::Function: {

@@ -4,9 +4,11 @@ using namespace std;
 import IR.IRContext;
 int main(){
     Riddle::IRContext context;
-    context.body.push_back(new Riddle::AllocaInst(new Riddle::IntegerTypeInst(32)));
-    context.body.push_back(new Riddle::AllocaInst(new Riddle::IntegerTypeInst(16)));
-    context.body.push_back(new Riddle::FuncCallInst("main",{new Riddle::ValueInst("1")}));
+    const auto a = new Riddle::ValueInst("argv");
+    const auto b = new Riddle::ValueInst("argc");
+    context.body.push_back(new Riddle::AllocaInst(new Riddle::IntegerTypeInst(32),a));
+    context.body.push_back(new Riddle::AllocaInst(new Riddle::IntegerTypeInst(32),b));
+    context.body.push_back(new Riddle::FuncCallInst("main",{a,b}));
     context.print(cout);
     return 0;
 }

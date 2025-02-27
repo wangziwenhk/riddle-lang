@@ -179,29 +179,34 @@ export namespace Riddle {
                 node->args.insert(node->args.begin(), selfArg);
             }
 
-            visitPreAlloca(node->body, node);
             context.push();
             context.pushFunc(obj);
             for(const auto i: node->args) {
                 visit(i);
             }
-            for(const auto i: *node->body) {
-                visit(i);
-            }
-            bool has_return = false;
-            for(const auto i: *node->body) {
-                if(i->getSemType() == SemNode::ReturnNodeType) {
-                    has_return = true;
+
+            if(node->body) {
+                bool has_return = false;
+                visitPreAlloca(node->body, node);
+                for(const auto i: *node->body) {
+                    visit(i);
+                }
+
+                for(const auto i: *node->body) {
+                    if(i->getSemType() == SemNode::ReturnNodeType) {
+                        has_return = true;
+                    }
+                }
+                if(!has_return) {
+                    if(!node->returnType->isVoid()) {
+                        throw std::runtime_error("Not have Return");
+                    }
+                    const auto s = new ReturnNode();
+                    root->allSemNode.insert(s);
+                    node->body->push_back(s);
                 }
             }
-            if(!has_return) {
-                if(!node->returnType->isVoid()) {
-                    throw std::runtime_error("Not have Return");
-                }
-                const auto s = new ReturnNode();
-                root->allSemNode.insert(s);
-                node->body->push_back(s);
-            }
+
             context.popFunc();
             context.pop();
             return {};

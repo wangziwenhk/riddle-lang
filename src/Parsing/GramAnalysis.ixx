@@ -214,9 +214,9 @@ export namespace Riddle {
 
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
             const auto name = ctx->funcName->getText();
-            const auto body = dynamic_cast<BlockNode *>(std::any_cast<SemNode *>(visit(ctx->body)));
-            if(body == nullptr) {
-                throw std::runtime_error("GramAnalysis: Result node not BlockNode");
+            BlockNode *body = nullptr;
+            if(ctx->body) {
+                body = dynamic_cast<BlockNode *>(std::any_cast<SemNode *>(visit(ctx->body)));
             }
             TypeNode *returnType = nullptr;
             if(ctx->returnType == nullptr) {
@@ -233,7 +233,7 @@ export namespace Riddle {
             if(ctx->args != nullptr) {
                 args = std::any_cast<std::vector<ArgNode *>>(visitDefineArgs(ctx->args));
             }
-            SemNode *func = new FuncDefineNode(name, body, returnType, args);
+            SemNode *func = new FuncDefineNode(name, returnType, body, args);
             root->addSemNode(func);
             return func;
         }
