@@ -62,13 +62,17 @@ export namespace Riddle {
                             var->alloca->alloca = vmap[var->alloca->alloca];
                         }
                         else {
-                            var->alloca->alloca = context.llvmModule->getGlobalVariable(var->name);
+                            const auto g = context.llvmModule->getGlobalVariable(var->name);
+                            g->setInitializer(nullptr);
+                            var->alloca->alloca = g;
                         }
                         break;
                     }
                     case GenObject::Function: {
                         const auto func = dynamic_cast<GenFunction*>(i);
+                        func->define->body = nullptr;
                         func->llvmFunction = context.llvmModule->getFunction(func->name);
+                        func->llvmFunction->deleteBody();
                         break;
                     }
                     // case GenObject::Class: {

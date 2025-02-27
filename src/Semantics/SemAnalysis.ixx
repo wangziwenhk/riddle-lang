@@ -189,10 +189,6 @@ export namespace Riddle {
                 bool has_return = false;
                 visitPreAlloca(node->body, node);
                 for(const auto i: *node->body) {
-                    visit(i);
-                }
-
-                for(const auto i: *node->body) {
                     if(i->getSemType() == SemNode::ReturnNodeType) {
                         has_return = true;
                     }
@@ -204,6 +200,9 @@ export namespace Riddle {
                     const auto s = new ReturnNode();
                     root->allSemNode.insert(s);
                     node->body->push_back(s);
+                }
+                for(const auto i: *node->body) {
+                    visit(i);
                 }
             }
 
