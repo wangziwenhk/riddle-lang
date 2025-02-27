@@ -388,8 +388,9 @@ export namespace Riddle {
                     switch(obj->getGenType()) {
                         case GenObject::Variable: {
                             const auto var = dynamic_cast<GenVariable *>(obj);
-                            node->getType()->llvmType = var->type->llvmType;
+                            node->getType()->llvmType = parserType(var->type);
                             llvm::Value *result = var->alloca->alloca;
+                            result = context.builder->CreateLoad(node->getType()->llvmType,result);
                             return result;
                         }
                         case GenObject::Function: {
