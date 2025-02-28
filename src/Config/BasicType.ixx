@@ -3,7 +3,7 @@ module;
 #include <unordered_set>
 #include <vector>
 export module Config.BasicType;
-export namespace Riddle::basic_type {
+export namespace Riddle::basicType {
 #define BTNS "int", "short", "long", "char", "bool", "double", "float"
     std::vector<std::string> list = {
             BTNS};

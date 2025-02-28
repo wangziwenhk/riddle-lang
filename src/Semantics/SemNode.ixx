@@ -48,7 +48,9 @@ export namespace Riddle {
         SemNodeType semType;
 
     public:
-        explicit SemNode(const SemNodeType type): semType(type) {}
+        explicit SemNode(const SemNodeType type): semType(type) {
+        }
+
         virtual ~SemNode() = default;
 
         virtual std::any accept(SemNodeVisitor &visitor);
@@ -74,15 +76,29 @@ export namespace Riddle {
     /// @example
     class BlockNode final : public SemNode {
     public:
-        BlockNode(): SemNode(BlockNodeType), body({}) {}
-        explicit BlockNode(const std::vector<SemNode *> &vec): SemNode(BlockNodeType), body(vec) {}
+        BlockNode(): SemNode(BlockNodeType), body({}) {
+        }
+
+        explicit BlockNode(const std::vector<SemNode *> &vec): SemNode(BlockNodeType), body(vec) {
+        }
 
         std::vector<SemNode *> body;
 
-        auto begin() { return body.begin(); }
-        auto end() { return body.end(); }
-        [[nodiscard]] auto begin() const { return body.cbegin(); }
-        [[nodiscard]] auto end() const { return body.cend(); }
+        auto begin() {
+            return body.begin();
+        }
+
+        auto end() {
+            return body.end();
+        }
+
+        [[nodiscard]] auto begin() const {
+            return body.cbegin();
+        }
+
+        [[nodiscard]] auto end() const {
+            return body.cend();
+        }
 
         void push_back(SemNode *node) {
             body.push_back(node);
@@ -94,10 +110,12 @@ export namespace Riddle {
     /// 表示一个程序根节点
     class ProgramNode final : public SemNode {
     public:
-        explicit ProgramNode(BlockNode *body): SemNode(ProgramNodeType), body(body) {}
+        explicit ProgramNode(BlockNode *body): SemNode(ProgramNodeType), body(body) {
+        }
+
         ~ProgramNode() override {
             body = nullptr;
-            for(const auto i: allSemNode) {
+            for (const auto i: allSemNode) {
                 delete i;
             }
         }
@@ -120,7 +138,9 @@ export namespace Riddle {
     class PackageNode final : public SemNode {
     public:
         std::string packageName;
-        explicit PackageNode(std::string packageName): SemNode(ProgramNodeType), packageName(std::move(packageName)) {}
+
+        explicit PackageNode(std::string packageName): SemNode(ProgramNodeType), packageName(std::move(packageName)) {
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -130,7 +150,9 @@ export namespace Riddle {
         static constexpr std::string unknown = "@unknown";
         static constexpr std::string Void = "void";
 
-        explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType): SemNode(type_id), name(std::move(name)) {}
+        explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType): SemNode(type_id),
+            name(std::move(name)) {
+        }
 
         std::string name;
         llvm::Type *llvmType = nullptr;
@@ -150,7 +172,7 @@ export namespace Riddle {
         }
 
         [[nodiscard]] bool isClass() const {
-            if(basic_type::set.contains(name)) {
+            if (basicType::set.contains(name)) {
                 return false;
             }
             return true;
@@ -166,7 +188,8 @@ export namespace Riddle {
     public:
         ExprNode(TypeNode *type,
                  const SemNodeType semType,
-                 std::string name): SemNode(semType), type(type), name(std::move(name)) {}
+                 std::string name): SemNode(semType), type(type), name(std::move(name)) {
+        }
 
         TypeNode *&getType() {
             return type;
@@ -182,8 +205,9 @@ export namespace Riddle {
     public:
         BinaryOpNode(SemNode *left,
                      SemNode *right,
-                     std::string op): ExprNode(new TypeNode(TypeNode::unknown), BinaryOpNodeType, ""),//延后到语义分析决定
-                                      left(left), right(right), op(std::move(op)) {}
+                     std::string op): ExprNode(new TypeNode(TypeNode::unknown), BinaryOpNodeType, ""), //延后到语义分析决定
+                                      left(left), right(right), op(std::move(op)) {
+        }
 
         SemNode *left;
         SemNode *right;
@@ -191,10 +215,11 @@ export namespace Riddle {
 
         [[nodiscard]] bool isAssignOp() const {
             static std::unordered_set<std::string> ops = {
-                    "=", "+=", "-=",
-                    "*=", "/=", "%=",
-                    "&=", "|=", "^=",
-                    "<<=", ">>="};
+                "=", "+=", "-=",
+                "*=", "/=", "%=",
+                "&=", "|=", "^=",
+                "<<=", ">>="
+            };
             return ops.contains(op);
         }
 
@@ -203,7 +228,8 @@ export namespace Riddle {
 
     class ArgNode final : public SemNode {
     public:
-        ArgNode(std::string name, TypeNode *type, AllocaNode *alloca): SemNode(ArgNodeType), name(std::move(name)), type(type) {
+        ArgNode(std::string name, TypeNode *type, AllocaNode *alloca): SemNode(ArgNodeType), name(std::move(name)),
+                                                                       type(type) {
             this->alloca = alloca;
         }
 
@@ -224,7 +250,7 @@ export namespace Riddle {
                                                                  name(std::move(name)),
                                                                  body(body),
                                                                  returnType(returnType) {
-            for(auto &i: args) {
+            for (auto &i: args) {
                 this->args.push_back(i);
             }
         }
@@ -242,15 +268,20 @@ export namespace Riddle {
     class ReturnNode final : public SemNode {
     public:
         ExprNode *value;
-        ReturnNode(): SemNode(ReturnNodeType), value(nullptr) {}
-        explicit ReturnNode(ExprNode *value): SemNode(ReturnNodeType), value(value) {}
+
+        ReturnNode(): SemNode(ReturnNodeType), value(nullptr) {
+        }
+
+        explicit ReturnNode(ExprNode *value): SemNode(ReturnNodeType), value(value) {
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
     class LiteralNode : public ExprNode {
     public:
-        explicit LiteralNode(const SemNodeType semType, TypeNode *type): ExprNode(type, semType, "") {}
+        explicit LiteralNode(const SemNodeType semType, TypeNode *type): ExprNode(type, semType, "") {
+        }
 
         [[nodiscard]] bool isLiteral() const override {
             return true;
@@ -306,7 +337,7 @@ export namespace Riddle {
         std::string value;
 
         explicit StringLiteralNode(std::string value, ProgramNode *root): LiteralNode(StringLiteralNodeType,
-                                                                                      new TypeNode("char*")),
+                                                                              new TypeNode("char*")),
                                                                           value(std::move(value)) {
             root->addSemNode(type);
         }
@@ -318,7 +349,9 @@ export namespace Riddle {
     public:
         TypeNode *type;
         llvm::Value *alloca = nullptr;
-        explicit AllocaNode(TypeNode *type): SemNode(AllocaNodeType), type(type) {}
+
+        explicit AllocaNode(TypeNode *type): SemNode(AllocaNodeType), type(type) {
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -357,7 +390,9 @@ export namespace Riddle {
         void *s_obj = nullptr;
         void *g_obj = nullptr;
         bool isLoad = false;
-        explicit ObjectNode(std::string name, TypeNode *type): ExprNode(type, ObjectNodeType, std::move(name)) {}
+
+        explicit ObjectNode(std::string name, TypeNode *type): ExprNode(type, ObjectNodeType, std::move(name)) {
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -365,6 +400,7 @@ export namespace Riddle {
     class FuncCallNode final : public ExprNode {
     public:
         std::vector<ExprNode *> args;
+
         explicit FuncCallNode(ProgramNode *root,
                               std::string name,
                               std::vector<ExprNode *> args = {}): ExprNode(new TypeNode(TypeNode::unknown),
@@ -385,12 +421,15 @@ export namespace Riddle {
         ExprNode *condition;
         SemNode *then_body;
         SemNode *else_body;
+
         IfNode(ExprNode *condition,
                SemNode *then_body,
                SemNode *else_body): SemNode(IfNodeType),
                                     condition(condition),
                                     then_body(then_body),
-                                    else_body(else_body) {}
+                                    else_body(else_body) {
+        }
+
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
@@ -398,10 +437,12 @@ export namespace Riddle {
     public:
         ExprNode *condition;
         SemNode *body;
+
         WhileNode(ExprNode *condition,
                   SemNode *body): SemNode(WhileNodeType),
                                   condition(condition),
-                                  body(body) {}
+                                  body(body) {
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
@@ -412,13 +453,17 @@ export namespace Riddle {
         ExprNode *condition;
         SemNode *increment;
         SemNode *body;
-        ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body): SemNode(ForNodeType), init(init), condition(cond), increment(incr), body(body) {}
+
+        ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body): SemNode(ForNodeType), init(init),
+                                                                              condition(cond), increment(incr),
+                                                                              body(body) {
+        }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
     class ClassDefineNode final : public TypeNode {
-        std::unordered_map<std::string, std::pair<VarDefineNode *, size_t>> member_map;
+        std::unordered_map<std::string, std::pair<VarDefineNode *, size_t> > member_map;
         bool isBuild = false;
 
     public:
@@ -426,14 +471,15 @@ export namespace Riddle {
         std::vector<VarDefineNode *> members;
         std::unordered_map<std::string, FuncDefineNode *> functions;
 
-        explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {}
+        explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {
+        }
 
         void buildMembers() {
-            if(isBuild) {
+            if (isBuild) {
                 return;
             }
             size_t count = 0;
-            for(auto i: members) {
+            for (auto i: members) {
                 member_map.insert({i->name, {i, count++}});
             }
             isBuild = true;
@@ -441,7 +487,7 @@ export namespace Riddle {
 
         std::pair<VarDefineNode *, size_t> getMember(const std::string &name) {
             const auto it = member_map.find(name);
-            if(it == member_map.end()) {
+            if (it == member_map.end()) {
                 throw std::runtime_error("Member not found");
             }
             return it->second;
@@ -463,6 +509,7 @@ export namespace Riddle {
         bool isLoad = false;
         ExprNode *parent;
         ExprNode *child;
+
         BlendNode(ExprNode *parent,
                   ExprNode *child,
                   ProgramNode *root,
@@ -483,84 +530,103 @@ export namespace Riddle {
         virtual std::any visit(SemNode *node) {
             return node->accept(*this);
         }
+
         virtual std::any visitNode(SemNode *node) {
             return node->accept(*this);
         }
+
         virtual std::any visitProgram(ProgramNode *node) {
             std::any result;
-            for(const auto &i: *node->body) {
+            for (const auto &i: *node->body) {
                 result = i->accept(*this);
             }
             return result;
         }
+
         virtual std::any visitBinaryOp(BinaryOpNode *node) {
             node->left->accept(*this);
             return node->right->accept(*this);
         }
+
         virtual std::any visitBlock(BlockNode *node) {
             std::any result;
-            for(const auto &i: *node) {
+            for (const auto &i: *node) {
                 result = i->accept(*this);
             }
             return result;
         }
+
         virtual std::any visitArg(ArgNode *node) {
             return {};
         }
+
         virtual std::any visitFuncDefine(FuncDefineNode *node) {
-            for(const auto &i: node->args) {
+            for (const auto &i: node->args) {
                 i->accept(*this);
             }
             std::any result = node->body->accept(*this);
             return result;
         }
+
         virtual std::any visitPackage(PackageNode *node) {
             return {};
         }
+
         virtual std::any visitInteger(IntegerLiteralNode *node) {
             return {};
         }
+
         virtual std::any visitFloat(FloatLiteralNode *node) {
             return {};
         }
+
         virtual std::any visitBoolean(BoolLiteralNode *node) {
             return {};
         }
+
         virtual std::any visitString(StringLiteralNode *node) {
             return {};
         }
+
         virtual std::any visitVarDefine(VarDefineNode *node) {
             node->type->accept(*this);
             return node->value->accept(*this);
         }
+
         virtual std::any visitType(TypeNode *node) {
             return {};
         }
+
         virtual std::any visitObject(ObjectNode *node) {
             return {};
         }
+
         virtual std::any visitFuncCall(FuncCallNode *node) {
-            for(const auto i: node->args) {
+            for (const auto i: node->args) {
                 i->accept(*this);
             }
             return {};
         }
+
         virtual std::any visitAlloca(AllocaNode *node) {
             return {};
         }
+
         virtual std::any visitIf(IfNode *node) {
             node->condition->accept(*this);
             node->then_body->accept(*this);
-            if(node->else_body) {
+            if (node->else_body) {
                 node->else_body->accept(*this);
             }
             return {};
         }
+
         virtual std::any visitWhile(WhileNode *node) {
             node->condition->accept(*this);
             node->body->accept(*this);
             return {};
         }
+
         virtual std::any visitFor(ForNode *node) {
             node->init->accept(*this);
             node->condition->accept(*this);
@@ -568,24 +634,28 @@ export namespace Riddle {
             node->body->accept(*this);
             return {};
         }
+
         virtual std::any visitClassDefine(ClassDefineNode *node) {
-            for(const auto i: node->members) {
+            for (const auto i: node->members) {
                 i->accept(*this);
             }
-            for(const auto i: node->functions | std::views::values) {
+            for (const auto i: node->functions | std::views::values) {
                 i->accept(*this);
             }
             return {};
         }
+
         virtual std::any visitReturn(ReturnNode *node) {
-            if(node->value) node->value->accept(*this);
+            if (node->value) node->value->accept(*this);
             return {};
         }
+
         virtual std::any visitBlend(BlendNode *node) {
             node->parent->accept(*this);
             node->child->accept(*this);
             return {};
         }
+
         virtual ~SemNodeVisitor() = default;
     };
 #pragma endregion
@@ -611,6 +681,7 @@ export namespace Riddle {
     inline std::any FuncDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFuncDefine(this);
     }
+
     std::any ReturnNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitReturn(this);
     }
@@ -622,6 +693,7 @@ export namespace Riddle {
     inline std::any PackageNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitPackage(this);
     }
+
     std::any TypeNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitType(this);
     }
@@ -645,6 +717,7 @@ export namespace Riddle {
     inline std::any StringLiteralNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitString(this);
     }
+
     std::any AllocaNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitAlloca(this);
     }
@@ -652,26 +725,33 @@ export namespace Riddle {
     inline std::any VarDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitVarDefine(this);
     }
+
     inline std::any ObjectNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitObject(this);
     }
+
     inline std::any FuncCallNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFuncCall(this);
     }
+
     std::any IfNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitIf(this);
     }
+
     std::any WhileNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitWhile(this);
     }
+
     std::any ForNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFor(this);
     }
+
     std::any ClassDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitClassDefine(this);
     }
+
     std::any BlendNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitBlend(this);
     }
 #pragma endregion
-}// namespace Riddle
+} // namespace Riddle

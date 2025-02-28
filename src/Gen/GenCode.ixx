@@ -16,12 +16,10 @@ namespace Riddle {
     T *unpacking(std::any value) {
         return dynamic_cast<T *>(std::any_cast<SrcT *>(value));
     }
-}// namespace Riddle
+} // namespace Riddle
 export namespace Riddle {
     class GenCode final : public SemNodeVisitor {
-        auto parserType(TypeNode *node) {
-            return std::any_cast<llvm::Type *>(visitType(node));
-        }
+        auto parserType(TypeNode *node) { return std::any_cast<llvm::Type *>(visitType(node)); }
 
     protected:
         GenContext &context;
@@ -31,9 +29,7 @@ export namespace Riddle {
         explicit GenCode(GenContext &context, Unit &unit): context(context), unit(unit) {}
         std::any visitProgram(ProgramNode *node) override {
             context.llvmModule->setModuleIdentifier(unit.getPackName());
-            for(const auto i: *node->body) {
-                visit(i);
-            }
+            for (const auto i: *node->body) { visit(i); }
             context.llvmModule->print(llvm::outs(), nullptr);
             return {};
         }
@@ -49,7 +45,8 @@ export namespace Riddle {
         }
 
         std::any visitFloat(FloatLiteralNode *node) override {
-            llvm::Value *value = llvm::ConstantFP::get(llvm::Type::getDoubleTy(context.llvmModule->getContext()), node->value);
+            llvm::Value *value =
+                    llvm::ConstantFP::get(llvm::Type::getDoubleTy(context.llvmModule->getContext()), node->value);
             return value;
         }
 
@@ -67,32 +64,29 @@ export namespace Riddle {
 
         std::any visitFuncDefine(FuncDefineNode *node) override {
             const auto name = node->name;
-            if(node->returnType->llvmType == nullptr) {
+            if (node->returnType->llvmType == nullptr) {
                 node->returnType->llvmType = std::any_cast<llvm::Type *>(visit(node->returnType));
             }
             const auto returnType = node->returnType->llvmType;
 
             // 处理函数参数
             std::vector<llvm::Type *> paramTypes;
-            for(const auto i: node->args) {
-                paramTypes.push_back(parserType(i->type));
-            }
+            for (const auto i: node->args) { paramTypes.push_back(parserType(i->type)); }
 
             const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
-            const auto func = llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule);
+            const auto func =
+                    llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule);
 
             // 处理函数参数命名
             int index = 0;
-            for(auto it = func->arg_begin(); it != func->arg_end(); ++it, ++index) {
+            for (auto it = func->arg_begin(); it != func->arg_end(); ++it, ++index) {
                 it->setName(node->args.at(index)->name);
             }
 
             const auto obj = new GenFunction(node, func);
-            if(node->theClass) {
-                obj->is_weak = true;
-            }
+            if (node->theClass) { obj->is_weak = true; }
             context.addObject(obj);
-            if(node->body) {
+            if (node->body) {
                 const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
                 context.builder->SetInsertPoint(entry);
 
@@ -100,20 +94,18 @@ export namespace Riddle {
                 context.pushFunc(obj);
 
                 auto args = func->arg_begin();
-                for(const auto &arg: node->args) {
+                for (const auto &arg: node->args) {
                     arg->alloca->alloca = args;
                     args++;
                     visit(arg);
                 }
 
-                for(const auto i: *node->body) {
-                    visit(i);
-                }
+                for (const auto i: *node->body) { visit(i); }
 
                 context.pop();
                 context.popFunc();
 
-                if(verifyFunction(*func, &llvm::errs())) {
+                if (verifyFunction(*func, &llvm::errs())) {
                     func->eraseFromParent();
 
                     return {};
@@ -127,15 +119,11 @@ export namespace Riddle {
         std::any visitObject(ObjectNode *node) override {
             const auto name = node->getName();
             const auto obj = context.getObject(name);
-            if(obj->getGenType() != GenObject::Variable) {
-                throw std::runtime_error("Object is not a variable");
-            }
+            if (obj->getGenType() != GenObject::Variable) { throw std::runtime_error("Object is not a variable"); }
             const auto type = parserType(node->getType());
             const auto var = dynamic_cast<GenVariable *>(obj);
             llvm::Value *result = var->alloca->alloca;
-            if(node->isLoad) {
-                result = context.builder->CreateLoad(type, result);
-            }
+            if (node->isLoad) { result = context.builder->CreateLoad(type, result); }
             return result;
         }
 
@@ -150,23 +138,16 @@ export namespace Riddle {
             // 已经预先分配空间
             const auto obj = new GenVariable(node);
             context.addObject(obj);
-            if(node->isGlobal) {
+            if (node->isGlobal) {
                 const auto value = std::any_cast<llvm::Value *>(visit(node->value));
                 const auto cst = llvm::dyn_cast<llvm::Constant>(value);
-                const auto var = new llvm::GlobalVariable(
-                        *context.llvmModule,
-                        parserType(node->type),
-                        false,
-                        llvm::GlobalValue::ExternalLinkage,
-                        cst,
-                        name);
+                const auto var = new llvm::GlobalVariable(*context.llvmModule, parserType(node->type), false,
+                                                          llvm::GlobalValue::ExternalLinkage, cst, name);
                 node->alloca->alloca = var;
                 return {};
             }
-            if(node->value) {
-                if(!node->alloca) {
-                    throw std::runtime_error("Variable does not have alloca");
-                }
+            if (node->value) {
+                if (!node->alloca) { throw std::runtime_error("Variable does not have alloca"); }
                 const auto value = std::any_cast<llvm::Value *>(visit(node->value));
                 context.builder->CreateStore(value, node->alloca->alloca);
             }
@@ -174,9 +155,7 @@ export namespace Riddle {
         }
 
         std::any visitType(TypeNode *node) override {
-            if(node->llvmType) {
-                return node->llvmType;
-            }
+            if (node->llvmType) { return node->llvmType; }
             const auto &name = node->name;
             static std::unordered_map<std::string, llvm::Type *> base_types = {
                     {"bool", llvm::Type::getInt1Ty(*context.llvmContext)},
@@ -189,13 +168,9 @@ export namespace Riddle {
                     {"void", llvm::Type::getVoidTy(*context.llvmContext)},
                     {"char*", llvm::Type::getInt8Ty(*context.llvmContext)->getPointerTo()}};
             // 尝试获取基本类型
-            if(base_types.contains(name)) {
-                return base_types[name];
-            }
+            if (base_types.contains(name)) { return base_types[name]; }
             const auto obj = context.getObject(name);
-            if(obj->getGenType() != GenObject::Class) {
-                throw std::runtime_error("Object doesn't have a class");
-            }
+            if (obj->getGenType() != GenObject::Class) { throw std::runtime_error("Object doesn't have a class"); }
             const auto typ = dynamic_cast<GenClass *>(obj);
             node->llvmType = typ->getLLVMType();
             return typ->getLLVMType();
@@ -203,15 +178,18 @@ export namespace Riddle {
 
         std::any visitIf(IfNode *node) override {
             // 生成 Basic Block
-            llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *thenBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc()->llvmFunction);
             llvm::BasicBlock *elseBlock = nullptr;
-            if(node->else_body) {
-                elseBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc()->llvmFunction);
+            if (node->else_body) {
+                elseBlock =
+                        llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc()->llvmFunction);
             }
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *exitBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc()->llvmFunction);
 
             const auto condition = std::any_cast<llvm::Value *>(visit(node->condition));
-            if(node->else_body) {
+            if (node->else_body) {
                 context.builder->CreateCondBr(condition, thenBlock, elseBlock);
             } else {
                 context.builder->CreateCondBr(condition, thenBlock, exitBlock);
@@ -224,7 +202,7 @@ export namespace Riddle {
             context.builder->CreateBr(exitBlock);
             context.pop();
 
-            if(node->else_body) {
+            if (node->else_body) {
                 context.builder->SetInsertPoint(elseBlock);
                 context.push();
                 visit(node->else_body);
@@ -238,9 +216,12 @@ export namespace Riddle {
         }
 
         std::any visitWhile(WhileNode *node) override {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.cond", context.getNowFunc()->llvmFunction);
-            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc()->llvmFunction);
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *condBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *bodyBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *exitBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc()->llvmFunction);
 
             context.builder->CreateBr(condBlock);
             context.builder->SetInsertPoint(condBlock);
@@ -259,9 +240,12 @@ export namespace Riddle {
         }
 
         std::any visitFor(ForNode *node) override {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "for.cond", context.getNowFunc()->llvmFunction);
-            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "for.body", context.getNowFunc()->llvmFunction);
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "for.exit", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *condBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "for.cond", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *bodyBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "for.body", context.getNowFunc()->llvmFunction);
+            llvm::BasicBlock *exitBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "for.exit", context.getNowFunc()->llvmFunction);
 
             context.push();
             // 预先 init
@@ -284,18 +268,18 @@ export namespace Riddle {
         std::any visitFuncCall(FuncCallNode *node) override {
             const auto name = node->getName();
             GenObject *obj = nullptr;
-            if(!node->g_obj) {
+            if (!node->g_obj) {
                 obj = context.getObject(name);
             } else {
                 obj = static_cast<GenObject *>(node->g_obj);
             }
-            if(obj->getGenType() != GenObject::Function) {
+            if (obj->getGenType() != GenObject::Function) {
                 throw std::runtime_error("Object doesn't have a function");
             }
             const auto func = dynamic_cast<GenFunction *>(obj);
             std::vector<llvm::Value *> argValues;
             argValues.reserve(node->args.size());
-            for(const auto arg: node->args) {
+            for (const auto arg: node->args) {
                 auto result = std::any_cast<llvm::Value *>(visit(arg));
                 argValues.push_back(result);
             }
@@ -311,16 +295,12 @@ export namespace Riddle {
             context.addObject(obj);
             // 获取memberType
             std::vector<llvm::Type *> memberTypes;
-            for(const auto i: node->members) {
-                memberTypes.push_back(parserType(i->type));
-            }
+            for (const auto i: node->members) { memberTypes.push_back(parserType(i->type)); }
             // 保证对象地址存在
-            if(memberTypes.empty()) {
-                memberTypes.emplace_back(llvm::Type::getInt1Ty(*context.llvmContext));
-            }
+            if (memberTypes.empty()) { memberTypes.emplace_back(llvm::Type::getInt1Ty(*context.llvmContext)); }
             obj->type->setBody(memberTypes);
             context.push();
-            for(const auto i: node->functions | std::views::values) {
+            for (const auto i: node->functions | std::views::values) {
                 const auto func = unpacking<GenFunction>(visit(i));
                 obj->addFunc(func);
             }
@@ -329,7 +309,7 @@ export namespace Riddle {
         }
 
         std::any visitReturn(ReturnNode *node) override {
-            if(node->value) {
+            if (node->value) {
                 const auto result = std::any_cast<llvm::Value *>(visit(node->value));
                 context.builder->CreateRet(result);
             } else {
@@ -340,13 +320,11 @@ export namespace Riddle {
 
 
         std::any visitBlend(BlendNode *node) override {
-            switch(node->blend_type) {
+            switch (node->blend_type) {
                 case BlendNode::Member: {
                     const auto parent = std::any_cast<llvm::Value *>(visit(node->parent));
                     const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
-                    if(!theClass) {
-                        throw std::runtime_error("Parent Not a class");
-                    }
+                    if (!theClass) { throw std::runtime_error("Parent Not a class"); }
 
                     theClass->define->buildMembers();
                     const auto child = dynamic_cast<ObjectNode *>(node->child);
@@ -354,13 +332,13 @@ export namespace Riddle {
                     llvm::Value *result;
                     const auto parentType = parserType(node->parent->getType());
 
-                    if(parent->getType()->isPointerTy()) {
+                    if (parent->getType()->isPointerTy()) {
                         result = context.builder->CreateStructGEP(parentType, parent, index);
                     } else {
                         result = context.builder->CreateExtractValue(parent, index);
                     }
 
-                    if(node->isLoad && result->getType()->isPointerTy()) {
+                    if (node->isLoad && result->getType()->isPointerTy()) {
                         result = context.builder->CreateLoad(parserType(member->type), result);
                     }
 
@@ -368,9 +346,7 @@ export namespace Riddle {
                 }
                 case BlendNode::Method: {
                     const auto theClass = dynamic_cast<GenClass *>(context.getObject(node->parent->getType()->name));
-                    if(!theClass) {
-                        throw std::runtime_error("Parent Not a class");
-                    }
+                    if (!theClass) { throw std::runtime_error("Parent Not a class"); }
 
                     theClass->define->buildMembers();
                     const auto child = dynamic_cast<FuncCallNode *>(node->child);
@@ -379,18 +355,16 @@ export namespace Riddle {
                 }
                 case BlendNode::Module: {
                     const auto theModule = dynamic_cast<GenModule *>(context.getObject(node->parent->getName()));
-                    if(!theModule) {
-                        throw std::runtime_error("Parent Not a class");
-                    }
+                    if (!theModule) { throw std::runtime_error("Parent Not a class"); }
 
                     const auto obj = theModule->getObject(node->child->getName());
 
-                    switch(obj->getGenType()) {
+                    switch (obj->getGenType()) {
                         case GenObject::Variable: {
                             const auto var = dynamic_cast<GenVariable *>(obj);
                             node->getType()->llvmType = parserType(var->type);
                             llvm::Value *result = var->alloca->alloca;
-                            result = context.builder->CreateLoad(node->getType()->llvmType,result);
+                            result = context.builder->CreateLoad(node->getType()->llvmType, result);
                             return result;
                         }
                         case GenObject::Function: {
@@ -415,4 +389,4 @@ export namespace Riddle {
             return {};
         }
     };
-}// namespace Riddle
+} // namespace Riddle
