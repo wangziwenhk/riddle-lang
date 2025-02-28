@@ -24,7 +24,9 @@ export namespace Riddle {
         SemObjectType type;
 
     public:
-        explicit SemObject(const SemObjectType type): type(type) {}
+        explicit SemObject(const SemObjectType type): type(type) {
+        }
+
         virtual ~SemObject() = default;
 
         [[nodiscard]] virtual std::string getName() const = 0;
@@ -43,6 +45,7 @@ export namespace Riddle {
 
     public:
         bool is_arg = false;
+
         explicit SemVariable(const VarDefineNode *def): SemObject(Variable) {
             type = def->type;
             name = def->name;
@@ -61,7 +64,7 @@ export namespace Riddle {
         TypeNode *getConstType() override {
             return type;
         }
-        
+
 
         [[nodiscard]] std::string getName() const override {
             return name;
@@ -75,7 +78,9 @@ export namespace Riddle {
     class SemFunction final : public SemObject {
     public:
         FuncDefineNode *define;
-        explicit SemFunction(FuncDefineNode *def): SemObject(Function), define(def) {}
+
+        explicit SemFunction(FuncDefineNode *def): SemObject(Function), define(def) {
+        }
 
         [[nodiscard]] TypeNode *&getReturnType() const {
             return define->returnType;
@@ -98,14 +103,15 @@ export namespace Riddle {
     public:
         ClassDefineNode *define;
 
-        explicit SemClass(ClassDefineNode *define): SemObject(Class), define(define) {}
+        explicit SemClass(ClassDefineNode *define): SemObject(Class), define(define) {
+        }
 
         [[nodiscard]] std::string getName() const override {
             return define->name;
         }
 
         [[nodiscard]] TypeNode *getConstType() override {
-            return dynamic_cast<TypeNode *>(define);
+            return define;
         }
     };
 
@@ -115,18 +121,19 @@ export namespace Riddle {
         std::string name;
 
     public:
-        explicit SemModule(std::string name): SemObject(Module),name(std::move(name)) {}
+        explicit SemModule(std::string name): SemObject(Module), name(std::move(name)) {
+        }
 
         void addObject(SemObject *obj) {
-            if(objects.contains(obj->getName())) {
+            if (objects.contains(obj->getName())) {
                 throw std::runtime_error("Duplicate object name");
             }
             objects[obj->getName()] = obj;
         }
 
-        SemObject* getObject(const std::string &name) const {
+        SemObject *getObject(const std::string &name) const {
             const auto it = objects.find(name);
-            if(it == objects.end()) {
+            if (it == objects.end()) {
                 throw std::runtime_error("Duplicate object name");
             }
             return it->second;
@@ -143,10 +150,11 @@ export namespace Riddle {
 
     class SemContext {
     protected:
-        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject>>> symbols{};
-        std::stack<std::unordered_set<std::string>> defines;
+        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject> > > symbols{};
+        std::stack<std::unordered_set<std::string> > defines;
         std::stack<SemClass *> classes;
         std::stack<SemFunction *> functions;
+
 
     public:
         SemContext(): defines() {
@@ -157,7 +165,7 @@ export namespace Riddle {
             pop();
         }
 
-        auto& getAllObjects() {
+        auto &getAllObjects() {
             return symbols;
         }
 
@@ -166,9 +174,9 @@ export namespace Riddle {
         }
 
         void pop() {
-            for(const auto &i: defines.top()) {
+            for (const auto &i: defines.top()) {
                 symbols.at(i).pop();
-                if(symbols.at(i).empty()) {
+                if (symbols.at(i).empty()) {
                     symbols.erase(i);
                 }
             }
@@ -180,14 +188,14 @@ export namespace Riddle {
         }
 
         void popClass() {
-            if(classes.empty()) {
+            if (classes.empty()) {
                 return;
             }
             classes.pop();
         }
 
         SemClass *getNowClass() {
-            if(classes.empty()) {
+            if (classes.empty()) {
                 return nullptr;
             }
             return classes.top();
@@ -198,14 +206,14 @@ export namespace Riddle {
         }
 
         void popFunc() {
-            if(functions.empty()) {
+            if (functions.empty()) {
                 return;
             }
             functions.pop();
         }
 
         SemFunction *getNowFunc() {
-            if(functions.empty()) {
+            if (functions.empty()) {
                 return nullptr;
             }
             return functions.top();
@@ -217,7 +225,7 @@ export namespace Riddle {
 
         void addSemObject(SemObject *obj) {
             const std::string name = obj->getName();
-            if(defines.top().contains(name)) {
+            if (defines.top().contains(name)) {
                 throw std::runtime_error(std::format("SemObject \"{}\" already exists", name));
             }
             defines.top().insert(name);
@@ -226,10 +234,10 @@ export namespace Riddle {
 
         SemObject *getSemObject(const std::string &name) {
             const auto it = symbols.find(name);
-            if(it == symbols.end()) {
+            if (it == symbols.end()) {
                 return nullptr;
             }
             return it->second.top().get();
         }
     };
-}// namespace Riddle
+} // namespace Riddle

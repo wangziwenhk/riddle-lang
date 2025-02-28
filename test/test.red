@@ -1,9 +1,8 @@
 package main
-
-import test;
-
+fun fib(x:int)->int{
+    return 1
+}
 fun main() -> int{
-    var x = test.a()
-    var y = test.xx
+    fib(35)
     return 0
 }
