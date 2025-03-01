@@ -33,6 +33,8 @@ QQ群号：677741637
 - [LLVM](https://github.com/llvm/llvm-project)
 - [Antlr4](https://github.com/antlr/antlr4)
 - [TermColor](https://github.com/ikalnytskyi/termcolor)
+- ArgParse
+- magic_enum
 
 # 许可证
 
@@ -53,6 +55,8 @@ Apache 许可证没有提供任何形式的保证，用户对使用软件所造�
 - LLVM 18 及以上版本
 - TermColor
 - Antlr 4.13 及以上版本
+- ArgParse 3.0 及以上版本
+- magic_enum 0.9.5 及以上版本
 ### 配置
 ```bash
 mkdir build

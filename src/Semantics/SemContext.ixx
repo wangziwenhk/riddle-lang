@@ -6,9 +6,10 @@ module;
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#define val const auto
+#include "Support/Hash.hpp"
 export module Semantics.SemContext;
 export import Semantics.SemNode;
+import Config.BasicOperator;
 export namespace Riddle {
     /// 在词法解析过程中产生的 Object
     class SemObject {
@@ -150,14 +151,21 @@ export namespace Riddle {
 
     class SemContext {
     protected:
-        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject> > > symbols{};
-        std::stack<std::unordered_set<std::string> > defines;
+        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject>>> symbols{};
+        std::stack<std::unordered_set<std::string>> defines;
         std::stack<SemClass *> classes;
         std::stack<SemFunction *> functions;
+
+        std::unordered_map<std::tuple<std::string, std::string, std::string>, std::string> operators;
 
 
     public:
         SemContext(): defines() {
+            operators = numOpReType;
+            // 初始化逻辑运算符（可短路
+            for (auto i: LogicOp::list) {
+                operators.insert({{"bool", "bool", i}, "bool"});
+            }
             push();
         }
 
@@ -238,6 +246,22 @@ export namespace Riddle {
                 return nullptr;
             }
             return it->second.top().get();
+        }
+
+        void addOperator(std::tuple<std::string, std::string, std::string> opGroup, std::string type) {
+            const auto op = std::get<2>(opGroup);
+            if (LogicOp::set.contains(op)) {
+                throw std::logic_error(std::format("Logical {} operators cannot be overloaded", op));
+            }
+            operators.insert({opGroup, type});
+        }
+
+        std::string getOperator(const std::tuple<std::string, std::string, std::string> &opGroup) {
+            const auto it = operators.find(opGroup);
+            if (it == operators.end()) {
+                throw std::runtime_error("Duplicate operator");
+            }
+            return it->second;
         }
     };
 } // namespace Riddle

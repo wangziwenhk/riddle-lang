@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.30)
 
 project(riddle-lang VERSION 0.1 LANGUAGES CXX)
 
@@ -26,19 +26,18 @@ find_package(LLVM REQUIRED CONFIG)
 find_package(antlr4-runtime CONFIG REQUIRED)
 find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
 find_package(argparse CONFIG REQUIRED)
+find_package(magic_enum CONFIG REQUIRED)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
 message(STATUS "Found Termcolor include ${TERMCOLOR_INCLUDE_DIRS}")
-message(STATUS "Found ArgParse include ${ARGPARSE_INCLUDE_DIRS}")
 
 include_directories(src)
 include_directories(parser)
 include_directories(${TERMCOLOR_INCLUDE_DIRS})
 include_directories(${ANTLR4_INCLUDE_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})
-include_directories(${ARGPARSE_INCLUDE_DIRS})
 
 execute_process(
         COMMAND git describe --tags --always
@@ -79,8 +78,10 @@ target_link_libraries(riddle ${llvm_libs})
 target_link_libraries(riddle riddle-module)
 target_link_libraries(riddle antlr4_shared)
 target_link_libraries(riddle argparse::argparse)
+target_link_libraries(riddle magic_enum::magic_enum)
 
 target_link_libraries(test ${llvm_libs})
 target_link_libraries(test riddle-module)
 target_link_libraries(test antlr4_shared)
 target_link_libraries(test argparse::argparse)
+target_link_libraries(test magic_enum::magic_enum)
