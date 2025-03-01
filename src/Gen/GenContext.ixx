@@ -24,12 +24,15 @@ export namespace Riddle {
         std::string name;
         /// 表示 context 是否拥有该对象的所有权
         bool is_weak = false;
-        explicit GenObject(const GenObjectType type, std::string name): type_id(type), name(std::move(name)) {}
+        explicit GenObject(const GenObjectType type, std::string name): type_id(type), name(std::move(name)) {
+        }
         virtual ~GenObject() = default;
 
-        [[nodiscard]] GenObjectType getGenType() const { return type_id; }
+        [[nodiscard]] GenObjectType getGenType() const {
+            return type_id;
+        }
 
-        virtual GenObject* clone() {
+        virtual GenObject *clone() {
             return new GenObject(*this);
         }
     };
@@ -38,15 +41,15 @@ export namespace Riddle {
 
     public:
         explicit GenVariable(const VarDefineNode *define): GenObject(Variable, define->name) {
-            if(define == nullptr) {
+            if (define == nullptr) {
                 throw std::runtime_error("ptr is nullptr");
             }
             alloca = define->alloca;
             type = define->type;
             isGlobal = define->isGlobal;
         }
-        explicit GenVariable(const ArgNode *define): GenObject(Variable, define->name),isGlobal(false) {
-            if(define == nullptr) {
+        explicit GenVariable(const ArgNode *define): GenObject(Variable, define->name), isGlobal(false) {
+            if (define == nullptr) {
                 throw std::runtime_error("ptr is nullptr");
             }
             alloca = define->alloca;
@@ -65,7 +68,9 @@ export namespace Riddle {
     public:
         FuncDefineNode *define;
         llvm::Function *llvmFunction;
-        GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define), llvmFunction(func) {}
+        GenFunction(FuncDefineNode *define, llvm::Function *func):
+            GenObject(Function, define->name), define(define), llvmFunction(func) {
+        }
 
         GenObject *clone() override {
             return new GenFunction(*this);
@@ -78,10 +83,11 @@ export namespace Riddle {
     public:
         ClassDefineNode *define;
         llvm::StructType *type = nullptr;
-        explicit GenClass(ClassDefineNode *define): GenObject(Class, define->name), define(define) {}
+        explicit GenClass(ClassDefineNode *define): GenObject(Class, define->name), define(define) {
+        }
 
         ~GenClass() override {
-            for(const auto i: functions | std::views::values) {
+            for (const auto i: functions | std::views::values) {
                 delete i;
             }
         }
@@ -91,14 +97,14 @@ export namespace Riddle {
         }
 
         void addFunc(GenFunction *func) {
-            if(functions.contains(func->name)) {
+            if (functions.contains(func->name)) {
                 throw std::logic_error("Function " + func->name + " all exist");
             }
             functions[func->name] = func;
         }
 
         GenFunction *getFunc(const std::string &name) const {
-            if(!functions.contains(name)) {
+            if (!functions.contains(name)) {
                 throw std::logic_error("Function " + name + " does not exist");
             }
             return functions.at(name);
@@ -113,24 +119,25 @@ export namespace Riddle {
         std::unordered_map<std::string, GenObject *> objects;
 
     public:
-        explicit GenModule(std::string name): GenObject(Module, std::move(name)) {}
+        explicit GenModule(std::string name): GenObject(Module, std::move(name)) {
+        }
 
         void addObject(GenObject *obj) {
-            if(objects.contains(obj->name)) {
+            if (objects.contains(obj->name)) {
                 throw std::logic_error("Object " + obj->name + " already exist");
             }
             objects[obj->name] = obj;
         }
 
         GenObject *getObject(const std::string &name) const {
-            if(!objects.contains(name)) {
+            if (!objects.contains(name)) {
                 throw std::logic_error("Object " + name + " does not exist");
             }
             return objects.at(name);
         }
 
         ~GenModule() override {
-            for(const auto i: objects | std::views::values) {
+            for (const auto i: objects | std::views::values) {
                 delete i;
             }
         }
@@ -155,11 +162,9 @@ export namespace Riddle {
         llvm::IRBuilder<> *builder{};
         std::string name;
 
-        explicit GenContext(llvm::LLVMContext *llvmContext,
-                            const std::string &name = ""): llvmContext(llvmContext),
-                                                           llvmModule(new llvm::Module(name, *llvmContext)),
-                                                           builder(new llvm::IRBuilder(*llvmContext)),
-                                                           name(name) {
+        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""):
+            llvmContext(llvmContext), llvmModule(new llvm::Module(name, *llvmContext)),
+            builder(new llvm::IRBuilder(*llvmContext)), name(name) {
             push();
         }
 
@@ -184,7 +189,7 @@ export namespace Riddle {
         }
 
         void addObject(GenObject *object) {
-            if(defines.top().contains(object->name)) {
+            if (defines.top().contains(object->name)) {
                 throw std::runtime_error(std::format("Object '{}' already exists", object->name));
             }
             defines.top().insert(object->name);
@@ -192,7 +197,7 @@ export namespace Riddle {
         }
 
         GenObject *getObject(std::string name) {
-            if(!objects.contains(name)) {
+            if (!objects.contains(name)) {
                 throw std::runtime_error(std::format("Object '{}' does not exist", name));
             }
             return objects[name].top();
@@ -203,13 +208,13 @@ export namespace Riddle {
         }
 
         void pop() {
-            for(const auto &i: defines.top()) {
+            for (const auto &i: defines.top()) {
                 const auto ptr = objects.at(i).top();
                 objects.at(i).pop();
-                if(objects.at(i).empty()) {
+                if (objects.at(i).empty()) {
                     objects.erase(i);
                 }
-                if(!ptr->is_weak) {
+                if (!ptr->is_weak) {
                     delete ptr;
                 }
             }
@@ -220,4 +225,4 @@ export namespace Riddle {
             return objects;
         }
     };
-}// namespace Riddle
+} // namespace Riddle

@@ -27,7 +27,8 @@ Riddle Language is a memory-safe programming language designed to address the sh
 - [LLVM](https://github.com/llvm/llvm-project)
 - [Antlr4](https://github.com/antlr/antlr4)
 - [TermColor](https://github.com/ikalnytskyi/termcolor)
-
+- ArgParse
+- magic_enum
 # License
 
 This project is open-sourced under the [**Apache License 2.0**](https://www.apache.org/licenses/LICENSE-2.0.html). This license requires that **the original copyright
@@ -48,6 +49,8 @@ You can obtain the executables from the [releases page on GitHub](https://github
 - LLVM version 18 or higher
 - TermColor
 - Antlr version 4.13 or higher
+- ArgParse 3.0 or higher
+- magic_enum 0.9.5 or higher
 ### Configuration
 ```bash
 mkdir build

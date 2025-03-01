@@ -115,7 +115,9 @@ export namespace Riddle {
             }
             visit(node->left);
             visit(node->right);
-            
+            std::string_view left = node->left->getType()->name;
+            std::string_view right = node->right->getType()->name;
+            node->getType()->name = context.getOperator({left.data(), right.data(), node->op});
             return {};
         }
 
@@ -178,6 +180,7 @@ export namespace Riddle {
         }
 
         std::any visitFuncDefine(FuncDefineNode *node) override {
+
             const auto obj = new SemFunction(node);
             context.addSemObject(obj);
 
@@ -230,15 +233,15 @@ export namespace Riddle {
             }
             auto obj = context.getSemObject(parentType->name);
 
-            if (obj && obj->getSemObjType() == SemObject::Class && node->child->getSemType() ==
-                SemNode::ObjectNodeType) {
+            if (obj && obj->getSemObjType() == SemObject::Class &&
+                node->child->getSemType() == SemNode::ObjectNodeType) {
                 node->blend_type = BlendNode::Member;
                 const auto theClass = dynamic_cast<SemClass *>(obj);
                 theClass->define->buildMembers();
                 const auto child = dynamic_cast<ObjectNode *>(node->child);
                 *node->getType() = *theClass->define->getMember(child->getName()).first->type;
-            } else if (obj && obj->getSemObjType() == SemObject::Class && node->child->getSemType() ==
-                       SemNode::FuncCallNodeType) {
+            } else if (obj && obj->getSemObjType() == SemObject::Class &&
+                       node->child->getSemType() == SemNode::FuncCallNodeType) {
                 node->blend_type = BlendNode::Method;
                 const auto theClass = dynamic_cast<SemClass *>(obj);
                 const auto child = dynamic_cast<FuncCallNode *>(node->child);

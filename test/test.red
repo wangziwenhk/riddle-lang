@@ -1,6 +1,6 @@
 package main
 fun fib(x:int)->int{
-    return 1
+    return 1+1
 }
 fun main() -> int{
     fib(35)

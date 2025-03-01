@@ -4,8 +4,8 @@ module;
 #include <format>
 export module Parsing.GramAnalysis;
 import Semantics.SemNode;
+import Semantics.Modifier;
 namespace Riddle {
-
     template<typename Tp, typename SrcTp = SemNode, typename Arg>
         requires std::is_same_v<std::decay_t<Arg>, std::any>
     Tp *unpacking(Arg &&src) {
@@ -16,10 +16,9 @@ namespace Riddle {
     std::shared_ptr<Tp> toSPtr(Tp *x) {
         return std::shared_ptr<Tp>(x);
     }
-}// namespace Riddle
+} // namespace Riddle
 export namespace Riddle {
     class GramAnalysis final : public RiddleParserBaseVisitor {
-
     public:
         GramAnalysis() = default;
 
@@ -31,13 +30,14 @@ export namespace Riddle {
             const auto program = new ProgramNode(body);
             root = program;
             root->addSemNode(body);
-            for(const auto i: ctx->children) {
+            for (const auto i: ctx->children) {
                 auto result = visit(i);
-                if(!result.has_value() || result.type() == typeid(nullptr)) {
+                if (!result.has_value() || result.type() == typeid(nullptr)) {
                     continue;
                 }
-                if(result.type() != typeid(SemNode *)) {
-                    throw std::runtime_error(std::format("GramAnalysis: Result \'{}\' not SemNode", result.type().name()));
+                if (result.type() != typeid(SemNode *)) {
+                    throw std::runtime_error(
+                        std::format("GramAnalysis: Result \'{}\' not SemNode", result.type().name()));
                 }
                 program->body->push_back(std::any_cast<SemNode *>(result));
             }
@@ -51,7 +51,7 @@ export namespace Riddle {
         }
 
         std::any visitStatement_ed(RiddleParser::Statement_edContext *ctx) override {
-            if(antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children[0])) {
+            if (antlrcpp::is<antlr4::tree::TerminalNode *>(ctx->children[0])) {
                 return {};
             }
             return visit(ctx->children[0]);
@@ -60,12 +60,12 @@ export namespace Riddle {
         std::any visitBodyExpr(RiddleParser::BodyExprContext *ctx) override {
             const auto block = new BlockNode;
             root->addSemNode(block);
-            for(const auto i: ctx->children) {
+            for (const auto i: ctx->children) {
                 auto result = visit(i);
-                if(!result.has_value()) {
+                if (!result.has_value()) {
                     continue;
                 }
-                if(result.type() != typeid(SemNode *)) {
+                if (result.type() != typeid(SemNode *)) {
                     throw std::runtime_error("GramAnalysis: Result not SemNode");
                 }
                 block->push_back(std::any_cast<SemNode *>(result));
@@ -97,10 +97,10 @@ export namespace Riddle {
             auto literal = ctx->getText();
             literal = literal.substr(1, literal.length() - 2);
             std::string result;
-            for(int i = 0; i < literal.length(); i++) {
+            for (int i = 0; i < literal.length(); i++) {
                 const char ch = literal.at(i);
-                if(ch == '\\') {
-                    switch(literal.at(i + 1)) {
+                if (ch == '\\') {
+                    switch (literal.at(i + 1)) {
                         case 'n':
                             result.push_back('\n');
                             break;
@@ -127,85 +127,88 @@ export namespace Riddle {
 
 #pragma region Operators
         std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "+");
             root->addSemNode(node);
             return node;
         }
+
         std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "-");
             root->addSemNode(node);
             return node;
         }
+
         std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "*");
             root->addSemNode(node);
             return node;
         }
+
         std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "/");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "^");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "&");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "|");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "+=");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "-=");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "/=");
             root->addSemNode(node);
             return node;
         }
 
         std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) override {
-            const auto left = std::any_cast<SemNode *>(visit(ctx->left));
-            const auto right = std::any_cast<SemNode *>(visit(ctx->right));
+            const auto left = unpacking<ExprNode>(visit(ctx->left));
+            const auto right = unpacking<ExprNode>(visit(ctx->right));
             SemNode *node = new BinaryOpNode(left, right, "*=");
             root->addSemNode(node);
             return node;
@@ -215,23 +218,23 @@ export namespace Riddle {
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
             const auto name = ctx->funcName->getText();
             BlockNode *body = nullptr;
-            if(ctx->body) {
+            if (ctx->body) {
                 body = dynamic_cast<BlockNode *>(std::any_cast<SemNode *>(visit(ctx->body)));
             }
             TypeNode *returnType = nullptr;
-            if(ctx->returnType == nullptr) {
+            if (ctx->returnType == nullptr) {
                 returnType = new TypeNode("void");
                 root->addSemNode(returnType);
             } else {
                 returnType = dynamic_cast<TypeNode *>(std::any_cast<SemNode *>(visit(ctx->returnType)));
             }
-            if(returnType == nullptr) {
+            if (returnType == nullptr) {
                 throw std::runtime_error("GramAnalysis: Result node not Type");
             }
 
             std::vector<ArgNode *> args;
-            if(ctx->args != nullptr) {
-                args = std::any_cast<std::vector<ArgNode *>>(visitDefineArgs(ctx->args));
+            if (ctx->args != nullptr) {
+                args = std::any_cast<std::vector<ArgNode *> >(visitDefineArgs(ctx->args));
             }
             SemNode *func = new FuncDefineNode(name, returnType, body, args);
             root->addSemNode(func);
@@ -249,13 +252,13 @@ export namespace Riddle {
             std::string name;
             TypeNode *type = nullptr;
             std::vector<ArgNode *> args;
-            for(const auto i: ctx->children) {
-                if(antlrcpp::is<RiddleParser::IdContext *>(i)) {
+            for (const auto i: ctx->children) {
+                if (antlrcpp::is<RiddleParser::IdContext *>(i)) {
                     name = i->getText();
-                } else if(antlrcpp::is<RiddleParser::TypeUsedContext *>(i)) {
+                } else if (antlrcpp::is<RiddleParser::TypeUsedContext *>(i)) {
                     type = unpacking<TypeNode>(visit(i));
                 }
-                if(!name.empty() && type != nullptr) {
+                if (!name.empty() && type != nullptr) {
                     const auto alloca = new AllocaNode(type);
                     root->addSemNode(alloca);
                     auto arg = new ArgNode(name, type, alloca);
@@ -271,16 +274,16 @@ export namespace Riddle {
             const auto name = ctx->name->getText();
             TypeNode *type = nullptr;
             ExprNode *value = nullptr;
-            if(ctx->type) {
+            if (ctx->type) {
                 type = unpacking<TypeNode>(visit(ctx->type));
-                if(!type) {
+                if (!type) {
                     throw std::runtime_error("GramAnalysis: Result node not Type");
                 }
             }
-            if(ctx->value) {
+            if (ctx->value) {
                 value = unpacking<ExprNode>(visit(ctx->value));
             }
-            if(!type && value) {
+            if (!type && value) {
                 type = value->getType();
             }
             const auto alloca = new AllocaNode(type);
@@ -292,7 +295,7 @@ export namespace Riddle {
 
         std::any visitReturnStatement(RiddleParser::ReturnStatementContext *ctx) override {
             SemNode *node;
-            if(ctx->result) {
+            if (ctx->result) {
                 const auto value = unpacking<ExprNode>(visit(ctx->result));
                 node = new ReturnNode(value);
             } else {
@@ -307,7 +310,7 @@ export namespace Riddle {
             const auto type = new TypeNode(TypeNode::unknown);
             root->addSemNode(type);
             const auto object = new ObjectNode(name, type);
-            if(antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
+            if (antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
                 object->isLoad = true;
             }
             root->addSemNode(object);
@@ -318,9 +321,9 @@ export namespace Riddle {
         std::any visitArgsExpr(RiddleParser::ArgsExprContext *ctx) override {
             std::vector<ExprNode *> args;
             args.reserve((ctx->children.size() >> 1) + 1);
-            for(const auto i: ctx->children) {
+            for (const auto i: ctx->children) {
                 auto t = visit(i);
-                if(!t.has_value()) {
+                if (!t.has_value()) {
                     continue;
                 }
                 auto it = unpacking<ExprNode>(t);
@@ -331,7 +334,7 @@ export namespace Riddle {
 
         std::any visitFuncExpr(RiddleParser::FuncExprContext *context) override {
             const auto name = context->funcName->getText();
-            const auto args = std::any_cast<std::vector<ExprNode *>>(visit(context->args));
+            const auto args = std::any_cast<std::vector<ExprNode *> >(visit(context->args));
             SemNode *node = new FuncCallNode(root, name, args);
             root->addSemNode(node);
             return node;
@@ -341,7 +344,7 @@ export namespace Riddle {
             const auto cond = unpacking<ExprNode>(visit(ctx->cond));
             const auto thenBody = std::any_cast<SemNode *>(visit(ctx->body));
             SemNode *elseBody = nullptr;
-            if(ctx->elseBody != nullptr) {
+            if (ctx->elseBody != nullptr) {
                 elseBody = std::any_cast<SemNode *>(visit(ctx->elseBody));
             }
             SemNode *node = new IfNode(cond, thenBody, elseBody);
@@ -367,7 +370,7 @@ export namespace Riddle {
         }
 
         std::any visitImportStatement(RiddleParser::ImportStatementContext *ctx) override {
-            if(ctx->depth() != 4) {
+            if (ctx->depth() != 4) {
                 throw std::runtime_error("GramAnalysis: Import Size Error");
             }
             return {};
@@ -375,18 +378,18 @@ export namespace Riddle {
 
         std::any visitClassDefine(RiddleParser::ClassDefineContext *ctx) override {
             const auto define = new ClassDefineNode(ctx->className->getText());
-            if(ctx->parentClass) {
+            if (ctx->parentClass) {
                 define->parentClass = ctx->parentClass->getText();
             }
-            for(const auto i: ctx->body->children) {
+            for (const auto i: ctx->body->children) {
                 auto v = visit(i);
-                if(!v.has_value()) continue;
+                if (!v.has_value()) continue;
                 const auto result = std::any_cast<SemNode *>(v);
-                if(result->getSemType() == SemNode::VarDefineNodeType) {
+                if (result->getSemType() == SemNode::VarDefineNodeType) {
                     define->members.push_back(dynamic_cast<VarDefineNode *>(result));
-                } else if(result->getSemType() == SemNode::FuncDefineNodeType) {
+                } else if (result->getSemType() == SemNode::FuncDefineNodeType) {
                     const auto func = dynamic_cast<FuncDefineNode *>(result);
-                    if(define->functions.contains(func->name)) {
+                    if (define->functions.contains(func->name)) {
                         throw std::runtime_error(std::format("GramAnalysis: Function {} already exists", func->name));
                     }
                     define->functions[func->name] = func;
@@ -397,16 +400,29 @@ export namespace Riddle {
             return node;
         }
 
-        std::any visitBlendExpr(RiddleParser::BlendExprContext *context) override {
-            const auto parent = unpacking<ExprNode>(visit(context->parentNode));
-            const auto child = unpacking<ExprNode>(visit(context->childNode));
+        std::any visitBlendExpr(RiddleParser::BlendExprContext *ctx) override {
+            const auto parent = unpacking<ExprNode>(visit(ctx->parentNode));
+            const auto child = unpacking<ExprNode>(visit(ctx->childNode));
             const auto node = new BlendNode(parent, child, root, BlendNode::Unknown);
             root->addSemNode(node);
-            if(antlrcpp::is<RiddleParser::PtrExprContext *>(context->parent)) {
+            if (antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
                 node->isLoad = true;
             }
             SemNode *result = node;
             return result;
         }
+
+        std::any visitModifier(RiddleParser::ModifierContext *ctx) override {
+            return Modifier::getPrimitiveType(ctx->getText());
+        }
+
+        std::any visitModifierList(RiddleParser::ModifierListContext *ctx) override {
+            Modifier modifier;
+            for (const auto i: ctx->children) {
+                const auto mod = std::any_cast<Modifier::ModifierType>(visit(i));
+                modifier.set(mod, true);
+            }
+            return modifier;
+        }
     };
-}// namespace Riddle
+} // namespace Riddle

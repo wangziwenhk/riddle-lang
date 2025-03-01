@@ -179,6 +179,10 @@ modifier
     : Public
     | Protected
     | Private
+    | Operator
+    | Virtual
+    | Static
+    | Override
     ;
 
 modifierList
