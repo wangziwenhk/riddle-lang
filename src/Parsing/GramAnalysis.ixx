@@ -216,6 +216,10 @@ export namespace Riddle {
 #pragma endregion
 
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
+            Modifier mod;
+            if (ctx->mod) {
+                mod = std::any_cast<Modifier>(visitModifierList(ctx->mod));
+            }
             const auto name = ctx->funcName->getText();
             BlockNode *body = nullptr;
             if (ctx->body) {
@@ -236,7 +240,7 @@ export namespace Riddle {
             if (ctx->args != nullptr) {
                 args = std::any_cast<std::vector<ArgNode *> >(visitDefineArgs(ctx->args));
             }
-            SemNode *func = new FuncDefineNode(name, returnType, body, args);
+            SemNode *func = new FuncDefineNode(name, returnType, body, mod, args);
             root->addSemNode(func);
             return func;
         }
@@ -389,10 +393,10 @@ export namespace Riddle {
                     define->members.push_back(dynamic_cast<VarDefineNode *>(result));
                 } else if (result->getSemType() == SemNode::FuncDefineNodeType) {
                     const auto func = dynamic_cast<FuncDefineNode *>(result);
-                    if (define->functions.contains(func->name)) {
+                    if (define->hasFunction(func->name)) {
                         throw std::runtime_error(std::format("GramAnalysis: Function {} already exists", func->name));
                     }
-                    define->functions[func->name] = func;
+                    define->functions.push_back(func);
                 }
             }
             SemNode *node = define;

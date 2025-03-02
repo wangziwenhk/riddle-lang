@@ -9,6 +9,7 @@ module;
 #include <vector>
 export module Semantics.SemNode;
 import Config.BasicType;
+export import Semantics.Modifier;
 export namespace Riddle {
     class ClassDefineNode;
     class AllocaNode;
@@ -150,8 +151,8 @@ export namespace Riddle {
         static constexpr std::string unknown = "@unknown";
         static constexpr std::string Void = "void";
 
-        explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType):
-            SemNode(type_id), name(std::move(name)) {
+        explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType): SemNode(type_id),
+            name(std::move(name)) {
         }
 
         std::string name;
@@ -186,8 +187,8 @@ export namespace Riddle {
         std::string name;
 
     public:
-        ExprNode(TypeNode *type, const SemNodeType semType, std::string name):
-            SemNode(semType), type(type), name(std::move(name)) {
+        ExprNode(TypeNode *type, const SemNodeType semType, std::string name): SemNode(semType), type(type),
+                                                                               name(std::move(name)) {
         }
 
         TypeNode *&getType() {
@@ -202,9 +203,9 @@ export namespace Riddle {
     /// 表示一个二元运算符表达式
     class BinaryOpNode final : public ExprNode {
     public:
-        BinaryOpNode(ExprNode *left, ExprNode *right, std::string op):
-            ExprNode(new TypeNode(TypeNode::unknown), BinaryOpNodeType, ""), //延后到语义分析决定
-            left(left), right(right), op(std::move(op)) {
+        BinaryOpNode(ExprNode *left, ExprNode *right, std::string op): ExprNode(new TypeNode(TypeNode::unknown),
+                                                                           BinaryOpNodeType, ""), //延后到语义分析决定
+                                                                       left(left), right(right), op(std::move(op)) {
         }
 
         ExprNode *left;
@@ -213,7 +214,8 @@ export namespace Riddle {
 
         [[nodiscard]] bool isAssignOp() const {
             static std::unordered_set<std::string> ops = {
-                    "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="};
+                "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="
+            };
             return ops.contains(op);
         }
 
@@ -222,8 +224,8 @@ export namespace Riddle {
 
     class ArgNode final : public SemNode {
     public:
-        ArgNode(std::string name, TypeNode *type, AllocaNode *alloca):
-            SemNode(ArgNodeType), name(std::move(name)), type(type) {
+        ArgNode(std::string name, TypeNode *type, AllocaNode *alloca): SemNode(ArgNodeType), name(std::move(name)),
+                                                                       type(type) {
             this->alloca = alloca;
         }
 
@@ -237,14 +239,16 @@ export namespace Riddle {
 
     class FuncDefineNode final : public SemNode {
     public:
-        FuncDefineNode(std::string name, TypeNode *returnType, BlockNode *body = nullptr,
-                       const std::vector<ArgNode *> &args = {}):
-            SemNode(FuncDefineNodeType), name(std::move(name)), body(body), returnType(returnType) {
+        FuncDefineNode(std::string name, TypeNode *returnType, BlockNode *body, const Modifier modifier,
+                       const std::vector<ArgNode *> &args = {}): SemNode(FuncDefineNodeType), modifier(modifier),
+                                                                 name(std::move(name)), body(body),
+                                                                 returnType(returnType) {
             for (auto &i: args) {
                 this->args.push_back(i);
             }
         }
 
+        Modifier modifier;
         std::string name;
         std::vector<ArgNode *> args;
         BlockNode *body;
@@ -284,8 +288,8 @@ export namespace Riddle {
     public:
         int value;
 
-        explicit IntegerLiteralNode(const int value, ProgramNode *root):
-            LiteralNode(IntegerLiteralNodeType, new TypeNode("int")), value(value) {
+        explicit IntegerLiteralNode(const int value, ProgramNode *root): LiteralNode(IntegerLiteralNodeType,
+                                                                             new TypeNode("int")), value(value) {
             root->addSemNode(type);
         }
 
@@ -296,8 +300,8 @@ export namespace Riddle {
     public:
         double value;
 
-        explicit FloatLiteralNode(const double value, ProgramNode *root):
-            LiteralNode(FloatLiteralNodeType, new TypeNode("float")), value(value) {
+        explicit FloatLiteralNode(const double value, ProgramNode *root): LiteralNode(FloatLiteralNodeType,
+                                                                              new TypeNode("float")), value(value) {
             root->addSemNode(type);
         }
 
@@ -308,8 +312,8 @@ export namespace Riddle {
     public:
         bool value;
 
-        explicit BoolLiteralNode(const bool value, ProgramNode *root):
-            LiteralNode(BoolLiteralNodeType, new TypeNode("bool")), value(value) {
+        explicit BoolLiteralNode(const bool value, ProgramNode *root): LiteralNode(BoolLiteralNodeType,
+                                                                           new TypeNode("bool")), value(value) {
             root->addSemNode(type);
         }
 
@@ -320,8 +324,9 @@ export namespace Riddle {
     public:
         std::string value;
 
-        explicit StringLiteralNode(std::string value, ProgramNode *root):
-            LiteralNode(StringLiteralNodeType, new TypeNode("char*")), value(std::move(value)) {
+        explicit StringLiteralNode(std::string value, ProgramNode *root): LiteralNode(StringLiteralNodeType,
+                                                                              new TypeNode("char*")),
+                                                                          value(std::move(value)) {
             root->addSemNode(type);
         }
 
@@ -347,8 +352,8 @@ export namespace Riddle {
         AllocaNode *alloca;
         bool isGlobal = false;
 
-        VarDefineNode(std::string name, ExprNode *value, TypeNode *type, AllocaNode *alloca):
-            SemNode(VarDefineNodeType), name(std::move(name)), type(type), value(value) {
+        VarDefineNode(std::string name, ExprNode *value, TypeNode *type,
+                      AllocaNode *alloca): SemNode(VarDefineNodeType), name(std::move(name)), type(type), value(value) {
             this->alloca = alloca;
         }
 
@@ -379,8 +384,8 @@ export namespace Riddle {
     public:
         std::vector<ExprNode *> args;
 
-        explicit FuncCallNode(ProgramNode *root, std::string name, std::vector<ExprNode *> args = {}):
-            ExprNode(new TypeNode(TypeNode::unknown), FuncCallNodeType, std::move(name)), args(std::move(args)) {
+        explicit FuncCallNode(ProgramNode *root, std::string name, std::vector<ExprNode *> args = {}): ExprNode(
+                new TypeNode(TypeNode::unknown), FuncCallNodeType, std::move(name)), args(std::move(args)) {
             root->addSemNode(type);
         }
 
@@ -396,8 +401,9 @@ export namespace Riddle {
         SemNode *then_body;
         SemNode *else_body;
 
-        IfNode(ExprNode *condition, SemNode *then_body, SemNode *else_body):
-            SemNode(IfNodeType), condition(condition), then_body(then_body), else_body(else_body) {
+        IfNode(ExprNode *condition, SemNode *then_body, SemNode *else_body): SemNode(IfNodeType), condition(condition),
+                                                                             then_body(then_body),
+                                                                             else_body(else_body) {
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -421,34 +427,40 @@ export namespace Riddle {
         SemNode *increment;
         SemNode *body;
 
-        ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body):
-            SemNode(ForNodeType), init(init), condition(cond), increment(incr), body(body) {
+        ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body): SemNode(ForNodeType), init(init),
+                                                                              condition(cond), increment(incr),
+                                                                              body(body) {
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
     class ClassDefineNode final : public TypeNode {
-        std::unordered_map<std::string, std::pair<VarDefineNode *, size_t>> member_map;
-        bool isBuild = false;
+        std::unordered_map<std::string, std::pair<VarDefineNode *, size_t> > member_map;
+        std::unordered_map<std::string, FuncDefineNode *> function_map;
 
     public:
         std::string parentClass;
         std::vector<VarDefineNode *> members;
-        std::unordered_map<std::string, FuncDefineNode *> functions;
+        std::vector<FuncDefineNode *> functions;
 
         explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {
         }
 
-        void buildMembers() {
-            if (isBuild) {
-                return;
+        void build() {
+            if (member_map.size()!=members.size()) {
+                member_map.clear();
+                size_t count = 0;
+                for (auto i: members) {
+                    member_map.insert({i->name, {i, count++}});
+                }
             }
-            size_t count = 0;
-            for (auto i: members) {
-                member_map.insert({i->name, {i, count++}});
+            if (function_map.size()!=functions.size()) {
+                function_map.clear();
+                for (auto i: functions) {
+                    function_map.insert({i->name, i});
+                }
             }
-            isBuild = true;
         }
 
         std::pair<VarDefineNode *, size_t> getMember(const std::string &name) {
@@ -457,6 +469,18 @@ export namespace Riddle {
                 throw std::runtime_error("Member not found");
             }
             return it->second;
+        }
+
+        FuncDefineNode *&getFunction(const std::string &name) {
+            const auto it = function_map.find(name);
+            if (it == function_map.end()) {
+                throw std::runtime_error("Function not found");
+            }
+            return it->second;
+        }
+
+        bool hasFunction(const std::string &name) const {
+            return function_map.contains(name);
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -471,9 +495,10 @@ export namespace Riddle {
         ExprNode *parent;
         ExprNode *child;
 
-        BlendNode(ExprNode *parent, ExprNode *child, ProgramNode *root, const BlendType blend_type):
-            ExprNode(new TypeNode(TypeNode::unknown), BlendNodeType, ""), blend_type(blend_type), parent(parent),
-            child(child) {
+        BlendNode(ExprNode *parent, ExprNode *child, ProgramNode *root,
+                  const BlendType blend_type): ExprNode(new TypeNode(TypeNode::unknown), BlendNodeType, ""),
+                                               blend_type(blend_type), parent(parent),
+                                               child(child) {
             root->addSemNode(type);
         }
 
@@ -597,7 +622,7 @@ export namespace Riddle {
             for (const auto i: node->members) {
                 i->accept(*this);
             }
-            for (const auto i: node->functions | std::views::values) {
+            for (const auto i: node->functions) {
                 i->accept(*this);
             }
             return {};
