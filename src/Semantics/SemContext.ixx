@@ -101,6 +101,8 @@ export namespace Riddle {
     };
 
     class SemClass final : public SemObject {
+        std::unordered_map<std::string, SemFunction *> funcs;
+
     public:
         ClassDefineNode *define;
 
@@ -113,6 +115,20 @@ export namespace Riddle {
 
         [[nodiscard]] TypeNode *getConstType() override {
             return define;
+        }
+
+        void addFunction(SemFunction *func) {
+            if (funcs.contains(func->getName())) {
+                throw std::runtime_error("Function '" + func->getName() + "' already exists");
+            }
+            funcs[func->getName()] = func;
+        }
+
+        SemFunction *getFunction(const std::string &name) {
+            if (!funcs.contains(name)) {
+                throw std::runtime_error("Function '" + name + "' not found");
+            }
+            return funcs[name];
         }
     };
 
@@ -151,13 +167,12 @@ export namespace Riddle {
 
     class SemContext {
     protected:
-        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject>>> symbols{};
-        std::stack<std::unordered_set<std::string>> defines;
+        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject> > > symbols{};
+        std::stack<std::unordered_set<std::string> > defines;
         std::stack<SemClass *> classes;
         std::stack<SemFunction *> functions;
 
         std::unordered_map<std::tuple<std::string, std::string, std::string>, std::string> operators;
-
 
     public:
         SemContext(): defines() {
