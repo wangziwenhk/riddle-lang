@@ -426,5 +426,14 @@ export namespace Riddle {
             }
             return {};
         }
+
+        std::any visitBinaryOp(BinaryOpNode *node) override {
+            const auto left = std::any_cast<llvm::Value *>(visit(node->left));
+            const auto right = std::any_cast<llvm::Value *>(visit(node->right));
+            const std::string leftT = node->left->getType()->name;
+            const std::string rightT = node->right->getType()->name;
+            const auto opFunc = context.getOperator(leftT, rightT, node->op);
+            return opFunc(left, right, *context.builder);
+        }
     };
 } // namespace Riddle

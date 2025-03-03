@@ -3,6 +3,7 @@
 #include "termcolor/termcolor.hpp"
 import Support.BuildQueue;
 import Support.File;
+import Config.Init;
 using namespace std;
 
 void parserArgs(const int argc, char *argv[]) {
@@ -35,6 +36,7 @@ void parserArgs(const int argc, char *argv[]) {
 
 int main(const int argc, char *argv[]) {
     setlocale(LC_ALL, "en_US.UTF-8");
+    Riddle::init::init();
     parserArgs(argc, argv);
     return 0;
 }

@@ -11,5 +11,6 @@ class a{
 fun main() -> int{
     var x:a
     x.get2();
+    var b = 1+1
     return 0
 }

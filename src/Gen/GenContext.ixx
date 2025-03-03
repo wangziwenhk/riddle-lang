@@ -7,6 +7,7 @@ module;
 #include <utility>
 export module Gen.GenContext;
 import Semantics.SemNode;
+import Config.OperatorImpl;
 export namespace Riddle {
     class GenObject {
     public:
@@ -24,8 +25,10 @@ export namespace Riddle {
         std::string name;
         /// 表示 context 是否拥有该对象的所有权
         bool is_weak = false;
+
         explicit GenObject(const GenObjectType type, std::string name): type_id(type), name(std::move(name)) {
         }
+
         virtual ~GenObject() = default;
 
         [[nodiscard]] GenObjectType getGenType() const {
@@ -38,7 +41,6 @@ export namespace Riddle {
     };
 
     class GenVariable final : public GenObject {
-
     public:
         explicit GenVariable(const VarDefineNode *define): GenObject(Variable, define->name) {
             if (define == nullptr) {
@@ -48,6 +50,7 @@ export namespace Riddle {
             type = define->type;
             isGlobal = define->isGlobal;
         }
+
         explicit GenVariable(const ArgNode *define): GenObject(Variable, define->name), isGlobal(false) {
             if (define == nullptr) {
                 throw std::runtime_error("ptr is nullptr");
@@ -55,6 +58,7 @@ export namespace Riddle {
             alloca = define->alloca;
             type = define->type;
         }
+
         bool isGlobal;
         AllocaNode *alloca;
         TypeNode *type;
@@ -68,8 +72,9 @@ export namespace Riddle {
     public:
         FuncDefineNode *define;
         llvm::Function *llvmFunction;
-        GenFunction(FuncDefineNode *define, llvm::Function *func):
-            GenObject(Function, define->name), define(define), llvmFunction(func) {
+
+        GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define),
+                                                                   llvmFunction(func) {
         }
 
         GenObject *clone() override {
@@ -83,6 +88,7 @@ export namespace Riddle {
     public:
         ClassDefineNode *define;
         llvm::StructType *type = nullptr;
+
         explicit GenClass(ClassDefineNode *define): GenObject(Class, define->name), define(define) {
         }
 
@@ -152,9 +158,10 @@ export namespace Riddle {
     };
 
     class GenContext {
-        std::unordered_map<std::string, std::stack<GenObject *>> objects;
-        std::stack<std::unordered_set<std::string>> defines;
+        std::unordered_map<std::string, std::stack<GenObject *> > objects;
+        std::stack<std::unordered_set<std::string> > defines;
         std::stack<GenFunction *> functions;
+        decltype(operatorImpl) binOperators;
 
     public:
         llvm::LLVMContext *llvmContext{};
@@ -162,9 +169,10 @@ export namespace Riddle {
         llvm::IRBuilder<> *builder{};
         std::string name;
 
-        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""):
-            llvmContext(llvmContext), llvmModule(new llvm::Module(name, *llvmContext)),
-            builder(new llvm::IRBuilder(*llvmContext)), name(name) {
+        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""): llvmContext(llvmContext),
+            llvmModule(new llvm::Module(name, *llvmContext)),
+            builder(new llvm::IRBuilder(*llvmContext)), name(name),
+            binOperators(operatorImpl) {
             push();
         }
 
@@ -221,8 +229,17 @@ export namespace Riddle {
             defines.pop();
         }
 
-        std::unordered_map<std::string, std::stack<GenObject *>> &getAllObjects() {
+        std::unordered_map<std::string, std::stack<GenObject *> > &getAllObjects() {
             return objects;
+        }
+
+        auto getOperator(const std::string &lht, const std::string &rht, const std::string &op) {
+            const auto group = std::make_tuple(lht, rht, op);
+            const auto it = binOperators.find(group);
+            if (it == binOperators.end()) {
+                throw std::logic_error("Operator " + op + " does not exist");
+            }
+            return it->second;
         }
     };
 } // namespace Riddle
