@@ -115,9 +115,9 @@ export namespace Riddle {
             }
             visit(node->left);
             visit(node->right);
-            std::string_view left = node->left->getType()->name;
-            std::string_view right = node->right->getType()->name;
-            node->getType()->name = context.getOperator({left.data(), right.data(), node->op});
+            std::string left = node->left->getType()->name;
+            std::string right = node->right->getType()->name;
+            node->getType()->name = context.getOperator({left, right, node->op});
             return {};
         }
 
@@ -174,8 +174,7 @@ export namespace Riddle {
         }
 
         std::any visitArg(ArgNode *node) override {
-            const auto obj = new SemVariable(node);
-            context.addSemObject(obj);
+            context.addSemObject(new SemVariable(node));
             return {};
         }
 
@@ -293,6 +292,11 @@ export namespace Riddle {
             if (func == nullptr) {
                 throw std::runtime_error("Null FuncCall");
             }
+
+            if (!obj) {
+                throw std::logic_error("Null Object");
+            }
+
             if (obj->getSemObjType() != SemObject::Function) {
                 throw std::runtime_error("Object is not a function");
             }
