@@ -248,7 +248,7 @@ tmplArgList
     ;
 
 typeUsed
-    : name=id                                                  #baseType      // 普通名称
-    | name=id tmpl=tmplUsed                                    #tmplType      // 模板
+    : name=expression                                                  #baseType      // 普通名称
+    | name=expression tmpl=tmplUsed                                    #tmplType      // 模板
     | baseType=typeUsed LeftSquare size=expression RightSquare #arrayType     // 数组
     ;

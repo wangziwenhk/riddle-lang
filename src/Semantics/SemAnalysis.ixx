@@ -15,6 +15,9 @@ export namespace Riddle {
         ProgramNode *root = nullptr;
 
     public:
+        explicit SemAnalysis(const std::string &packageName) : context(packageName) {
+        }
+
         SemContext &getSemContext() {
             return context;
         }
@@ -77,6 +80,9 @@ export namespace Riddle {
         }
 
         std::any visitClassDefine(ClassDefineNode *node) override {
+            if (context.getName() != "main") {
+                node->buildName = context.getName() + "@" + node->name;
+            }
             if (!node->parentClass.empty()) {
                 const auto obj = context.getSemObject(node->parentClass);
                 if (obj == nullptr) {
@@ -94,13 +100,15 @@ export namespace Riddle {
                     node->functions.push_back(i);
                 }
             }
-            const auto obj = new SemClass(node);
-            context.addSemObject(obj);
+            const auto theClass = new SemClass(node);
+            context.addSemObject(theClass);
             context.push();
             for (const auto i: node->members) {
                 visit(i);
+                const auto obj = new SemVariable(i);
+                theClass->addMember(obj);
             }
-            context.pushClass(obj);
+            context.pushClass(theClass);
             for (const auto i: node->functions) {
                 visit(i);
             }
@@ -234,6 +242,10 @@ export namespace Riddle {
             }
             auto obj = context.getSemObject(parentType->name);
 
+            if (!obj) {
+                obj = context.getSemObject(node->parent->getName());
+            }
+
             if (obj && obj->getSemObjType() == SemObject::Class) {
                 if (node->child->getSemType() == SemNode::ObjectNodeType) {
                     node->blend_type = BlendNode::Member;
@@ -241,7 +253,10 @@ export namespace Riddle {
                     theClass->define->build();
                     const auto child = dynamic_cast<ObjectNode *>(node->child);
                     *node->getType() = *theClass->define->getMember(child->getName()).first->type;
-                    visit(node->child);
+
+                    child->s_obj = theClass->getMember(child->getName());
+
+                    return visit(node->child);
                 } else if (node->child->getSemType() == SemNode::FuncCallNodeType) {
                     node->blend_type = BlendNode::Method;
                     const auto theClass = dynamic_cast<SemClass *>(obj);
@@ -254,12 +269,9 @@ export namespace Riddle {
 
                     child->s_obj = theClass->getFunction(child->getName());
 
-                    visit(node->child);
+                    return visit(node->child);
                 }
             } else {
-                if (!obj) {
-                    obj = context.getSemObject(node->parent->getName());
-                }
 
                 node->blend_type = BlendNode::Module;
                 const auto theModule = dynamic_cast<SemModule *>(obj);
@@ -301,6 +313,9 @@ export namespace Riddle {
                 throw std::runtime_error("Object is not a function");
             }
             *node->getType() = *func->getReturnType();
+            for (const auto i: node->args) {
+                visit(i);
+            }
             return {};
         }
 

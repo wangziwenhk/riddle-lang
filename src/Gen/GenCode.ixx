@@ -16,6 +16,11 @@ namespace Riddle {
     T *unpacking(std::any value) {
         return dynamic_cast<T *>(std::any_cast<SrcT *>(value));
     }
+
+    void reparserType(TypeNode *type, const std::string &module) {
+        type->name = module + "@" + type->name;
+        type->llvmType = nullptr;
+    }
 } // namespace Riddle
 export namespace Riddle {
     class GenCode final : public SemNodeVisitor {
@@ -33,6 +38,17 @@ export namespace Riddle {
 
         std::any visitProgram(ProgramNode *node) override {
             context.llvmModule->setModuleIdentifier(unit.getPackName());
+            for (auto i: context.getAllObjects() | std::views::values) {
+                if (i.top()->getGenType() == GenObject::Module) {
+                    const auto module = dynamic_cast<GenModule *>(i.top());
+                    for (const auto j: module->getAllObjects() | std::views::values) {
+                        if (j->getGenType() == GenObject::Class) {
+                            const auto theClass = dynamic_cast<GenClass *>(j);
+                            visit(theClass->define);
+                        }
+                    }
+                }
+            }
             for (const auto i: *node->body) {
                 visit(i);
             }
@@ -77,6 +93,7 @@ export namespace Riddle {
 
             // 处理函数参数
             std::vector<llvm::Type *> paramTypes;
+            paramTypes.reserve(node->args.size());
             for (const auto i: node->args) {
                 paramTypes.push_back(parserType(i->type));
             }
@@ -147,7 +164,8 @@ export namespace Riddle {
         }
 
         std::any visitAlloca(AllocaNode *node) override {
-            llvm::Value *alloca = context.builder->CreateAlloca(parserType(node->type));
+            auto type = parserType(node->type);
+            llvm::Value *alloca = context.builder->CreateAlloca(type);
             node->alloca = alloca;
             return {};
         }
@@ -308,7 +326,11 @@ export namespace Riddle {
             std::vector<llvm::Value *> argValues;
             argValues.reserve(node->args.size());
             for (const auto arg: node->args) {
-                auto result = std::any_cast<llvm::Value *>(visit(arg));
+                auto it = visit(arg);
+                if (!it.has_value()) {
+                    throw std::runtime_error("Argument Error");
+                }
+                auto result = std::any_cast<llvm::Value *>(it);
                 argValues.push_back(result);
             }
             llvm::Value *result = context.builder->CreateCall(func->llvmFunction, argValues);
@@ -316,12 +338,16 @@ export namespace Riddle {
         }
 
         std::any visitClassDefine(ClassDefineNode *node) override {
-            const auto name = node->name;
             const auto obj = new GenClass(node);
-            obj->type = llvm::StructType::create(*context.llvmContext, {}, name, false);
             context.addObject(obj);
+            if (node->llvmType) {
+                obj->type = static_cast<llvm::StructType *>(node->llvmType);
+                return {};
+            }
+            node->llvmType = obj->type = llvm::StructType::create(*context.llvmContext, {}, node->buildName, false);
             // 获取memberType
             std::vector<llvm::Type *> memberTypes;
+            memberTypes.reserve(node->members.size());
             for (const auto i: node->members) {
                 memberTypes.push_back(parserType(i->type));
             }

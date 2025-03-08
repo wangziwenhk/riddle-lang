@@ -1,16 +1,7 @@
 package main
-class a{
-    var x:int
-    private fun get()->int{
-        return this.x
-    }
-    public fun get2()->int{
-        return this.get();
-    }
-}
+import test
 fun main() -> int{
-    var x:a
-    x.get2();
-    var b = 1+1
+    var v:test.a
+    var x = test.get(v)
     return 0
 }
