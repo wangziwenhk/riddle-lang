@@ -38,7 +38,7 @@ the Apache License does not provide any form of warranty, and users are entirely
 
 # Getting Executables
 ## 1. Download a Release
-You can obtain the executables from the [releases page on GitHub](https://github.com/wangziwenhk/riddle-lang/releases) (not yet available).
+You can obtain the executables from the [releases page on GitHub](https://github.com/wangziwenhk/riddle-lang/releases).
 ## 2. Build from Source
 ### Requirements
 - CMake version 3.28 or higher
