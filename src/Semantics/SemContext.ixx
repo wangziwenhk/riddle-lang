@@ -301,7 +301,7 @@ export namespace Riddle {
             return it->second.top().get();
         }
 
-        void addOperator(std::tuple<std::string, std::string, std::string> opGroup, std::string type) {
+        void addOperator(std::tuple<std::string, std::string, std::string> opGroup, const std::string& type) {
             const auto op = std::get<2>(opGroup);
             if (LogicOp::set.contains(op)) {
                 throw std::logic_error(std::format("Logical {} operators cannot be overloaded", op));
@@ -311,8 +311,10 @@ export namespace Riddle {
 
         std::string getOperator(const std::tuple<std::string, std::string, std::string> &opGroup) {
             const auto it = operators.find(opGroup);
+            auto [lt,rt,op] = opGroup;
+            auto aaa = operators.contains(opGroup);
             if (it == operators.end()) {
-                throw std::runtime_error("Duplicate operator");
+                throw std::runtime_error(std::format("Duplicate operator: '{}' '{}' '{}'", lt, op, rt));
             }
             return it->second;
         }

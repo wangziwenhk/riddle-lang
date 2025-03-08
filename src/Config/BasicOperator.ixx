@@ -9,10 +9,18 @@ export module Config.BasicOperator;
 import Config.BasicType;
 export namespace Riddle {
     namespace NumOp {
-        inline std::vector<std::string> list = {"+", "-", "*", "/", "%",  ">>", "<<", "&",
-                                                "|", "^", "<", ">", "<=", ">=", "==", "!="};
-        inline std::unordered_set<std::string> set = {"+", "-", "*", "/", "%",  ">>", "<<", "&",
-                                                      "|", "^", "<", ">", "<=", ">=", "==", "!="};
+        inline std::vector<std::string> list = {
+            "+", "-", "*", "/", "%", ">>", "<<", "&",
+            "|", "^", "<", ">", "<=", ">=", "==", "!=",
+            "+=", "-=", "*=", "/=", "%=", ">>=", "<<=",
+            "^=", "&=", "~="
+        };
+        inline std::unordered_set<std::string> set = {
+            "+", "-", "*", "/", "%", ">>", "<<", "&",
+            "|", "^", "<", ">", "<=", ">=", "==", "!=",
+            "+=", "-=", "*=", "/=", "%=", ">>=", "<<=",
+            "^=", "&=", "~="
+        };
     } // namespace NumOp
 
     namespace LogicOp {

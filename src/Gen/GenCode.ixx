@@ -341,7 +341,7 @@ export namespace Riddle {
             const auto obj = new GenClass(node);
             context.addObject(obj);
             if (node->llvmType) {
-                obj->type = static_cast<llvm::StructType *>(node->llvmType);
+                obj->type = llvm::dyn_cast<llvm::StructType>(node->llvmType);
                 return {};
             }
             node->llvmType = obj->type = llvm::StructType::create(*context.llvmContext, {}, node->buildName, false);
