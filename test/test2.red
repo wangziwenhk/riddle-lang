@@ -1,5 +1,8 @@
 package test
-var xx = 1
-fun a() -> int{
-    return 1
+class a{
+    var x:long
+}
+
+fun get(v:a)->long{
+    return v.x
 }

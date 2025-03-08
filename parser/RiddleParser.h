@@ -1518,9 +1518,9 @@ public:
   public:
     TmplTypeContext(TypeUsedContext *ctx);
 
-    RiddleParser::IdContext *name = nullptr;
+    RiddleParser::ExpressionContext *name = nullptr;
     RiddleParser::TmplUsedContext *tmpl = nullptr;
-    IdContext *id();
+    ExpressionContext *expression();
     TmplUsedContext *tmplUsed();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1532,8 +1532,8 @@ public:
   public:
     BaseTypeContext(TypeUsedContext *ctx);
 
-    RiddleParser::IdContext *name = nullptr;
-    IdContext *id();
+    RiddleParser::ExpressionContext *name = nullptr;
+    ExpressionContext *expression();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 

@@ -1,9 +1,12 @@
 module;
 #include <any>
+#include <map>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Linker/Linker.h>
 #include <llvm/Transforms/Utils/Cloning.h>
+#include <llvm/IR/Module.h>
 #include <ranges>
+#include <llvm/IR/Value.h>
 export module Gen.Moudule;
 import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;
@@ -20,28 +23,39 @@ export namespace Riddle {
         Unit &unit;
         ProgramNode *programNode = nullptr;
         std::string name;
+
         Module(llvm::LLVMContext *llvm_ctx, Unit &unit): context(llvm_ctx, unit.getPackName()),
-                                                                  unit(unit) {
+                                                         sem(unit.getPackName()), unit(unit) {
             name = unit.getPackName();
         }
 
         void start() {
             programNode = std::any_cast<ProgramNode *>(gram.visit(unit.parseTree));
             sem.visit(programNode);
-            GenCode gen(context,unit);
+            GenCode gen(context, unit);
             gen.visit(programNode);
         }
 
         void import(Module &lib) {
             const auto sem_lib_module = new SemModule(lib.name);
-            for(auto val: lib.sem.getSemContext().getAllObjects() | std::views::values) {
-                sem_lib_module->addObject(val.top().get());
+            std::vector<SemClass *> sem_classes;
+            for (auto val: lib.sem.getSemContext().getAllObjects() | std::views::values) {
+                if (val.top().get()->getSemObjType() != SemObject::Class) {
+                    sem_lib_module->addObject(val.top()->clone());
+                } else {
+                    sem_classes.push_back(dynamic_cast<SemClass *>(val.top()->clone()));
+                }
             }
             sem.getSemContext().addSemObject(sem_lib_module);
+            for (const auto i: sem_classes) {
+                i->define->name = lib.name + "@" + i->define->name;
+                sem.getSemContext().addSemObject(i);
+            }
 
             const auto gen_lib_module = new GenModule(lib.name);
             // gen 部分的合并
-            for(auto i: lib.context.getAllObjects() | std::views::values) {
+            std::vector<GenClass *> gen_classes;
+            for (auto i: lib.context.getAllObjects() | std::views::values) {
                 const auto obj = i.top();
                 gen_lib_module->addObject(obj->clone());
             }
@@ -49,19 +63,18 @@ export namespace Riddle {
 
             // link module
             llvm::ValueToValueMapTy vmap;
-            auto cloneModule = CloneModule(*lib.context.llvmModule,vmap);
+            auto cloneModule = CloneModule(*lib.context.llvmModule, vmap);
             llvm::Linker linker(*this->context.llvmModule);
             linker.linkInModule(std::move(cloneModule));
 
             // 替换所有原始克隆指针
-            for(const auto i:gen_lib_module->getAllObjects() | std::views::values) {
-                switch(i->getGenType()) {
+            for (const auto i: gen_lib_module->getAllObjects() | std::views::values) {
+                switch (i->getGenType()) {
                     case GenObject::Variable: {
-                        const auto var = dynamic_cast<GenVariable*>(i);
-                        if(!var->isGlobal) {
+                        const auto var = dynamic_cast<GenVariable *>(i);
+                        if (!var->isGlobal) {
                             var->alloca->alloca = vmap[var->alloca->alloca];
-                        }
-                        else {
+                        } else {
                             const auto g = context.llvmModule->getGlobalVariable(var->name);
                             g->setInitializer(nullptr);
                             var->alloca->alloca = g;
@@ -69,16 +82,16 @@ export namespace Riddle {
                         break;
                     }
                     case GenObject::Function: {
-                        const auto func = dynamic_cast<GenFunction*>(i);
+                        const auto func = dynamic_cast<GenFunction *>(i);
                         func->define->body = nullptr;
                         func->llvmFunction = context.llvmModule->getFunction(func->name);
                         func->llvmFunction->deleteBody();
                         break;
                     }
-                    // case GenObject::Class: {
-                    //     const auto cls = dynamic_cast<GenClass*>(i);
-                    //     cls->type = context.m;
-                    // }
+                    case GenObject::Class: {
+                        const auto cls = dynamic_cast<GenClass *>(i);
+                        cls->setName(cls->define->buildName);
+                    }
                     default: {
                         break;
                     }
@@ -86,4 +99,4 @@ export namespace Riddle {
             }
         }
     };
-}// namespace Riddle
+} // namespace Riddle

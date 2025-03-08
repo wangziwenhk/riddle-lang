@@ -37,6 +37,8 @@ export namespace Riddle {
         }
 
         virtual TypeNode *getConstType() = 0;
+
+        virtual SemObject *clone() = 0;
     };
 
     class SemVariable final : public SemObject {
@@ -74,6 +76,10 @@ export namespace Riddle {
         [[nodiscard]] ExprNode *&getValue() {
             return value;
         }
+
+        SemObject *clone() override {
+            return new SemVariable(*this);
+        }
     };
 
     class SemFunction final : public SemObject {
@@ -98,10 +104,15 @@ export namespace Riddle {
         [[nodiscard]] ArgNode *&getArgument(const size_t index) const {
             return define->args.at(index);
         }
+
+        SemObject *clone() override {
+            return new SemFunction(*this);
+        }
     };
 
     class SemClass final : public SemObject {
         std::unordered_map<std::string, SemFunction *> funcs;
+        std::unordered_map<std::string, SemVariable *> members;
 
     public:
         ClassDefineNode *define;
@@ -129,6 +140,24 @@ export namespace Riddle {
                 throw std::runtime_error("Function '" + name + "' not found");
             }
             return funcs[name];
+        }
+
+        void addMember(SemVariable *member) {
+            if (members.contains(member->getName())) {
+                throw std::runtime_error("Member '" + member->getName() + "' already exists");
+            }
+            members[member->getName()] = member;
+        }
+
+        SemVariable *getMember(const std::string &name) {
+            if (!members.contains(name)) {
+                throw std::runtime_error("Member '" + name + "' not found");
+            }
+            return members[name];
+        }
+
+        SemObject *clone() override {
+            return new SemClass(*this);
         }
     };
 
@@ -163,6 +192,10 @@ export namespace Riddle {
         TypeNode *getConstType() override {
             return nullptr;
         }
+
+        SemObject *clone() override {
+            return new SemModule(*this);
+        }
     };
 
     class SemContext {
@@ -173,12 +206,13 @@ export namespace Riddle {
         std::stack<SemFunction *> functions;
 
         std::unordered_map<std::tuple<std::string, std::string, std::string>, std::string> operators;
+        std::string name;
 
     public:
-        SemContext(): defines() {
+        explicit SemContext(std::string name): defines(), name(std::move(name)) {
             operators = numOpReType;
             // 初始化逻辑运算符（可短路
-            for (auto i: LogicOp::list) {
+            for (const auto &i: LogicOp::list) {
                 operators.insert({{"bool", "bool", i}, "bool"});
             }
             push();
@@ -186,6 +220,10 @@ export namespace Riddle {
 
         ~SemContext() {
             pop();
+        }
+
+        std::string getName() const {
+            return name;
         }
 
         auto &getAllObjects() {

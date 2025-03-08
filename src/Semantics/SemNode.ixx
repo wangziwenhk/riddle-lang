@@ -7,6 +7,7 @@ module;
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <llvm/IR/Intrinsics.h>
 export module Semantics.SemNode;
 import Config.BasicType;
 export import Semantics.Modifier;
@@ -31,6 +32,7 @@ export namespace Riddle {
             StringLiteralNodeType,
 
             TypeNodeType,
+            BaseTypeNodeType,
             BinaryOpNodeType,
             VarDefineNodeType,
             ObjectNodeType,
@@ -177,6 +179,10 @@ export namespace Riddle {
                 return false;
             }
             return true;
+        }
+
+        [[nodiscard]] bool isBaseType() const {
+            return BasicType::set.contains(name);
         }
     };
 
@@ -443,19 +449,20 @@ export namespace Riddle {
         std::string parentClass;
         std::vector<VarDefineNode *> members;
         std::vector<FuncDefineNode *> functions;
+        std::string buildName;
 
         explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {
         }
 
         void build() {
-            if (member_map.size()!=members.size()) {
+            if (member_map.size() != members.size()) {
                 member_map.clear();
                 size_t count = 0;
                 for (auto i: members) {
                     member_map.insert({i->name, {i, count++}});
                 }
             }
-            if (function_map.size()!=functions.size()) {
+            if (function_map.size() != functions.size()) {
                 function_map.clear();
                 for (auto i: functions) {
                     function_map.insert({i->name, i});

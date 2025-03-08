@@ -119,6 +119,11 @@ export namespace Riddle {
         GenObject *clone() override {
             return new GenClass(*this);
         }
+
+        void setName(const std::string &name) {
+            this->name = name;
+            this->define->name = name;
+        }
     };
 
     class GenModule final : public GenObject {

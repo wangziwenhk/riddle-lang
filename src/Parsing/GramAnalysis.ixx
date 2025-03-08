@@ -246,7 +246,12 @@ export namespace Riddle {
         }
 
         std::any visitBaseType(RiddleParser::BaseTypeContext *ctx) override {
-            const auto name = ctx->name->getText();
+            auto name = ctx->name->getText();
+            for (auto &i: name) {
+                if (i == '.') {
+                    i = '@';
+                }
+            }
             SemNode *node = new TypeNode(name);
             root->addSemNode(node);
             return node;
