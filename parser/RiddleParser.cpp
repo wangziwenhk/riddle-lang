@@ -269,7 +269,7 @@ void riddleparserParserInitialize() {
   	518,69,1,0,0,0,519,520,3,68,34,0,520,521,5,37,0,0,521,523,1,0,0,0,522,
   	519,1,0,0,0,523,526,1,0,0,0,524,522,1,0,0,0,524,525,1,0,0,0,525,527,1,
   	0,0,0,526,524,1,0,0,0,527,529,3,68,34,0,528,524,1,0,0,0,528,529,1,0,0,
-  	0,529,71,1,0,0,0,530,531,6,36,-1,0,531,536,3,44,22,0,532,533,3,44,22,
+  	0,529,71,1,0,0,0,530,531,6,36,-1,0,531,536,3,40,20,0,532,533,3,40,20,
   	0,533,534,3,66,33,0,534,536,1,0,0,0,535,530,1,0,0,0,535,532,1,0,0,0,536,
   	544,1,0,0,0,537,538,10,1,0,0,538,539,5,31,0,0,539,540,3,44,22,0,540,541,
   	5,32,0,0,541,543,1,0,0,0,542,537,1,0,0,0,543,546,1,0,0,0,544,542,1,0,
@@ -5686,21 +5686,7 @@ RiddleParser::TmplDefineArgContext* RiddleParser::tmplDefineArg() {
         break;
       }
 
-      case RiddleParser::True:
-      case RiddleParser::False:
-      case RiddleParser::Null:
-      case RiddleParser::LeftBracket:
-      case RiddleParser::Less:
-      case RiddleParser::Add:
-      case RiddleParser::Sub:
-      case RiddleParser::Not:
-      case RiddleParser::Identifier:
-      case RiddleParser::Hexadecimal:
-      case RiddleParser::Decimal:
-      case RiddleParser::Octal:
-      case RiddleParser::Binary:
-      case RiddleParser::Float:
-      case RiddleParser::STRING: {
+      case RiddleParser::Identifier: {
         enterOuterAlt(_localctx, 2);
         setState(506);
         typeUsed(0);
@@ -6028,8 +6014,8 @@ std::any RiddleParser::ArrayTypeContext::accept(tree::ParseTreeVisitor *visitor)
 }
 //----------------- TmplTypeContext ------------------------------------------------------------------
 
-RiddleParser::ExpressionContext* RiddleParser::TmplTypeContext::expression() {
-  return getRuleContext<RiddleParser::ExpressionContext>(0);
+RiddleParser::ExprPtrContext* RiddleParser::TmplTypeContext::exprPtr() {
+  return getRuleContext<RiddleParser::ExprPtrContext>(0);
 }
 
 RiddleParser::TmplUsedContext* RiddleParser::TmplTypeContext::tmplUsed() {
@@ -6057,8 +6043,8 @@ std::any RiddleParser::TmplTypeContext::accept(tree::ParseTreeVisitor *visitor) 
 }
 //----------------- BaseTypeContext ------------------------------------------------------------------
 
-RiddleParser::ExpressionContext* RiddleParser::BaseTypeContext::expression() {
-  return getRuleContext<RiddleParser::ExpressionContext>(0);
+RiddleParser::ExprPtrContext* RiddleParser::BaseTypeContext::exprPtr() {
+  return getRuleContext<RiddleParser::ExprPtrContext>(0);
 }
 
 RiddleParser::BaseTypeContext::BaseTypeContext(TypeUsedContext *ctx) { copyFrom(ctx); }
@@ -6115,7 +6101,7 @@ RiddleParser::TypeUsedContext* RiddleParser::typeUsed(int precedence) {
       previousContext = _localctx;
 
       setState(531);
-      antlrcpp::downCast<BaseTypeContext *>(_localctx)->name = expression(0);
+      antlrcpp::downCast<BaseTypeContext *>(_localctx)->name = exprPtr(0);
       break;
     }
 
@@ -6124,7 +6110,7 @@ RiddleParser::TypeUsedContext* RiddleParser::typeUsed(int precedence) {
       _ctx = _localctx;
       previousContext = _localctx;
       setState(532);
-      antlrcpp::downCast<TmplTypeContext *>(_localctx)->name = expression(0);
+      antlrcpp::downCast<TmplTypeContext *>(_localctx)->name = exprPtr(0);
       setState(533);
       antlrcpp::downCast<TmplTypeContext *>(_localctx)->tmpl = tmplUsed();
       break;

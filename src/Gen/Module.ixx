@@ -5,6 +5,7 @@ module;
 #include <llvm/Linker/Linker.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Function.h>
 #include <ranges>
 #include <llvm/IR/Value.h>
 export module Gen.Moudule;
@@ -84,8 +85,12 @@ export namespace Riddle {
                     case GenObject::Function: {
                         const auto func = dynamic_cast<GenFunction *>(i);
                         func->define->body = nullptr;
-                        func->llvmFunction = context.llvmModule->getFunction(func->name);
-                        func->llvmFunction->deleteBody();
+                        func->getLLVMFunction() = llvm::dyn_cast<llvm::Function>(context.llvmModule->getOrInsertFunction(
+                            func->name, func->getLLVMFunction()->getFunctionType()).getCallee());
+                        if (func->getLLVMFunction() != nullptr) {
+                            func->getLLVMFunction()->deleteBody();
+                        }
+
                         break;
                     }
                     case GenObject::Class: {

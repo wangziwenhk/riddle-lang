@@ -71,14 +71,16 @@ export namespace Riddle {
     class GenFunction final : public GenObject {
     public:
         FuncDefineNode *define;
-        llvm::Function *llvmFunction;
 
-        GenFunction(FuncDefineNode *define, llvm::Function *func): GenObject(Function, define->name), define(define),
-                                                                   llvmFunction(func) {
+        explicit GenFunction(FuncDefineNode *define): GenObject(Function, define->name), define(define) {
         }
 
         GenObject *clone() override {
             return new GenFunction(*this);
+        }
+
+        [[nodiscard]] llvm::Function *& getLLVMFunction() const {
+            return define->llvmFunction;
         }
     };
 

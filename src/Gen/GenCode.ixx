@@ -73,7 +73,7 @@ export namespace Riddle {
         }
 
         std::any visitString(StringLiteralNode *node) override {
-            llvm::Value *value = context.builder->CreateGlobalStringPtr(node->value);
+            llvm::Value *value = context.builder->CreateGlobalString(node->value);
             return value;
         }
 
@@ -98,12 +98,14 @@ export namespace Riddle {
                 paramTypes.push_back(parserType(i->type));
             }
             if (node->theClass) {
-                paramTypes.front() = paramTypes.front()->getPointerTo();
+                paramTypes.front() = llvm::PointerType::get(paramTypes.front(), 0);
             }
 
             const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
             const auto func =
                     llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule);
+
+            node->llvmFunction = func;
 
             // 处理函数参数命名
             int index = 0;
@@ -111,7 +113,7 @@ export namespace Riddle {
                 it->setName(node->args.at(index)->name);
             }
 
-            const auto obj = new GenFunction(node, func);
+            const auto obj = new GenFunction(node);
             context.addObject(obj);
             if (node->theClass) {
                 obj->is_weak = true;
@@ -207,7 +209,7 @@ export namespace Riddle {
                 {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
                 {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
                 {"void", llvm::Type::getVoidTy(*context.llvmContext)},
-                {"char*", llvm::Type::getInt8Ty(*context.llvmContext)->getPointerTo()},
+                {"char*", llvm::PointerType::get(llvm::Type::getInt8Ty(*context.llvmContext), 0)},
             };
             // 尝试获取基本类型
             if (base_types.contains(name)) {
@@ -225,14 +227,14 @@ export namespace Riddle {
         std::any visitIf(IfNode *node) override {
             // 生成 Basic Block
             llvm::BasicBlock *thenBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *elseBlock = nullptr;
             if (node->else_body) {
                 elseBlock =
-                        llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc()->llvmFunction);
+                        llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc()->getLLVMFunction());
             }
             llvm::BasicBlock *exitBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc()->getLLVMFunction());
 
             const auto condition = std::any_cast<llvm::Value *>(visit(node->condition));
             if (node->else_body) {
@@ -263,11 +265,11 @@ export namespace Riddle {
 
         std::any visitWhile(WhileNode *node) override {
             llvm::BasicBlock *condBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond", context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *bodyBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *exitBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc()->getLLVMFunction());
 
             context.builder->CreateBr(condBlock);
             context.builder->SetInsertPoint(condBlock);
@@ -287,11 +289,11 @@ export namespace Riddle {
 
         std::any visitFor(ForNode *node) override {
             llvm::BasicBlock *condBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "for.cond", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "for.cond", context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *bodyBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "for.body", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "for.body", context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *exitBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "for.exit", context.getNowFunc()->llvmFunction);
+                    llvm::BasicBlock::Create(*context.llvmContext, "for.exit", context.getNowFunc()->getLLVMFunction());
 
             context.push();
             // 预先 init
@@ -333,7 +335,7 @@ export namespace Riddle {
                 auto result = std::any_cast<llvm::Value *>(it);
                 argValues.push_back(result);
             }
-            llvm::Value *result = context.builder->CreateCall(func->llvmFunction, argValues);
+            llvm::Value *result = context.builder->CreateCall(func->getLLVMFunction(), argValues);
             return result;
         }
 
