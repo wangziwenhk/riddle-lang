@@ -46,6 +46,12 @@ export namespace Riddle {
                     throw std::runtime_error("Null VarDefine");
                 }
             } else if (node->value && *node->type != *node->value->getType()) {
+                // 尝试基本类型的隐式转换
+                if (node->value->getType()->isBaseType() && node->type->isBaseType()) {
+                    if (node->value->getSemType() == ExprNode::IntegerLiteralNodeType) {
+                        return {};
+                    }
+                }
                 throw std::runtime_error("Type mismatch");
             }
             return {};
@@ -272,7 +278,6 @@ export namespace Riddle {
                     return visit(node->child);
                 }
             } else {
-
                 node->blend_type = BlendNode::Module;
                 const auto theModule = dynamic_cast<SemModule *>(obj);
                 if (theModule == nullptr) {
