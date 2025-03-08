@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(riddle-lang VERSION 0.1 LANGUAGES CXX)
+project(riddle-lang VERSION 0.1 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -65,7 +65,6 @@ target_sources(riddle-module PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_FILES})
 
 # 添加 主编译目标
 add_executable(riddle src/main.cpp ${SOURCE_FILES} ${AST_FILES})
-add_executable(test test/test.cpp ${SOURCE_FILES} ${AST_FILES})
 
 if (MSVC)
     add_compile_options(/wd4819)
@@ -80,8 +79,8 @@ target_link_libraries(riddle antlr4_shared)
 target_link_libraries(riddle argparse::argparse)
 target_link_libraries(riddle magic_enum::magic_enum)
 
-target_link_libraries(test ${llvm_libs})
-target_link_libraries(test riddle-module)
-target_link_libraries(test antlr4_shared)
-target_link_libraries(test argparse::argparse)
-target_link_libraries(test magic_enum::magic_enum)
+if (Windows)
+    set(CMAKE_INSTALL_PREFIX "C:/Program Files/Riddle" CACHE PATH "Installation prefix, default is C:/Program Files/Riddle")
+endif ()
+
+install(TARGETS riddle DESTINATION bin)

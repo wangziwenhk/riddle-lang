@@ -3,3 +3,5 @@ cmake-build-release/
 .idea/
 src/config.h
 temp/
+build/
+test/
