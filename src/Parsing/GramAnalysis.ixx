@@ -126,92 +126,79 @@ export namespace Riddle {
         }
 
 #pragma region Operators
+#define opDefFunc(op) const auto left = unpacking<ExprNode>(visit(ctx->left));  \
+        const auto right = unpacking<ExprNode>(visit(ctx->right));          \
+        SemNode *node = new BinaryOpNode(left, right, op);                \
+        root->addSemNode(node);                                             \
+        return node;
+
+
         std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "+");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("+")
         }
 
         std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "-");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("-")
         }
 
         std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "*");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("*")
         }
 
         std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "/");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("/")
         }
 
         std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "^");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("^")
         }
 
         std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "&");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("&")
         }
 
         std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "|");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("|")
         }
 
         std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "+=");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("+=")
         }
 
         std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "-=");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("-=")
         }
 
         std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "/=");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("/=")
         }
 
         std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) override {
-            const auto left = unpacking<ExprNode>(visit(ctx->left));
-            const auto right = unpacking<ExprNode>(visit(ctx->right));
-            SemNode *node = new BinaryOpNode(left, right, "*=");
-            root->addSemNode(node);
-            return node;
+            opDefFunc("*=")
+        }
+
+        std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override {
+            opDefFunc("<")
+        }
+
+        std::any visitLessEqualExpr(RiddleParser::LessEqualExprContext *ctx) override {
+            opDefFunc("<=")
+        }
+
+        std::any visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) override {
+            opDefFunc(">")
+        }
+
+        std::any visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) override {
+            opDefFunc(">=")
+        }
+
+        std::any visitEqualExpr(RiddleParser::EqualExprContext *ctx) override {
+            opDefFunc("==")
+        }
+
+        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override {
+            opDefFunc("=")
         }
 #pragma endregion
 
