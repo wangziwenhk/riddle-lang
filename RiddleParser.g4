@@ -73,8 +73,9 @@ defineArgs
     ;
 
 funcDefine
-    : (tmpl=tmpleDefine)? Endl? mod=modifierList Func funcName=id LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeUsed)? ((body=bodyExpr)|Semi)
+    : (prop=property)? Endl? (tmpl=tmpleDefine)? Endl? mod=modifierList Func funcName=id LeftBracket args=defineArgs RightBracket (Sub Greater returnType=typeUsed)? ((body=bodyExpr)|Semi)
     ;
+
 forStatement
     : For LeftBracket (init=statement)? Semi (cond=statement)? Semi (incr=statement)? RightBracket body=statement_ed
     ;
@@ -101,7 +102,7 @@ returnStatement
     ;
 
 classDefine
-    : (tmpl=tmpleDefine)? Class className = id (Colon parentClass=id)? body=bodyExpr
+    : (prop=property)? Endl? (tmpl=tmpleDefine)? Endl? Class className = id (Colon parentClass=id)? body=bodyExpr
     ;
 
 tryExpr
@@ -248,4 +249,12 @@ typeUsed
     : name=exprPtr                                                  #baseType      // 普通名称
     | name=exprPtr tmpl=tmplUsed                                    #tmplType      // 模板
     | baseType=typeUsed LeftSquare size=expression RightSquare #arrayType     // 数组
+    ;
+
+property
+    : LeftSquare LeftSquare propertyItem (Comma propertyItem)* RightSquare RightSquare
+    ;
+
+propertyItem
+    : Identifier
     ;

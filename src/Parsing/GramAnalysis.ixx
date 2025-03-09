@@ -5,6 +5,7 @@ module;
 export module Parsing.GramAnalysis;
 import Semantics.SemNode;
 import Semantics.Modifier;
+import Semantics.Property;
 namespace Riddle {
     template<typename Tp, typename SrcTp = SemNode, typename Arg>
         requires std::is_same_v<std::decay_t<Arg>, std::any>
@@ -131,11 +132,10 @@ export namespace Riddle {
             char result;
             if (literal.at(0) == '\\') {
                 result = ParserChar(literal.at(literal.length() - 1));
-            }
-            else {
+            } else {
                 result = literal.at(0);
             }
-            SemNode* node = new IntegerLiteralNode(result, root);
+            SemNode *node = new IntegerLiteralNode(result, root);
             root->addSemNode(node);
             return node;
         }
@@ -244,6 +244,9 @@ export namespace Riddle {
             }
             SemNode *func = new FuncDefineNode(name, returnType, body, mod, args);
             root->addSemNode(func);
+            if (ctx->prop) {
+                dynamic_cast<FuncDefineNode *>(func)->property = std::any_cast<Property>(visit(ctx->prop));
+            }
             return func;
         }
 
@@ -401,6 +404,9 @@ export namespace Riddle {
                     define->functions.push_back(func);
                 }
             }
+            if (ctx->prop) {
+                define->property = std::any_cast<Property>(visit(ctx->prop));
+            }
             SemNode *node = define;
             root->addSemNode(node);
             return node;
@@ -429,6 +435,28 @@ export namespace Riddle {
                 modifier.set(mod, true);
             }
             return modifier;
+        }
+
+        std::any visitProperty(RiddleParser::PropertyContext *ctx) override {
+            Property property;
+            for (const auto i: ctx->children) {
+                if (!antlrcpp::is<antlr4::tree::TerminalNode *>(i)) {
+                    property.set(std::any_cast<Property::PropertyType>(visit(i)), true);
+                }
+            }
+            return property;
+        }
+
+        std::any visitPropertyItem(RiddleParser::PropertyItemContext *ctx) override {
+            const std::string name = ctx->getText();
+            static std::unordered_map<std::string, Property::PropertyType> types = {
+                {"packed", Property::Packaged},
+                {"interrupt", Property::InterruptService},
+            };
+            if (!types.contains(name)) {
+                throw std::runtime_error("UNKNOWN NAME");
+            }
+            return types.at(name);
         }
     };
 } // namespace Riddle

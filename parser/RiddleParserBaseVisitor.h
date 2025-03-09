@@ -355,6 +355,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitProperty(RiddleParser::PropertyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPropertyItem(RiddleParser::PropertyItemContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
 
 };
 

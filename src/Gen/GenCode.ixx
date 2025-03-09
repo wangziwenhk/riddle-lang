@@ -11,6 +11,7 @@ export module Gen.GenCode;
 export import Gen.GenContext;
 import Semantics.SemNode;
 import Support.Unit;
+import Semantics.Property;
 namespace Riddle {
     template<typename T, typename SrcT = GenObject>
     T *unpacking(std::any value) {
@@ -40,8 +41,7 @@ export namespace Riddle {
                         if (j->getGenType() == GenObject::Class) {
                             const auto theClass = dynamic_cast<GenClass *>(j);
                             visit(theClass->define);
-                        }
-                        else if (j->getGenType() == GenObject::Function) {
+                        } else if (j->getGenType() == GenObject::Function) {
                             const auto theFunction = dynamic_cast<GenFunction *>(j);
                             visit(theFunction->define);
                         }
@@ -106,6 +106,11 @@ export namespace Riddle {
 
             node->llvmFunction = func;
 
+            // 处理函数属性
+            if (node->property.get(Property::InterruptService)) {
+                func->addFnAttr("interrupt");
+            }
+
             // 处理函数参数命名
             int index = 0;
             for (auto it = func->arg_begin(); it != func->arg_end(); ++it, ++index) {
@@ -165,7 +170,7 @@ export namespace Riddle {
         }
 
         std::any visitAlloca(AllocaNode *node) override {
-            auto type = parserType(node->type);
+            const auto type = parserType(node->type);
             llvm::Value *alloca = context.builder->CreateAlloca(type);
             node->alloca = alloca;
             return {};
@@ -350,7 +355,8 @@ export namespace Riddle {
                 obj->type = llvm::dyn_cast<llvm::StructType>(node->llvmType);
                 return {};
             }
-            node->llvmType = obj->type = llvm::StructType::create(*context.llvmContext, {}, node->buildName, false);
+            node->llvmType = obj->type = llvm::StructType::create(*context.llvmContext, {}, node->buildName,
+                                                                  node->property.get(Property::Packaged));
             // 获取memberType
             std::vector<llvm::Type *> memberTypes;
             memberTypes.reserve(node->members.size());
