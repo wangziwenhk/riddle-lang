@@ -24,8 +24,8 @@ public:
     Or = 52, Xor = 53, Dot = 54, DoubleQuotes = 55, Quotes = 56, Endl = 57, 
     Identifier = 58, Hexadecimal = 59, Decimal = 60, Octal = 61, Binary = 62, 
     Float = 63, IntegerSequence = 64, HEX_DIGIT = 65, OCTAL_DIGIT = 66, 
-    BINARY_DIGIT = 67, DIGIT = 68, STRING = 69, LINE_COMMENT = 70, BLOCK_COMMENT = 71, 
-    WHITESPACE = 72
+    BINARY_DIGIT = 67, DIGIT = 68, STRING = 69, CHAR = 70, LINE_COMMENT = 71, 
+    BLOCK_COMMENT = 72, WHITESPACE = 73
   };
 
   enum {
@@ -36,9 +36,9 @@ public:
     RuleIfStatement = 15, RuleReturnStatement = 16, RuleClassDefine = 17, 
     RuleTryExpr = 18, RuleCatchExpr = 19, RuleExprPtr = 20, RuleExprPtrParser = 21, 
     RuleExpression = 22, RuleId = 23, RuleModifier = 24, RuleModifierList = 25, 
-    RuleNumber = 26, RuleBoolean = 27, RuleString = 28, RuleFloat = 29, 
-    RuleInteger = 30, RuleTmpleDefine = 31, RuleTmplDefineArg = 32, RuleTmplUsed = 33, 
-    RuleTmplArg = 34, RuleTmplArgList = 35, RuleTypeUsed = 36
+    RuleNumber = 26, RuleBoolean = 27, RuleFloat = 28, RuleInteger = 29, 
+    RuleTmpleDefine = 30, RuleTmplDefineArg = 31, RuleTmplUsed = 32, RuleTmplArg = 33, 
+    RuleTmplArgList = 34, RuleTypeUsed = 35
   };
 
   explicit RiddleParser(antlr4::TokenStream *input);
@@ -86,7 +86,6 @@ public:
   class ModifierListContext;
   class NumberContext;
   class BooleanContext;
-  class StringContext;
   class FloatContext;
   class IntegerContext;
   class TmpleDefineContext;
@@ -827,7 +826,7 @@ public:
   public:
     StringExprContext(ExpressionContext *ctx);
 
-    StringContext *string();
+    antlr4::tree::TerminalNode *STRING();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -979,6 +978,17 @@ public:
     antlr4::tree::TerminalNode *Assign();
     ExprPtrParserContext *exprPtrParser();
     ExpressionContext *expression();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  CharExprContext : public ExpressionContext {
+  public:
+    CharExprContext(ExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *CHAR();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1338,21 +1348,6 @@ public:
   };
 
   BooleanContext* boolean();
-
-  class  StringContext : public antlr4::ParserRuleContext {
-  public:
-    StringContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *STRING();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  StringContext* string();
 
   class  FloatContext : public antlr4::ParserRuleContext {
   public:

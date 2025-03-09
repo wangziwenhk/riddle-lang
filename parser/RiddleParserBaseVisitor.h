@@ -219,6 +219,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitCharExpr(RiddleParser::CharExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitBracketExpr(RiddleParser::BracketExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -308,10 +312,6 @@ public:
   }
 
   virtual std::any visitBoolean(RiddleParser::BooleanContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitString(RiddleParser::StringContext *ctx) override {
     return visitChildren(ctx);
   }
 

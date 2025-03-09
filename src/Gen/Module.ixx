@@ -49,7 +49,7 @@ export namespace Riddle {
             }
             sem.getSemContext().addSemObject(sem_lib_module);
             for (const auto i: sem_classes) {
-                i->define->name = lib.name + "@" + i->define->name;
+                i->define->name = i->define->buildName;
                 sem.getSemContext().addSemObject(i);
             }
 

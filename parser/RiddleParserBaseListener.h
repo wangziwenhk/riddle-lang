@@ -169,6 +169,9 @@ public:
   virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
   virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
 
+  virtual void enterCharExpr(RiddleParser::CharExprContext * /*ctx*/) override { }
+  virtual void exitCharExpr(RiddleParser::CharExprContext * /*ctx*/) override { }
+
   virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
   virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
 
@@ -237,9 +240,6 @@ public:
 
   virtual void enterBoolean(RiddleParser::BooleanContext * /*ctx*/) override { }
   virtual void exitBoolean(RiddleParser::BooleanContext * /*ctx*/) override { }
-
-  virtual void enterString(RiddleParser::StringContext * /*ctx*/) override { }
-  virtual void exitString(RiddleParser::StringContext * /*ctx*/) override { }
 
   virtual void enterFloat(RiddleParser::FloatContext * /*ctx*/) override { }
   virtual void exitFloat(RiddleParser::FloatContext * /*ctx*/) override { }

@@ -16,11 +16,6 @@ namespace Riddle {
     T *unpacking(std::any value) {
         return dynamic_cast<T *>(std::any_cast<SrcT *>(value));
     }
-
-    void reparserType(TypeNode *type, const std::string &module) {
-        type->name = module + "@" + type->name;
-        type->llvmType = nullptr;
-    }
 } // namespace Riddle
 export namespace Riddle {
     class GenCode final : public SemNodeVisitor {
@@ -189,7 +184,8 @@ export namespace Riddle {
                 if (!node->alloca) {
                     throw std::runtime_error("Variable does not have alloca");
                 }
-                const auto value = std::any_cast<llvm::Value *>(visit(node->value));
+                auto value = std::any_cast<llvm::Value *>(visit(node->value));
+                value = context.builder->CreateTrunc(value,parserType(node->type));
                 context.builder->CreateStore(value, node->alloca->alloca);
             }
             return {};
