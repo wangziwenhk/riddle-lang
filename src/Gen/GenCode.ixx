@@ -41,6 +41,10 @@ export namespace Riddle {
                             const auto theClass = dynamic_cast<GenClass *>(j);
                             visit(theClass->define);
                         }
+                        else if (j->getGenType() == GenObject::Function) {
+                            const auto theFunction = dynamic_cast<GenFunction *>(j);
+                            visit(theFunction->define);
+                        }
                     }
                 }
             }
@@ -185,7 +189,7 @@ export namespace Riddle {
                     throw std::runtime_error("Variable does not have alloca");
                 }
                 auto value = std::any_cast<llvm::Value *>(visit(node->value));
-                value = context.builder->CreateTrunc(value,parserType(node->type));
+                value = context.builder->CreateTrunc(value, parserType(node->type));
                 context.builder->CreateStore(value, node->alloca->alloca);
             }
             return {};
@@ -227,7 +231,8 @@ export namespace Riddle {
             llvm::BasicBlock *elseBlock = nullptr;
             if (node->else_body) {
                 elseBlock =
-                        llvm::BasicBlock::Create(*context.llvmContext, "if.else", context.getNowFunc()->getLLVMFunction());
+                        llvm::BasicBlock::Create(*context.llvmContext, "if.else",
+                                                 context.getNowFunc()->getLLVMFunction());
             }
             llvm::BasicBlock *exitBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc()->getLLVMFunction());
@@ -261,11 +266,14 @@ export namespace Riddle {
 
         std::any visitWhile(WhileNode *node) override {
             llvm::BasicBlock *condBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond", context.getNowFunc()->getLLVMFunction());
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond",
+                                             context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *bodyBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.body", context.getNowFunc()->getLLVMFunction());
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.body",
+                                             context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *exitBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit", context.getNowFunc()->getLLVMFunction());
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit",
+                                             context.getNowFunc()->getLLVMFunction());
 
             context.builder->CreateBr(condBlock);
             context.builder->SetInsertPoint(condBlock);
@@ -414,7 +422,13 @@ export namespace Riddle {
                     return visit(child);
                 }
                 case BlendNode::Module: {
-                    const auto theModule = dynamic_cast<GenModule *>(context.getObject(node->parent->getName()));
+                    const GenModule *theModule = nullptr;
+                    if (node->parent->getSemType() == SemNode::BlendNodeType) {
+                        visit(node->parent);
+                        theModule = static_cast<GenModule *>(node->parent->g_obj);
+                    } else {
+                        theModule = dynamic_cast<GenModule *>(context.getObject(node->parent->getName()));
+                    }
                     if (!theModule) {
                         throw std::runtime_error("Parent Not a class");
                     }
@@ -436,9 +450,10 @@ export namespace Riddle {
                             child->g_obj = theModule->getObject(child->getName());
                             return visit(node->child);
                         }
-                        case GenObject::Class: {
-                            const auto type = dynamic_cast<GenClass *>(node->child)->type;
-                            return type;
+                        case GenObject::Module: {
+                            const auto m = dynamic_cast<GenModule *>(obj);
+                            node->g_obj = m;
+                            return m;
                         }
                         default: {
                             break;

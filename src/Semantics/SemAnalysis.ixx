@@ -279,7 +279,7 @@ export namespace Riddle {
                 }
             } else {
                 if (!obj) {
-                    obj = static_cast<SemObject *>(dynamic_cast<ObjectNode*>(node->parent)->s_obj);
+                    obj = static_cast<SemObject *>(node->parent->s_obj);
                 }
                 node->blend_type = BlendNode::Module;
                 const auto theModule = dynamic_cast<SemModule *>(obj);
@@ -299,6 +299,7 @@ export namespace Riddle {
                         *node->getType() = *sOBJ->getConstType();
                         visit(theObj);
                     } else {
+                        node->s_obj = sOBJ;
                         visit(theObj);
                     }
                 } else if (const auto theFunc = dynamic_cast<FuncCallNode *>(node->child)) {
