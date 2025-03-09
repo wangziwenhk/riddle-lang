@@ -198,6 +198,9 @@ export namespace Riddle {
         std::string name;
 
     public:
+        void *s_obj = nullptr;
+        void *g_obj = nullptr;
+
         ExprNode(TypeNode *type, const SemNodeType semType, std::string name): SemNode(semType), type(type),
                                                                                name(std::move(name)) {
         }
@@ -381,8 +384,6 @@ export namespace Riddle {
 
     class ObjectNode final : public ExprNode {
     public:
-        void *s_obj = nullptr;
-        void *g_obj = nullptr;
         bool isLoad = false;
 
         explicit ObjectNode(std::string name, TypeNode *type): ExprNode(type, ObjectNodeType, std::move(name)) {
@@ -399,9 +400,6 @@ export namespace Riddle {
                 new TypeNode(TypeNode::unknown), FuncCallNodeType, std::move(name)), args(std::move(args)) {
             root->addSemNode(type);
         }
-
-        void *s_obj = nullptr;
-        void *g_obj = nullptr;
 
         std::any accept(SemNodeVisitor &visitor) override;
     };

@@ -79,7 +79,7 @@ export namespace Riddle {
             return new GenFunction(*this);
         }
 
-        [[nodiscard]] llvm::Function *& getLLVMFunction() const {
+        [[nodiscard]] llvm::Function *&getLLVMFunction() const {
             return define->llvmFunction;
         }
     };
@@ -149,11 +149,7 @@ export namespace Riddle {
             return objects.at(name);
         }
 
-        ~GenModule() override {
-            for (const auto i: objects | std::views::values) {
-                delete i;
-            }
-        }
+        ~GenModule() override = default;
 
         auto &getAllObjects() const noexcept {
             return objects;
@@ -176,10 +172,10 @@ export namespace Riddle {
         llvm::IRBuilder<> *builder{};
         std::string name;
 
-        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""): llvmContext(llvmContext),
-            llvmModule(new llvm::Module(name, *llvmContext)),
-            builder(new llvm::IRBuilder(*llvmContext)), name(name),
-            binOperators(operatorImpl) {
+        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""): binOperators(operatorImpl),
+            llvmContext(llvmContext),
+            llvmModule(new llvm::Module(name, *llvmContext)), builder(new llvm::IRBuilder(*llvmContext)),
+            name(name) {
             push();
         }
 
