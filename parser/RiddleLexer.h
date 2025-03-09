@@ -24,8 +24,8 @@ public:
     Or = 52, Xor = 53, Dot = 54, DoubleQuotes = 55, Quotes = 56, Endl = 57, 
     Identifier = 58, Hexadecimal = 59, Decimal = 60, Octal = 61, Binary = 62, 
     Float = 63, IntegerSequence = 64, HEX_DIGIT = 65, OCTAL_DIGIT = 66, 
-    BINARY_DIGIT = 67, DIGIT = 68, STRING = 69, LINE_COMMENT = 70, BLOCK_COMMENT = 71, 
-    WHITESPACE = 72
+    BINARY_DIGIT = 67, DIGIT = 68, STRING = 69, CHAR = 70, LINE_COMMENT = 71, 
+    BLOCK_COMMENT = 72, WHITESPACE = 73
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

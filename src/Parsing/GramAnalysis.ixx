@@ -93,34 +93,49 @@ export namespace Riddle {
             return boolean;
         }
 
-        std::any visitString(RiddleParser::StringContext *ctx) override {
+        static char ParserChar(const char ch) {
+            switch (ch) {
+                case 'n':
+                    return '\n';
+                case 't':
+                    return '\t';
+                case 'r':
+                    return '\r';
+                case 'b':
+                    return '\b';
+                default:
+                    throw std::runtime_error("GramAnalysis: Unexpected character");
+            }
+        }
+
+        std::any visitStringExpr(RiddleParser::StringExprContext *ctx) override {
             auto literal = ctx->getText();
             literal = literal.substr(1, literal.length() - 2);
             std::string result;
             for (int i = 0; i < literal.length(); i++) {
                 const char ch = literal.at(i);
                 if (ch == '\\') {
-                    switch (literal.at(i + 1)) {
-                        case 'n':
-                            result.push_back('\n');
-                            break;
-                        case 't':
-                            result.push_back('\t');
-                            break;
-                        case 'r':
-                            result.push_back('\r');
-                            break;
-                        case 'b':
-                            result.push_back('\b');
-                            break;
-                        default:
-                            throw std::runtime_error("GramAnalysis: Unexpected character");
-                    }
+                    result.push_back(ParserChar(literal.at(i + 1)));
                 } else {
                     result.push_back(ch);
                 }
             }
             SemNode *node = new StringLiteralNode(result, root);
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitCharExpr(RiddleParser::CharExprContext *context) override {
+            auto literal = context->getText();
+            literal = literal.substr(1, literal.length() - 2);
+            char result;
+            if (literal.at(0) == '\\') {
+                result = ParserChar(literal.at(literal.length() - 1));
+            }
+            else {
+                result = literal.at(0);
+            }
+            SemNode* node = new IntegerLiteralNode(result, root);
             root->addSemNode(node);
             return node;
         }
@@ -233,12 +248,7 @@ export namespace Riddle {
         }
 
         std::any visitBaseType(RiddleParser::BaseTypeContext *ctx) override {
-            auto name = ctx->name->getText();
-            for (auto &i: name) {
-                if (i == '.') {
-                    i = '@';
-                }
-            }
+            const auto name = ctx->name->getText();
             SemNode *node = new TypeNode(name);
             root->addSemNode(node);
             return node;

@@ -83,10 +83,14 @@ STRING
     : '"' (ESC | ~["\\\r\n])* '"'
     ;
 
+CHAR
+    : '\'' (ESC | ~["\\\r\n]) '\''
+    ;
+
 fragment ESC
     : '\\' (["\\/] | [A-Za-z])
     ;
 
 LINE_COMMENT : '//' ~[\r\n]* -> skip ;
 BLOCK_COMMENT : '/*' .*? '*/' -> skip ;
-WHITESPACE : [ \t\r\n]+ -> skip ;
+WHITESPACE : [ \t\r\n]+ -> channel(HIDDEN) ;

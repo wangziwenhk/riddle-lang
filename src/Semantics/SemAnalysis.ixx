@@ -87,7 +87,7 @@ export namespace Riddle {
 
         std::any visitClassDefine(ClassDefineNode *node) override {
             if (context.getName() != "main") {
-                node->buildName = context.getName() + "@" + node->name;
+                node->buildName = context.getName() + "." + node->name;
             }
             if (!node->parentClass.empty()) {
                 const auto obj = context.getSemObject(node->parentClass);
@@ -278,6 +278,9 @@ export namespace Riddle {
                     return visit(node->child);
                 }
             } else {
+                if (!obj) {
+                    obj = static_cast<SemObject *>(dynamic_cast<ObjectNode*>(node->parent)->s_obj);
+                }
                 node->blend_type = BlendNode::Module;
                 const auto theModule = dynamic_cast<SemModule *>(obj);
                 if (theModule == nullptr) {
@@ -285,9 +288,19 @@ export namespace Riddle {
                 }
 
                 if (const auto theObj = dynamic_cast<ObjectNode *>(node->child)) {
-                    theObj->s_obj = theModule->getObject(theObj->getName());
-                    *node->getType() = *theModule->getObject(theObj->getName())->getConstType();
-                    visit(theObj);
+                    const auto sOBJ = theModule->getObject(theObj->getName());
+                    if (sOBJ == nullptr) {
+                        throw std::logic_error(std::format("'{}' is NUll", obj->getName()));
+                    }
+                    theObj->s_obj = sOBJ;
+
+                    //处理可能的嵌套module
+                    if (sOBJ->getSemObjType() == SemObject::Variable) {
+                        *node->getType() = *sOBJ->getConstType();
+                        visit(theObj);
+                    } else {
+                        visit(theObj);
+                    }
                 } else if (const auto theFunc = dynamic_cast<FuncCallNode *>(node->child)) {
                     theFunc->s_obj = theModule->getObject(theFunc->getName());
                     *node->getType() = *theModule->getObject(theFunc->getName())->getConstType();

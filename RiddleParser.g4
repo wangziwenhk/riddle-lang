@@ -166,7 +166,8 @@ expression
     | left=exprPtrParser LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
     | left=exprPtrParser RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
     | left=exprPtrParser RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
-    | string                                                #stringExpr
+    | STRING                                                #stringExpr
+    | CHAR                                                  #charExpr
     | number                                                #numberExpr
     | boolean                                               #booleanExpr
     | Null                                                  #nullExpr
@@ -198,10 +199,6 @@ number
 boolean returns [bool value]
     : True {$value=true;}
     | False {$value=false;}
-    ;
-
-string
-    : STRING
     ;
 
 float returns [double value]

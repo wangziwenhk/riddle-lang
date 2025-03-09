@@ -167,6 +167,9 @@ public:
   virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) = 0;
   virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) = 0;
 
+  virtual void enterCharExpr(RiddleParser::CharExprContext *ctx) = 0;
+  virtual void exitCharExpr(RiddleParser::CharExprContext *ctx) = 0;
+
   virtual void enterBracketExpr(RiddleParser::BracketExprContext *ctx) = 0;
   virtual void exitBracketExpr(RiddleParser::BracketExprContext *ctx) = 0;
 
@@ -235,9 +238,6 @@ public:
 
   virtual void enterBoolean(RiddleParser::BooleanContext *ctx) = 0;
   virtual void exitBoolean(RiddleParser::BooleanContext *ctx) = 0;
-
-  virtual void enterString(RiddleParser::StringContext *ctx) = 0;
-  virtual void exitString(RiddleParser::StringContext *ctx) = 0;
 
   virtual void enterFloat(RiddleParser::FloatContext *ctx) = 0;
   virtual void exitFloat(RiddleParser::FloatContext *ctx) = 0;

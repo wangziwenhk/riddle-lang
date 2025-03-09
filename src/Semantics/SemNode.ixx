@@ -155,10 +155,15 @@ export namespace Riddle {
 
         explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType): SemNode(type_id),
             name(std::move(name)) {
+            while (name.back() == '*') {
+                ++pointSize;
+                name.pop_back();
+            }
         }
 
         std::string name;
         llvm::Type *llvmType = nullptr;
+        int pointSize = 0;
 
         std::any accept(SemNodeVisitor &visitor) override;
 
