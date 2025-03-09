@@ -269,6 +269,12 @@ public:
   virtual void enterBaseType(RiddleParser::BaseTypeContext *ctx) = 0;
   virtual void exitBaseType(RiddleParser::BaseTypeContext *ctx) = 0;
 
+  virtual void enterProperty(RiddleParser::PropertyContext *ctx) = 0;
+  virtual void exitProperty(RiddleParser::PropertyContext *ctx) = 0;
+
+  virtual void enterPropertyItem(RiddleParser::PropertyItemContext *ctx) = 0;
+  virtual void exitPropertyItem(RiddleParser::PropertyItemContext *ctx) = 0;
+
 
 };
 

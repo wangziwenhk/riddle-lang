@@ -271,6 +271,12 @@ public:
   virtual void enterBaseType(RiddleParser::BaseTypeContext * /*ctx*/) override { }
   virtual void exitBaseType(RiddleParser::BaseTypeContext * /*ctx*/) override { }
 
+  virtual void enterProperty(RiddleParser::PropertyContext * /*ctx*/) override { }
+  virtual void exitProperty(RiddleParser::PropertyContext * /*ctx*/) override { }
+
+  virtual void enterPropertyItem(RiddleParser::PropertyItemContext * /*ctx*/) override { }
+  virtual void exitPropertyItem(RiddleParser::PropertyItemContext * /*ctx*/) override { }
+
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }
   virtual void exitEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

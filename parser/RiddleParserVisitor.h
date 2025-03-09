@@ -189,6 +189,10 @@ public:
 
     virtual std::any visitBaseType(RiddleParser::BaseTypeContext *context) = 0;
 
+    virtual std::any visitProperty(RiddleParser::PropertyContext *context) = 0;
+
+    virtual std::any visitPropertyItem(RiddleParser::PropertyItemContext *context) = 0;
+
 
 };
 

@@ -11,6 +11,7 @@ module;
 export module Semantics.SemNode;
 import Config.BasicType;
 export import Semantics.Modifier;
+import Semantics.Property;
 export namespace Riddle {
     class ClassDefineNode;
     class AllocaNode;
@@ -263,6 +264,7 @@ export namespace Riddle {
         }
 
         Modifier modifier;
+        Property property;
         std::string name;
         std::vector<ArgNode *> args;
         BlockNode *body;
@@ -453,6 +455,7 @@ export namespace Riddle {
         std::vector<VarDefineNode *> members;
         std::vector<FuncDefineNode *> functions;
         std::string buildName;
+        Property property;
 
         explicit ClassDefineNode(const std::string &name): TypeNode(name, ClassDefineNodeType) {
         }
