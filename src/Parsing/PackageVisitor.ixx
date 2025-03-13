@@ -10,15 +10,29 @@ export namespace Riddle {
     class PackageVisitor final : public RiddleParserBaseVisitor {
     public:
         Unit unit;
+
         PackageVisitor() = delete;
+
         std::any visitPackStatement(RiddleParser::PackStatementContext *ctx) override {
             unit.setPackName(ctx->packName->getText());
             return RiddleParserBaseVisitor::visitPackStatement(ctx);
         }
+
         std::any visitImportStatement(RiddleParser::ImportStatementContext *ctx) override {
             unit.addImports(ctx->libName->getText());
             return RiddleParserBaseVisitor::visitImportStatement(ctx);
         }
+
+        std::any visitProgram(RiddleParser::ProgramContext *context) override {
+            for (const auto i: context->children) {
+                if (antlrcpp::is<RiddleParser::PackStatementContext*>(i->children[0]->children[0]) ||
+                    antlrcpp::is<RiddleParser::ImportStatementContext*>(i->children[0]->children[0])) {
+                    visit(i);
+                }
+            }
+            return {};
+        }
+
         PackageVisitor(const File &option, antlr4::tree::ParseTree *tree, RiddleParser *parser) {
             unit.parseTree = tree;
             unit.parser = parser;
@@ -26,5 +40,4 @@ export namespace Riddle {
             PackageVisitor::visit(tree);
         }
     };
-
-}// namespace Riddle
+} // namespace Riddle
