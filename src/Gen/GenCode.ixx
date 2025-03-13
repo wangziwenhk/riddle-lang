@@ -124,6 +124,9 @@ export namespace Riddle {
             }
 
             if (node->body) {
+                // 添加 DSO 优化
+                func->setDSOLocal(true);
+
                 const auto entry = llvm::BasicBlock::Create(context.llvmModule->getContext(), "entry", func);
                 context.builder->SetInsertPoint(entry);
 
@@ -186,6 +189,7 @@ export namespace Riddle {
                 const auto cst = llvm::dyn_cast<llvm::Constant>(value);
                 const auto var = new llvm::GlobalVariable(*context.llvmModule, parserType(node->type), false,
                                                           llvm::GlobalValue::ExternalLinkage, cst, name);
+                var->setDSOLocal(true);
                 node->alloca->alloca = var;
                 return {};
             }
@@ -319,6 +323,7 @@ export namespace Riddle {
             context.builder->CreateBr(condBlock);
 
             context.pop();
+            context.builder->SetInsertPoint(exitBlock);
             return {};
         }
 
