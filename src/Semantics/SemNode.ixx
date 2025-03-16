@@ -28,6 +28,7 @@ export namespace Riddle {
             BlockNodeType,
 
             IntegerLiteralNodeType,
+            CharLiteralNodeType,
             FloatLiteralNodeType,
             BoolLiteralNodeType,
             StringLiteralNodeType,
@@ -306,6 +307,18 @@ export namespace Riddle {
 
         explicit IntegerLiteralNode(const int value, ProgramNode *root): LiteralNode(IntegerLiteralNodeType,
                                                                              new TypeNode("int")), value(value) {
+            root->addSemNode(type);
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class CharLiteralNode final : public LiteralNode {
+        public:
+        char value;
+
+        explicit CharLiteralNode(const char value, ProgramNode *root): LiteralNode(IntegerLiteralNodeType,
+                                                                             new TypeNode("char")), value(value) {
             root->addSemNode(type);
         }
 
@@ -652,8 +665,13 @@ export namespace Riddle {
             return {};
         }
 
+        virtual std::any visitChar(CharLiteralNode* node) {
+            return {};
+        }
+
         virtual ~SemNodeVisitor() = default;
     };
+
 #pragma endregion
 
 #pragma region SemNodeAcceptImpl
@@ -700,6 +718,9 @@ export namespace Riddle {
 
     inline std::any IntegerLiteralNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitInteger(this);
+    }
+    std::any CharLiteralNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitChar(this);
     }
 
     inline std::any FloatLiteralNode::accept(SemNodeVisitor &visitor) {

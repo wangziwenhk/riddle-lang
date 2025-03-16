@@ -90,6 +90,11 @@ export namespace Riddle {
             return value;
         }
 
+        std::any visitChar(CharLiteralNode *node) override {
+            llvm::Value *value = context.builder->getInt8(node->value);
+            return value;
+        }
+
         std::any visitString(StringLiteralNode *node) override {
             llvm::Value *value = context.builder->CreateGlobalString(node->value);
             return value;
@@ -120,8 +125,8 @@ export namespace Riddle {
             }
 
             const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
-            const auto func =
-                    llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule.get());
+            const auto func = llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name,
+                                                     context.llvmModule.get());
 
             node->llvmFunction = func;
 

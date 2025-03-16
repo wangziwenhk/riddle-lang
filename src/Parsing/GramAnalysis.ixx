@@ -135,7 +135,7 @@ export namespace Riddle {
             } else {
                 result = literal.at(0);
             }
-            SemNode *node = new IntegerLiteralNode(result, root);
+            SemNode *node = new CharLiteralNode(result, root);
             root->addSemNode(node);
             return node;
         }
