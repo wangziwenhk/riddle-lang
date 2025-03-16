@@ -92,7 +92,7 @@ endif ()
 message(STATUS "Target architectures: ${TARGET_LIST}")
 
 # 基础组件
-set(llvm_components core irreader support analysis passes codegen target mc object)
+set(llvm_components core irreader support analysis passes codegen target mc object linker)
 
 foreach (TARGET IN LISTS TARGET_LIST)
     if (${TARGET} STREQUAL "X86")
@@ -161,6 +161,8 @@ foreach (TARGET IN LISTS TARGET_LIST)
 endforeach ()
 
 llvm_map_components_to_libnames(llvm_libs ${llvm_components})
+
+list(APPEND llvm_libs lldCommon lldELF lldCOFF lldMachO lldMinGW lldWasm)
 
 message(STATUS "LLVM libraries: ${llvm_libs}")
 

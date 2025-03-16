@@ -1,9 +1,12 @@
 module;
-#include <llvm/IR/IRBuilder.h>
+#include <clang/Driver/Compilation.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/Module.h>
 #include <llvm/Linker/Linker.h>
-#include <llvm/TargetParser/Host.h>
-#include <llvm/TargetParser/Triple.h>
+#include <llvm/MC/TargetRegistry.h>
+#include <llvm/Target/TargetMachine.h>
+#include <memory>
 #include <queue>
 #include <ranges>
 #include <string>
@@ -35,7 +38,7 @@ export namespace Riddle {
         std::shared_ptr<BuildTarget> buildTarget;
 
         BuildQueue() {
-            buildTarget.reset(new BuildTarget());
+            buildTarget = std::make_shared<BuildTarget>();
         }
 
         /// @brief 用于解析某个源文件
@@ -123,12 +126,12 @@ export namespace Riddle {
                 }
             }
 
-            const auto llvm_ctx = new llvm::LLVMContext();
+            std::unique_ptr<llvm::LLVMContext> llvm_ctx = std::make_unique<llvm::LLVMContext>();
             std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
             // 依次编译
             for (auto i: buildList) {
                 auto unit = libSource[i.data()].front();
-                contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx, unit));
+                contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx.get(), unit));
                 auto &module = contextMap.at(unit.getPackName());
 
                 module->context.buildTarget = this->buildTarget;
@@ -148,14 +151,20 @@ export namespace Riddle {
                     return;
                 }
             }
+
+            std::string outFileName = "out";
+
             std::error_code ec;
-            llvm::raw_fd_ostream out("out.ll", ec);
+            llvm::raw_fd_ostream Dest(outFileName + ".ll", ec);
             if (ec) {
                 llvm::errs() << "Could not open output file: " << ec.message() << "\n";
                 return;
             }
-            mainModule->print(out, nullptr);
-            out.close();
+            mainModule->print(Dest, nullptr);
+            Dest.flush();
+            Dest.close();
+
+            system(("clang " + outFileName + ".ll" + " -o " + outFileName).c_str());
         }
     };
 } // namespace Riddle
