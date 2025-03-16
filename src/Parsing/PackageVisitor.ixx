@@ -25,8 +25,10 @@ export namespace Riddle {
 
         std::any visitProgram(RiddleParser::ProgramContext *context) override {
             for (const auto i: context->children) {
-                if (antlrcpp::is<RiddleParser::PackStatementContext*>(i->children[0]->children[0]) ||
-                    antlrcpp::is<RiddleParser::ImportStatementContext*>(i->children[0]->children[0])) {
+                if (i == nullptr || antlrcpp::is<antlr4::tree::TerminalNode *>(i) || i->children[0] == nullptr)
+                    continue;
+                if (antlrcpp::is<RiddleParser::PackStatementContext *>(i->children[0]->children[0]) ||
+                    antlrcpp::is<RiddleParser::ImportStatementContext *>(i->children[0]->children[0])) {
                     visit(i);
                 }
             }

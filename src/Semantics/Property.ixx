@@ -1,6 +1,6 @@
 module;
 #include <bitset>
-#include <magic_enum.hpp>
+#include "magic_enum/magic_enum.hpp"
 export module Semantics.Property;
 export namespace Riddle {
     class Property {

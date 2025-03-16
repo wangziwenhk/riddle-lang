@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(riddle-lang VERSION 0.1 LANGUAGES CXX C)
 
@@ -15,8 +15,15 @@ message(STATUS "Current generator: ${CMAKE_GENERATOR}")
 # Enter the system type for better searching of the database.
 if (WIN32)
     set(PLATFORM_DEFINES "-DWIN32")
-else (LINUX)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+elseif (LINUX)
     set(PLATFORM_DEFINES "-DLINUX")
+endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
+    add_compile_options(-ffunction-sections -fdata-sections)
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--strip-all")
 endif ()
 
 find_path(ANTLR4_INCLUDE_DIR antlr4-runtime/antlr4-runtime.h
@@ -70,7 +77,97 @@ if (MSVC)
     add_compile_options(/wd4819)
 endif ()
 
-llvm_map_components_to_libnames(llvm_libs linker core irreader support analysis passes)
+# 添加编译目标选择
+set(RIDDLE_BUILD_TARGET "ALL" CACHE STRING "Specify target architectures (e.g., X86,ARM)")
+
+# 处理 ALL
+if (${RIDDLE_BUILD_TARGET} STREQUAL "ALL")
+    set(RIDDLE_BUILD_TARGET "X86,ARM,AARCH64,AMDGPU,AVR,PBF,HEXGON")
+endif ()
+
+if (RIDDLE_BUILD_TARGET)
+    string(REPLACE "," ";" TARGET_LIST "${RIDDLE_BUILD_TARGET}")
+endif ()
+
+message(STATUS "Target architectures: ${TARGET_LIST}")
+
+# 基础组件
+set(llvm_components core irreader support analysis passes codegen target mc object)
+
+foreach (TARGET IN LISTS TARGET_LIST)
+    if (${TARGET} STREQUAL "X86")
+        add_definitions(-DRIDDLE_TARGET_X86)
+        list(APPEND llvm_components x86asmparser x86desc x86codegen x86disassembler x86targetmca)
+    elseif (${TARGET} STREQUAL "ARM")
+        add_definitions(-DRIDDLE_TARGET_ARM)
+        list(APPEND llvm_components armasmparser armdesc armcodegen armdisassembler)
+    elseif (${TARGET} STREQUAL "AARCH64")
+        add_definitions(-DRIDDLE_TARGET_AARCH64)
+        list(APPEND llvm_components aarch64asmparser aarch64desc aarch64codegen aarch64disassembler)
+    elseif (${TARGET} STREQUAL "AMDGPU")
+        add_definitions(-DRIDDLE_TARGET_AMDGPU)
+        list(APPEND llvm_components amdgpuasmparser amdgputargetmca amdgpucodegen amdgpuinfo amdgpudisassembler)
+    elseif (${TARGET} STREQUAL "AVR")
+        add_definitions(-DRIDDLE_TARGET_AVR)
+        list(APPEND llvm_components avrasmparser avrdesc avrcodegen avrdisassembler)
+    elseif (${TARGET} STREQUAL "BPF")
+        add_definitions(-DRIDDLE_TARGET_BPF)
+        list(APPEND llvm_components bpfasmparser bpfdesc bpfcodegen bpfdisassembler)
+    elseif (${TARGET} STREQUAL "HEXGON")
+        add_definitions(-DRIDDLE_TARGET_HEXGON)
+        list(APPEND llvm_components hexagonasmparser hexagondesc hexagoncodegen hexagondisassembler)
+    else ()
+        message(WARNING "Unknown target: ${TARGET}")
+    endif ()
+endforeach ()
+
+llvm_map_components_to_libnames(llvm_libs ${llvm_components})
+
+#llvm_map_components_to_libnames(llvm_libs
+#        core irreader support analysis passes codegen target mc object
+#        # X86
+#        x86asmparser x86desc x86codegen x86disassembler x86targetmca
+#        # Aarch
+#        aarch64asmparser aarch64desc aarch64codegen aarch64disassembler
+#        # arm
+#        armasmparser armdesc armcodegen armdisassembler
+#        # amdgpu
+#        amdgpuasmparser amdgputargetmca amdgpucodegen amdgpuinfo amdgpudisassembler
+#        # avr
+#        avrasmparser avrdesc avrcodegen avrdisassembler
+#        # bpf
+#        bpfasmparser bpfdesc bpfcodegen bpfdisassembler
+#        # hexgon
+#        hexagonasmparser hexagondesc hexagoncodegen hexagondisassembler
+#        # lanai
+#        lanaiasmparser lanaidesc lanaicodegen lanaidisassembler
+#        # loongarch
+#        loongarchasmparser loongarchdesc loongarchcodegen loongarchdisassembler
+#        # mips
+#        mipsasmparser mipsdesc mipscodegen mipsdisassembler
+#        # msp430
+#        msp430asmparser msp430desc msp430codegen msp430disassembler
+#        # nvptx
+#        nvptxcodegen nvptxdesc
+#        # powerpc
+#        powerpcasmparser powerpcdesc powerpcdisassembler powerpccodegen powerpcinfo
+#        # riscv
+#        riscvasmparser riscvdesc riscvcodegen riscvdisassembler riscvtargetmca
+#        # sparc
+#        sparcasmparser sparcdesc sparccodegen sparcdisassembler
+#        # spirv
+#        spirvcodegen spirvdesc
+#        # systemz
+#        systemzasmparser systemzdesc systemzcodegen systemzdisassembler
+#        # ve
+#        vecodegen vedesc vedisassembler veasmparser
+#        # xcore
+#        xcoredesc xcorecodegen xcoredisassembler
+#        # wasm
+#        WebAssemblyAsmParser WebAssemblyCodeGen WebAssemblyDesc WebAssemblyDisassembler WebAssemblyInfo WebAssemblyUtils
+#)
+
+
 message(STATUS "LLVM libraries: ${llvm_libs}")
 
 target_link_libraries(riddle ${llvm_libs})

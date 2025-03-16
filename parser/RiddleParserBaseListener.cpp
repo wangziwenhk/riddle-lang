@@ -1,5 +1,5 @@
 
-// Generated from D:/Code/Riddle-Language-cpp/RiddleParser.g4 by ANTLR 4.13.2
+// Generated from D:/Code/riddle-lang/RiddleParser.g4 by ANTLR 4.13.2
 
 
 #include "RiddleParserBaseListener.h"

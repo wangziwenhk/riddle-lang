@@ -2,7 +2,7 @@ module;
 #include <algorithm>
 #include <bitset>
 #include <format>
-#include <magic_enum.hpp>
+#include "magic_enum/magic_enum.hpp"
 #include <stdexcept>
 export module Semantics.Modifier;
 export namespace Riddle {

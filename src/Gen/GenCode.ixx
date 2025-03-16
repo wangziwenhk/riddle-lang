@@ -1,10 +1,13 @@
 module;
 #include <any>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DataLayout.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/TargetParser/Host.h>
+#include <llvm/TargetParser/Triple.h>
 #include <ranges>
 #include <vector>
 export module Gen.GenCode;
@@ -16,6 +19,21 @@ namespace Riddle {
     template<typename T, typename SrcT = GenObject>
     T *unpacking(std::any value) {
         return dynamic_cast<T *>(std::any_cast<SrcT *>(value));
+    }
+
+    bool isTargetArch(const llvm::Module &module, const llvm::Triple::ArchType targetArch) {
+        // 从模块获取三元组
+        std::string tripleStr = module.getTargetTriple();
+        if (tripleStr.empty()) {
+            // 如果模块未设置三元组，可能需要从上下文或默认值获取
+            tripleStr = llvm::sys::getDefaultTargetTriple();
+        }
+
+        // 解析三元组
+        const llvm::Triple triple(tripleStr);
+
+        // 检查架构
+        return triple.getArch() == targetArch;
     }
 } // namespace Riddle
 export namespace Riddle {
@@ -36,6 +54,7 @@ export namespace Riddle {
             context.llvmModule->setModuleIdentifier(unit.getPackName());
             for (auto i: context.getAllObjects() | std::views::values) {
                 if (i.top()->getGenType() == GenObject::Module) {
+                    // ReSharper disable once CppTooWideScopeInitStatement
                     const auto module = dynamic_cast<GenModule *>(i.top());
                     for (const auto j: module->getAllObjects() | std::views::values) {
                         if (j->getGenType() == GenObject::Class) {
@@ -51,7 +70,7 @@ export namespace Riddle {
             for (const auto i: *node->body) {
                 visit(i);
             }
-            context.llvmModule->print(llvm::outs(), nullptr);
+            // context.llvmModule->print(llvm::outs(), nullptr);
             return {};
         }
 
@@ -102,13 +121,21 @@ export namespace Riddle {
 
             const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
             const auto func =
-                    llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule);
+                    llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name, context.llvmModule.get());
 
             node->llvmFunction = func;
 
             // 处理函数属性
             if (node->property.get(Property::InterruptService)) {
-                func->addFnAttr("interrupt");
+                if (context.buildTarget->TM->getTargetTriple().isX86()) {
+                    func->setCallingConv(llvm::CallingConv::X86_INTR);
+                } else if (context.buildTarget->TM->getTargetTriple().isARM()) {
+                    func->addFnAttr("interrupt", "IRQ");
+                }
+                func->addFnAttr(llvm::Attribute::NoReturn);
+            }
+            if (!context.buildTarget->isExpect) {
+                func->addFnAttr(llvm::Attribute::NoUnwind);
             }
 
             // 处理函数参数命名
@@ -210,15 +237,15 @@ export namespace Riddle {
             }
             const auto &name = node->name;
             static std::unordered_map<std::string, llvm::Type *> base_types = {
-                {"bool", llvm::Type::getInt1Ty(*context.llvmContext)},
-                {"int", llvm::Type::getInt32Ty(*context.llvmContext)},
-                {"long", llvm::Type::getInt64Ty(*context.llvmContext)},
-                {"short", llvm::Type::getInt16Ty(*context.llvmContext)},
-                {"char", llvm::Type::getInt8Ty(*context.llvmContext)},
-                {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
-                {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
-                {"void", llvm::Type::getVoidTy(*context.llvmContext)},
-                {"char*", llvm::PointerType::get(llvm::Type::getInt8Ty(*context.llvmContext), 0)},
+                    {"bool", llvm::Type::getInt1Ty(*context.llvmContext)},
+                    {"int", llvm::Type::getInt32Ty(*context.llvmContext)},
+                    {"long", llvm::Type::getInt64Ty(*context.llvmContext)},
+                    {"short", llvm::Type::getInt16Ty(*context.llvmContext)},
+                    {"char", llvm::Type::getInt8Ty(*context.llvmContext)},
+                    {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
+                    {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
+                    {"void", llvm::Type::getVoidTy(*context.llvmContext)},
+                    {"char*", llvm::PointerType::get(llvm::Type::getInt8Ty(*context.llvmContext), 0)},
             };
             // 尝试获取基本类型
             if (base_types.contains(name)) {
@@ -239,9 +266,8 @@ export namespace Riddle {
                     llvm::BasicBlock::Create(*context.llvmContext, "if.then", context.getNowFunc()->getLLVMFunction());
             llvm::BasicBlock *elseBlock = nullptr;
             if (node->else_body) {
-                elseBlock =
-                        llvm::BasicBlock::Create(*context.llvmContext, "if.else",
-                                                 context.getNowFunc()->getLLVMFunction());
+                elseBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.else",
+                                                     context.getNowFunc()->getLLVMFunction());
             }
             llvm::BasicBlock *exitBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "if.exit", context.getNowFunc()->getLLVMFunction());
@@ -274,15 +300,12 @@ export namespace Riddle {
         }
 
         std::any visitWhile(WhileNode *node) override {
-            llvm::BasicBlock *condBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond",
-                                             context.getNowFunc()->getLLVMFunction());
-            llvm::BasicBlock *bodyBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.body",
-                                             context.getNowFunc()->getLLVMFunction());
-            llvm::BasicBlock *exitBlock =
-                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit",
-                                             context.getNowFunc()->getLLVMFunction());
+            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.cond",
+                                                                   context.getNowFunc()->getLLVMFunction());
+            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body",
+                                                                   context.getNowFunc()->getLLVMFunction());
+            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit",
+                                                                   context.getNowFunc()->getLLVMFunction());
 
             context.builder->CreateBr(condBlock);
             context.builder->SetInsertPoint(condBlock);

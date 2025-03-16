@@ -1,6 +1,7 @@
 module;
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
+#include <llvm/TargetParser/Host.h>
 #include <ranges>
 #include <stack>
 #include <unordered_set>
@@ -8,6 +9,7 @@ module;
 export module Gen.GenContext;
 import Semantics.SemNode;
 import Config.OperatorImpl;
+import Gen.BuildTarget;
 export namespace Riddle {
     class GenObject {
     public:
@@ -161,22 +163,27 @@ export namespace Riddle {
     };
 
     class GenContext {
-        std::unordered_map<std::string, std::stack<GenObject *> > objects;
-        std::stack<std::unordered_set<std::string> > defines;
+        std::unordered_map<std::string, std::stack<GenObject *>> objects;
+        std::stack<std::unordered_set<std::string>> defines;
         std::stack<GenFunction *> functions;
-        decltype(operatorImpl) binOperators;
+        decltype(operatorImpl) binOperators{};
+
 
     public:
         llvm::LLVMContext *llvmContext{};
-        llvm::Module *llvmModule{};
+        std::unique_ptr<llvm::Module> llvmModule;
         llvm::IRBuilder<> *builder{};
         std::string name;
 
-        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""): binOperators(operatorImpl),
-            llvmContext(llvmContext),
-            llvmModule(new llvm::Module(name, *llvmContext)), builder(new llvm::IRBuilder(*llvmContext)),
-            name(name) {
+        std::shared_ptr<BuildTarget> buildTarget;
+
+        explicit GenContext(llvm::LLVMContext *llvmContext, const std::string &name = ""):
+            binOperators(operatorImpl), llvmContext(llvmContext), llvmModule(new llvm::Module(name, *llvmContext)),
+            builder(new llvm::IRBuilder(*llvmContext)), name(name) {
             push();
+            // 处理默认三元组
+            llvmModule->setTargetTriple(llvm::sys::getDefaultTargetTriple());
+            // llvmModule.math
         }
 
         ~GenContext() {
@@ -232,17 +239,28 @@ export namespace Riddle {
             defines.pop();
         }
 
-        std::unordered_map<std::string, std::stack<GenObject *> > &getAllObjects() {
+        std::unordered_map<std::string, std::stack<GenObject *>> &getAllObjects() {
             return objects;
         }
 
-        auto getOperator(const std::string &lht, const std::string &rht, const std::string &op) {
+        auto getOperator(const std::string &lht, const std::string &rht, // NOLINT(*-convert-member-functions-to-static)
+                         const std::string &op) {
             const auto group = std::make_tuple(lht, rht, op);
             const auto it = binOperators.find(group);
             if (it == binOperators.end()) {
                 throw std::logic_error("Operator " + op + " does not exist");
             }
             return it->second;
+        }
+
+        void addOperator(const std::string &lht, const std::string &rht, // NOLINT(*-convert-member-functions-to-static)
+                         const std::string &op,
+                         const std::function<llvm::Value *(llvm::Value *, llvm::Value *, llvm::IRBuilder<> &)> &func) {
+            const auto group = std::make_tuple(lht, rht, op);
+            if (const auto it = binOperators.find(group); it != binOperators.end()) {
+                throw std::logic_error("Operator " + op + " already exists");
+            }
+            binOperators.insert({group, func});
         }
     };
 } // namespace Riddle

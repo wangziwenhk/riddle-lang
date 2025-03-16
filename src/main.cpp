@@ -9,12 +9,12 @@ using namespace std;
 void parserArgs(const int argc, char *argv[]) {
     argparse::ArgumentParser program("riddle", GIT_VERSION);
 
-    program.add_argument("files")
-            .nargs(argparse::nargs_pattern::at_least_one);
+    program.add_argument("files").nargs(argparse::nargs_pattern::at_least_one);
+    program.add_argument("--noexcept").help("disable exception handling").nargs(0);
 
     try {
         program.parse_args(argc, argv);
-    } catch(const exception &e) {
+    } catch (const exception &e) {
         cout << termcolor::red << e.what() << termcolor::reset << endl;
         exit(1);
     }
@@ -24,12 +24,13 @@ void parserArgs(const int argc, char *argv[]) {
         // 交由 Files 进行处理
         // Parser
         Riddle::BuildQueue buildQueue;
-        for(const auto& i: files) {
+        buildQueue.buildTarget->isExpect = !program.is_used("--noexcept");
+        for (const auto &i: files) {
             const auto option = Riddle::File(i);
             buildQueue.parserFile(option);
         }
         buildQueue.start();
-    } catch(const exception &e) {
+    } catch (const exception &e) {
         cout << termcolor::red << e.what() << termcolor::reset << endl;
     }
 }

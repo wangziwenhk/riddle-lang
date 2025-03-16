@@ -1,14 +1,17 @@
 module;
-#include "RiddleLexer.h"
-#include "RiddleParser.h"
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Linker/Linker.h>
+#include <llvm/TargetParser/Host.h>
+#include <llvm/TargetParser/Triple.h>
 #include <queue>
 #include <ranges>
 #include <string>
-#include <termcolor/termcolor.hpp>
 #include <unordered_map>
 #include <vector>
+
+#include "RiddleLexer.h"
+#include "RiddleParser.h"
 export module Support.BuildQueue;
 import Support.Unit;
 import Manager.ErrorManager;
@@ -19,15 +22,22 @@ import Semantics.SemAnalysis;
 import Semantics.SemNode;
 import Gen.GenCode;
 import Gen.Moudule;
+import Gen.BuildTarget;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
         /// @brief 这里使用包名判断库之间的关系
-        std::unordered_map<std::string, std::vector<std::string> > libGraph;
+        std::unordered_map<std::string, std::vector<std::string>> libGraph;
         /// @brief 用于将不同包之间的库链接起来，本质上就是处理后拼接
-        std::unordered_map<std::string, std::vector<Unit> > libSource;
+        std::unordered_map<std::string, std::vector<Unit>> libSource;
 
     public:
+        std::shared_ptr<BuildTarget> buildTarget;
+
+        BuildQueue() {
+            buildTarget.reset(new BuildTarget());
+        }
+
         /// @brief 用于解析某个源文件
         void parserFile(const File &option) {
             std::ifstream stream(option.source);
@@ -79,7 +89,7 @@ export namespace Riddle {
             }
             // 处理入度
             std::unordered_map<std::string_view, int> in;
-            for (const auto &[fst,snd]: libGraph) {
+            for (const auto &[fst, snd]: libGraph) {
                 if (libSource[fst].empty()) {
                     throw std::logic_error(std::format("Module '{}' not found", fst));
                 }
@@ -114,19 +124,38 @@ export namespace Riddle {
             }
 
             const auto llvm_ctx = new llvm::LLVMContext();
-            std::unordered_map<std::string, Module> contextMap;
+            std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
             // 依次编译
             for (auto i: buildList) {
                 auto unit = libSource[i.data()].front();
-                contextMap.emplace(unit.getPackName(), Module(llvm_ctx, unit));
+                contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx, unit));
                 auto &module = contextMap.at(unit.getPackName());
+
+                module->context.buildTarget = this->buildTarget;
+
                 // link 其他 Context
                 for (const auto &lib: unit.getImports()) {
-                    module.import(contextMap.at(lib));
+                    module->import(*contextMap.at(lib));
                 }
-                module.start();
+                module->start();
             }
-            delete llvm_ctx;
+
+            // 合并模块到唯一一个中
+            auto mainModule = std::make_unique<llvm::Module>("@main", *llvm_ctx);
+            for (auto &[moduleName, module]: contextMap) {
+                if (llvm::Linker::linkModules(*mainModule, std::move(module->context.llvmModule))) {
+                    llvm::errs() << "Error linking " << moduleName << "\n";
+                    return;
+                }
+            }
+            std::error_code ec;
+            llvm::raw_fd_ostream out("out.ll", ec);
+            if (ec) {
+                llvm::errs() << "Could not open output file: " << ec.message() << "\n";
+                return;
+            }
+            mainModule->print(out, nullptr);
+            out.close();
         }
     };
 } // namespace Riddle

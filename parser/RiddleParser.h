@@ -1,5 +1,5 @@
 
-// Generated from D:/Code/Riddle-Language-cpp/RiddleParser.g4 by ANTLR 4.13.2
+// Generated from D:/Code/riddle-lang/RiddleParser.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -308,7 +308,8 @@ public:
     IdContext *id();
     DefineArgsContext *defineArgs();
     antlr4::tree::TerminalNode *Semi();
-    antlr4::tree::TerminalNode *Endl();
+    std::vector<antlr4::tree::TerminalNode *> Endl();
+    antlr4::tree::TerminalNode* Endl(size_t i);
     antlr4::tree::TerminalNode *Sub();
     antlr4::tree::TerminalNode *Greater();
     PropertyContext *property();

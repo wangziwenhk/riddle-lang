@@ -1,5 +1,5 @@
 
-// Generated from D:/Code/Riddle-Language-cpp/RiddleLexer.g4 by ANTLR 4.13.2
+// Generated from D:/Code/riddle-lang/RiddleLexer.g4 by ANTLR 4.13.2
 
 #pragma once
 
