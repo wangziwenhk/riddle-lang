@@ -27,7 +27,7 @@ export namespace Riddle {
             opFunc("int", "int", "+="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateAdd(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({opFunc("int", "int", "-"){ return builder.CreateSub(lhs, rhs); }});
@@ -35,7 +35,7 @@ export namespace Riddle {
             opFunc("int", "int", "-="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateSub(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({opFunc("int", "int", "*"){ return builder.CreateMul(lhs, rhs); }});
@@ -43,7 +43,7 @@ export namespace Riddle {
             opFunc("int", "int", "*="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateMul(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({opFunc("int", "int", "/"){ return builder.CreateSDiv(lhs, rhs); }});
@@ -51,7 +51,7 @@ export namespace Riddle {
             opFunc("int", "int", "/="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateSDiv(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({opFunc("int", "int", "%"){ return builder.CreateSRem(lhs, rhs); }});
@@ -59,7 +59,7 @@ export namespace Riddle {
             opFunc("int", "int", "%="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateSRem(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({opFunc("int", "int", ">>"){ return builder.CreateAShr(lhs, rhs); }});
@@ -67,7 +67,7 @@ export namespace Riddle {
             opFunc("int", "int", ">>="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateAShr(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({opFunc("int", "int", "<<"){ return builder.CreateShl(lhs, rhs); }});
@@ -75,7 +75,7 @@ export namespace Riddle {
             opFunc("int", "int", "<<="){
                 const auto load = builder.CreateLoad(builder.getInt32Ty(), lhs);
                 const auto val = builder.CreateShl(load, rhs);
-                return builder.CreateStore(lhs, val);
+                return builder.CreateStore(val,lhs);
             }
         });
         operatorImpl.insert({
