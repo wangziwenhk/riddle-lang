@@ -82,7 +82,7 @@ set(RIDDLE_BUILD_TARGET "ALL" CACHE STRING "Specify target architectures (e.g., 
 
 # 处理 ALL
 if (${RIDDLE_BUILD_TARGET} STREQUAL "ALL")
-    set(RIDDLE_BUILD_TARGET "X86,ARM,AARCH64,AMDGPU,AVR,PBF,HEXGON")
+    set(RIDDLE_BUILD_TARGET "X86,ARM,AARCH64,AMDGPU,AVR,BPF,HEXGON,LANAI,LOONGARCH,MIPS,MSP430,NVPTX,POWERPC,RISCV,SPARC,SPIRV,SYSTEMZ,VE,XCORE,WASM")
 endif ()
 
 if (RIDDLE_BUILD_TARGET)
@@ -116,57 +116,51 @@ foreach (TARGET IN LISTS TARGET_LIST)
     elseif (${TARGET} STREQUAL "HEXGON")
         add_definitions(-DRIDDLE_TARGET_HEXGON)
         list(APPEND llvm_components hexagonasmparser hexagondesc hexagoncodegen hexagondisassembler)
+    elseif (${TARGET} STREQUAL "LANAI")
+        add_definitions(-DRIDDLE_TARGET_LANAI)
+        list(APPEND llvm_components lanaiasmparser lanaidesc lanaicodegen lanaidisassembler)
+    elseif (${TARGET} STREQUAL "LOONGARCH")
+        add_definitions(-DRIDDLE_TARGET_LOONGARCH)
+        list(APPEND llvm_components loongarchasmparser loongarchdesc loongarchcodegen loongarchdisassembler)
+    elseif (${TARGET} STREQUAL "MIPS")
+        add_definitions(-DRIDDLE_TARGET_MIPS)
+        list(APPEND llvm_components mipsasmparser mipsdesc mipscodegen mipsdisassembler)
+    elseif (${TARGET} STREQUAL "MSP430")
+        add_definitions(-DRIDDLE_TARGET_MSP430)
+        list(APPEND llvm_components msp430asmparser msp430desc msp430codegen msp430disassembler)
+    elseif (${TARGET} STREQUAL "NVPTX")
+        add_definitions(-DRIDDLE_TARGET_NVPTX)
+        list(APPEND llvm_components nvptxcodegen nvptxdesc)
+    elseif (${TARGET} STREQUAL "POWERPC")
+        add_definitions(-DRIDDLE_TARGET_POWERPC)
+        list(APPEND llvm_components powerpcasmparser powerpcdesc powerpcdisassembler powerpccodegen powerpcinfo)
+    elseif (${TARGET} STREQUAL "RISCV")
+        add_definitions(-DRIDDLE_TARGET_RISCV)
+        list(APPEND llvm_components riscvasmparser riscvdesc riscvcodegen riscvdisassembler riscvtargetmca)
+    elseif (${TARGET} STREQUAL "SPARC")
+        add_definitions(-DRIDDLE_TARGET_SPARC)
+        list(APPEND llvm_components sparcasmparser sparcdesc sparccodegen sparcdisassembler)
+    elseif (${TARGET} STREQUAL "SPIRV")
+        add_definitions(-DRIDDLE_TARGET_SPIRV)
+        list(APPEND llvm_components spirvcodegen spirvdesc)
+    elseif (${TARGET} STREQUAL "SYSTEMZ")
+        add_definitions(-DRIDDLE_TARGET_SYSTEMZ)
+        list(APPEND llvm_components systemzasmparser systemzdesc systemzcodegen systemzdisassembler)
+    elseif (${TARGET} STREQUAL "VE")
+        add_definitions(-DRIDDLE_TARGET_VE)
+        list(APPEND llvm_components vecodegen vedesc vedisassembler veasmparser)
+    elseif (${TARGET} STREQUAL "XCORE")
+        add_definitions(-DRIDDLE_TARGET_XCORE)
+        list(APPEND llvm_components xcoredesc xcorecodegen xcoredisassembler)
+    elseif (${TARGET} STREQUAL "WASM")
+        add_definitions(-DRIDDLE_TARGET_WASM)
+        list(APPEND llvm_components WebAssemblyAsmParser WebAssemblyCodeGen WebAssemblyDesc WebAssemblyDisassembler WebAssemblyInfo WebAssemblyUtils)
     else ()
         message(WARNING "Unknown target: ${TARGET}")
     endif ()
 endforeach ()
 
 llvm_map_components_to_libnames(llvm_libs ${llvm_components})
-
-#llvm_map_components_to_libnames(llvm_libs
-#        core irreader support analysis passes codegen target mc object
-#        # X86
-#        x86asmparser x86desc x86codegen x86disassembler x86targetmca
-#        # Aarch
-#        aarch64asmparser aarch64desc aarch64codegen aarch64disassembler
-#        # arm
-#        armasmparser armdesc armcodegen armdisassembler
-#        # amdgpu
-#        amdgpuasmparser amdgputargetmca amdgpucodegen amdgpuinfo amdgpudisassembler
-#        # avr
-#        avrasmparser avrdesc avrcodegen avrdisassembler
-#        # bpf
-#        bpfasmparser bpfdesc bpfcodegen bpfdisassembler
-#        # hexgon
-#        hexagonasmparser hexagondesc hexagoncodegen hexagondisassembler
-#        # lanai
-#        lanaiasmparser lanaidesc lanaicodegen lanaidisassembler
-#        # loongarch
-#        loongarchasmparser loongarchdesc loongarchcodegen loongarchdisassembler
-#        # mips
-#        mipsasmparser mipsdesc mipscodegen mipsdisassembler
-#        # msp430
-#        msp430asmparser msp430desc msp430codegen msp430disassembler
-#        # nvptx
-#        nvptxcodegen nvptxdesc
-#        # powerpc
-#        powerpcasmparser powerpcdesc powerpcdisassembler powerpccodegen powerpcinfo
-#        # riscv
-#        riscvasmparser riscvdesc riscvcodegen riscvdisassembler riscvtargetmca
-#        # sparc
-#        sparcasmparser sparcdesc sparccodegen sparcdisassembler
-#        # spirv
-#        spirvcodegen spirvdesc
-#        # systemz
-#        systemzasmparser systemzdesc systemzcodegen systemzdisassembler
-#        # ve
-#        vecodegen vedesc vedisassembler veasmparser
-#        # xcore
-#        xcoredesc xcorecodegen xcoredisassembler
-#        # wasm
-#        WebAssemblyAsmParser WebAssemblyCodeGen WebAssemblyDesc WebAssemblyDisassembler WebAssemblyInfo WebAssemblyUtils
-#)
-
 
 message(STATUS "LLVM libraries: ${llvm_libs}")
 
