@@ -1,7 +1,10 @@
 cmake-build-debug/
 cmake-build-release/
 .idea/
+.vscode/
 src/config.h
 test/
 build/
 test/
+CMakePresets.json
+CMakeUserPresets.json

@@ -161,7 +161,7 @@ export namespace Riddle {
                 return;
             }
             mainModule->print(Dest, nullptr);
-            mainModule->print(llvm::outs(), nullptr);
+            // mainModule->print(llvm::outs(), nullptr);
             Dest.flush();
             Dest.close();
 

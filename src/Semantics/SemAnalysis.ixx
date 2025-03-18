@@ -15,7 +15,7 @@ export namespace Riddle {
         ProgramNode *root = nullptr;
 
     public:
-        explicit SemAnalysis(const std::string &packageName) : context(packageName) {
+        explicit SemAnalysis(const std::string &packageName): context(packageName) {
         }
 
         SemContext &getSemContext() {
@@ -135,7 +135,7 @@ export namespace Riddle {
             return {};
         }
 
-        static void visitPreAlloca(SemNode *node, const FuncDefineNode *func) {
+        static void visitPreAlloca(SemNode *node, const FuncDefineNode *func) { // NOLINT(*-no-recursion)
             switch (node->getSemType()) {
                 case SemNode::BlockNodeType: {
                     auto block = dynamic_cast<BlockNode *>(node)->body;
@@ -309,6 +309,16 @@ export namespace Riddle {
                 }
             }
 
+            return {};
+        }
+
+        std::any visitLoadExpr(LoadExprNode *node) override {
+            visit(node->value);
+            if (node->value->getType()->pointSize == 0) {
+                throw std::runtime_error("Not have PointSize");
+            }
+            *node->getType() = *node->value->getType();
+            node->getType()->pointSize--;
             return {};
         }
 

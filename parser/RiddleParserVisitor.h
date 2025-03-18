@@ -71,6 +71,8 @@ public:
 
     virtual std::any visitAndAssignExpr(RiddleParser::AndAssignExprContext *context) = 0;
 
+    virtual std::any visitLoadExpr(RiddleParser::LoadExprContext *context) = 0;
+
     virtual std::any visitNullExpr(RiddleParser::NullExprContext *context) = 0;
 
     virtual std::any visitModExpr(RiddleParser::ModExprContext *context) = 0;

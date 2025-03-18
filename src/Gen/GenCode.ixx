@@ -124,7 +124,7 @@ export namespace Riddle {
                 paramTypes.front() = llvm::PointerType::get(paramTypes.front(), 0);
             }
 
-            const auto funcType = llvm::FunctionType::get(returnType, paramTypes, false);
+            const auto funcType = llvm::FunctionType::get(returnType, paramTypes, node->varArg);
             const auto func = llvm::Function::Create(funcType, llvm::GlobalValue::ExternalLinkage, name,
                                                      context.llvmModule.get());
 
@@ -254,7 +254,11 @@ export namespace Riddle {
             };
             // 尝试获取基本类型
             if (base_types.contains(name)) {
-                return base_types[name];
+                auto type = base_types[name];
+                if (node->pointSize) {
+                    type = llvm::PointerType::get(type, 0);
+                }
+                return type;
             }
             const auto obj = context.getObject(name);
             if (obj->getGenType() != GenObject::Class) {
@@ -512,6 +516,15 @@ export namespace Riddle {
             const std::string rightT = node->right->getType()->name;
             const auto opFunc = context.getOperator(leftT, rightT, node->op);
             return opFunc(left, right, *context.builder);
+        }
+
+        std::any visitLoadExpr(LoadExprNode *node) override {
+            if (!node->getType()->llvmType) {
+                node->getType()->llvmType = parserType(node->getType());
+            }
+            const auto value = std::any_cast<llvm::Value *>(visit(node->value));
+            llvm::Value* result = context.builder->CreateLoad(node->getType()->llvmType, value);
+            return result;
         }
     };
 } // namespace Riddle

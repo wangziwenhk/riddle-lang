@@ -68,8 +68,10 @@ argsExpr
     : ((expression Comma)* expression)?
     ;
 
-defineArgs
-    : ((id Colon typeUsed Comma)* (id Colon typeUsed))?
+defineArgs returns [bool varArg]
+    : ((id Colon typeUsed Comma)* (id Colon typeUsed))? {$varArg=false;}
+    | ((id Colon typeUsed Comma)* (id Colon typeUsed)) (Comma Dot Dot Dot) {$varArg=true;}
+    | (Dot Dot Dot) {$varArg=true;}
     ;
 
 funcDefine
@@ -167,6 +169,7 @@ expression
     | left=exprPtrParser LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
     | left=exprPtrParser RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
     | left=exprPtrParser RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
+    | Star expr=expression                                  #loadExpr   // 解引用
     | STRING                                                #stringExpr
     | CHAR                                                  #charExpr
     | number                                                #numberExpr
@@ -246,9 +249,9 @@ tmplArgList
     ;
 
 typeUsed
-    : name=exprPtr                                                  #baseType      // 普通名称
+    : name=exprPtr Star*                                            #baseType      // 普通名称
     | name=exprPtr tmpl=tmplUsed                                    #tmplType      // 模板
-    | baseType=typeUsed LeftSquare size=expression RightSquare #arrayType     // 数组
+    | baseType=typeUsed LeftSquare size=expression RightSquare      #arrayType     // 数组
     ;
 
 property
