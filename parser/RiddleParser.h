@@ -1287,6 +1287,21 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  ExprBlendContext : public ExpressionContext {
+  public:
+    ExprBlendContext(ExpressionContext *ctx);
+
+    RiddleParser::ExpressionContext *parentNode = nullptr;
+    RiddleParser::ExprPtrContext *childNode = nullptr;
+    antlr4::tree::TerminalNode *Dot();
+    ExpressionContext *expression();
+    ExprPtrContext *exprPtr();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   ExpressionContext* expression();
   ExpressionContext* expression(int precedence);
   class  IdContext : public antlr4::ParserRuleContext {

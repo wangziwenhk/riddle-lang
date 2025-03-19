@@ -118,8 +118,8 @@ catchExpr
 // 这一块就是使用
 exprPtr
     : funcName=id (tmpl=tmplUsed)? LeftBracket args=argsExpr RightBracket    #funcExpr
-    | id                                                    #objectExpr
-    | parentNode=exprPtr Dot childNode=exprPtr                             #blendExpr
+    | id                                                                     #objectExpr
+    | parentNode=exprPtr Dot childNode=exprPtr                               #blendExpr
     ;
 
 exprPtrParser
@@ -169,6 +169,7 @@ expression
     | left=exprPtrParser LeftLeft Assign right=expression      #shlAssignExpr     // x<<=y
     | left=exprPtrParser RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
     | left=exprPtrParser RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
+    | parentNode=expression Dot childNode=exprPtr           #exprBlend  // 新增此规则
     | Star expr=expression                                  #loadExpr   // 解引用
     | STRING                                                #stringExpr
     | CHAR                                                  #charExpr

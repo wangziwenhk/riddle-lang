@@ -255,6 +255,14 @@ export namespace Riddle {
             }
 
             if (obj && obj->getSemObjType() == SemObject::Class) {
+                // 取消load
+                if (node->parent->getSemType() == SemNode::LoadNodeType) {
+                    node->parent = dynamic_cast<LoadExprNode*>(node->parent)->value;
+                    node->parent->getType()->pointSize++;
+                    if (node->parent->getSemType()==SemNode::ObjectNodeType) {
+                        dynamic_cast<ObjectNode*>(node->parent)->isLoad = false;
+                    }
+                }
                 if (node->child->getSemType() == SemNode::ObjectNodeType) {
                     node->blend_type = BlendNode::Member;
                     const auto theClass = dynamic_cast<SemClass *>(obj);

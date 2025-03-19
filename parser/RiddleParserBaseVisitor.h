@@ -299,6 +299,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitExprBlend(RiddleParser::ExprBlendContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitId(RiddleParser::IdContext *ctx) override {
     return visitChildren(ctx);
   }

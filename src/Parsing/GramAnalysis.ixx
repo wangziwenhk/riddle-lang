@@ -227,7 +227,7 @@ export namespace Riddle {
 
         std::any visitLoadExpr(RiddleParser::LoadExprContext *ctx) override {
             const auto value = unpacking<ExprNode>(visit(ctx->expr));
-            SemNode* node = new LoadExprNode(value, root);
+            SemNode *node = new LoadExprNode(value, root);
             root->addSemNode(node);
             return node;
         }
@@ -399,6 +399,18 @@ export namespace Riddle {
             return result;
         }
 
+        std::any visitExprBlend(RiddleParser::ExprBlendContext *ctx) override {
+            const auto parent = unpacking<ExprNode>(visit(ctx->parentNode));
+            const auto child = unpacking<ExprNode>(visit(ctx->childNode));
+            const auto node = new BlendNode(parent, child, root, BlendNode::Unknown);
+            root->addSemNode(node);
+            if (antlrcpp::is<RiddleParser::PtrExprContext *>(ctx->parent)) {
+                node->isLoad = true;
+            }
+            SemNode *result = node;
+            return result;
+        }
+
         std::any visitModifier(RiddleParser::ModifierContext *ctx) override {
             return Modifier::getPrimitiveType(ctx->getText());
         }
@@ -432,6 +444,10 @@ export namespace Riddle {
                 throw std::runtime_error("UNKNOWN NAME");
             }
             return types.at(name);
+        }
+
+        std::any visitBracketExpr(RiddleParser::BracketExprContext *ctx) override {
+            return visit(ctx->expr);
         }
     };
 } // namespace Riddle

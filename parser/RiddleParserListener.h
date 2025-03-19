@@ -227,6 +227,9 @@ public:
   virtual void enterAndExpr(RiddleParser::AndExprContext *ctx) = 0;
   virtual void exitAndExpr(RiddleParser::AndExprContext *ctx) = 0;
 
+  virtual void enterExprBlend(RiddleParser::ExprBlendContext *ctx) = 0;
+  virtual void exitExprBlend(RiddleParser::ExprBlendContext *ctx) = 0;
+
   virtual void enterId(RiddleParser::IdContext *ctx) = 0;
   virtual void exitId(RiddleParser::IdContext *ctx) = 0;
 

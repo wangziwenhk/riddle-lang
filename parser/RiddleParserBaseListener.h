@@ -229,6 +229,9 @@ public:
   virtual void enterAndExpr(RiddleParser::AndExprContext * /*ctx*/) override { }
   virtual void exitAndExpr(RiddleParser::AndExprContext * /*ctx*/) override { }
 
+  virtual void enterExprBlend(RiddleParser::ExprBlendContext * /*ctx*/) override { }
+  virtual void exitExprBlend(RiddleParser::ExprBlendContext * /*ctx*/) override { }
+
   virtual void enterId(RiddleParser::IdContext * /*ctx*/) override { }
   virtual void exitId(RiddleParser::IdContext * /*ctx*/) override { }
 

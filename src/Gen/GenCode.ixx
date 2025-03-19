@@ -523,7 +523,7 @@ export namespace Riddle {
                 node->getType()->llvmType = parserType(node->getType());
             }
             const auto value = std::any_cast<llvm::Value *>(visit(node->value));
-            llvm::Value* result = context.builder->CreateLoad(node->getType()->llvmType, value);
+            llvm::Value *result = context.builder->CreateLoad(node->getType()->llvmType, value);
             return result;
         }
     };

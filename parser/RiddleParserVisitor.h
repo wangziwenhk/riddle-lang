@@ -161,6 +161,8 @@ public:
 
     virtual std::any visitAndExpr(RiddleParser::AndExprContext *context) = 0;
 
+    virtual std::any visitExprBlend(RiddleParser::ExprBlendContext *context) = 0;
+
     virtual std::any visitId(RiddleParser::IdContext *context) = 0;
 
     virtual std::any visitModifier(RiddleParser::ModifierContext *context) = 0;
