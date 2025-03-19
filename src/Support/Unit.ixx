@@ -15,7 +15,7 @@ export namespace Riddle {
         /// @brief 导入的库，内容为包名
         std::vector<std::string> imports;
         /// @brief 文件的完整路径
-        File option;
+        File file;
 
     public:
         RiddleParser *parser{};
@@ -23,7 +23,7 @@ export namespace Riddle {
         antlr4::tree::ParseTree *parseTree = nullptr;
 
         Unit() = default;
-        explicit Unit(File option): option(std::move(option)) {
+        explicit Unit(File option): file(std::move(option)) {
             parser = nullptr;
         }
 
@@ -39,12 +39,12 @@ export namespace Riddle {
 
         /// 设置源文件的完整路径
         void setFileOption(const File &option) {
-            this->option = option;
+            this->file = option;
         }
 
         /// 获取源文件的完整路径
         [[nodiscard]] File getFileOption() const {
-            return this->option;
+            return this->file;
         }
 
         /// 添加库

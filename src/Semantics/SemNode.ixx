@@ -503,19 +503,30 @@ export namespace Riddle {
         }
 
         std::pair<VarDefineNode *, size_t> getMember(const std::string &name) {
-            const auto it = member_map.find(name);
-            if (it == member_map.end()) {
-                throw std::runtime_error("Member not found");
+            static bool tryAgain = false;
+            if (!member_map.contains(name)) {
+                if (tryAgain) {
+                    throw std::runtime_error("Member '" + name + "' not found");
+                }
+                build();
+                tryAgain = true;
             }
-            return it->second;
+            tryAgain = false;
+            return member_map.at(name);
         }
 
-        FuncDefineNode *&getFunction(const std::string &name) {
-            const auto it = function_map.find(name);
-            if (it == function_map.end()) {
-                throw std::runtime_error("Function not found");
+        FuncDefineNode *&getFunction(const std::string &name) { // NOLINT(*-no-recursion)
+            static bool tryAgain = false;
+            if (!function_map.contains(name)) {
+                if (tryAgain) {
+                    throw std::runtime_error("Function '" + name + "' not found");
+                }
+                build();
+                tryAgain = true;
+                return getFunction(name);
             }
-            return it->second;
+            tryAgain = false;
+            return function_map.at(name);
         }
 
         bool hasFunction(const std::string &name) const {

@@ -199,7 +199,9 @@ export namespace Riddle {
                 node->theClass = context.getNowClass()->define;
                 const auto selfArg_alloca = new AllocaNode(node->theClass);
                 root->addSemNode(selfArg_alloca);
+                selfArg_alloca->type->pointSize = 1;
                 const auto selfArg = new ArgNode("this", node->theClass, selfArg_alloca);
+                selfArg->type->pointSize = 1;
                 root->addSemNode(selfArg);
                 node->args.insert(node->args.begin(), selfArg);
 
