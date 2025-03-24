@@ -502,7 +502,7 @@ export namespace Riddle {
             }
         }
 
-        std::pair<VarDefineNode *, size_t> getMember(const std::string &name) {
+        std::pair<VarDefineNode *, size_t> getMember(const std::string &name) { // NOLINT(*-no-recursion)
             static bool tryAgain = false;
             if (!member_map.contains(name)) {
                 if (tryAgain) {
@@ -510,6 +510,7 @@ export namespace Riddle {
                 }
                 build();
                 tryAgain = true;
+                return getMember(name);
             }
             tryAgain = false;
             return member_map.at(name);

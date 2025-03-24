@@ -7,7 +7,6 @@ module;
 #include <utility>
 #include <vector>
 export module Support.Unit;
-import Support.File;
 export namespace Riddle {
     class Unit {
         /// @brief 当前单元的包名
@@ -15,7 +14,7 @@ export namespace Riddle {
         /// @brief 导入的库，内容为包名
         std::vector<std::string> imports;
         /// @brief 文件的完整路径
-        File file;
+        std::string filePath;
 
     public:
         RiddleParser *parser{};
@@ -23,7 +22,7 @@ export namespace Riddle {
         antlr4::tree::ParseTree *parseTree = nullptr;
 
         Unit() = default;
-        explicit Unit(File option): file(std::move(option)) {
+        explicit Unit(std::string filePath): filePath(std::move(filePath)) {
             parser = nullptr;
         }
 
@@ -38,13 +37,13 @@ export namespace Riddle {
         }
 
         /// 设置源文件的完整路径
-        void setFileOption(const File &option) {
-            this->file = option;
+        void setFileOption(const std::string &filePath) {
+            this->filePath = filePath;
         }
 
         /// 获取源文件的完整路径
-        [[nodiscard]] File getFileOption() const {
-            return this->file;
+        [[nodiscard]] std::string getFileOption() const {
+            return this->filePath;
         }
 
         /// 添加库
@@ -54,7 +53,7 @@ export namespace Riddle {
         }
 
         void addImports(const std::vector<std::string> &libs) {
-            for(const auto &i: libs) {
+            for (const auto &i: libs) {
                 imports.push_back(i);
             }
         }
@@ -77,4 +76,4 @@ export namespace Riddle {
         }
     };
 
-}// namespace Riddle
+} // namespace Riddle

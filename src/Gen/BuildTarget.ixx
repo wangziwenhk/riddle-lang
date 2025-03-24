@@ -9,6 +9,7 @@ export namespace Riddle {
     public:
         std::unique_ptr<llvm::TargetMachine> TM = nullptr;
         bool isExpect = false;
+        bool isEnableGc = false;
 
         BuildTarget() {
             const auto cpu = llvm::sys::getHostCPUName();

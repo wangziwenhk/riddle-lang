@@ -2,7 +2,6 @@
 #include "config.h"
 #include "termcolor/termcolor.hpp"
 import Support.BuildQueue;
-import Support.File;
 import Config.Init;
 using namespace std;
 
@@ -11,6 +10,7 @@ void parserArgs(const int argc, char *argv[]) {
 
     program.add_argument("files").nargs(argparse::nargs_pattern::at_least_one);
     program.add_argument("--noexcept").help("disable exception handling").nargs(0);
+    program.add_argument("--enable-gc").help("enable GC").nargs(0);
 
     try {
         program.parse_args(argc, argv);
@@ -25,9 +25,9 @@ void parserArgs(const int argc, char *argv[]) {
         // Parser
         Riddle::BuildQueue buildQueue;
         buildQueue.buildTarget->isExpect = !program.is_used("--noexcept");
+        buildQueue.buildTarget->isEnableGc = program.is_used("--enable-gc");
         for (const auto &i: files) {
-            const auto option = Riddle::File(i);
-            buildQueue.parserFile(option);
+            buildQueue.parserFile(i);
         }
         buildQueue.start();
     } catch (const exception &e) {

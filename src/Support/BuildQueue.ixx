@@ -18,7 +18,6 @@ module;
 export module Support.BuildQueue;
 import Support.Unit;
 import Manager.ErrorManager;
-import Support.File;
 import Parsing.PackageVisitor;
 import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;
@@ -42,10 +41,10 @@ export namespace Riddle {
         }
 
         /// @brief 用于解析某个源文件
-        void parserFile(const File &option) {
-            std::ifstream stream(option.source);
+        void parserFile(const std::string &option) {
+            std::ifstream stream(option);
             if (!stream.is_open()) {
-                throw std::runtime_error("Could not open file " + option.source);
+                throw std::runtime_error("Could not open file " + option);
             }
             const auto input = new antlr4::ANTLRInputStream(stream);
             const auto lexer = new RiddleLexer(input);

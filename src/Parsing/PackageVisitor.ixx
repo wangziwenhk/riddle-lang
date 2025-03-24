@@ -4,7 +4,6 @@ module;
 export module Parsing.PackageVisitor;
 
 import Support.Unit;
-import Support.File;
 export namespace Riddle {
     /// @brief 用于解析库和包的类，对于每个源文件都需要单独实例化
     class PackageVisitor final : public RiddleParserBaseVisitor {
@@ -35,10 +34,10 @@ export namespace Riddle {
             return {};
         }
 
-        PackageVisitor(const File &option, antlr4::tree::ParseTree *tree, RiddleParser *parser) {
+        PackageVisitor(const std::string &filePath, antlr4::tree::ParseTree *tree, RiddleParser *parser) {
             unit.parseTree = tree;
             unit.parser = parser;
-            unit.setFileOption(option);
+            unit.setFileOption(filePath);
             PackageVisitor::visit(tree);
         }
     };
