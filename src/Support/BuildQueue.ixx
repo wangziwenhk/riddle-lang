@@ -25,6 +25,7 @@ import Semantics.SemNode;
 import Gen.GenCode;
 import Gen.Moudule;
 import Gen.BuildTarget;
+import Support.FileTools;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -41,11 +42,8 @@ export namespace Riddle {
         }
 
         /// @brief 用于解析某个源文件
-        void parserFile(const std::string &option) {
-            std::ifstream stream(option);
-            if (!stream.is_open()) {
-                throw std::runtime_error("Could not open file " + option);
-            }
+        void parserFile(const std::string &filePath) {
+            std::ifstream stream = getFileStream(filePath);
             const auto input = new antlr4::ANTLRInputStream(stream);
             const auto lexer = new RiddleLexer(input);
             // 添加自定义的错误处理
@@ -69,7 +67,7 @@ export namespace Riddle {
             parser->addErrorListener(&parserListener);
 
             antlr4::tree::ParseTree *p = parser->program();
-            PackageVisitor visitor(option, p, parser);
+            PackageVisitor visitor(filePath, p, parser);
             push(visitor.unit);
         }
 

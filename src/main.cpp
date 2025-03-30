@@ -53,6 +53,6 @@ int main(const int argc, char *argv[]) {
     setlocale(LC_ALL, "en_US.UTF-8");
     Riddle::init::init();
     // parserArgs(argc, argv);
-    Riddle::header::parseCHead(argv[1]);
+    const auto a = Riddle::header::parseCHead(argv[1]);
     return 0;
 }
