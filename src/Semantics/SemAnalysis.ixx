@@ -229,7 +229,7 @@ export namespace Riddle {
                         throw std::runtime_error("Not have Return");
                     }
                     const auto s = new ReturnNode();
-                    root->allSemNode.insert(s);
+                    root->addSemNode(s);
                     node->body->push_back(s);
                 }
                 for (const auto i: *node->body) {

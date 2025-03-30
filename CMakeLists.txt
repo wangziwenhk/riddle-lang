@@ -77,6 +77,10 @@ if (MSVC)
     add_compile_options(/wd4819)
 endif ()
 
+if (NOT DEFINED RIDDLE_BUILD_TARGET)
+    set(RIDDLE_BUILD_TARGET "ALL")
+endif ()
+
 # 处理 ALL
 if (${RIDDLE_BUILD_TARGET} STREQUAL "ALL")
     set(RIDDLE_BUILD_TARGET "X86,ARM,AARCH64,AMDGPU,AVR,BPF,HEXGON,LANAI,LOONGARCH,MIPS,MSP430,NVPTX,POWERPC,RISCV,SPARC,SPIRV,SYSTEMZ,VE,XCORE,WASM")
@@ -89,7 +93,7 @@ endif ()
 message(STATUS "Target architectures: ${TARGET_LIST}")
 
 # 基础组件
-set(llvm_components core irreader support analysis passes codegen target mc object linker)
+set(llvm_components core irreader support analysis passes codegen target mc object linker option)
 
 foreach (TARGET IN LISTS TARGET_LIST)
     if (${TARGET} STREQUAL "X86")
@@ -163,7 +167,7 @@ list(APPEND llvm_libs lldCommon lldELF lldCOFF lldMachO lldMinGW lldWasm)
 
 message(STATUS "LLVM libraries: ${llvm_libs}")
 
-target_link_libraries(riddle ${llvm_libs})
+target_link_libraries(riddle ${llvm_libs} libclang)
 target_link_libraries(riddle riddle-module)
 target_link_libraries(riddle antlr4_shared)
 target_link_libraries(riddle argparse::argparse)

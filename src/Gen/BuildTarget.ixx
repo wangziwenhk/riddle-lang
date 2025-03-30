@@ -10,6 +10,7 @@ export namespace Riddle {
         std::unique_ptr<llvm::TargetMachine> TM = nullptr;
         bool isExpect = false;
         bool isEnableGc = false;
+        std::vector<std::string> cx_include_paths;
 
         BuildTarget() {
             const auto cpu = llvm::sys::getHostCPUName();

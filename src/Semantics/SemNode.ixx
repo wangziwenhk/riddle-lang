@@ -128,16 +128,12 @@ export namespace Riddle {
 
         BlockNode *body;
 
-        std::unordered_set<SemNode *> allSemNode;
+        std::vector<SemNode *> allSemNode;
 
         std::any accept(SemNodeVisitor &visitor) override;
 
         void addSemNode(SemNode *node) noexcept {
-            allSemNode.insert(node);
-        }
-
-        void deleteSemNode(SemNode *node) noexcept {
-            allSemNode.erase(node);
+            allSemNode.emplace_back(node);
         }
     };
 

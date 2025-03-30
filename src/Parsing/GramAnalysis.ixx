@@ -40,7 +40,9 @@ export namespace Riddle {
                     throw std::runtime_error(
                             std::format("GramAnalysis: Result \'{}\' not SemNode", result.type().name()));
                 }
-                program->body->push_back(std::any_cast<SemNode *>(result));
+                const auto node = std::any_cast<SemNode *>(result);
+                program->body->push_back(node);
+                program->addSemNode(node);
             }
             return program;
         }

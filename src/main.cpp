@@ -3,6 +3,7 @@
 #include "termcolor/termcolor.hpp"
 import Support.BuildQueue;
 import Config.Init;
+import Translate.CHeader;
 using namespace std;
 
 void parserArgs(const int argc, char *argv[]) {
@@ -11,6 +12,11 @@ void parserArgs(const int argc, char *argv[]) {
     program.add_argument("files").nargs(argparse::nargs_pattern::at_least_one);
     program.add_argument("--noexcept").help("disable exception handling").nargs(0);
     program.add_argument("--enable-gc").help("enable GC").nargs(0);
+    program.add_argument("-I", "--include-path")
+       .help("add C/C++ include path")
+       .nargs(1)
+       .append()
+       .metavar("DIR");
 
     try {
         program.parse_args(argc, argv);
@@ -26,6 +32,14 @@ void parserArgs(const int argc, char *argv[]) {
         Riddle::BuildQueue buildQueue;
         buildQueue.buildTarget->isExpect = !program.is_used("--noexcept");
         buildQueue.buildTarget->isEnableGc = program.is_used("--enable-gc");
+
+        if (program.is_used("--include-path")) {
+            const auto includePaths = program.get<vector<string>>("--include-path");
+            for (const auto &path : includePaths) {
+                buildQueue.buildTarget->cx_include_paths.push_back(path);
+            }
+        }
+
         for (const auto &i: files) {
             buildQueue.parserFile(i);
         }
@@ -38,6 +52,7 @@ void parserArgs(const int argc, char *argv[]) {
 int main(const int argc, char *argv[]) {
     setlocale(LC_ALL, "en_US.UTF-8");
     Riddle::init::init();
-    parserArgs(argc, argv);
+    // parserArgs(argc, argv);
+    Riddle::header::parseCHead(argv[1]);
     return 0;
 }
