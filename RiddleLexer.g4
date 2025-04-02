@@ -30,6 +30,12 @@ Operator: 'operator';
 // 模板
 Template: 'template';
 TypeName: 'typename';
+Int_: 'int';
+Float_: 'float';
+Double_: 'double';
+Short_: 'short';
+Long_:'long';
+Char_:'char';
 //可见字符
 //基本运算符
 LeftBracket:    '(';
@@ -91,6 +97,6 @@ fragment ESC
     : '\\' (["\\/] | [A-Za-z])
     ;
 
-LINE_COMMENT : '//' ~[\r\n]* -> skip ;
-BLOCK_COMMENT : '/*' .*? '*/' -> skip ;
+LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN) ;
+BLOCK_COMMENT : '/*' .*? '*/' -> channel(HIDDEN) ;
 WHITESPACE : [ \t\r\n]+ -> channel(HIDDEN) ;

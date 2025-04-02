@@ -43,7 +43,7 @@ include(FetchContent)
 FetchContent_Declare(
         tree-sitter-c
         GIT_REPOSITORY https://gh-proxy.ygxz.in/https://github.com/tree-sitter/tree-sitter-c
-        GIT_TAG v0.20.5
+        GIT_TAG v0.23.5
 )
 FetchContent_MakeAvailable(tree-sitter-c)
 
