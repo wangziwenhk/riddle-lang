@@ -149,7 +149,15 @@ export namespace Riddle {
 
     class TypeNode : public SemNode {
     public:
-        static constexpr std::string unknown = "@unknown";
+        enum TypeNodeSelect {
+            Global,     ///< 表示直接在作用域中搜索 Type
+            Local,      ///< 表示该 Type 被某个类所拥有
+            Unknown     ///< 表示暂时不知道该 Type
+        };
+
+        TypeNodeSelect select = Unknown;
+
+        static constexpr std::string unknown = "@un";
         static constexpr std::string Void = "void";
 
         explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType):
@@ -435,6 +443,7 @@ export namespace Riddle {
         ExprNode *condition;
         SemNode *then_body;
         SemNode *else_body;
+        FuncDefineNode* parentFunc = nullptr;
 
         IfNode(ExprNode *condition, SemNode *then_body, SemNode *else_body):
             SemNode(IfNodeType), condition(condition), then_body(then_body), else_body(else_body) {
@@ -447,6 +456,7 @@ export namespace Riddle {
     public:
         ExprNode *condition;
         SemNode *body;
+        FuncDefineNode* parentFunc = nullptr;
 
         WhileNode(ExprNode *condition, SemNode *body): SemNode(WhileNodeType), condition(condition), body(body) {
         }
@@ -460,6 +470,7 @@ export namespace Riddle {
         ExprNode *condition;
         SemNode *increment;
         SemNode *body;
+        FuncDefineNode* parentFunc = nullptr;
 
         ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body):
             SemNode(ForNodeType), init(init), condition(cond), increment(incr), body(body) {
