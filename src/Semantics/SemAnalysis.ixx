@@ -257,10 +257,10 @@ export namespace Riddle {
             if (obj && obj->getSemObjType() == SemObject::Class) {
                 // 取消load
                 if (node->parent->getSemType() == SemNode::LoadNodeType) {
-                    node->parent = dynamic_cast<LoadExprNode*>(node->parent)->value;
+                    node->parent = dynamic_cast<LoadExprNode *>(node->parent)->value;
                     node->parent->getType()->pointSize++;
-                    if (node->parent->getSemType()==SemNode::ObjectNodeType) {
-                        dynamic_cast<ObjectNode*>(node->parent)->isLoad = false;
+                    if (node->parent->getSemType() == SemNode::ObjectNodeType) {
+                        dynamic_cast<ObjectNode *>(node->parent)->isLoad = false;
                     }
                 }
                 if (node->child->getSemType() == SemNode::ObjectNodeType) {
@@ -374,6 +374,21 @@ export namespace Riddle {
                 throw std::runtime_error(std::format("Function return type '{}' does not match operand '{}' inst!",
                                                      func->getReturnType()->name, type->name));
             }
+            return {};
+        }
+
+        std::any visitIf(IfNode *node) override {
+            node->parentFunc = context.getNowFunc()->define;
+            return {};
+        }
+
+        std::any visitWhile(WhileNode *node) override {
+            node->parentFunc = context.getNowFunc()->define;
+            return {};
+        }
+
+        std::any visitFor(ForNode *node) override {
+            node->parentFunc = context.getNowFunc()->define;
             return {};
         }
     };

@@ -123,7 +123,7 @@ export namespace Riddle {
                 }
             }
 
-            std::unique_ptr<llvm::LLVMContext> llvm_ctx = std::make_unique<llvm::LLVMContext>();
+            auto llvm_ctx = std::make_unique<llvm::LLVMContext>();
             std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
             // 依次编译
             for (auto i: buildList) {
@@ -131,7 +131,7 @@ export namespace Riddle {
                 contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx.get(), unit));
                 auto &module = contextMap.at(unit.getPackName());
 
-                module->context.buildTarget = this->buildTarget;
+                // module->context.buildTarget = this->buildTarget;
 
                 // link 其他 Context
                 for (const auto &lib: unit.getImports()) {
