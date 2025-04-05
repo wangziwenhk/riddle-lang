@@ -16,6 +16,11 @@ namespace Riddle {
             throw std::runtime_error("Bad Value: " + std::string(e.what()));
         }
     }
+
+    template<typename Tp>
+    Tp obj_cast(const std::any &value) {
+        return dynamic_cast<Tp>(node_cast<NewGenObject *>(value));
+    }
 } // namespace Riddle
 export namespace Riddle {
     /**
@@ -33,28 +38,45 @@ export namespace Riddle {
             for (const auto i: *node->body) {
                 visit(i);
             }
-            context.llvmModule->print(llvm::outs(), nullptr);
             return {};
         }
 
         std::any visitInteger(IntegerLiteralNode *node) override {
-            llvm::Value* value = builder.getInt32(node->value);
-            return value;
+            NewGenObject *obj = NewGenInteger::create(context, node->value);
+            return obj;
         }
 
         std::any visitType(TypeNode *node) override {
             llvm::Type *type = nullptr;
+
+            bool isBaseType = false;
             if (node->isBaseType()) {
                 type = context.getBaseType(node->name);
+                isBaseType = true;
             }
 
             // todo 从作用域获取
+
+
+            // if (type == nullptr) {
+            //     throw std::runtime_error("Bad Type");
+            // }
 
             // 处理指针
             for (size_t i = 0; i < node->pointSize; i++) {
                 type = llvm::PointerType::get(type, 0);
             }
-            return type;
+
+            NewGenObject *obj = nullptr;
+            if (isBaseType) {
+                obj = NewGenBaseType::create(context, type);
+            } else {
+                if (!type->isStructTy()) {
+                    throw std::runtime_error("Invalid Type");
+                }
+                obj = NewGenClassType::create(context, llvm::dyn_cast<llvm::StructType>(type));
+            }
+            return obj;
         }
 
         /**
@@ -67,7 +89,7 @@ export namespace Riddle {
         }
 
         std::any visitFuncDefine(FuncDefineNode *node) override {
-            const auto return_type = node_cast<llvm::Type *>(visitType(node->returnType));
+            const auto return_type = obj_cast<NewGenType *>(visitType(node->returnType))->getLLVMType();
             // todo 实现函数参数
 
             constexpr auto link_type = llvm::Function::ExternalLinkage;
@@ -96,8 +118,8 @@ export namespace Riddle {
 
         std::any visitReturn(ReturnNode *node) override {
             if (node->value) {
-                const auto result = std::any_cast<llvm::Value *>(visit(node->value));
-                builder.CreateRet(result);
+                const auto result = obj_cast<NewGenInteger *>(visit(node->value));
+                builder.CreateRet(result->getLLVMValue());
             } else {
                 builder.CreateRetVoid();
             }
@@ -115,7 +137,7 @@ export namespace Riddle {
             llvm::BasicBlock *exitBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "if.exit", node->parentFunc->llvmFunction);
 
-            const auto condition = std::any_cast<llvm::Value *>(visit(node->condition));
+            const auto condition = obj_cast<NewGenValue *>(visit(node->condition))->getLLVMValue();
             if (node->else_body) {
                 builder.CreateCondBr(condition, thenBlock, elseBlock);
             } else {
@@ -150,10 +172,13 @@ export namespace Riddle {
             llvm::BasicBlock *exitBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "while.exit", node->parentFunc->llvmFunction);
 
+            node->condBlock = condBlock;
+            node->exitBlock = exitBlock;
+
             builder.CreateBr(condBlock);
             builder.SetInsertPoint(condBlock);
 
-            const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
+            const auto cond = obj_cast<NewGenValue *>(visit(node->condition))->getLLVMValue();
             builder.CreateCondBr(cond, bodyBlock, exitBlock);
 
             context.push();
@@ -174,13 +199,16 @@ export namespace Riddle {
             llvm::BasicBlock *exitBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "for.exit", node->parentFunc->llvmFunction);
 
+            node->condBlock = condBlock;
+            node->exitBlock = exitBlock;
+
             context.push();
             // 预先 init
             visit(node->init);
             builder.CreateBr(condBlock);
 
             builder.SetInsertPoint(condBlock);
-            const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
+            const auto cond = obj_cast<NewGenValue *>(visit(node->condition))->getLLVMValue();
             builder.CreateCondBr(cond, bodyBlock, exitBlock);
 
             builder.SetInsertPoint(bodyBlock);
@@ -190,6 +218,16 @@ export namespace Riddle {
 
             context.pop();
             builder.SetInsertPoint(exitBlock);
+            return {};
+        }
+
+        std::any visitBreak(BreakNode *node) override {
+            builder.CreateBr(node->loopControl->exitBlock);
+            return {};
+        }
+
+        std::any visitContinue(ContinueNode *node) override {
+            builder.CreateBr(node->loopControl->condBlock);
             return {};
         }
     };

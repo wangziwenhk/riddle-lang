@@ -451,5 +451,17 @@ export namespace Riddle {
         std::any visitBracketExpr(RiddleParser::BracketExprContext *ctx) override {
             return visit(ctx->expr);
         }
+
+        std::any visitContinueStatement(RiddleParser::ContinueStatementContext *context) override {
+            SemNode* node = new ContinueNode();
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitBreakStatement(RiddleParser::BreakStatementContext *context) override {
+            SemNode* node = new BreakNode();
+            root->addSemNode(node);
+            return node;
+        }
     };
 } // namespace Riddle

@@ -384,11 +384,27 @@ export namespace Riddle {
 
         std::any visitWhile(WhileNode *node) override {
             node->parentFunc = context.getNowFunc()->define;
+            context.pushLoop(node);
+            visit(node->body);
+            context.popLoop();
             return {};
         }
 
         std::any visitFor(ForNode *node) override {
             node->parentFunc = context.getNowFunc()->define;
+            context.pushLoop(node);
+            visit(node->body);
+            context.popLoop();
+            return {};
+        }
+
+        std::any visitBreak(BreakNode *node) override {
+            node->loopControl = context.getLoop();
+            return {};
+        }
+
+        std::any visitContinue(ContinueNode *node) override {
+            node->loopControl = context.getLoop();
             return {};
         }
     };
