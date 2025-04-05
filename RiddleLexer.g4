@@ -36,6 +36,7 @@ Double_: 'double';
 Short_: 'short';
 Long_:'long';
 Char_:'char';
+Void_:'void';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

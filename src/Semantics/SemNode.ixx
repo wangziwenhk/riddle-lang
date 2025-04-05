@@ -48,6 +48,9 @@ export namespace Riddle {
 
             ClassDefineNodeType,
             BlendNodeType,
+
+            BreakNodeType,
+            ContinueNodeType,
         };
 
     protected:
@@ -149,7 +152,15 @@ export namespace Riddle {
 
     class TypeNode : public SemNode {
     public:
-        static constexpr std::string unknown = "@unknown";
+        enum TypeNodeSelect {
+            Global, ///< 表示直接在作用域中搜索 Type
+            Local, ///< 表示该 Type 被某个类所拥有
+            Unknown ///< 表示暂时不知道该 Type
+        };
+
+        TypeNodeSelect select = Unknown;
+
+        static constexpr std::string unknown = "@un";
         static constexpr std::string Void = "void";
 
         explicit TypeNode(std::string name, const SemNodeType type_id = TypeNodeType):
@@ -324,9 +335,9 @@ export namespace Riddle {
 
     class FloatLiteralNode final : public LiteralNode {
     public:
-        double value;
+        float value;
 
-        explicit FloatLiteralNode(const double value, ProgramNode *root):
+        explicit FloatLiteralNode(const float value, ProgramNode *root):
             LiteralNode(FloatLiteralNodeType, new TypeNode("float")), value(value) {
             root->addSemNode(type);
         }
@@ -353,6 +364,28 @@ export namespace Riddle {
         explicit StringLiteralNode(std::string value, ProgramNode *root):
             LiteralNode(StringLiteralNodeType, new TypeNode("char*")), value(std::move(value)) {
             root->addSemNode(type);
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class LoopControlNode;
+
+    class BreakNode final : public SemNode {
+    public:
+        LoopControlNode *loopControl = nullptr;
+
+        BreakNode(): SemNode(BreakNodeType) {
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class ContinueNode final : public SemNode {
+    public:
+        LoopControlNode *loopControl = nullptr;
+
+        ContinueNode(): SemNode(ContinueNodeType) {
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -435,6 +468,7 @@ export namespace Riddle {
         ExprNode *condition;
         SemNode *then_body;
         SemNode *else_body;
+        FuncDefineNode *parentFunc = nullptr;
 
         IfNode(ExprNode *condition, SemNode *then_body, SemNode *else_body):
             SemNode(IfNodeType), condition(condition), then_body(then_body), else_body(else_body) {
@@ -443,26 +477,38 @@ export namespace Riddle {
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
-    class WhileNode final : public SemNode {
+    class LoopControlNode : public SemNode {
+    public:
+        explicit LoopControlNode(const SemNodeType id): SemNode(id) {
+        }
+
+        llvm::BasicBlock *condBlock = nullptr;
+        llvm::BasicBlock *exitBlock = nullptr;
+    };
+
+    class WhileNode final : public LoopControlNode {
     public:
         ExprNode *condition;
         SemNode *body;
+        FuncDefineNode *parentFunc = nullptr;
 
-        WhileNode(ExprNode *condition, SemNode *body): SemNode(WhileNodeType), condition(condition), body(body) {
+        WhileNode(ExprNode *condition, SemNode *body):
+            LoopControlNode(WhileNodeType), condition(condition), body(body) {
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
 
-    class ForNode final : public SemNode {
+    class ForNode final : public LoopControlNode {
     public:
         SemNode *init;
         ExprNode *condition;
         SemNode *increment;
         SemNode *body;
+        FuncDefineNode *parentFunc = nullptr;
 
         ForNode(SemNode *init, ExprNode *cond, SemNode *incr, SemNode *body):
-            SemNode(ForNodeType), init(init), condition(cond), increment(incr), body(body) {
+            LoopControlNode(ForNodeType), init(init), condition(cond), increment(incr), body(body) {
         }
 
         std::any accept(SemNodeVisitor &visitor) override;
@@ -690,6 +736,14 @@ export namespace Riddle {
         }
 
         virtual std::any visitLoadExpr(LoadExprNode *node) {
+            return visit(node->value);
+        }
+
+        virtual std::any visitBreak(BreakNode *node) {
+            return {};
+        }
+
+        virtual std::any visitContinue(ContinueNode *node) {
             return {};
         }
 
@@ -758,8 +812,15 @@ export namespace Riddle {
     inline std::any StringLiteralNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitString(this);
     }
+    inline std::any BreakNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitBreak(this);
+    }
 
-    std::any AllocaNode::accept(SemNodeVisitor &visitor) {
+    inline std::any ContinueNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitContinue(this);
+    }
+
+    inline std::any AllocaNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitAlloca(this);
     }
 
@@ -778,23 +839,23 @@ export namespace Riddle {
         return visitor.visitFuncCall(this);
     }
 
-    std::any IfNode::accept(SemNodeVisitor &visitor) {
+    inline std::any IfNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitIf(this);
     }
 
-    std::any WhileNode::accept(SemNodeVisitor &visitor) {
+    inline std::any WhileNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitWhile(this);
     }
 
-    std::any ForNode::accept(SemNodeVisitor &visitor) {
+    inline std::any ForNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitFor(this);
     }
 
-    std::any ClassDefineNode::accept(SemNodeVisitor &visitor) {
+    inline std::any ClassDefineNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitClassDefine(this);
     }
 
-    std::any BlendNode::accept(SemNodeVisitor &visitor) {
+    inline std::any BlendNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitBlend(this);
     }
 #pragma endregion

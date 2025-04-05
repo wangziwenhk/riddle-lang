@@ -200,8 +200,9 @@ export namespace Riddle {
 
     class SemContext {
     protected:
-        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject> > > symbols{};
-        std::stack<std::unordered_set<std::string> > defines;
+        std::unordered_map<std::string, std::stack<std::shared_ptr<SemObject>>> symbols{};
+        std::stack<std::unordered_set<std::string>> defines;
+        std::stack<LoopControlNode *> loops;
         std::stack<SemClass *> classes;
         std::stack<SemFunction *> functions;
 
@@ -273,6 +274,24 @@ export namespace Riddle {
             functions.pop();
         }
 
+        void pushLoop(LoopControlNode* node) {
+            loops.emplace(node);
+        }
+
+        void popLoop() {
+            if (loops.empty()) {
+                throw std::runtime_error("Loop control node is empty");
+            }
+            loops.pop();
+        }
+
+        LoopControlNode *getLoop() {
+            if (loops.empty()) {
+                throw std::runtime_error("Loop control node is empty");
+            }
+            return loops.top();
+        }
+
         SemFunction *getNowFunc() {
             if (functions.empty()) {
                 return nullptr;
@@ -301,7 +320,7 @@ export namespace Riddle {
             return it->second.top().get();
         }
 
-        void addOperator(std::tuple<std::string, std::string, std::string> opGroup, const std::string& type) {
+        void addOperator(std::tuple<std::string, std::string, std::string> opGroup, const std::string &type) {
             const auto op = std::get<2>(opGroup);
             if (LogicOp::set.contains(op)) {
                 throw std::logic_error(std::format("Logical {} operators cannot be overloaded", op));
@@ -311,7 +330,7 @@ export namespace Riddle {
 
         std::string getOperator(const std::tuple<std::string, std::string, std::string> &opGroup) {
             const auto it = operators.find(opGroup);
-            auto [lt,rt,op] = opGroup;
+            auto [lt, rt, op] = opGroup;
             auto aaa = operators.contains(opGroup);
             if (it == operators.end()) {
                 throw std::runtime_error(std::format("Duplicate operator: '{}' '{}' '{}'", lt, op, rt));

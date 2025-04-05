@@ -206,25 +206,15 @@ boolean returns [bool value]
     | False {$value=false;}
     ;
 
-float returns [double value]
-    : Float{
-        $value = stod($Float.text);
-    }
+float returns [float value]
+    : Float{$value = stof($Float.text);}
     ;
 
 integer returns [int value]
-    : Decimal{
-        $value = stoi($Decimal.text);
-    }
-    | Hexadecimal{
-        $value = stoi($Hexadecimal.text.substr(2),nullptr,16);
-    }
-    | Binary{
-        $value = stoi($Binary.text.substr(2),nullptr,2);
-    }
-    | Octal{
-        $value = stoi($Octal.text.substr(1),nullptr,8);
-    }
+    : Decimal{$value = stoi($Decimal.text);}
+    | Hexadecimal{$value = stoi($Hexadecimal.text.substr(2),nullptr,16);}
+    | Binary{$value = stoi($Binary.text.substr(2),nullptr,2);}
+    | Octal{$value = stoi($Octal.text.substr(1),nullptr,8);}
     ;
 
 tmpleDefine
@@ -250,7 +240,7 @@ tmplArgList
     ;
 
 typeUsed
-    : name=exprPtr Star*                                            #baseType      // 普通名称
+    : (name=exprPtr | Int_ | Float_ | Double_ | Char_ | Long_ | Short_ | Void_) Star*  #baseType      // 普通名称
     | name=exprPtr tmpl=tmplUsed                                    #tmplType      // 模板
     | baseType=typeUsed LeftSquare size=expression RightSquare      #arrayType     // 数组
     ;
