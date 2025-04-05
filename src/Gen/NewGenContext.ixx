@@ -8,6 +8,7 @@ module;
 export module Gen.NewGenContext;
 import Support.Unit;
 export namespace Riddle {
+    class NewGenContext;
     class NewGenObject {
     public:
         enum NewGenObjectType : char {
@@ -16,40 +17,54 @@ export namespace Riddle {
             ClassType,
             Module,
             Function,
-            TempLLVMValue,
+            LLVMValue,
+            Constant,
         };
 
     private:
         NewGenObjectType type;
 
-    public:
-        explicit NewGenObject(const NewGenObjectType type): type(type) {
+    protected:
+        explicit NewGenObject(NewGenContext &context, const NewGenObjectType id): type(id), context(context) {
         }
 
+        NewGenContext &context;
+
+    public:
         [[nodiscard]] NewGenObjectType getType() const {
             return type;
         }
+        virtual ~NewGenObject() = default;
     };
 
     class NewGenType : public NewGenObject {
-    public:
-        explicit NewGenType(const NewGenObjectType type): NewGenObject(type) {
+    protected:
+        explicit NewGenType(NewGenContext &context, const NewGenObjectType id): NewGenObject(context, id) {
         }
 
-        virtual ~NewGenType() = default;
-
+    public:
         virtual llvm::Type *getLLVMType() noexcept = 0;
     };
 
+    /**
+     * 表示一个类的包装
+     */
     class NewGenClassType final : public NewGenType {
         llvm::StructType *type;
 
     public:
-        explicit NewGenClassType(llvm::StructType *sty): NewGenType(ClassType), type(sty) {
+        explicit NewGenClassType(NewGenContext &context, llvm::StructType *sty):
+            NewGenType(context, ClassType), type(sty) {
         }
 
         llvm::StructType *getLLVMType() noexcept override {
             return type;
+        }
+
+        static NewGenClassType *create(NewGenContext &ctx, llvm::StructType *sty);
+
+        void setLLVMType(llvm::StructType *ty) noexcept {
+            type = ty;
         }
     };
 
@@ -57,11 +72,51 @@ export namespace Riddle {
         llvm::Type *type;
 
     public:
-        explicit NewGenBaseType(llvm::Type *ty): NewGenType(BaseType), type(ty) {
+        explicit NewGenBaseType(NewGenContext &context, llvm::Type *ty): NewGenType(context, BaseType), type(ty) {
         }
+
         llvm::Type *getLLVMType() noexcept override {
             return type;
         }
+
+        void setLLVMType(llvm::Type *ty) noexcept {
+            type = ty;
+        }
+
+        static NewGenBaseType *create(NewGenContext &ctx, llvm::Type *sty);
+    };
+
+    class NewGenValue : public NewGenObject {
+    protected:
+        llvm::Value *llvm_value = nullptr;
+
+    public:
+        NewGenValue(NewGenContext &ctx, llvm::Value *value, const NewGenObjectType id = LLVMValue):
+            NewGenObject(ctx, id), llvm_value(value) {
+        }
+
+        virtual llvm::Value *getLLVMValue() {
+            return llvm_value;
+        }
+    };
+
+    class NewGenConstant : public NewGenValue {
+    protected:
+        explicit NewGenConstant(NewGenContext &context): NewGenValue(context, nullptr, Constant) {
+        }
+
+        llvm::Value *getLLVMValue() override = 0;
+    };
+
+    class NewGenInteger final : public NewGenConstant {
+    public:
+        int value;
+        explicit NewGenInteger(NewGenContext &context, const int value): NewGenConstant(context), value(value) {
+        }
+
+        llvm::Value *getLLVMValue() override;
+
+        static NewGenInteger *create(NewGenContext &ctx, int value);
     };
 
     class NewGenContext {
@@ -128,6 +183,14 @@ export namespace Riddle {
 
         void addGenObject(NewGenObject *obj) {
             object_allocator.emplace_back(obj);
+        }
+
+        NewGenObject *getGlobalObject(const std::string &name) {
+            const auto it = objects.find(name);
+            if (it == objects.end() || it->second.empty()) {
+                throw std::runtime_error("Can't find global object");
+            }
+            return it->second.top();
         }
     };
 } // namespace Riddle
