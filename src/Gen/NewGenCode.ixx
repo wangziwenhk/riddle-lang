@@ -31,7 +31,7 @@ export namespace Riddle {
         NewGenContext &context;
         llvm::IRBuilder<> &builder;
 
-        explicit NewGenCode(NewGenContext &ctx): context(ctx), builder(ctx.builder) {
+        NewGenCode(NewGenContext &ctx): context(ctx), builder(ctx.builder) {
         }
 
         std::any visitProgram(ProgramNode *node) override {
@@ -43,6 +43,11 @@ export namespace Riddle {
 
         std::any visitInteger(IntegerLiteralNode *node) override {
             NewGenObject *obj = NewGenInteger::create(context, node->value);
+            return obj;
+        }
+
+        std::any visitFloat(FloatLiteralNode *node) override {
+            NewGenObject *obj = NewGenFloat::create(context, node->value);
             return obj;
         }
 
@@ -78,6 +83,20 @@ export namespace Riddle {
             }
             return obj;
         }
+
+        std::any visitAlloca(AllocaNode *node) override {
+            const auto type = obj_cast<NewGenType *>(visitType(node->type))->getLLVMType();
+            node->alloca = builder.CreateAlloca(type);
+            return {};
+        }
+
+        std::any visitVarDefine(VarDefineNode *node) override {
+            visit(node->alloca);
+            const auto obj = NewGenVariable::create(context, node);
+            context.addGlobalObject(node->name, obj);
+            return {};
+        }
+
 
         /**
          * 解析 FuncCall 的参数类型

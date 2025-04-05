@@ -4,9 +4,11 @@ module;
 #include <llvm/IR/Module.h>
 #include <memory>
 #include <stack>
+#include <unordered_set>
 #include <utility>
 export module Gen.NewGenContext;
 import Support.Unit;
+import Semantics.SemNode;
 export namespace Riddle {
     class NewGenContext;
     class NewGenObject {
@@ -90,11 +92,11 @@ export namespace Riddle {
     protected:
         llvm::Value *llvm_value = nullptr;
 
-    public:
         NewGenValue(NewGenContext &ctx, llvm::Value *value, const NewGenObjectType id = LLVMValue):
             NewGenObject(ctx, id), llvm_value(value) {
         }
 
+    public:
         virtual llvm::Value *getLLVMValue() {
             return llvm_value;
         }
@@ -105,23 +107,58 @@ export namespace Riddle {
         explicit NewGenConstant(NewGenContext &context): NewGenValue(context, nullptr, Constant) {
         }
 
+    public:
         llvm::Value *getLLVMValue() override = 0;
     };
 
     class NewGenInteger final : public NewGenConstant {
-    public:
-        int value;
+    protected:
         explicit NewGenInteger(NewGenContext &context, const int value): NewGenConstant(context), value(value) {
         }
 
+    public:
+        int value;
         llvm::Value *getLLVMValue() override;
 
         static NewGenInteger *create(NewGenContext &ctx, int value);
     };
 
+    class NewGenFloat final : public NewGenConstant {
+    protected:
+        explicit NewGenFloat(NewGenContext &context, const float value): NewGenConstant(context), value(value) {
+        }
+
+    public:
+        float value;
+        llvm::Value *getLLVMValue() override;
+
+        static NewGenFloat *create(NewGenContext &ctx, float value);
+    };
+
+    class NewGenVariable final : public NewGenValue {
+    public:
+        VarDefineNode *define;
+
+    protected:
+        explicit NewGenVariable(NewGenContext &ctx, VarDefineNode *define):
+            NewGenValue(ctx, nullptr, Variable), define(define) {
+        }
+
+    public:
+        static NewGenVariable *create(NewGenContext &ctx, VarDefineNode *define);
+
+        [[nodiscard]] std::string_view getName() const {
+            return define->name;
+        }
+
+        llvm::Value *getLLVMValue() override {
+            return define->alloca->alloca;
+        }
+    };
+
     class NewGenContext {
         std::unordered_map<std::string, std::stack<NewGenObject *>> objects;
-        std::stack<std::vector<std::string>> defined;
+        std::stack<std::unordered_set<std::string>> defined;
         std::unordered_map<std::string, llvm::Type *> base_types;
         std::vector<NewGenObject *> object_allocator;
 
@@ -181,7 +218,7 @@ export namespace Riddle {
             return it->second;
         }
 
-        void addGenObject(NewGenObject *obj) {
+        void addGenObjectToAllocator(NewGenObject *obj) {
             object_allocator.emplace_back(obj);
         }
 
@@ -191,6 +228,14 @@ export namespace Riddle {
                 throw std::runtime_error("Can't find global object");
             }
             return it->second.top();
+        }
+
+        void addGlobalObject(const std::string &name, NewGenObject *obj) {
+            if (defined.top().contains(name)) {
+                throw std::runtime_error("global object already exists");
+            }
+            defined.top().emplace(name);
+            objects[name].emplace(obj);
         }
     };
 } // namespace Riddle

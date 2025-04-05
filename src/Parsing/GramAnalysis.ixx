@@ -453,13 +453,13 @@ export namespace Riddle {
         }
 
         std::any visitContinueStatement(RiddleParser::ContinueStatementContext *context) override {
-            SemNode* node = new ContinueNode();
+            SemNode *node = new ContinueNode();
             root->addSemNode(node);
             return node;
         }
 
         std::any visitBreakStatement(RiddleParser::BreakStatementContext *context) override {
-            SemNode* node = new BreakNode();
+            SemNode *node = new BreakNode();
             root->addSemNode(node);
             return node;
         }

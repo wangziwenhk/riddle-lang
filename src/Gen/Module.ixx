@@ -1,13 +1,7 @@
 module;
 #include <any>
-#include <map>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/Linker/Linker.h>
-#include <llvm/Transforms/Utils/Cloning.h>
-#include <llvm/IR/Module.h>
 #include <llvm/IR/Function.h>
-#include <ranges>
-#include <llvm/IR/Value.h>
+#include <llvm/IR/Module.h>
 export module Gen.Moudule;
 import Parsing.GramAnalysis;
 import Semantics.SemAnalysis;

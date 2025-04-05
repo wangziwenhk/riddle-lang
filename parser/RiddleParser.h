@@ -1392,7 +1392,7 @@ public:
 
   class  FloatContext : public antlr4::ParserRuleContext {
   public:
-    double value;
+    float value;
     antlr4::Token *floatToken = nullptr;
     FloatContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;

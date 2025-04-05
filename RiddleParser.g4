@@ -206,25 +206,15 @@ boolean returns [bool value]
     | False {$value=false;}
     ;
 
-float returns [double value]
-    : Float{
-        $value = stod($Float.text);
-    }
+float returns [float value]
+    : Float{$value = stof($Float.text);}
     ;
 
 integer returns [int value]
-    : Decimal{
-        $value = stoi($Decimal.text);
-    }
-    | Hexadecimal{
-        $value = stoi($Hexadecimal.text.substr(2),nullptr,16);
-    }
-    | Binary{
-        $value = stoi($Binary.text.substr(2),nullptr,2);
-    }
-    | Octal{
-        $value = stoi($Octal.text.substr(1),nullptr,8);
-    }
+    : Decimal{$value = stoi($Decimal.text);}
+    | Hexadecimal{$value = stoi($Hexadecimal.text.substr(2),nullptr,16);}
+    | Binary{$value = stoi($Binary.text.substr(2),nullptr,2);}
+    | Octal{$value = stoi($Octal.text.substr(1),nullptr,8);}
     ;
 
 tmpleDefine

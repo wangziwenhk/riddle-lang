@@ -335,9 +335,9 @@ export namespace Riddle {
 
     class FloatLiteralNode final : public LiteralNode {
     public:
-        double value;
+        float value;
 
-        explicit FloatLiteralNode(const double value, ProgramNode *root):
+        explicit FloatLiteralNode(const float value, ProgramNode *root):
             LiteralNode(FloatLiteralNodeType, new TypeNode("float")), value(value) {
             root->addSemNode(type);
         }
