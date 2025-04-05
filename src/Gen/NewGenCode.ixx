@@ -4,6 +4,19 @@ module;
 export module Gen.NewGenCode;
 import Semantics.SemNode;
 import Gen.NewGenContext;
+namespace Riddle {
+    template<typename Tp>
+    Tp node_cast(const std::any &value) {
+        if (!value.has_value()) {
+            throw std::runtime_error("Null Value");
+        }
+        try {
+            return std::any_cast<Tp>(value);
+        } catch (const std::bad_any_cast &e) {
+            throw std::runtime_error("Bad Value: " + std::string(e.what()));
+        }
+    }
+} // namespace Riddle
 export namespace Riddle {
     /**
      * 一个通过解析 SemNode 来生成 LLVM IR 代码的类。该类不保存任何状态。
@@ -20,7 +33,28 @@ export namespace Riddle {
             for (const auto i: *node->body) {
                 visit(i);
             }
+            context.llvmModule->print(llvm::outs(), nullptr);
             return {};
+        }
+
+        std::any visitInteger(IntegerLiteralNode *node) override {
+            llvm::Value* value = builder.getInt32(node->value);
+            return value;
+        }
+
+        std::any visitType(TypeNode *node) override {
+            llvm::Type *type = nullptr;
+            if (node->isBaseType()) {
+                type = context.getBaseType(node->name);
+            }
+
+            // todo 从作用域获取
+
+            // 处理指针
+            for (size_t i = 0; i < node->pointSize; i++) {
+                type = llvm::PointerType::get(type, 0);
+            }
+            return type;
         }
 
         /**
@@ -33,7 +67,30 @@ export namespace Riddle {
         }
 
         std::any visitFuncDefine(FuncDefineNode *node) override {
-            std::string_view name = node->name;
+            const auto return_type = node_cast<llvm::Type *>(visitType(node->returnType));
+            // todo 实现函数参数
+
+            constexpr auto link_type = llvm::Function::ExternalLinkage;
+
+            const auto func_type = llvm::FunctionType::get(return_type, {}, false);
+            const auto func = llvm::Function::Create(func_type, link_type, node->name, context.llvmModule.get());
+
+            node->llvmFunction = func;
+
+            // 解析 body
+            if (!node->body) {
+                return {};
+            }
+
+            const auto entry = llvm::BasicBlock::Create(*context.llvmContext, "entry", func);
+            builder.SetInsertPoint(entry);
+
+            context.push();
+            for (const auto i: *node->body) {
+                visit(i);
+            }
+            context.pop();
+
             return {};
         }
 
@@ -46,14 +103,14 @@ export namespace Riddle {
             }
             return {};
         }
+
         std::any visitIf(IfNode *node) override {
             // 生成 Basic Block
             llvm::BasicBlock *thenBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "if.then", node->parentFunc->llvmFunction);
             llvm::BasicBlock *elseBlock = nullptr;
             if (node->else_body) {
-                elseBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.else",
-                                                     node->parentFunc->llvmFunction);
+                elseBlock = llvm::BasicBlock::Create(*context.llvmContext, "if.else", node->parentFunc->llvmFunction);
             }
             llvm::BasicBlock *exitBlock =
                     llvm::BasicBlock::Create(*context.llvmContext, "if.exit", node->parentFunc->llvmFunction);
@@ -86,12 +143,12 @@ export namespace Riddle {
         }
 
         std::any visitWhile(WhileNode *node) override {
-            llvm::BasicBlock *condBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.cond",
-                                                                   node->parentFunc->llvmFunction);
-            llvm::BasicBlock *bodyBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.body",
-                                                                   node->parentFunc->llvmFunction);
-            llvm::BasicBlock *exitBlock = llvm::BasicBlock::Create(*context.llvmContext, "while.exit",
-                                                                   node->parentFunc->llvmFunction);
+            llvm::BasicBlock *condBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.cond", node->parentFunc->llvmFunction);
+            llvm::BasicBlock *bodyBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.body", node->parentFunc->llvmFunction);
+            llvm::BasicBlock *exitBlock =
+                    llvm::BasicBlock::Create(*context.llvmContext, "while.exit", node->parentFunc->llvmFunction);
 
             builder.CreateBr(condBlock);
             builder.SetInsertPoint(condBlock);
