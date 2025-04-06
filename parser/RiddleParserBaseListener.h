@@ -88,47 +88,20 @@ public:
   virtual void enterExprPtrParser(RiddleParser::ExprPtrParserContext * /*ctx*/) override { }
   virtual void exitExprPtrParser(RiddleParser::ExprPtrParserContext * /*ctx*/) override { }
 
-  virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
-  virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
-
   virtual void enterAndAssignExpr(RiddleParser::AndAssignExprContext * /*ctx*/) override { }
   virtual void exitAndAssignExpr(RiddleParser::AndAssignExprContext * /*ctx*/) override { }
 
   virtual void enterLoadExpr(RiddleParser::LoadExprContext * /*ctx*/) override { }
   virtual void exitLoadExpr(RiddleParser::LoadExprContext * /*ctx*/) override { }
 
-  virtual void enterNullExpr(RiddleParser::NullExprContext * /*ctx*/) override { }
-  virtual void exitNullExpr(RiddleParser::NullExprContext * /*ctx*/) override { }
-
   virtual void enterModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
   virtual void exitModExpr(RiddleParser::ModExprContext * /*ctx*/) override { }
-
-  virtual void enterCastExpr(RiddleParser::CastExprContext * /*ctx*/) override { }
-  virtual void exitCastExpr(RiddleParser::CastExprContext * /*ctx*/) override { }
-
-  virtual void enterLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
-  virtual void exitLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
-
-  virtual void enterNegativeExpr(RiddleParser::NegativeExprContext * /*ctx*/) override { }
-  virtual void exitNegativeExpr(RiddleParser::NegativeExprContext * /*ctx*/) override { }
-
-  virtual void enterNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
-  virtual void exitNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
 
   virtual void enterMulAssignExpr(RiddleParser::MulAssignExprContext * /*ctx*/) override { }
   virtual void exitMulAssignExpr(RiddleParser::MulAssignExprContext * /*ctx*/) override { }
 
   virtual void enterXorAssignExpr(RiddleParser::XorAssignExprContext * /*ctx*/) override { }
   virtual void exitXorAssignExpr(RiddleParser::XorAssignExprContext * /*ctx*/) override { }
-
-  virtual void enterSubExpr(RiddleParser::SubExprContext * /*ctx*/) override { }
-  virtual void exitSubExpr(RiddleParser::SubExprContext * /*ctx*/) override { }
-
-  virtual void enterGreaterEqualExpr(RiddleParser::GreaterEqualExprContext * /*ctx*/) override { }
-  virtual void exitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext * /*ctx*/) override { }
-
-  virtual void enterAddAssignExpr(RiddleParser::AddAssignExprContext * /*ctx*/) override { }
-  virtual void exitAddAssignExpr(RiddleParser::AddAssignExprContext * /*ctx*/) override { }
 
   virtual void enterOrAssignExpr(RiddleParser::OrAssignExprContext * /*ctx*/) override { }
   virtual void exitOrAssignExpr(RiddleParser::OrAssignExprContext * /*ctx*/) override { }
@@ -151,12 +124,6 @@ public:
   virtual void enterMulExpr(RiddleParser::MulExprContext * /*ctx*/) override { }
   virtual void exitMulExpr(RiddleParser::MulExprContext * /*ctx*/) override { }
 
-  virtual void enterNotEqualExpr(RiddleParser::NotEqualExprContext * /*ctx*/) override { }
-  virtual void exitNotEqualExpr(RiddleParser::NotEqualExprContext * /*ctx*/) override { }
-
-  virtual void enterSelfSubLeftExpr(RiddleParser::SelfSubLeftExprContext * /*ctx*/) override { }
-  virtual void exitSelfSubLeftExpr(RiddleParser::SelfSubLeftExprContext * /*ctx*/) override { }
-
   virtual void enterDivExpr(RiddleParser::DivExprContext * /*ctx*/) override { }
   virtual void exitDivExpr(RiddleParser::DivExprContext * /*ctx*/) override { }
 
@@ -169,20 +136,11 @@ public:
   virtual void enterSelfAddRightExpr(RiddleParser::SelfAddRightExprContext * /*ctx*/) override { }
   virtual void exitSelfAddRightExpr(RiddleParser::SelfAddRightExprContext * /*ctx*/) override { }
 
-  virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
-  virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
-
-  virtual void enterCharExpr(RiddleParser::CharExprContext * /*ctx*/) override { }
-  virtual void exitCharExpr(RiddleParser::CharExprContext * /*ctx*/) override { }
-
-  virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
-  virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
+  virtual void enterTypeType(RiddleParser::TypeTypeContext * /*ctx*/) override { }
+  virtual void exitTypeType(RiddleParser::TypeTypeContext * /*ctx*/) override { }
 
   virtual void enterBooleanExpr(RiddleParser::BooleanExprContext * /*ctx*/) override { }
   virtual void exitBooleanExpr(RiddleParser::BooleanExprContext * /*ctx*/) override { }
-
-  virtual void enterAShrExpr(RiddleParser::AShrExprContext * /*ctx*/) override { }
-  virtual void exitAShrExpr(RiddleParser::AShrExprContext * /*ctx*/) override { }
 
   virtual void enterLessExpr(RiddleParser::LessExprContext * /*ctx*/) override { }
   virtual void exitLessExpr(RiddleParser::LessExprContext * /*ctx*/) override { }
@@ -193,17 +151,8 @@ public:
   virtual void enterSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext * /*ctx*/) override { }
   virtual void exitSelfAddLeftExpr(RiddleParser::SelfAddLeftExprContext * /*ctx*/) override { }
 
-  virtual void enterLShrAssignExpr(RiddleParser::LShrAssignExprContext * /*ctx*/) override { }
-  virtual void exitLShrAssignExpr(RiddleParser::LShrAssignExprContext * /*ctx*/) override { }
-
-  virtual void enterLessEqualExpr(RiddleParser::LessEqualExprContext * /*ctx*/) override { }
-  virtual void exitLessEqualExpr(RiddleParser::LessEqualExprContext * /*ctx*/) override { }
-
   virtual void enterAShrAssignExpr(RiddleParser::AShrAssignExprContext * /*ctx*/) override { }
   virtual void exitAShrAssignExpr(RiddleParser::AShrAssignExprContext * /*ctx*/) override { }
-
-  virtual void enterBitOrExpr(RiddleParser::BitOrExprContext * /*ctx*/) override { }
-  virtual void exitBitOrExpr(RiddleParser::BitOrExprContext * /*ctx*/) override { }
 
   virtual void enterNotExpr(RiddleParser::NotExprContext * /*ctx*/) override { }
   virtual void exitNotExpr(RiddleParser::NotExprContext * /*ctx*/) override { }
@@ -211,17 +160,71 @@ public:
   virtual void enterAddExpr(RiddleParser::AddExprContext * /*ctx*/) override { }
   virtual void exitAddExpr(RiddleParser::AddExprContext * /*ctx*/) override { }
 
-  virtual void enterShlAssignExpr(RiddleParser::ShlAssignExprContext * /*ctx*/) override { }
-  virtual void exitShlAssignExpr(RiddleParser::ShlAssignExprContext * /*ctx*/) override { }
-
   virtual void enterModAssignExpr(RiddleParser::ModAssignExprContext * /*ctx*/) override { }
   virtual void exitModAssignExpr(RiddleParser::ModAssignExprContext * /*ctx*/) override { }
 
-  virtual void enterPositiveExpr(RiddleParser::PositiveExprContext * /*ctx*/) override { }
-  virtual void exitPositiveExpr(RiddleParser::PositiveExprContext * /*ctx*/) override { }
-
   virtual void enterShlExpr(RiddleParser::ShlExprContext * /*ctx*/) override { }
   virtual void exitShlExpr(RiddleParser::ShlExprContext * /*ctx*/) override { }
+
+  virtual void enterSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
+  virtual void exitSelfSubRightExpr(RiddleParser::SelfSubRightExprContext * /*ctx*/) override { }
+
+  virtual void enterNullExpr(RiddleParser::NullExprContext * /*ctx*/) override { }
+  virtual void exitNullExpr(RiddleParser::NullExprContext * /*ctx*/) override { }
+
+  virtual void enterCastExpr(RiddleParser::CastExprContext * /*ctx*/) override { }
+  virtual void exitCastExpr(RiddleParser::CastExprContext * /*ctx*/) override { }
+
+  virtual void enterLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
+  virtual void exitLShrExpr(RiddleParser::LShrExprContext * /*ctx*/) override { }
+
+  virtual void enterNegativeExpr(RiddleParser::NegativeExprContext * /*ctx*/) override { }
+  virtual void exitNegativeExpr(RiddleParser::NegativeExprContext * /*ctx*/) override { }
+
+  virtual void enterNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
+  virtual void exitNumberExpr(RiddleParser::NumberExprContext * /*ctx*/) override { }
+
+  virtual void enterSubExpr(RiddleParser::SubExprContext * /*ctx*/) override { }
+  virtual void exitSubExpr(RiddleParser::SubExprContext * /*ctx*/) override { }
+
+  virtual void enterGreaterEqualExpr(RiddleParser::GreaterEqualExprContext * /*ctx*/) override { }
+  virtual void exitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext * /*ctx*/) override { }
+
+  virtual void enterAddAssignExpr(RiddleParser::AddAssignExprContext * /*ctx*/) override { }
+  virtual void exitAddAssignExpr(RiddleParser::AddAssignExprContext * /*ctx*/) override { }
+
+  virtual void enterNotEqualExpr(RiddleParser::NotEqualExprContext * /*ctx*/) override { }
+  virtual void exitNotEqualExpr(RiddleParser::NotEqualExprContext * /*ctx*/) override { }
+
+  virtual void enterSelfSubLeftExpr(RiddleParser::SelfSubLeftExprContext * /*ctx*/) override { }
+  virtual void exitSelfSubLeftExpr(RiddleParser::SelfSubLeftExprContext * /*ctx*/) override { }
+
+  virtual void enterSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
+  virtual void exitSubAssignExpr(RiddleParser::SubAssignExprContext * /*ctx*/) override { }
+
+  virtual void enterCharExpr(RiddleParser::CharExprContext * /*ctx*/) override { }
+  virtual void exitCharExpr(RiddleParser::CharExprContext * /*ctx*/) override { }
+
+  virtual void enterBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
+  virtual void exitBracketExpr(RiddleParser::BracketExprContext * /*ctx*/) override { }
+
+  virtual void enterAShrExpr(RiddleParser::AShrExprContext * /*ctx*/) override { }
+  virtual void exitAShrExpr(RiddleParser::AShrExprContext * /*ctx*/) override { }
+
+  virtual void enterLShrAssignExpr(RiddleParser::LShrAssignExprContext * /*ctx*/) override { }
+  virtual void exitLShrAssignExpr(RiddleParser::LShrAssignExprContext * /*ctx*/) override { }
+
+  virtual void enterLessEqualExpr(RiddleParser::LessEqualExprContext * /*ctx*/) override { }
+  virtual void exitLessEqualExpr(RiddleParser::LessEqualExprContext * /*ctx*/) override { }
+
+  virtual void enterBitOrExpr(RiddleParser::BitOrExprContext * /*ctx*/) override { }
+  virtual void exitBitOrExpr(RiddleParser::BitOrExprContext * /*ctx*/) override { }
+
+  virtual void enterShlAssignExpr(RiddleParser::ShlAssignExprContext * /*ctx*/) override { }
+  virtual void exitShlAssignExpr(RiddleParser::ShlAssignExprContext * /*ctx*/) override { }
+
+  virtual void enterPositiveExpr(RiddleParser::PositiveExprContext * /*ctx*/) override { }
+  virtual void exitPositiveExpr(RiddleParser::PositiveExprContext * /*ctx*/) override { }
 
   virtual void enterEqualExpr(RiddleParser::EqualExprContext * /*ctx*/) override { }
   virtual void exitEqualExpr(RiddleParser::EqualExprContext * /*ctx*/) override { }

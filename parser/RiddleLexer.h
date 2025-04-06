@@ -16,17 +16,16 @@ public:
     Else = 8, Func = 9, Return = 10, Import = 11, Package = 12, Class = 13, 
     True = 14, False = 15, Null = 16, Try = 17, Catch = 18, Override = 19, 
     Static = 20, Const = 21, Public = 22, Protected = 23, Private = 24, 
-    Virtual = 25, Operator = 26, Template = 27, TypeName = 28, Int_ = 29, 
-    Float_ = 30, Double_ = 31, Short_ = 32, Long_ = 33, Char_ = 34, Void_ = 35, 
-    LeftBracket = 36, RightBracket = 37, LeftSquare = 38, RightSquare = 39, 
-    LeftCurly = 40, RightCurly = 41, Colon = 42, Semi = 43, Comma = 44, 
-    Equal = 45, Assign = 46, Greater = 47, Less = 48, LeftLeft = 49, RightRight = 50, 
-    RightRightRight = 51, Add = 52, Sub = 53, Star = 54, Div = 55, Mod = 56, 
-    Not = 57, And = 58, Or = 59, Xor = 60, Dot = 61, DoubleQuotes = 62, 
-    Quotes = 63, Endl = 64, Identifier = 65, Hexadecimal = 66, Decimal = 67, 
-    Octal = 68, Binary = 69, Float = 70, IntegerSequence = 71, HEX_DIGIT = 72, 
-    OCTAL_DIGIT = 73, BINARY_DIGIT = 74, DIGIT = 75, STRING = 76, CHAR = 77, 
-    LINE_COMMENT = 78, BLOCK_COMMENT = 79, WHITESPACE = 80
+    Virtual = 25, Operator = 26, Template = 27, TypeName = 28, LeftBracket = 29, 
+    RightBracket = 30, LeftSquare = 31, RightSquare = 32, LeftCurly = 33, 
+    RightCurly = 34, Colon = 35, Semi = 36, Comma = 37, Equal = 38, Assign = 39, 
+    Greater = 40, Less = 41, LeftLeft = 42, RightRight = 43, RightRightRight = 44, 
+    Add = 45, Sub = 46, Star = 47, Div = 48, Mod = 49, Not = 50, And = 51, 
+    Or = 52, Xor = 53, Dot = 54, DoubleQuotes = 55, Quotes = 56, Endl = 57, 
+    Identifier = 58, Hexadecimal = 59, Decimal = 60, Octal = 61, Binary = 62, 
+    Float = 63, IntegerSequence = 64, HEX_DIGIT = 65, OCTAL_DIGIT = 66, 
+    BINARY_DIGIT = 67, DIGIT = 68, STRING = 69, CHAR = 70, LINE_COMMENT = 71, 
+    BLOCK_COMMENT = 72, WHITESPACE = 73
   };
 
   explicit RiddleLexer(antlr4::CharStream *input);

@@ -1,12 +1,6 @@
 module;
 #include <clang/Driver/Compilation.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
-#include <llvm/Linker/Linker.h>
-#include <llvm/MC/TargetRegistry.h>
-#include <llvm/Target/TargetMachine.h>
-#include <memory>
 #include <queue>
 #include <ranges>
 #include <string>
@@ -16,29 +10,20 @@ module;
 #include "RiddleLexer.h"
 #include "RiddleParser.h"
 export module Support.BuildQueue;
-import Support.Unit;
 import Manager.ErrorManager;
-import Parsing.PackageVisitor;
-import Parsing.GramAnalysis;
-import Semantics.SemAnalysis;
-import Semantics.SemNode;
-import Gen.GenCode;
-import Gen.Moudule;
-import Gen.BuildTarget;
 import Support.FileTools;
+import Support.Package;
+import Grammar.PackageVisitor;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
         /// @brief 这里使用包名判断库之间的关系
         std::unordered_map<std::string, std::vector<std::string>> libGraph;
         /// @brief 用于将不同包之间的库链接起来，本质上就是处理后拼接
-        std::unordered_map<std::string, std::vector<Unit>> libSource;
+        std::unordered_map<std::string, std::vector<Package>> libSource;
 
     public:
-        std::shared_ptr<BuildTarget> buildTarget;
-
         BuildQueue() {
-            buildTarget = std::make_shared<BuildTarget>();
         }
 
         /// @brief 用于解析某个源文件
@@ -67,17 +52,18 @@ export namespace Riddle {
             parser->addErrorListener(&parserListener);
 
             antlr4::tree::ParseTree *p = parser->program();
-            PackageVisitor visitor(filePath, p, parser);
-            push(visitor.unit);
+            PackageVisitor visitor{};
+            visitor.visit(p);
+            push(visitor.pack);
         }
 
-        void push(const Unit &unit) {
-            libSource[unit.getPackName()].push_back(unit);
+        void push(const Package &pack) {
+            libSource[pack.getName()].push_back(pack);
             // 建模块关系图
             // libGraph 指向依赖自己的库
-            libGraph[unit.getPackName()];
-            for (const auto &i: unit.getImports()) {
-                libGraph[i].push_back(unit.getPackName());
+            libGraph[pack.getName()];
+            for (const auto &i: pack.getDepend()) {
+                libGraph[i].push_back(pack.getName());
             }
         }
 
@@ -123,46 +109,46 @@ export namespace Riddle {
                 }
             }
 
-            auto llvm_ctx = std::make_unique<llvm::LLVMContext>();
-            std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
-            // 依次编译
-            for (auto i: buildList) {
-                auto unit = libSource[i.data()].front();
-                contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx.get(), unit));
-                auto &module = contextMap.at(unit.getPackName());
-
-                // module->context.buildTarget = this->buildTarget;
-
-                // link 其他 Context
-                for (const auto &lib: unit.getImports()) {
-                    module->import(*contextMap.at(lib));
-                }
-                module->start();
-            }
-
-            // 合并模块到唯一一个中
-            auto mainModule = std::make_unique<llvm::Module>("@main", *llvm_ctx);
-            for (auto &[moduleName, module]: contextMap) {
-                if (llvm::Linker::linkModules(*mainModule, std::move(module->context.llvmModule))) {
-                    llvm::errs() << "Error linking " << moduleName << "\n";
-                    return;
-                }
-            }
-
-            std::string outFileName = "out";
-
-            std::error_code ec;
-            llvm::raw_fd_ostream Dest(outFileName + ".ll", ec);
-            if (ec) {
-                llvm::errs() << "Could not open output file: " << ec.message() << "\n";
-                return;
-            }
-            mainModule->print(Dest, nullptr);
-            mainModule->print(llvm::outs(), nullptr);
-            Dest.flush();
-            Dest.close();
-
-            system(("clang " + outFileName + ".ll" + " -o " + outFileName).c_str());
+            // auto llvm_ctx = std::make_unique<llvm::LLVMContext>();
+            // std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
+            // // 依次编译
+            // for (auto i: buildList) {
+            //     auto unit = libSource[i.data()].front();
+            //     contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx.get(), unit));
+            //     auto &module = contextMap.at(unit.getPackName());
+            //
+            //     // module->context.buildTarget = this->buildTarget;
+            //
+            //     // link 其他 Context
+            //     for (const auto &lib: unit.getImports()) {
+            //         module->import(*contextMap.at(lib));
+            //     }
+            //     module->start();
+            // }
+            //
+            // // 合并模块到唯一一个中
+            // auto mainModule = std::make_unique<llvm::Module>("@main", *llvm_ctx);
+            // for (auto &[moduleName, module]: contextMap) {
+            //     if (llvm::Linker::linkModules(*mainModule, std::move(module->context.llvmModule))) {
+            //         llvm::errs() << "Error linking " << moduleName << "\n";
+            //         return;
+            //     }
+            // }
+            //
+            // std::string outFileName = "out";
+            //
+            // std::error_code ec;
+            // llvm::raw_fd_ostream Dest(outFileName + ".ll", ec);
+            // if (ec) {
+            //     llvm::errs() << "Could not open output file: " << ec.message() << "\n";
+            //     return;
+            // }
+            // mainModule->print(Dest, nullptr);
+            // mainModule->print(llvm::outs(), nullptr);
+            // Dest.flush();
+            // Dest.close();
+            //
+            // system(("clang " + outFileName + ".ll" + " -o " + outFileName).c_str());
         }
     };
 } // namespace Riddle

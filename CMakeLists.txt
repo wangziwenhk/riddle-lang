@@ -34,30 +34,6 @@ find_package(antlr4-runtime CONFIG REQUIRED)
 find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
 find_package(argparse CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
-find_package(unofficial-tree-sitter CONFIG REQUIRED)
-
-message(STATUS "clone tree-sitter-c")
-
-include(FetchContent)
-
-FetchContent_Declare(
-        tree-sitter-c
-        GIT_REPOSITORY https://gh-proxy.ygxz.in/https://github.com/tree-sitter/tree-sitter-c
-        GIT_TAG v0.23.5
-)
-FetchContent_MakeAvailable(tree-sitter-c)
-
-# 手动创建tree-sitter-c库目标
-add_library(tree_sitter_c STATIC
-        ${tree-sitter-c_SOURCE_DIR}/src/parser.c
-)
-target_include_directories(tree_sitter_c PUBLIC
-        ${tree-sitter-c_SOURCE_DIR}/src
-)
-set_target_properties(tree_sitter_c PROPERTIES
-        OUTPUT_NAME tree_sitter_c
-        POSITION_INDEPENDENT_CODE ON
-)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -196,11 +172,6 @@ target_link_libraries(riddle riddle-module)
 target_link_libraries(riddle antlr4_shared)
 target_link_libraries(riddle argparse::argparse)
 target_link_libraries(riddle magic_enum::magic_enum)
-target_link_libraries(riddle unofficial::tree-sitter::tree-sitter tree_sitter_c)
-
-target_include_directories(riddle PRIVATE
-        ${tree-sitter-c_SOURCE_DIR}/src
-)
 
 if (Windows)
     set(CMAKE_INSTALL_PREFIX "C:/Program Files/Riddle" CACHE PATH "Installation prefix, default is C:/Program Files/Riddle")
