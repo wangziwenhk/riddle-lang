@@ -16,6 +16,7 @@ export namespace Riddle {
             if (pack.getName().empty()) {
                 throw std::invalid_argument("Name cannot be empty");
             }
+            pack.program = context;
             return {};
         }
         std::any visitPackStatement(RiddleParser::PackStatementContext *context) override {

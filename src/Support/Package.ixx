@@ -1,4 +1,5 @@
 module;
+#include <FlatHashMap.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -9,6 +10,8 @@ export namespace Riddle {
         std::vector<std::string> depend;
 
     public:
+        antlr4::tree::ParseTree *program = nullptr;
+
         Package() = default;
         explicit Package(std::string name): name(std::move(name)) {
         }

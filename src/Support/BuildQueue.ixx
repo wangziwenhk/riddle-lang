@@ -14,6 +14,7 @@ import Manager.ErrorManager;
 import Support.FileTools;
 import Support.Package;
 import Grammar.PackageVisitor;
+import Generate.Module;
 export namespace Riddle {
     class BuildQueue {
         /// @brief 用于构建各个库之间的导入关系
@@ -109,22 +110,20 @@ export namespace Riddle {
                 }
             }
 
-            // auto llvm_ctx = std::make_unique<llvm::LLVMContext>();
-            // std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
-            // // 依次编译
-            // for (auto i: buildList) {
-            //     auto unit = libSource[i.data()].front();
-            //     contextMap.emplace(unit.getPackName(), std::make_unique<Module>(llvm_ctx.get(), unit));
-            //     auto &module = contextMap.at(unit.getPackName());
-            //
-            //     // module->context.buildTarget = this->buildTarget;
-            //
-            //     // link 其他 Context
-            //     for (const auto &lib: unit.getImports()) {
-            //         module->import(*contextMap.at(lib));
-            //     }
-            //     module->start();
-            // }
+            const auto llvm_ctx = std::make_unique<llvm::LLVMContext>();
+            std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
+            // 依次编译
+            for (auto i: buildList) {
+                auto pack = libSource[i.data()].front();
+                contextMap.emplace(pack.getName(), std::make_unique<Module>(*llvm_ctx, pack));
+                const auto &module = contextMap.at(pack.getName());
+
+                // // link 其他 Context
+                // for (const auto &lib: unit.getDepend()) {
+                //     module->import(*contextMap.at(lib));
+                // }
+                module->startBuild();
+            }
             //
             // // 合并模块到唯一一个中
             // auto mainModule = std::make_unique<llvm::Module>("@main", *llvm_ctx);
