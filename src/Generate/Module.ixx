@@ -6,6 +6,7 @@ export module Generate.Module;
 import Support.Package;
 import Grammar.GramVisitor;
 import Semantic.SemNode;
+import Semantic.SemAnalysis;
 export namespace Riddle {
     class Module {
     public:
@@ -19,6 +20,8 @@ export namespace Riddle {
             GramVisitor gram_visitor;
             gram_visitor.visit(pack.program);
             program = std::move(gram_visitor.root);
+            SemAnalysis sem_analysis;
+            sem_analysis.visit(program.get());
         }
     };
 } // namespace Riddle

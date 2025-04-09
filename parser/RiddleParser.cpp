@@ -161,15 +161,15 @@ void riddleparserParserInitialize() {
   	0,0,0,121,122,5,34,0,0,122,9,1,0,0,0,123,124,5,12,0,0,124,125,3,46,23,
   	0,125,11,1,0,0,0,126,127,5,11,0,0,127,128,3,46,23,0,128,13,1,0,0,0,129,
   	130,5,1,0,0,130,131,3,46,23,0,131,132,5,35,0,0,132,133,3,44,22,0,133,
-  	147,1,0,0,0,134,135,5,1,0,0,135,136,3,46,23,0,136,137,5,39,0,0,137,138,
-  	3,44,22,0,138,147,1,0,0,0,139,140,5,1,0,0,140,141,3,46,23,0,141,142,5,
-  	35,0,0,142,143,3,44,22,0,143,144,5,39,0,0,144,145,3,44,22,0,145,147,1,
-  	0,0,0,146,129,1,0,0,0,146,134,1,0,0,0,146,139,1,0,0,0,147,15,1,0,0,0,
-  	148,149,3,44,22,0,149,150,5,37,0,0,150,152,1,0,0,0,151,148,1,0,0,0,152,
-  	155,1,0,0,0,153,151,1,0,0,0,153,154,1,0,0,0,154,156,1,0,0,0,155,153,1,
-  	0,0,0,156,158,3,44,22,0,157,153,1,0,0,0,157,158,1,0,0,0,158,17,1,0,0,
-  	0,159,160,3,46,23,0,160,161,5,35,0,0,161,162,3,70,35,0,162,163,5,37,0,
-  	0,163,165,1,0,0,0,164,159,1,0,0,0,165,168,1,0,0,0,166,164,1,0,0,0,166,
+  	134,5,39,0,0,134,135,3,44,22,0,135,147,1,0,0,0,136,137,5,1,0,0,137,138,
+  	3,46,23,0,138,139,5,39,0,0,139,140,3,44,22,0,140,147,1,0,0,0,141,142,
+  	5,1,0,0,142,143,3,46,23,0,143,144,5,35,0,0,144,145,3,44,22,0,145,147,
+  	1,0,0,0,146,129,1,0,0,0,146,136,1,0,0,0,146,141,1,0,0,0,147,15,1,0,0,
+  	0,148,149,3,44,22,0,149,150,5,37,0,0,150,152,1,0,0,0,151,148,1,0,0,0,
+  	152,155,1,0,0,0,153,151,1,0,0,0,153,154,1,0,0,0,154,156,1,0,0,0,155,153,
+  	1,0,0,0,156,158,3,44,22,0,157,153,1,0,0,0,157,158,1,0,0,0,158,17,1,0,
+  	0,0,159,160,3,46,23,0,160,161,5,35,0,0,161,162,3,70,35,0,162,163,5,37,
+  	0,0,163,165,1,0,0,0,164,159,1,0,0,0,165,168,1,0,0,0,166,164,1,0,0,0,166,
   	167,1,0,0,0,167,169,1,0,0,0,168,166,1,0,0,0,169,170,3,46,23,0,170,171,
   	5,35,0,0,171,172,3,70,35,0,172,174,1,0,0,0,173,166,1,0,0,0,173,174,1,
   	0,0,0,174,175,1,0,0,0,175,203,6,9,-1,0,176,177,3,46,23,0,177,178,5,35,
@@ -215,57 +215,57 @@ void riddleparserParserInitialize() {
   	1,0,0,0,322,328,1,0,0,0,323,324,10,1,0,0,324,325,5,54,0,0,325,327,3,40,
   	20,2,326,323,1,0,0,0,327,330,1,0,0,0,328,326,1,0,0,0,328,329,1,0,0,0,
   	329,41,1,0,0,0,330,328,1,0,0,0,331,332,3,40,20,0,332,43,1,0,0,0,333,334,
-  	6,22,-1,0,334,335,5,41,0,0,335,336,3,70,35,0,336,337,5,40,0,0,337,338,
-  	5,29,0,0,338,339,3,42,21,0,339,340,5,30,0,0,340,439,1,0,0,0,341,342,5,
-  	29,0,0,342,343,3,44,22,0,343,344,5,30,0,0,344,439,1,0,0,0,345,346,5,50,
-  	0,0,346,439,3,44,22,48,347,348,5,45,0,0,348,439,3,44,22,47,349,350,5,
-  	46,0,0,350,439,3,44,22,46,351,352,5,45,0,0,352,353,5,45,0,0,353,439,3,
-  	42,21,0,354,355,3,42,21,0,355,356,5,45,0,0,356,357,5,45,0,0,357,439,1,
-  	0,0,0,358,359,5,46,0,0,359,360,5,46,0,0,360,439,3,42,21,0,361,362,3,42,
-  	21,0,362,363,5,46,0,0,363,364,5,46,0,0,364,439,1,0,0,0,365,439,3,40,20,
-  	0,366,367,3,42,21,0,367,368,5,39,0,0,368,369,3,44,22,21,369,439,1,0,0,
-  	0,370,371,3,42,21,0,371,372,5,45,0,0,372,373,5,39,0,0,373,374,3,44,22,
-  	20,374,439,1,0,0,0,375,376,3,42,21,0,376,377,5,46,0,0,377,378,5,39,0,
-  	0,378,379,3,44,22,19,379,439,1,0,0,0,380,381,3,42,21,0,381,382,5,47,0,
-  	0,382,383,5,39,0,0,383,384,3,44,22,18,384,439,1,0,0,0,385,386,3,42,21,
-  	0,386,387,5,48,0,0,387,388,5,39,0,0,388,389,3,44,22,17,389,439,1,0,0,
-  	0,390,391,3,42,21,0,391,392,5,49,0,0,392,393,5,39,0,0,393,394,3,44,22,
-  	16,394,439,1,0,0,0,395,396,3,42,21,0,396,397,5,45,0,0,397,398,5,39,0,
-  	0,398,399,3,44,22,15,399,439,1,0,0,0,400,401,3,42,21,0,401,402,5,51,0,
-  	0,402,403,5,39,0,0,403,404,3,44,22,14,404,439,1,0,0,0,405,406,3,42,21,
-  	0,406,407,5,52,0,0,407,408,5,39,0,0,408,409,3,44,22,13,409,439,1,0,0,
-  	0,410,411,3,42,21,0,411,412,5,53,0,0,412,413,5,39,0,0,413,414,3,44,22,
-  	12,414,439,1,0,0,0,415,416,3,42,21,0,416,417,5,42,0,0,417,418,5,39,0,
-  	0,418,419,3,44,22,11,419,439,1,0,0,0,420,421,3,42,21,0,421,422,5,43,0,
-  	0,422,423,5,39,0,0,423,424,3,44,22,10,424,439,1,0,0,0,425,426,3,42,21,
-  	0,426,427,5,44,0,0,427,428,5,39,0,0,428,429,3,44,22,9,429,439,1,0,0,0,
-  	430,439,3,70,35,0,431,432,5,47,0,0,432,439,3,44,22,6,433,439,5,69,0,0,
-  	434,439,5,70,0,0,435,439,3,52,26,0,436,439,3,54,27,0,437,439,5,16,0,0,
-  	438,333,1,0,0,0,438,341,1,0,0,0,438,345,1,0,0,0,438,347,1,0,0,0,438,349,
-  	1,0,0,0,438,351,1,0,0,0,438,354,1,0,0,0,438,358,1,0,0,0,438,361,1,0,0,
-  	0,438,365,1,0,0,0,438,366,1,0,0,0,438,370,1,0,0,0,438,375,1,0,0,0,438,
-  	380,1,0,0,0,438,385,1,0,0,0,438,390,1,0,0,0,438,395,1,0,0,0,438,400,1,
-  	0,0,0,438,405,1,0,0,0,438,410,1,0,0,0,438,415,1,0,0,0,438,420,1,0,0,0,
-  	438,425,1,0,0,0,438,430,1,0,0,0,438,431,1,0,0,0,438,433,1,0,0,0,438,434,
-  	1,0,0,0,438,435,1,0,0,0,438,436,1,0,0,0,438,437,1,0,0,0,439,507,1,0,0,
-  	0,440,441,10,40,0,0,441,442,5,47,0,0,442,506,3,44,22,41,443,444,10,39,
-  	0,0,444,445,5,48,0,0,445,506,3,44,22,40,446,447,10,38,0,0,447,448,5,49,
-  	0,0,448,506,3,44,22,39,449,450,10,37,0,0,450,451,5,45,0,0,451,506,3,44,
-  	22,38,452,453,10,36,0,0,453,454,5,46,0,0,454,506,3,44,22,37,455,456,10,
-  	35,0,0,456,457,5,42,0,0,457,506,3,44,22,36,458,459,10,34,0,0,459,460,
-  	5,43,0,0,460,506,3,44,22,35,461,462,10,33,0,0,462,463,5,44,0,0,463,506,
-  	3,44,22,34,464,465,10,32,0,0,465,466,5,40,0,0,466,506,3,44,22,33,467,
-  	468,10,31,0,0,468,469,5,41,0,0,469,506,3,44,22,32,470,471,10,30,0,0,471,
-  	472,5,40,0,0,472,473,5,39,0,0,473,506,3,44,22,31,474,475,10,29,0,0,475,
-  	476,5,41,0,0,476,477,5,39,0,0,477,506,3,44,22,30,478,479,10,28,0,0,479,
-  	480,5,38,0,0,480,506,3,44,22,29,481,482,10,27,0,0,482,483,5,50,0,0,483,
-  	484,5,39,0,0,484,506,3,44,22,28,485,486,10,26,0,0,486,487,5,51,0,0,487,
-  	506,3,44,22,27,488,489,10,25,0,0,489,490,5,53,0,0,490,506,3,44,22,26,
-  	491,492,10,24,0,0,492,493,5,52,0,0,493,506,3,44,22,25,494,495,10,23,0,
-  	0,495,496,5,51,0,0,496,497,5,51,0,0,497,506,3,44,22,24,498,499,10,22,
-  	0,0,499,500,5,52,0,0,500,501,5,52,0,0,501,506,3,44,22,23,502,503,10,8,
-  	0,0,503,504,5,54,0,0,504,506,3,40,20,0,505,440,1,0,0,0,505,443,1,0,0,
-  	0,505,446,1,0,0,0,505,449,1,0,0,0,505,452,1,0,0,0,505,455,1,0,0,0,505,
+  	6,22,-1,0,334,439,3,70,35,0,335,336,5,41,0,0,336,337,3,70,35,0,337,338,
+  	5,40,0,0,338,339,5,29,0,0,339,340,3,42,21,0,340,341,5,30,0,0,341,439,
+  	1,0,0,0,342,343,5,29,0,0,343,344,3,44,22,0,344,345,5,30,0,0,345,439,1,
+  	0,0,0,346,347,5,50,0,0,347,439,3,44,22,47,348,349,5,45,0,0,349,439,3,
+  	44,22,46,350,351,5,46,0,0,351,439,3,44,22,45,352,353,5,45,0,0,353,354,
+  	5,45,0,0,354,439,3,42,21,0,355,356,3,42,21,0,356,357,5,45,0,0,357,358,
+  	5,45,0,0,358,439,1,0,0,0,359,360,5,46,0,0,360,361,5,46,0,0,361,439,3,
+  	42,21,0,362,363,3,42,21,0,363,364,5,46,0,0,364,365,5,46,0,0,365,439,1,
+  	0,0,0,366,439,3,40,20,0,367,368,3,42,21,0,368,369,5,39,0,0,369,370,3,
+  	44,22,20,370,439,1,0,0,0,371,372,3,42,21,0,372,373,5,45,0,0,373,374,5,
+  	39,0,0,374,375,3,44,22,19,375,439,1,0,0,0,376,377,3,42,21,0,377,378,5,
+  	46,0,0,378,379,5,39,0,0,379,380,3,44,22,18,380,439,1,0,0,0,381,382,3,
+  	42,21,0,382,383,5,47,0,0,383,384,5,39,0,0,384,385,3,44,22,17,385,439,
+  	1,0,0,0,386,387,3,42,21,0,387,388,5,48,0,0,388,389,5,39,0,0,389,390,3,
+  	44,22,16,390,439,1,0,0,0,391,392,3,42,21,0,392,393,5,49,0,0,393,394,5,
+  	39,0,0,394,395,3,44,22,15,395,439,1,0,0,0,396,397,3,42,21,0,397,398,5,
+  	45,0,0,398,399,5,39,0,0,399,400,3,44,22,14,400,439,1,0,0,0,401,402,3,
+  	42,21,0,402,403,5,51,0,0,403,404,5,39,0,0,404,405,3,44,22,13,405,439,
+  	1,0,0,0,406,407,3,42,21,0,407,408,5,52,0,0,408,409,5,39,0,0,409,410,3,
+  	44,22,12,410,439,1,0,0,0,411,412,3,42,21,0,412,413,5,53,0,0,413,414,5,
+  	39,0,0,414,415,3,44,22,11,415,439,1,0,0,0,416,417,3,42,21,0,417,418,5,
+  	42,0,0,418,419,5,39,0,0,419,420,3,44,22,10,420,439,1,0,0,0,421,422,3,
+  	42,21,0,422,423,5,43,0,0,423,424,5,39,0,0,424,425,3,44,22,9,425,439,1,
+  	0,0,0,426,427,3,42,21,0,427,428,5,44,0,0,428,429,5,39,0,0,429,430,3,44,
+  	22,8,430,439,1,0,0,0,431,432,5,47,0,0,432,439,3,44,22,6,433,439,5,69,
+  	0,0,434,439,5,70,0,0,435,439,3,52,26,0,436,439,3,54,27,0,437,439,5,16,
+  	0,0,438,333,1,0,0,0,438,335,1,0,0,0,438,342,1,0,0,0,438,346,1,0,0,0,438,
+  	348,1,0,0,0,438,350,1,0,0,0,438,352,1,0,0,0,438,355,1,0,0,0,438,359,1,
+  	0,0,0,438,362,1,0,0,0,438,366,1,0,0,0,438,367,1,0,0,0,438,371,1,0,0,0,
+  	438,376,1,0,0,0,438,381,1,0,0,0,438,386,1,0,0,0,438,391,1,0,0,0,438,396,
+  	1,0,0,0,438,401,1,0,0,0,438,406,1,0,0,0,438,411,1,0,0,0,438,416,1,0,0,
+  	0,438,421,1,0,0,0,438,426,1,0,0,0,438,431,1,0,0,0,438,433,1,0,0,0,438,
+  	434,1,0,0,0,438,435,1,0,0,0,438,436,1,0,0,0,438,437,1,0,0,0,439,507,1,
+  	0,0,0,440,441,10,39,0,0,441,442,5,47,0,0,442,506,3,44,22,40,443,444,10,
+  	38,0,0,444,445,5,48,0,0,445,506,3,44,22,39,446,447,10,37,0,0,447,448,
+  	5,49,0,0,448,506,3,44,22,38,449,450,10,36,0,0,450,451,5,45,0,0,451,506,
+  	3,44,22,37,452,453,10,35,0,0,453,454,5,46,0,0,454,506,3,44,22,36,455,
+  	456,10,34,0,0,456,457,5,42,0,0,457,506,3,44,22,35,458,459,10,33,0,0,459,
+  	460,5,43,0,0,460,506,3,44,22,34,461,462,10,32,0,0,462,463,5,44,0,0,463,
+  	506,3,44,22,33,464,465,10,31,0,0,465,466,5,40,0,0,466,506,3,44,22,32,
+  	467,468,10,30,0,0,468,469,5,41,0,0,469,506,3,44,22,31,470,471,10,29,0,
+  	0,471,472,5,40,0,0,472,473,5,39,0,0,473,506,3,44,22,30,474,475,10,28,
+  	0,0,475,476,5,41,0,0,476,477,5,39,0,0,477,506,3,44,22,29,478,479,10,27,
+  	0,0,479,480,5,38,0,0,480,506,3,44,22,28,481,482,10,26,0,0,482,483,5,50,
+  	0,0,483,484,5,39,0,0,484,506,3,44,22,27,485,486,10,25,0,0,486,487,5,51,
+  	0,0,487,506,3,44,22,26,488,489,10,24,0,0,489,490,5,53,0,0,490,506,3,44,
+  	22,25,491,492,10,23,0,0,492,493,5,52,0,0,493,506,3,44,22,24,494,495,10,
+  	22,0,0,495,496,5,51,0,0,496,497,5,51,0,0,497,506,3,44,22,23,498,499,10,
+  	21,0,0,499,500,5,52,0,0,500,501,5,52,0,0,501,506,3,44,22,22,502,503,10,
+  	7,0,0,503,504,5,54,0,0,504,506,3,40,20,0,505,440,1,0,0,0,505,443,1,0,
+  	0,0,505,446,1,0,0,0,505,449,1,0,0,0,505,452,1,0,0,0,505,455,1,0,0,0,505,
   	458,1,0,0,0,505,461,1,0,0,0,505,464,1,0,0,0,505,467,1,0,0,0,505,470,1,
   	0,0,0,505,474,1,0,0,0,505,478,1,0,0,0,505,481,1,0,0,0,505,485,1,0,0,0,
   	505,488,1,0,0,0,505,491,1,0,0,0,505,494,1,0,0,0,505,498,1,0,0,0,505,502,
@@ -1094,6 +1094,10 @@ tree::TerminalNode* RiddleParser::VarDefineStatementContext::Colon() {
   return getToken(RiddleParser::Colon, 0);
 }
 
+tree::TerminalNode* RiddleParser::VarDefineStatementContext::Assign() {
+  return getToken(RiddleParser::Assign, 0);
+}
+
 RiddleParser::IdContext* RiddleParser::VarDefineStatementContext::id() {
   return getRuleContext<RiddleParser::IdContext>(0);
 }
@@ -1104,10 +1108,6 @@ std::vector<RiddleParser::ExpressionContext *> RiddleParser::VarDefineStatementC
 
 RiddleParser::ExpressionContext* RiddleParser::VarDefineStatementContext::expression(size_t i) {
   return getRuleContext<RiddleParser::ExpressionContext>(i);
-}
-
-tree::TerminalNode* RiddleParser::VarDefineStatementContext::Assign() {
-  return getToken(RiddleParser::Assign, 0);
 }
 
 
@@ -1160,36 +1160,36 @@ RiddleParser::VarDefineStatementContext* RiddleParser::varDefineStatement() {
       match(RiddleParser::Colon);
       setState(132);
       antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->type = expression(0);
+      setState(133);
+      match(RiddleParser::Assign);
+      setState(134);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->value = expression(0);
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(134);
-      match(RiddleParser::Var);
-      setState(135);
-      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = id();
       setState(136);
-      match(RiddleParser::Assign);
+      match(RiddleParser::Var);
       setState(137);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = id();
+      setState(138);
+      match(RiddleParser::Assign);
+      setState(139);
       antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->value = expression(0);
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(139);
-      match(RiddleParser::Var);
-      setState(140);
-      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = id();
       setState(141);
-      match(RiddleParser::Colon);
+      match(RiddleParser::Var);
       setState(142);
-      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->type = expression(0);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->name = id();
       setState(143);
-      match(RiddleParser::Assign);
+      match(RiddleParser::Colon);
       setState(144);
-      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->value = expression(0);
+      antlrcpp::downCast<VarDefineStatementContext *>(_localctx)->type = expression(0);
       break;
     }
 
@@ -4483,331 +4483,331 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 34, _ctx)) {
     case 1: {
-      _localctx = _tracker.createInstance<CastExprContext>(_localctx);
+      _localctx = _tracker.createInstance<TypeTypeContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
 
       setState(334);
-      match(RiddleParser::Less);
-      setState(335);
-      antlrcpp::downCast<CastExprContext *>(_localctx)->type = typeUsed(0);
-      setState(336);
-      match(RiddleParser::Greater);
-      setState(337);
-      match(RiddleParser::LeftBracket);
-      setState(338);
-      antlrcpp::downCast<CastExprContext *>(_localctx)->value = exprPtrParser();
-      setState(339);
-      match(RiddleParser::RightBracket);
+      typeUsed(0);
       break;
     }
 
     case 2: {
-      _localctx = _tracker.createInstance<BracketExprContext>(_localctx);
+      _localctx = _tracker.createInstance<CastExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(341);
+      setState(335);
+      match(RiddleParser::Less);
+      setState(336);
+      antlrcpp::downCast<CastExprContext *>(_localctx)->type = typeUsed(0);
+      setState(337);
+      match(RiddleParser::Greater);
+      setState(338);
       match(RiddleParser::LeftBracket);
-      setState(342);
-      antlrcpp::downCast<BracketExprContext *>(_localctx)->expr = expression(0);
-      setState(343);
+      setState(339);
+      antlrcpp::downCast<CastExprContext *>(_localctx)->value = exprPtrParser();
+      setState(340);
       match(RiddleParser::RightBracket);
       break;
     }
 
     case 3: {
-      _localctx = _tracker.createInstance<NotExprContext>(_localctx);
+      _localctx = _tracker.createInstance<BracketExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(345);
-      match(RiddleParser::Not);
-      setState(346);
-      antlrcpp::downCast<NotExprContext *>(_localctx)->expr = expression(48);
+      setState(342);
+      match(RiddleParser::LeftBracket);
+      setState(343);
+      antlrcpp::downCast<BracketExprContext *>(_localctx)->expr = expression(0);
+      setState(344);
+      match(RiddleParser::RightBracket);
       break;
     }
 
     case 4: {
-      _localctx = _tracker.createInstance<PositiveExprContext>(_localctx);
+      _localctx = _tracker.createInstance<NotExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
+      setState(346);
+      match(RiddleParser::Not);
       setState(347);
-      match(RiddleParser::Add);
-      setState(348);
-      antlrcpp::downCast<PositiveExprContext *>(_localctx)->expr = expression(47);
+      antlrcpp::downCast<NotExprContext *>(_localctx)->expr = expression(47);
       break;
     }
 
     case 5: {
-      _localctx = _tracker.createInstance<NegativeExprContext>(_localctx);
+      _localctx = _tracker.createInstance<PositiveExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
+      setState(348);
+      match(RiddleParser::Add);
       setState(349);
-      match(RiddleParser::Sub);
-      setState(350);
-      antlrcpp::downCast<NegativeExprContext *>(_localctx)->expr = expression(46);
+      antlrcpp::downCast<PositiveExprContext *>(_localctx)->expr = expression(46);
       break;
     }
 
     case 6: {
-      _localctx = _tracker.createInstance<SelfAddLeftExprContext>(_localctx);
+      _localctx = _tracker.createInstance<NegativeExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
+      setState(350);
+      match(RiddleParser::Sub);
       setState(351);
-      match(RiddleParser::Add);
-      setState(352);
-      match(RiddleParser::Add);
-      setState(353);
-      antlrcpp::downCast<SelfAddLeftExprContext *>(_localctx)->expr = exprPtrParser();
+      antlrcpp::downCast<NegativeExprContext *>(_localctx)->expr = expression(45);
       break;
     }
 
     case 7: {
-      _localctx = _tracker.createInstance<SelfAddRightExprContext>(_localctx);
+      _localctx = _tracker.createInstance<SelfAddLeftExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
+      setState(352);
+      match(RiddleParser::Add);
+      setState(353);
+      match(RiddleParser::Add);
       setState(354);
-      antlrcpp::downCast<SelfAddRightExprContext *>(_localctx)->expr = exprPtrParser();
-      setState(355);
-      match(RiddleParser::Add);
-      setState(356);
-      match(RiddleParser::Add);
+      antlrcpp::downCast<SelfAddLeftExprContext *>(_localctx)->expr = exprPtrParser();
       break;
     }
 
     case 8: {
-      _localctx = _tracker.createInstance<SelfSubLeftExprContext>(_localctx);
+      _localctx = _tracker.createInstance<SelfAddRightExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(358);
-      match(RiddleParser::Sub);
-      setState(359);
-      match(RiddleParser::Sub);
-      setState(360);
-      antlrcpp::downCast<SelfSubLeftExprContext *>(_localctx)->expr = exprPtrParser();
+      setState(355);
+      antlrcpp::downCast<SelfAddRightExprContext *>(_localctx)->expr = exprPtrParser();
+      setState(356);
+      match(RiddleParser::Add);
+      setState(357);
+      match(RiddleParser::Add);
       break;
     }
 
     case 9: {
-      _localctx = _tracker.createInstance<SelfSubRightExprContext>(_localctx);
+      _localctx = _tracker.createInstance<SelfSubLeftExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
+      setState(359);
+      match(RiddleParser::Sub);
+      setState(360);
+      match(RiddleParser::Sub);
       setState(361);
-      antlrcpp::downCast<SelfSubRightExprContext *>(_localctx)->expr = exprPtrParser();
-      setState(362);
-      match(RiddleParser::Sub);
-      setState(363);
-      match(RiddleParser::Sub);
+      antlrcpp::downCast<SelfSubLeftExprContext *>(_localctx)->expr = exprPtrParser();
       break;
     }
 
     case 10: {
-      _localctx = _tracker.createInstance<PtrExprContext>(_localctx);
+      _localctx = _tracker.createInstance<SelfSubRightExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(365);
-      exprPtr(0);
+      setState(362);
+      antlrcpp::downCast<SelfSubRightExprContext *>(_localctx)->expr = exprPtrParser();
+      setState(363);
+      match(RiddleParser::Sub);
+      setState(364);
+      match(RiddleParser::Sub);
       break;
     }
 
     case 11: {
-      _localctx = _tracker.createInstance<AssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<PtrExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
       setState(366);
-      antlrcpp::downCast<AssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(367);
-      match(RiddleParser::Assign);
-      setState(368);
-      antlrcpp::downCast<AssignExprContext *>(_localctx)->right = expression(21);
+      exprPtr(0);
       break;
     }
 
     case 12: {
-      _localctx = _tracker.createInstance<AddAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<AssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(370);
-      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(371);
-      match(RiddleParser::Add);
-      setState(372);
+      setState(367);
+      antlrcpp::downCast<AssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(368);
       match(RiddleParser::Assign);
-      setState(373);
-      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->right = expression(20);
+      setState(369);
+      antlrcpp::downCast<AssignExprContext *>(_localctx)->right = expression(20);
       break;
     }
 
     case 13: {
-      _localctx = _tracker.createInstance<SubAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<AddAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(375);
-      antlrcpp::downCast<SubAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(376);
-      match(RiddleParser::Sub);
-      setState(377);
+      setState(371);
+      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(372);
+      match(RiddleParser::Add);
+      setState(373);
       match(RiddleParser::Assign);
-      setState(378);
-      antlrcpp::downCast<SubAssignExprContext *>(_localctx)->right = expression(19);
+      setState(374);
+      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->right = expression(19);
       break;
     }
 
     case 14: {
-      _localctx = _tracker.createInstance<MulAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<SubAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(380);
-      antlrcpp::downCast<MulAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(381);
-      match(RiddleParser::Star);
-      setState(382);
+      setState(376);
+      antlrcpp::downCast<SubAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(377);
+      match(RiddleParser::Sub);
+      setState(378);
       match(RiddleParser::Assign);
-      setState(383);
-      antlrcpp::downCast<MulAssignExprContext *>(_localctx)->right = expression(18);
+      setState(379);
+      antlrcpp::downCast<SubAssignExprContext *>(_localctx)->right = expression(18);
       break;
     }
 
     case 15: {
-      _localctx = _tracker.createInstance<DivAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<MulAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(385);
-      antlrcpp::downCast<DivAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(386);
-      match(RiddleParser::Div);
-      setState(387);
+      setState(381);
+      antlrcpp::downCast<MulAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(382);
+      match(RiddleParser::Star);
+      setState(383);
       match(RiddleParser::Assign);
-      setState(388);
-      antlrcpp::downCast<DivAssignExprContext *>(_localctx)->right = expression(17);
+      setState(384);
+      antlrcpp::downCast<MulAssignExprContext *>(_localctx)->right = expression(17);
       break;
     }
 
     case 16: {
-      _localctx = _tracker.createInstance<ModAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<DivAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(390);
-      antlrcpp::downCast<ModAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(391);
-      match(RiddleParser::Mod);
-      setState(392);
+      setState(386);
+      antlrcpp::downCast<DivAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(387);
+      match(RiddleParser::Div);
+      setState(388);
       match(RiddleParser::Assign);
-      setState(393);
-      antlrcpp::downCast<ModAssignExprContext *>(_localctx)->right = expression(16);
+      setState(389);
+      antlrcpp::downCast<DivAssignExprContext *>(_localctx)->right = expression(16);
       break;
     }
 
     case 17: {
-      _localctx = _tracker.createInstance<AddAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<ModAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(395);
-      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(396);
-      match(RiddleParser::Add);
-      setState(397);
+      setState(391);
+      antlrcpp::downCast<ModAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(392);
+      match(RiddleParser::Mod);
+      setState(393);
       match(RiddleParser::Assign);
-      setState(398);
-      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->right = expression(15);
+      setState(394);
+      antlrcpp::downCast<ModAssignExprContext *>(_localctx)->right = expression(15);
       break;
     }
 
     case 18: {
-      _localctx = _tracker.createInstance<AndAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<AddAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(400);
-      antlrcpp::downCast<AndAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(401);
-      match(RiddleParser::And);
-      setState(402);
+      setState(396);
+      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(397);
+      match(RiddleParser::Add);
+      setState(398);
       match(RiddleParser::Assign);
-      setState(403);
-      antlrcpp::downCast<AndAssignExprContext *>(_localctx)->right = expression(14);
+      setState(399);
+      antlrcpp::downCast<AddAssignExprContext *>(_localctx)->right = expression(14);
       break;
     }
 
     case 19: {
-      _localctx = _tracker.createInstance<OrAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<AndAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(405);
-      antlrcpp::downCast<OrAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(406);
-      match(RiddleParser::Or);
-      setState(407);
+      setState(401);
+      antlrcpp::downCast<AndAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(402);
+      match(RiddleParser::And);
+      setState(403);
       match(RiddleParser::Assign);
-      setState(408);
-      antlrcpp::downCast<OrAssignExprContext *>(_localctx)->right = expression(13);
+      setState(404);
+      antlrcpp::downCast<AndAssignExprContext *>(_localctx)->right = expression(13);
       break;
     }
 
     case 20: {
-      _localctx = _tracker.createInstance<XorAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<OrAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(410);
-      antlrcpp::downCast<XorAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(411);
-      match(RiddleParser::Xor);
-      setState(412);
+      setState(406);
+      antlrcpp::downCast<OrAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(407);
+      match(RiddleParser::Or);
+      setState(408);
       match(RiddleParser::Assign);
-      setState(413);
-      antlrcpp::downCast<XorAssignExprContext *>(_localctx)->right = expression(12);
+      setState(409);
+      antlrcpp::downCast<OrAssignExprContext *>(_localctx)->right = expression(12);
       break;
     }
 
     case 21: {
-      _localctx = _tracker.createInstance<ShlAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<XorAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(415);
-      antlrcpp::downCast<ShlAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(416);
-      match(RiddleParser::LeftLeft);
-      setState(417);
+      setState(411);
+      antlrcpp::downCast<XorAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(412);
+      match(RiddleParser::Xor);
+      setState(413);
       match(RiddleParser::Assign);
-      setState(418);
-      antlrcpp::downCast<ShlAssignExprContext *>(_localctx)->right = expression(11);
+      setState(414);
+      antlrcpp::downCast<XorAssignExprContext *>(_localctx)->right = expression(11);
       break;
     }
 
     case 22: {
-      _localctx = _tracker.createInstance<AShrAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<ShlAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(420);
-      antlrcpp::downCast<AShrAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(421);
-      match(RiddleParser::RightRight);
-      setState(422);
+      setState(416);
+      antlrcpp::downCast<ShlAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(417);
+      match(RiddleParser::LeftLeft);
+      setState(418);
       match(RiddleParser::Assign);
-      setState(423);
-      antlrcpp::downCast<AShrAssignExprContext *>(_localctx)->right = expression(10);
+      setState(419);
+      antlrcpp::downCast<ShlAssignExprContext *>(_localctx)->right = expression(10);
       break;
     }
 
     case 23: {
-      _localctx = _tracker.createInstance<LShrAssignExprContext>(_localctx);
+      _localctx = _tracker.createInstance<AShrAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(425);
-      antlrcpp::downCast<LShrAssignExprContext *>(_localctx)->left = exprPtrParser();
-      setState(426);
-      match(RiddleParser::RightRightRight);
-      setState(427);
+      setState(421);
+      antlrcpp::downCast<AShrAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(422);
+      match(RiddleParser::RightRight);
+      setState(423);
       match(RiddleParser::Assign);
-      setState(428);
-      antlrcpp::downCast<LShrAssignExprContext *>(_localctx)->right = expression(9);
+      setState(424);
+      antlrcpp::downCast<AShrAssignExprContext *>(_localctx)->right = expression(9);
       break;
     }
 
     case 24: {
-      _localctx = _tracker.createInstance<TypeTypeContext>(_localctx);
+      _localctx = _tracker.createInstance<LShrAssignExprContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(430);
-      typeUsed(0);
+      setState(426);
+      antlrcpp::downCast<LShrAssignExprContext *>(_localctx)->left = exprPtrParser();
+      setState(427);
+      match(RiddleParser::RightRightRight);
+      setState(428);
+      match(RiddleParser::Assign);
+      setState(429);
+      antlrcpp::downCast<LShrAssignExprContext *>(_localctx)->right = expression(8);
       break;
     }
 
@@ -4889,11 +4889,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(440);
 
-          if (!(precpred(_ctx, 40))) throw FailedPredicateException(this, "precpred(_ctx, 40)");
+          if (!(precpred(_ctx, 39))) throw FailedPredicateException(this, "precpred(_ctx, 39)");
           setState(441);
           match(RiddleParser::Star);
           setState(442);
-          antlrcpp::downCast<MulExprContext *>(_localctx)->right = expression(41);
+          antlrcpp::downCast<MulExprContext *>(_localctx)->right = expression(40);
           break;
         }
 
@@ -4904,11 +4904,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(443);
 
-          if (!(precpred(_ctx, 39))) throw FailedPredicateException(this, "precpred(_ctx, 39)");
+          if (!(precpred(_ctx, 38))) throw FailedPredicateException(this, "precpred(_ctx, 38)");
           setState(444);
           match(RiddleParser::Div);
           setState(445);
-          antlrcpp::downCast<DivExprContext *>(_localctx)->right = expression(40);
+          antlrcpp::downCast<DivExprContext *>(_localctx)->right = expression(39);
           break;
         }
 
@@ -4919,11 +4919,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(446);
 
-          if (!(precpred(_ctx, 38))) throw FailedPredicateException(this, "precpred(_ctx, 38)");
+          if (!(precpred(_ctx, 37))) throw FailedPredicateException(this, "precpred(_ctx, 37)");
           setState(447);
           match(RiddleParser::Mod);
           setState(448);
-          antlrcpp::downCast<ModExprContext *>(_localctx)->right = expression(39);
+          antlrcpp::downCast<ModExprContext *>(_localctx)->right = expression(38);
           break;
         }
 
@@ -4934,11 +4934,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(449);
 
-          if (!(precpred(_ctx, 37))) throw FailedPredicateException(this, "precpred(_ctx, 37)");
+          if (!(precpred(_ctx, 36))) throw FailedPredicateException(this, "precpred(_ctx, 36)");
           setState(450);
           match(RiddleParser::Add);
           setState(451);
-          antlrcpp::downCast<AddExprContext *>(_localctx)->right = expression(38);
+          antlrcpp::downCast<AddExprContext *>(_localctx)->right = expression(37);
           break;
         }
 
@@ -4949,11 +4949,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(452);
 
-          if (!(precpred(_ctx, 36))) throw FailedPredicateException(this, "precpred(_ctx, 36)");
+          if (!(precpred(_ctx, 35))) throw FailedPredicateException(this, "precpred(_ctx, 35)");
           setState(453);
           match(RiddleParser::Sub);
           setState(454);
-          antlrcpp::downCast<SubExprContext *>(_localctx)->right = expression(37);
+          antlrcpp::downCast<SubExprContext *>(_localctx)->right = expression(36);
           break;
         }
 
@@ -4964,11 +4964,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(455);
 
-          if (!(precpred(_ctx, 35))) throw FailedPredicateException(this, "precpred(_ctx, 35)");
+          if (!(precpred(_ctx, 34))) throw FailedPredicateException(this, "precpred(_ctx, 34)");
           setState(456);
           match(RiddleParser::LeftLeft);
           setState(457);
-          antlrcpp::downCast<ShlExprContext *>(_localctx)->right = expression(36);
+          antlrcpp::downCast<ShlExprContext *>(_localctx)->right = expression(35);
           break;
         }
 
@@ -4979,11 +4979,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(458);
 
-          if (!(precpred(_ctx, 34))) throw FailedPredicateException(this, "precpred(_ctx, 34)");
+          if (!(precpred(_ctx, 33))) throw FailedPredicateException(this, "precpred(_ctx, 33)");
           setState(459);
           match(RiddleParser::RightRight);
           setState(460);
-          antlrcpp::downCast<AShrExprContext *>(_localctx)->right = expression(35);
+          antlrcpp::downCast<AShrExprContext *>(_localctx)->right = expression(34);
           break;
         }
 
@@ -4994,11 +4994,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(461);
 
-          if (!(precpred(_ctx, 33))) throw FailedPredicateException(this, "precpred(_ctx, 33)");
+          if (!(precpred(_ctx, 32))) throw FailedPredicateException(this, "precpred(_ctx, 32)");
           setState(462);
           match(RiddleParser::RightRightRight);
           setState(463);
-          antlrcpp::downCast<LShrExprContext *>(_localctx)->right = expression(34);
+          antlrcpp::downCast<LShrExprContext *>(_localctx)->right = expression(33);
           break;
         }
 
@@ -5009,11 +5009,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(464);
 
-          if (!(precpred(_ctx, 32))) throw FailedPredicateException(this, "precpred(_ctx, 32)");
+          if (!(precpred(_ctx, 31))) throw FailedPredicateException(this, "precpred(_ctx, 31)");
           setState(465);
           match(RiddleParser::Greater);
           setState(466);
-          antlrcpp::downCast<GreaterExprContext *>(_localctx)->right = expression(33);
+          antlrcpp::downCast<GreaterExprContext *>(_localctx)->right = expression(32);
           break;
         }
 
@@ -5024,11 +5024,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(467);
 
-          if (!(precpred(_ctx, 31))) throw FailedPredicateException(this, "precpred(_ctx, 31)");
+          if (!(precpred(_ctx, 30))) throw FailedPredicateException(this, "precpred(_ctx, 30)");
           setState(468);
           match(RiddleParser::Less);
           setState(469);
-          antlrcpp::downCast<LessExprContext *>(_localctx)->right = expression(32);
+          antlrcpp::downCast<LessExprContext *>(_localctx)->right = expression(31);
           break;
         }
 
@@ -5039,13 +5039,13 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(470);
 
-          if (!(precpred(_ctx, 30))) throw FailedPredicateException(this, "precpred(_ctx, 30)");
+          if (!(precpred(_ctx, 29))) throw FailedPredicateException(this, "precpred(_ctx, 29)");
           setState(471);
           match(RiddleParser::Greater);
           setState(472);
           match(RiddleParser::Assign);
           setState(473);
-          antlrcpp::downCast<GreaterEqualExprContext *>(_localctx)->right = expression(31);
+          antlrcpp::downCast<GreaterEqualExprContext *>(_localctx)->right = expression(30);
           break;
         }
 
@@ -5056,13 +5056,13 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(474);
 
-          if (!(precpred(_ctx, 29))) throw FailedPredicateException(this, "precpred(_ctx, 29)");
+          if (!(precpred(_ctx, 28))) throw FailedPredicateException(this, "precpred(_ctx, 28)");
           setState(475);
           match(RiddleParser::Less);
           setState(476);
           match(RiddleParser::Assign);
           setState(477);
-          antlrcpp::downCast<LessEqualExprContext *>(_localctx)->right = expression(30);
+          antlrcpp::downCast<LessEqualExprContext *>(_localctx)->right = expression(29);
           break;
         }
 
@@ -5073,11 +5073,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(478);
 
-          if (!(precpred(_ctx, 28))) throw FailedPredicateException(this, "precpred(_ctx, 28)");
+          if (!(precpred(_ctx, 27))) throw FailedPredicateException(this, "precpred(_ctx, 27)");
           setState(479);
           match(RiddleParser::Equal);
           setState(480);
-          antlrcpp::downCast<EqualExprContext *>(_localctx)->right = expression(29);
+          antlrcpp::downCast<EqualExprContext *>(_localctx)->right = expression(28);
           break;
         }
 
@@ -5088,13 +5088,13 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(481);
 
-          if (!(precpred(_ctx, 27))) throw FailedPredicateException(this, "precpred(_ctx, 27)");
+          if (!(precpred(_ctx, 26))) throw FailedPredicateException(this, "precpred(_ctx, 26)");
           setState(482);
           match(RiddleParser::Not);
           setState(483);
           match(RiddleParser::Assign);
           setState(484);
-          antlrcpp::downCast<NotEqualExprContext *>(_localctx)->right = expression(28);
+          antlrcpp::downCast<NotEqualExprContext *>(_localctx)->right = expression(27);
           break;
         }
 
@@ -5105,11 +5105,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(485);
 
-          if (!(precpred(_ctx, 26))) throw FailedPredicateException(this, "precpred(_ctx, 26)");
+          if (!(precpred(_ctx, 25))) throw FailedPredicateException(this, "precpred(_ctx, 25)");
           setState(486);
           match(RiddleParser::And);
           setState(487);
-          antlrcpp::downCast<BitAndExprContext *>(_localctx)->right = expression(27);
+          antlrcpp::downCast<BitAndExprContext *>(_localctx)->right = expression(26);
           break;
         }
 
@@ -5120,11 +5120,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(488);
 
-          if (!(precpred(_ctx, 25))) throw FailedPredicateException(this, "precpred(_ctx, 25)");
+          if (!(precpred(_ctx, 24))) throw FailedPredicateException(this, "precpred(_ctx, 24)");
           setState(489);
           match(RiddleParser::Xor);
           setState(490);
-          antlrcpp::downCast<BitXorExprContext *>(_localctx)->right = expression(26);
+          antlrcpp::downCast<BitXorExprContext *>(_localctx)->right = expression(25);
           break;
         }
 
@@ -5135,11 +5135,11 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(491);
 
-          if (!(precpred(_ctx, 24))) throw FailedPredicateException(this, "precpred(_ctx, 24)");
+          if (!(precpred(_ctx, 23))) throw FailedPredicateException(this, "precpred(_ctx, 23)");
           setState(492);
           match(RiddleParser::Or);
           setState(493);
-          antlrcpp::downCast<BitOrExprContext *>(_localctx)->right = expression(25);
+          antlrcpp::downCast<BitOrExprContext *>(_localctx)->right = expression(24);
           break;
         }
 
@@ -5150,13 +5150,13 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(494);
 
-          if (!(precpred(_ctx, 23))) throw FailedPredicateException(this, "precpred(_ctx, 23)");
+          if (!(precpred(_ctx, 22))) throw FailedPredicateException(this, "precpred(_ctx, 22)");
           setState(495);
           match(RiddleParser::And);
           setState(496);
           match(RiddleParser::And);
           setState(497);
-          antlrcpp::downCast<AndExprContext *>(_localctx)->right = expression(24);
+          antlrcpp::downCast<AndExprContext *>(_localctx)->right = expression(23);
           break;
         }
 
@@ -5167,13 +5167,13 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(498);
 
-          if (!(precpred(_ctx, 22))) throw FailedPredicateException(this, "precpred(_ctx, 22)");
+          if (!(precpred(_ctx, 21))) throw FailedPredicateException(this, "precpred(_ctx, 21)");
           setState(499);
           match(RiddleParser::Or);
           setState(500);
           match(RiddleParser::Or);
           setState(501);
-          antlrcpp::downCast<OrExprContext *>(_localctx)->right = expression(23);
+          antlrcpp::downCast<OrExprContext *>(_localctx)->right = expression(22);
           break;
         }
 
@@ -5184,7 +5184,7 @@ RiddleParser::ExpressionContext* RiddleParser::expression(int precedence) {
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(502);
 
-          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
+          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
           setState(503);
           match(RiddleParser::Dot);
           setState(504);
@@ -6633,26 +6633,26 @@ bool RiddleParser::exprPtrSempred(ExprPtrContext *_localctx, size_t predicateInd
 
 bool RiddleParser::expressionSempred(ExpressionContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
-    case 1: return precpred(_ctx, 40);
-    case 2: return precpred(_ctx, 39);
-    case 3: return precpred(_ctx, 38);
-    case 4: return precpred(_ctx, 37);
-    case 5: return precpred(_ctx, 36);
-    case 6: return precpred(_ctx, 35);
-    case 7: return precpred(_ctx, 34);
-    case 8: return precpred(_ctx, 33);
-    case 9: return precpred(_ctx, 32);
-    case 10: return precpred(_ctx, 31);
-    case 11: return precpred(_ctx, 30);
-    case 12: return precpred(_ctx, 29);
-    case 13: return precpred(_ctx, 28);
-    case 14: return precpred(_ctx, 27);
-    case 15: return precpred(_ctx, 26);
-    case 16: return precpred(_ctx, 25);
-    case 17: return precpred(_ctx, 24);
-    case 18: return precpred(_ctx, 23);
-    case 19: return precpred(_ctx, 22);
-    case 20: return precpred(_ctx, 8);
+    case 1: return precpred(_ctx, 39);
+    case 2: return precpred(_ctx, 38);
+    case 3: return precpred(_ctx, 37);
+    case 4: return precpred(_ctx, 36);
+    case 5: return precpred(_ctx, 35);
+    case 6: return precpred(_ctx, 34);
+    case 7: return precpred(_ctx, 33);
+    case 8: return precpred(_ctx, 32);
+    case 9: return precpred(_ctx, 31);
+    case 10: return precpred(_ctx, 30);
+    case 11: return precpred(_ctx, 29);
+    case 12: return precpred(_ctx, 28);
+    case 13: return precpred(_ctx, 27);
+    case 14: return precpred(_ctx, 26);
+    case 15: return precpred(_ctx, 25);
+    case 16: return precpred(_ctx, 24);
+    case 17: return precpred(_ctx, 23);
+    case 18: return precpred(_ctx, 22);
+    case 19: return precpred(_ctx, 21);
+    case 20: return precpred(_ctx, 7);
 
   default:
     break;

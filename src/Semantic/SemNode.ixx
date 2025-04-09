@@ -1,3 +1,5 @@
+// ReSharper disable CppMemberFunctionMayBeStatic
+// ReSharper disable CppDFAMemoryLeak
 module;
 #include <any>
 #include <llvm/IR/Type.h>
@@ -12,6 +14,8 @@ export namespace Riddle {
         virtual ~SemNode() = default;
 
         virtual std::any accept(SemVisitor &visitor) = 0;
+
+        virtual SemNode *clone() = 0;
     };
 
     class ProgramNode final : public SemNode {
@@ -24,6 +28,8 @@ export namespace Riddle {
             for (const auto &child: allocator) {
                 delete child;
             }
+            allocator.clear();
+            children.clear();
         }
 
         void addToAllocator(SemNode *node) {
@@ -31,16 +37,25 @@ export namespace Riddle {
         }
 
         std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new ProgramNode(*this);
+        }
     };
 
     class TypeNode;
+    class UndefExprNode;
 
     /**
      * 表示一个值
      */
     class ExprNode : public SemNode {
+    protected:
+        explicit ExprNode(TypeNode *type): type(type) {
+        }
+
     public:
-        TypeNode *type{};
+        TypeNode *type;
     };
 
     /**
@@ -48,7 +63,7 @@ export namespace Riddle {
      */
     class TypeNode final : public ExprNode {
     protected:
-        explicit TypeNode(std::string name): name(std::move(name)) {
+        explicit TypeNode(std::string name): ExprNode(nullptr), name(std::move(name)) {
         }
 
     public:
@@ -58,6 +73,9 @@ export namespace Riddle {
             Unknown,
         };
 
+        static constexpr std::string nil = "@nil";
+        static constexpr std::string unknown = "@ukn";
+
         Select select = Unknown;
 
         static TypeNode *create(ProgramNode *program, const std::string &name) {
@@ -66,26 +84,110 @@ export namespace Riddle {
             return ptr;
         }
 
+        static TypeNode *createNil(ProgramNode *program) {
+            return create(program, nil);
+        }
+
+        static TypeNode *createUnknown(ProgramNode *program) {
+            return create(program, unknown);
+        }
+
         // ReSharper disable once CppDFANotInitializedField
         std::string name;
 
         std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new TypeNode(*this);
+        }
+    };
+
+    /**
+     * 仅用于表示空对象，和 null 有所不同
+     */
+    class UndefExprNode final : public ExprNode {
+    protected:
+        explicit UndefExprNode(TypeNode *type): ExprNode(type) {
+        }
+
+    public:
+        static UndefExprNode *create(ProgramNode *program) {
+            const auto ptr = new UndefExprNode(TypeNode::createNil(program));
+            program->addToAllocator(ptr);
+            return ptr;
+        }
+
+        std::any accept(SemVisitor &visitor) override {
+            return {};
+        }
+
+        SemNode *clone() override {
+            return new UndefExprNode(*this);
+        }
+    };
+
+    class IntegerNode final : public ExprNode {
+    protected:
+        explicit IntegerNode(const int value, TypeNode *type): ExprNode(type), value(value) {
+        }
+
+    public:
+        int value;
+
+        static IntegerNode *create(ProgramNode *program, const int value) {
+            const auto ptr = new IntegerNode(value, TypeNode::create(program, "int"));
+            program->addToAllocator(ptr);
+            return ptr;
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new IntegerNode(*this);
+        }
+    };
+
+    class FloatNode final : public ExprNode {
+    protected:
+        explicit FloatNode(const float value, TypeNode *type): ExprNode(type), value(value) {
+        }
+
+    public:
+        float value;
+        static FloatNode *create(ProgramNode *program, const float value) {
+            const auto ptr = new FloatNode(value, TypeNode::create(program, "float"));
+            program->addToAllocator(ptr);
+            return ptr;
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new FloatNode(*this);
+        }
     };
 
     class BlockNode final : public ExprNode {
-        explicit BlockNode(std::vector<SemNode *> children): children(std::move(children)) {
+        explicit BlockNode(std::vector<SemNode *> children, TypeNode *type):
+            ExprNode(type), children(std::move(children)) {
+            this->type = type;
         }
 
     public:
         std::vector<SemNode *> children;
 
         static BlockNode *create(ProgramNode *program, const std::vector<SemNode *> &&children = {}) {
-            const auto ptr = new BlockNode(children);
+            const auto type_ptr = TypeNode::createUnknown(program);
+            const auto ptr = new BlockNode(children, type_ptr);
             program->addToAllocator(ptr);
             return ptr;
         }
 
         std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new BlockNode(*this);
+        }
     };
 
     class DeclArgNode final : public SemNode {
@@ -104,6 +206,10 @@ export namespace Riddle {
         }
 
         std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new DeclArgNode(*this);
+        }
     };
 
     class DeclArgListNode final : public SemNode {
@@ -121,6 +227,10 @@ export namespace Riddle {
         }
 
         std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new DeclArgListNode(*this);
+        }
     };
 
     /**
@@ -146,45 +256,147 @@ export namespace Riddle {
         }
 
         std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new FunctionDecl(*this);
+        }
+    };
+
+    class ReturnNode final : public SemNode {
+    protected:
+        explicit ReturnNode(ExprNode *result): result(result) {
+        }
+
+    public:
+        ExprNode *result;
+
+        static ReturnNode *create(ProgramNode *program, ExprNode *result) {
+            const auto ptr = new ReturnNode(result);
+            program->addToAllocator(ptr);
+            return ptr;
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+
+        SemNode *clone() override {
+            return new ReturnNode(*this);
+        }
+    };
+
+    class AllocaNode final : public SemNode {
+    protected:
+        explicit AllocaNode(TypeNode *type): type(type) {
+        }
+
+    public:
+        TypeNode *type;
+
+        static AllocaNode *create(ProgramNode *program, TypeNode *type) {
+            const auto ptr = new AllocaNode(type);
+            program->addToAllocator(ptr);
+            return ptr;
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+        SemNode *clone() override {
+            return new AllocaNode(*this);
+        }
+    };
+
+#undef alloca
+
+    class VarDecl final : public SemNode {
+        explicit VarDecl(std::string name, TypeNode *type, AllocaNode *alloca, ExprNode *value):
+            value(value), type(type), alloca(alloca), name(std::move(name)) {
+        }
+
+    public:
+        ExprNode *value;
+        TypeNode *type;
+        AllocaNode *alloca;
+        std::string name;
+
+        static VarDecl *create(ProgramNode *program, const std::string &name, TypeNode *type,
+                               ExprNode *value = nullptr) {
+            if (!value) {
+                value = UndefExprNode::create(program);
+            }
+            const auto ptr = new VarDecl(name, type, AllocaNode::create(program, type), value);
+
+            program->addToAllocator(ptr);
+            return ptr;
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+        SemNode *clone() override {
+            return new VarDecl(*this);
+        }
     };
 
     class SemVisitor {
+    protected:
+        ~SemVisitor() = default;
+
     public:
-        std::any visit(SemNode *node) {
+        virtual std::any visit(SemNode *node) {
             return node->accept(*this);
         }
 
-        std::any visitProgram(const ProgramNode *node) {
+        virtual std::any visitProgram(const ProgramNode *node) {
             for (const auto child: node->children) {
                 visit(child);
             }
             return {};
         }
 
-        std::any visitFunctionDecl(const FunctionDecl *node) {
+        virtual std::any visitFunctionDecl(const FunctionDecl *node) {
             visit(node->body);
             return {};
         }
 
-        std::any visitType(const TypeNode *node) {
+        virtual std::any visitType(const TypeNode *node) {
             return {};
         }
 
-        std::any visitBlock(const BlockNode *node) {
+        virtual std::any visitBlock(const BlockNode *node) {
             for (const auto child: node->children) {
                 visit(child);
             }
             return {};
         }
 
-        std::any visitDeclArgList(const DeclArgListNode *node) {
+        virtual std::any visitDeclArgList(const DeclArgListNode *node) {
             for (const auto child: node->children) {
                 visit(child);
             }
             return {};
         }
 
-        std::any visitDeclArg(const DeclArgNode *node) {
+        virtual std::any visitDeclArg(const DeclArgNode *node) {
+            return {};
+        }
+
+        virtual std::any visitInteger(const IntegerNode *node) {
+            return {};
+        }
+
+        virtual std::any visitFloat(const FloatNode *node) {
+            return {};
+        }
+
+        virtual std::any visitReturn(const ReturnNode *node) {
+            return {};
+        }
+
+        virtual std::any visitVarDecl(const VarDecl *node) {
+            visit(node->type);
+            if (node->value) {
+                visit(node->value);
+            }
+            return {};
+        }
+
+        virtual std::any visitAlloca(const AllocaNode *node) {
             return {};
         }
     };

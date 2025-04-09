@@ -5,6 +5,12 @@ namespace Riddle {
     std::any ProgramNode::accept(SemVisitor &visitor) { // NOLINT(*-make-member-function-const)
         return visitor.visitProgram(this);
     }
+    std::any IntegerNode::accept(SemVisitor &visitor) {
+        return visitor.visitInteger(this);
+    }
+    std::any FloatNode::accept(SemVisitor &visitor) {
+        return visitor.visitFloat(this);
+    }
     std::any TypeNode::accept(SemVisitor &visitor) {
         return visitor.visitType(this);
     }
@@ -19,5 +25,14 @@ namespace Riddle {
     }
     std::any FunctionDecl::accept(SemVisitor &visitor) {
         return visitor.visitFunctionDecl(this);
+    }
+    std::any ReturnNode::accept(SemVisitor &visitor) {
+        return visitor.visitReturn(this);
+    }
+    std::any AllocaNode::accept(SemVisitor &visitor) {
+        return visitor.visitAlloca(this);
+    }
+    std::any VarDecl::accept(SemVisitor &visitor) {
+        return visitor.visitVarDecl(this);
     }
 } // namespace Riddle

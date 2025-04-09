@@ -59,9 +59,9 @@ importStatement
     ;
 
 varDefineStatement
-    : Var name=id Colon type=expression
+    : Var name=id Colon type=expression Assign value=expression
     | Var name=id Assign value=expression
-    | Var name=id Colon type=expression Assign value=expression
+    | Var name=id Colon type=expression
     ;
 
 argsExpr
@@ -127,7 +127,8 @@ exprPtrParser
     ;
 
 expression
-    : Less type=typeUsed Greater LeftBracket value=exprPtrParser RightBracket #castExpr
+    : typeUsed                                              #typeType
+    | Less type=typeUsed Greater LeftBracket value=exprPtrParser RightBracket #castExpr
     | LeftBracket expr=expression RightBracket              #bracketExpr    // (x)
     | Not expr=expression                                   #notExpr        // !x
     | Add expr=expression                                   #positiveExpr   // +x
@@ -170,7 +171,6 @@ expression
     | left=exprPtrParser RightRight Assign right=expression    #aShrAssignExpr   // x>>=y
     | left=exprPtrParser RightRightRight Assign right=expression    #lShrAssignExpr   // x>>>=y
     | parentNode=expression Dot childNode=exprPtr           #exprBlend  // 新增此规则
-    | typeUsed                                              #typeType
     | Star expr=expression                                  #loadExpr   // 解引用
     | STRING                                                #stringExpr
     | CHAR                                                  #charExpr
@@ -241,7 +241,7 @@ tmplArgList
     ;
 
 typeUsed
-    : name=exprPtr Star*  #baseType      // 普通名称
+    : name=exprPtr Star*                                            #baseType      // 普通名称
     | name=exprPtr tmpl=tmplUsed                                    #tmplType      // 模板
     | baseType=typeUsed LeftSquare size=expression RightSquare      #arrayType     // 数组
     ;

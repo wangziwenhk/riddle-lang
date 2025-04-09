@@ -31,8 +31,18 @@ export namespace Riddle {
         }
 
         std::any visitBaseType(RiddleParser::BaseTypeContext *context) override {
-            SemNode* type = TypeNode::create(root.get(),context->getText());
+            SemNode *type = TypeNode::create(root.get(), context->getText());
             return type;
+        }
+
+        std::any visitInteger(RiddleParser::IntegerContext *context) override {
+            SemNode *value = IntegerNode::create(root.get(), context->value);
+            return value;
+        }
+
+        std::any visitFloat(RiddleParser::FloatContext *context) override {
+            SemNode *value = FloatNode::create(root.get(), context->value);
+            return value;
         }
 
         std::any visitDefineArgs(RiddleParser::DefineArgsContext *context) override {
@@ -75,9 +85,36 @@ export namespace Riddle {
                 }
                 block->children.push_back(sem_fit_cast(result));
             }
-            block->children.shrink_to_fit();
             SemNode *node = block;
             return node;
+        }
+
+        std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *context) override {
+            const std::string name = context->name->getText();
+            const ExprNode *expr = nullptr;
+            if (context->value) {
+                expr = sem_fit_cast<ExprNode *>(visit(context->value));
+            } else {
+                expr = UndefExprNode::create(root.get());
+            }
+            TypeNode *type = nullptr;
+            if (context->type) {
+                type = sem_fit_cast<TypeNode *>(visit(context->type));
+            } else {
+                type = expr->type;
+            }
+            SemNode *node = VarDecl::create(root.get(), name, type);
+            return node;
+        }
+
+        std::any visitReturnStatement(RiddleParser::ReturnStatementContext *context) override {
+            const auto result = sem_fit_cast<ExprNode *>(visit(context->result));
+            SemNode *node = ReturnNode::create(root.get(), result);
+            return node;
+        }
+
+        std::any visitStatement_ed(RiddleParser::Statement_edContext *context) override {
+            return visit(context->children[0]);
         }
     };
 } // namespace Riddle

@@ -8,3 +8,4 @@ build/
 test/
 CMakePresets.json
 CMakeUserPresets.json
+test.ll
