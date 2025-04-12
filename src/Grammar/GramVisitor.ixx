@@ -57,15 +57,45 @@ export namespace Riddle {
                 }
                 block->children.emplace_back(sem_fit_cast(result));
             }
-            std::shared_ptr<SemNode> ptr = std::move(block);
-            return ptr;
+            std::shared_ptr<SemNode> ptr = block;
+            return std::move(ptr);
+        }
+
+        std::any visitBaseType(RiddleParser::BaseTypeContext *context) override {
+            std::shared_ptr<SemNode> ptr = TypeNode::create(context->getText());
+            return std::move(ptr);
+        }
+
+        std::any visitDefineArgs(RiddleParser::DefineArgsContext *context) override {
+            const auto list = ArgDeclListNode::create();
+            std::string name;
+            std::shared_ptr<TypeNode> type;
+            for (const auto i: context->children) {
+                if (antlrcpp::is<RiddleParser::IdContext *>(i)) {
+                    name = i->getText();
+                } else if (antlrcpp::is<RiddleParser::ExpressionContext *>(i)) {
+                    type = sem_fit_cast<std::shared_ptr<TypeNode>>(visit(i));
+                }
+                if (!name.empty() && type) {
+                    list->children.emplace_back(ArgDeclNode::create(name, type));
+                }
+            }
+            std::shared_ptr<SemNode> ptr = list;
+            return std::move(ptr);
         }
 
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *context) override {
             const auto name = context->funcName->getText();
-            const auto funcNode = FuncDeclNode::create(name);
-            funcNode->children = sem_fit_cast<std::shared_ptr<BlockNode>>(visit(context->body));
-            return {};
+            const auto body = sem_fit_cast<std::shared_ptr<BlockNode>>(visit(context->body));
+            const auto args = sem_fit_cast<std::shared_ptr<ArgDeclListNode>>(visit(context->args));
+            const auto return_type = sem_fit_cast<std::shared_ptr<TypeNode>>(visit(context->returnType));
+            const auto funcNode = FuncDeclNode::create(name, return_type, body, args);
+            std::shared_ptr<SemNode> ptr = funcNode;
+            return std::move(ptr);
+        }
+
+        std::any visitBracketExpr(RiddleParser::BracketExprContext *context) override {
+            return visit(context->expr);
         }
     };
 } // namespace Riddle

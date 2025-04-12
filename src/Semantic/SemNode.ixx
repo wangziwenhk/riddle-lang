@@ -114,19 +114,91 @@ export namespace Riddle {
         std::any accept(SemVisitor &visitor) override;
     };
 
-    //todo 添加函数参数
+    class ObjectNode : public ExprNode {
+    protected:
+        explicit ObjectNode(const std::string &name): name(name) {
+        }
+
+    public:
+        std::string name;
+
+        static auto create(const std::string &name) {
+            return std::shared_ptr<ObjectNode>(new ObjectNode(name));
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+    };
+
+    /// 这里仅仅表示 Type 的字面化形式，不做解析处理，依靠 ObjectNode 的相关解析
+    class TypeNode final : public ObjectNode {
+    protected:
+        explicit TypeNode(std::string name): ObjectNode(std::move(name)) {
+            while (this->name.back() == '*') {
+                pointerSeries++;
+                this->name.pop_back();
+            }
+        }
+
+    public:
+        static auto create(const std::string &name) {
+            return std::shared_ptr<TypeNode>(new TypeNode(std::move(name)));
+        }
+
+        size_t pointerSeries = 0;
+
+        std::any accept(SemVisitor &visitor) override;
+    };
+
+    class ArgDeclNode final : public SemNode {
+    protected:
+        explicit ArgDeclNode(std::string name, const std::shared_ptr<TypeNode> &type):
+            name(std::move(name)), type(type) {
+        }
+
+    public:
+        std::string name;
+        std::shared_ptr<TypeNode> type;
+
+        static auto create(const std::string &name, const std::shared_ptr<TypeNode> &type) {
+            return std::shared_ptr<ArgDeclNode>(new ArgDeclNode(name, type));
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+    };
+
+    class ArgDeclListNode final : public SemNode {
+    protected:
+        explicit ArgDeclListNode(const std::vector<std::shared_ptr<ArgDeclNode>> &children): children(children) {
+        }
+
+    public:
+        std::vector<std::shared_ptr<ArgDeclNode>> children;
+
+        static auto create(const std::vector<std::shared_ptr<ArgDeclNode>> &children = {}) {
+            return std::shared_ptr<ArgDeclListNode>(new ArgDeclListNode(children));
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+    };
+
+
     class FuncDeclNode final : public SemNode {
     protected:
-        explicit FuncDeclNode(std::string name, std::shared_ptr<BlockNode> children):
-            name(std::move(name)), children(std::move(children)) {
+        explicit FuncDeclNode(std::string name, const std::shared_ptr<TypeNode> &returnType,
+                              std::shared_ptr<BlockNode> children, std::shared_ptr<ArgDeclListNode> &args):
+            name(std::move(name)), children(std::move(children)), args(args), returnType(returnType) {
         }
 
     public:
         std::string name;
         std::shared_ptr<BlockNode> children;
+        std::shared_ptr<ArgDeclListNode> args;
+        std::shared_ptr<TypeNode> returnType;
 
-        static auto create(std::string name, std::shared_ptr<BlockNode> children = {}) {
-            return std::shared_ptr<FuncDeclNode>(new FuncDeclNode(std::move(name), std::move(children)));
+        static auto create(std::string name, const std::shared_ptr<TypeNode> &returnType,
+                           std::shared_ptr<BlockNode> children, std::shared_ptr<ArgDeclListNode> args) {
+            return std::shared_ptr<FuncDeclNode>(
+                    new FuncDeclNode(std::move(name), returnType, std::move(children), args));
         }
 
         std::any accept(SemVisitor &visitor) override;
@@ -147,5 +219,9 @@ export namespace Riddle {
         virtual std::any visitChar(CharNode *node);
         virtual std::any visitFuncDecl(FuncDeclNode *node);
         virtual std::any visitBlock(BlockNode *node);
+        virtual std::any visitObject(ObjectNode *node);
+        virtual std::any visitArgDecl(ArgDeclNode *node);
+        virtual std::any visitArgDeclList(ArgDeclListNode *node);
+        virtual std::any visitType(TypeNode *node);
     };
 } // namespace Riddle

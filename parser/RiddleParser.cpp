@@ -168,14 +168,14 @@ void riddleparserParserInitialize() {
   	0,148,149,3,44,22,0,149,150,5,37,0,0,150,152,1,0,0,0,151,148,1,0,0,0,
   	152,155,1,0,0,0,153,151,1,0,0,0,153,154,1,0,0,0,154,156,1,0,0,0,155,153,
   	1,0,0,0,156,158,3,44,22,0,157,153,1,0,0,0,157,158,1,0,0,0,158,17,1,0,
-  	0,0,159,160,3,46,23,0,160,161,5,35,0,0,161,162,3,70,35,0,162,163,5,37,
+  	0,0,159,160,3,46,23,0,160,161,5,35,0,0,161,162,3,44,22,0,162,163,5,37,
   	0,0,163,165,1,0,0,0,164,159,1,0,0,0,165,168,1,0,0,0,166,164,1,0,0,0,166,
   	167,1,0,0,0,167,169,1,0,0,0,168,166,1,0,0,0,169,170,3,46,23,0,170,171,
-  	5,35,0,0,171,172,3,70,35,0,172,174,1,0,0,0,173,166,1,0,0,0,173,174,1,
+  	5,35,0,0,171,172,3,44,22,0,172,174,1,0,0,0,173,166,1,0,0,0,173,174,1,
   	0,0,0,174,175,1,0,0,0,175,203,6,9,-1,0,176,177,3,46,23,0,177,178,5,35,
-  	0,0,178,179,3,70,35,0,179,180,5,37,0,0,180,182,1,0,0,0,181,176,1,0,0,
+  	0,0,178,179,3,44,22,0,179,180,5,37,0,0,180,182,1,0,0,0,181,176,1,0,0,
   	0,182,185,1,0,0,0,183,181,1,0,0,0,183,184,1,0,0,0,184,186,1,0,0,0,185,
-  	183,1,0,0,0,186,187,3,46,23,0,187,188,5,35,0,0,188,189,3,70,35,0,189,
+  	183,1,0,0,0,186,187,3,46,23,0,187,188,5,35,0,0,188,189,3,44,22,0,189,
   	190,1,0,0,0,190,191,5,37,0,0,191,192,5,54,0,0,192,193,5,54,0,0,193,194,
   	5,54,0,0,194,195,1,0,0,0,195,196,6,9,-1,0,196,203,1,0,0,0,197,198,5,54,
   	0,0,198,199,5,54,0,0,199,200,5,54,0,0,200,201,1,0,0,0,201,203,6,9,-1,
@@ -1325,12 +1325,12 @@ tree::TerminalNode* RiddleParser::DefineArgsContext::Colon(size_t i) {
   return getToken(RiddleParser::Colon, i);
 }
 
-std::vector<RiddleParser::TypeUsedContext *> RiddleParser::DefineArgsContext::typeUsed() {
-  return getRuleContexts<RiddleParser::TypeUsedContext>();
+std::vector<RiddleParser::ExpressionContext *> RiddleParser::DefineArgsContext::expression() {
+  return getRuleContexts<RiddleParser::ExpressionContext>();
 }
 
-RiddleParser::TypeUsedContext* RiddleParser::DefineArgsContext::typeUsed(size_t i) {
-  return getRuleContext<RiddleParser::TypeUsedContext>(i);
+RiddleParser::ExpressionContext* RiddleParser::DefineArgsContext::expression(size_t i) {
+  return getRuleContext<RiddleParser::ExpressionContext>(i);
 }
 
 std::vector<tree::TerminalNode *> RiddleParser::DefineArgsContext::Comma() {
@@ -1408,7 +1408,7 @@ RiddleParser::DefineArgsContext* RiddleParser::defineArgs() {
             setState(160);
             match(RiddleParser::Colon);
             setState(161);
-            typeUsed(0);
+            expression(0);
             setState(162);
             match(RiddleParser::Comma); 
           }
@@ -1422,7 +1422,7 @@ RiddleParser::DefineArgsContext* RiddleParser::defineArgs() {
         setState(170);
         match(RiddleParser::Colon);
         setState(171);
-        typeUsed(0);
+        expression(0);
       }
       antlrcpp::downCast<DefineArgsContext *>(_localctx)->varArg = false;
       break;
@@ -1440,7 +1440,7 @@ RiddleParser::DefineArgsContext* RiddleParser::defineArgs() {
           setState(177);
           match(RiddleParser::Colon);
           setState(178);
-          typeUsed(0);
+          expression(0);
           setState(179);
           match(RiddleParser::Comma); 
         }
@@ -1454,7 +1454,7 @@ RiddleParser::DefineArgsContext* RiddleParser::defineArgs() {
       setState(187);
       match(RiddleParser::Colon);
       setState(188);
-      typeUsed(0);
+      expression(0);
 
       setState(190);
       match(RiddleParser::Comma);

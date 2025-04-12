@@ -21,6 +21,18 @@ namespace Riddle {
     std::any BlockNode::accept(SemVisitor &visitor) {
         return visitor.visitBlock(this);
     }
+    std::any ObjectNode::accept(SemVisitor &visitor) {
+        return visitor.visitObject(this);
+    }
+    std::any TypeNode::accept(SemVisitor &visitor) {
+        return visitor.visitType(this);
+    }
+    std::any ArgDeclNode::accept(SemVisitor &visitor) {
+        return visitor.visitArgDecl(this);
+    }
+    std::any ArgDeclListNode::accept(SemVisitor &visitor) {
+        return visitor.visitArgDeclList(this);
+    }
     std::any FuncDeclNode::accept(SemVisitor &visitor) {
         return visitor.visitFuncDecl(this);
     }
@@ -51,4 +63,21 @@ namespace Riddle {
         }
         return {};
     }
+    std::any SemVisitor::visitObject(ObjectNode *node) {
+        return {};
+    }
+    std::any SemVisitor::visitArgDecl(ArgDeclNode *node) {
+        return {};
+    }
+    std::any SemVisitor::visitArgDeclList(ArgDeclListNode *node) {
+        for (auto i: node->children) {
+            visit(i.get());
+        }
+        return {};
+    }
+    std::any SemVisitor::visitType(TypeNode *node) {
+        return {};
+    }
+
+
 } // namespace Riddle

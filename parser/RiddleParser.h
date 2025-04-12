@@ -277,8 +277,8 @@ public:
     IdContext* id(size_t i);
     std::vector<antlr4::tree::TerminalNode *> Colon();
     antlr4::tree::TerminalNode* Colon(size_t i);
-    std::vector<TypeUsedContext *> typeUsed();
-    TypeUsedContext* typeUsed(size_t i);
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
     std::vector<antlr4::tree::TerminalNode *> Comma();
     antlr4::tree::TerminalNode* Comma(size_t i);
     std::vector<antlr4::tree::TerminalNode *> Dot();

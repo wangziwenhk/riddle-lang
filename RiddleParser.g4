@@ -69,8 +69,8 @@ argsExpr
     ;
 
 defineArgs returns [bool varArg]
-    : ((id Colon typeUsed Comma)* (id Colon typeUsed))? {$varArg=false;}
-    | ((id Colon typeUsed Comma)* (id Colon typeUsed)) (Comma Dot Dot Dot) {$varArg=true;}
+    : ((id Colon expression Comma)* (id Colon expression))? {$varArg=false;}
+    | ((id Colon expression Comma)* (id Colon expression)) (Comma Dot Dot Dot) {$varArg=true;}
     | (Dot Dot Dot) {$varArg=true;}
     ;
 
