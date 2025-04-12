@@ -1,8 +1,9 @@
 module;
 #include <any>
+#include <vector>
 module Semantic.SemNode;
 namespace Riddle {
-    std::any ProgramNode::accept(SemVisitor &visitor) { // NOLINT(*-make-member-function-const)
+    std::any ProgramNode::accept(SemVisitor &visitor) {
         return visitor.visitProgram(this);
     }
     std::any IntegerNode::accept(SemVisitor &visitor) {
@@ -11,28 +12,43 @@ namespace Riddle {
     std::any FloatNode::accept(SemVisitor &visitor) {
         return visitor.visitFloat(this);
     }
-    std::any TypeNode::accept(SemVisitor &visitor) {
-        return visitor.visitType(this);
+    std::any BooleanNode::accept(SemVisitor &visitor) {
+        return visitor.visitBoolean(this);
+    }
+    std::any CharNode::accept(SemVisitor &visitor) {
+        return visitor.visitChar(this);
     }
     std::any BlockNode::accept(SemVisitor &visitor) {
         return visitor.visitBlock(this);
     }
-    std::any DeclArgNode::accept(SemVisitor &visitor) {
-        return visitor.visitDeclArg(this);
+    std::any FuncDeclNode::accept(SemVisitor &visitor) {
+        return visitor.visitFuncDecl(this);
     }
-    std::any DeclArgListNode::accept(SemVisitor &visitor) {
-        return visitor.visitDeclArgList(this);
+    std::any SemVisitor::visitProgram(ProgramNode *node) {
+        for (const auto &i: node->children) {
+            visit(i.get());
+        }
+        return {};
     }
-    std::any FunctionDecl::accept(SemVisitor &visitor) {
-        return visitor.visitFunctionDecl(this);
+    std::any SemVisitor::visitInteger(IntegerNode *node) {
+        return {};
     }
-    std::any ReturnNode::accept(SemVisitor &visitor) {
-        return visitor.visitReturn(this);
+    std::any SemVisitor::visitFloat(FloatNode *node) {
+        return {};
     }
-    std::any AllocaNode::accept(SemVisitor &visitor) {
-        return visitor.visitAlloca(this);
+    std::any SemVisitor::visitBoolean(BooleanNode *node) {
+        return {};
     }
-    std::any VarDecl::accept(SemVisitor &visitor) {
-        return visitor.visitVarDecl(this);
+    std::any SemVisitor::visitChar(CharNode *node) {
+        return {};
+    }
+    std::any SemVisitor::visitFuncDecl(FuncDeclNode *node) {
+        return {};
+    }
+    std::any SemVisitor::visitBlock(BlockNode *node) {
+        for (const auto &i: node->children) {
+            visit(i.get());
+        }
+        return {};
     }
 } // namespace Riddle

@@ -19,9 +19,6 @@ export namespace Riddle {
         void startBuild() {
             GramVisitor gram_visitor;
             gram_visitor.visit(pack.program);
-            program = std::move(gram_visitor.root);
-            SemAnalysis sem_analysis;
-            sem_analysis.visit(program.get());
         }
     };
 } // namespace Riddle
