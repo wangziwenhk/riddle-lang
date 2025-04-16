@@ -48,6 +48,47 @@ export namespace Riddle {
             return std::move(ptr);
         }
 
+        static std::string parserString(const std::string &input) {
+            std::string result;
+            for (size_t i = 0; i < input.length(); ++i) {
+                if (input[i] == '\\' && i + 1 < input.length()) {
+                    switch (input[i + 1]) {
+                        case 'n':
+                            result += '\n';
+                            break;
+                        case 't':
+                            result += '\t';
+                            break;
+                        case 'r':
+                            result += '\r';
+                            break;
+                        case '\\':
+                            result += '\\';
+                            break;
+                        case '"':
+                            result += '"';
+                            break;
+                        // 其他转义字符...
+                        default:
+                            result += input[i + 1];
+                            break;
+                    }
+                    ++i;
+                } else {
+                    result += input[i];
+                }
+            }
+            return result;
+        }
+
+        std::any visitCharExpr(RiddleParser::CharExprContext *context) override {
+            auto literal = context->getText();
+            literal = literal.substr(1, literal.size() - 2);
+            const char value = parserString(literal).front();
+            std::shared_ptr<SemNode> ptr = CharNode::create(value);
+            return std::move(ptr);
+        }
+
         std::any visitBodyExpr(RiddleParser::BodyExprContext *context) override {
             const auto block = BlockNode::create();
             for (const auto i: context->children) {
@@ -96,6 +137,24 @@ export namespace Riddle {
 
         std::any visitBracketExpr(RiddleParser::BracketExprContext *context) override {
             return visit(context->expr);
+        }
+
+        std::any visitVarDefineStatement(RiddleParser::VarDefineStatementContext *context) override {
+            const auto name = context->name->getText();
+            std::shared_ptr<TypeNode> type;
+            std::shared_ptr<ExprNode> value;
+            if (context->type) {
+                type = sem_fit_cast<std::shared_ptr<TypeNode>>(visit(context->type));
+            }
+            if (context->value) {
+                value = sem_fit_cast<std::shared_ptr<ExprNode>>(visit(context->value));
+            }
+            if (!type && value) {
+                type = TypeNode::create("");
+                type->type = value->type;
+            }
+            std::shared_ptr<SemNode> ptr = VarDeclNode::create(name, type, value);
+            return std::move(ptr);
         }
     };
 } // namespace Riddle

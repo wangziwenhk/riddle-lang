@@ -36,6 +36,9 @@ namespace Riddle {
     std::any FuncDeclNode::accept(SemVisitor &visitor) {
         return visitor.visitFuncDecl(this);
     }
+    std::any VarDeclNode::accept(SemVisitor &visitor) {
+        return visitor.visitVarDecl(this);
+    }
     std::any SemVisitor::visitProgram(ProgramNode *node) {
         for (const auto &i: node->children) {
             visit(i.get());
@@ -70,12 +73,15 @@ namespace Riddle {
         return {};
     }
     std::any SemVisitor::visitArgDeclList(ArgDeclListNode *node) {
-        for (auto i: node->children) {
+        for (const auto &i: node->children) {
             visit(i.get());
         }
         return {};
     }
     std::any SemVisitor::visitType(TypeNode *node) {
+        return {};
+    }
+    std::any SemVisitor::visitVarDecl(VarDeclNode *node) {
         return {};
     }
 

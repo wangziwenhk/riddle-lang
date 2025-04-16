@@ -1,11 +1,14 @@
 module;
 #include <any>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Value.h>
 #include <memory>
 #include <typeindex>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 export module Semantic.SemNode;
-import Semantic.Type;
+import Semantic.ValueType;
 export namespace Riddle {
     class SemVisitor;
     class SemNode {
@@ -35,9 +38,10 @@ export namespace Riddle {
 
     class ExprNode : public SemNode {
     public:
-        Type type;
-    };
+        std::shared_ptr<ValueType> type = ValueType::create();
 
+        llvm::Value *llvm_value = nullptr;
+    };
 
     class IntegerNode final : public ExprNode {
     protected:
@@ -47,7 +51,7 @@ export namespace Riddle {
     public:
         int value;
 
-        static auto create(int value = 0) {
+        static auto create(const int value = 0) {
             return std::shared_ptr<IntegerNode>(new IntegerNode(value));
         }
 
@@ -116,10 +120,18 @@ export namespace Riddle {
 
     class ObjectNode : public ExprNode {
     protected:
-        explicit ObjectNode(const std::string &name): name(name) {
+        explicit ObjectNode(std::string name): name(std::move(name)) {
         }
 
     public:
+        enum Select {
+            Unknown,
+            Global,
+            Local,
+            Base,
+        };
+
+        Select select = Unknown;
         std::string name;
 
         static auto create(const std::string &name) {
@@ -130,21 +142,22 @@ export namespace Riddle {
     };
 
     /// 这里仅仅表示 Type 的字面化形式，不做解析处理，依靠 ObjectNode 的相关解析
+    /// 其解析获得依靠其 type 中的 类型选择器
     class TypeNode final : public ObjectNode {
-    protected:
+    public:
         explicit TypeNode(std::string name): ObjectNode(std::move(name)) {
             while (this->name.back() == '*') {
-                pointerSeries++;
+                pointerSize++;
                 this->name.pop_back();
             }
         }
 
     public:
         static auto create(const std::string &name) {
-            return std::shared_ptr<TypeNode>(new TypeNode(std::move(name)));
+            return std::make_shared<TypeNode>(name);
         }
 
-        size_t pointerSeries = 0;
+        size_t pointerSize = 0;
 
         std::any accept(SemVisitor &visitor) override;
     };
@@ -161,6 +174,10 @@ export namespace Riddle {
 
         static auto create(const std::string &name, const std::shared_ptr<TypeNode> &type) {
             return std::shared_ptr<ArgDeclNode>(new ArgDeclNode(name, type));
+        }
+
+        [[nodiscard]] std::shared_ptr<ValueType> getGenType() const {
+            return type->type;
         }
 
         std::any accept(SemVisitor &visitor) override;
@@ -185,20 +202,46 @@ export namespace Riddle {
     class FuncDeclNode final : public SemNode {
     protected:
         explicit FuncDeclNode(std::string name, const std::shared_ptr<TypeNode> &returnType,
-                              std::shared_ptr<BlockNode> children, std::shared_ptr<ArgDeclListNode> &args):
+                              std::shared_ptr<BlockNode> children, const std::shared_ptr<ArgDeclListNode> &args):
             name(std::move(name)), children(std::move(children)), args(args), returnType(returnType) {
         }
 
     public:
+        llvm::FunctionType *funcTy = nullptr;
+        llvm::Function *func = nullptr;
         std::string name;
         std::shared_ptr<BlockNode> children;
         std::shared_ptr<ArgDeclListNode> args;
         std::shared_ptr<TypeNode> returnType;
 
         static auto create(std::string name, const std::shared_ptr<TypeNode> &returnType,
-                           std::shared_ptr<BlockNode> children, std::shared_ptr<ArgDeclListNode> args) {
+                           std::shared_ptr<BlockNode> children, const std::shared_ptr<ArgDeclListNode> &args) {
             return std::shared_ptr<FuncDeclNode>(
                     new FuncDeclNode(std::move(name), returnType, std::move(children), args));
+        }
+
+        std::any accept(SemVisitor &visitor) override;
+    };
+
+    class VarDeclNode final : public SemNode {
+    protected:
+        explicit VarDeclNode(std::string name, std::shared_ptr<TypeNode> type, std::shared_ptr<ExprNode> value):
+            name(std::move(name)), type(std::move(type)), value(std::move(value)) {
+        }
+
+    public:
+        std::string name;
+        std::shared_ptr<TypeNode> type;
+        std::shared_ptr<ExprNode> value;
+
+        static auto create(std::string name, std::shared_ptr<TypeNode> type,
+                           std::shared_ptr<ExprNode> value = nullptr) {
+            return std::shared_ptr<VarDeclNode>(new VarDeclNode(std::move(name), std::move(type), std::move(value)));
+        }
+
+        /// 这里是获取该变量生成的实际类型，来自 Type-> type，当  antlr 中没有该 Type 时将使用 value->type
+        [[nodiscard]] std::shared_ptr<ValueType> getGenType() const {
+            return type->type;
         }
 
         std::any accept(SemVisitor &visitor) override;
@@ -223,5 +266,6 @@ export namespace Riddle {
         virtual std::any visitArgDecl(ArgDeclNode *node);
         virtual std::any visitArgDeclList(ArgDeclListNode *node);
         virtual std::any visitType(TypeNode *node);
+        virtual std::any visitVarDecl(VarDeclNode *node);
     };
 } // namespace Riddle

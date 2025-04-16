@@ -10,7 +10,6 @@ module;
 #include "RiddleLexer.h"
 #include "RiddleParser.h"
 export module Support.BuildQueue;
-import Manager.ErrorManager;
 import Support.FileTools;
 import Support.Package;
 import Grammar.PackageVisitor;
@@ -24,33 +23,17 @@ export namespace Riddle {
         std::unordered_map<std::string, std::vector<Package>> libSource;
 
     public:
-        BuildQueue() {
-        }
+        BuildQueue() = default;
 
         /// @brief 用于解析某个源文件
         void parserFile(const std::string &filePath) {
             std::ifstream stream = getFileStream(filePath);
             const auto input = new antlr4::ANTLRInputStream(stream);
             const auto lexer = new RiddleLexer(input);
-            // 添加自定义的错误处理
-            LexerErrorListener lexerListener;
-            lexer->removeErrorListeners();
-            lexer->addErrorListener(&lexerListener);
-
             const auto tokens = new antlr4::CommonTokenStream(lexer);
             auto *parser = new RiddleParser(tokens);
-
-            ParserErrorListener parserListener;
-
-            std::string line;
-            while (std::getline(stream, line)) {
-                parserListener.lines.push_back(line);
-            }
             stream.clear();
             stream.seekg(0);
-
-            parser->removeErrorListeners();
-            parser->addErrorListener(&parserListener);
 
             antlr4::tree::ParseTree *p = parser->program();
             PackageVisitor visitor{};
@@ -110,12 +93,11 @@ export namespace Riddle {
                 }
             }
 
-            const auto llvm_ctx = std::make_unique<llvm::LLVMContext>();
             std::unordered_map<std::string, std::unique_ptr<Module>> contextMap;
             // 依次编译
             for (auto i: buildList) {
                 auto pack = libSource[i.data()].front();
-                contextMap.emplace(pack.getName(), std::make_unique<Module>(*llvm_ctx, pack));
+                contextMap.emplace(pack.getName(), std::make_unique<Module>( pack));
                 const auto &module = contextMap.at(pack.getName());
 
                 // // link 其他 Context
