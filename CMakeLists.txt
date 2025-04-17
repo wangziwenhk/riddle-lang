@@ -38,27 +38,6 @@ find_package(unofficial-tree-sitter CONFIG REQUIRED)
 
 message(STATUS "clone tree-sitter-c")
 
-include(FetchContent)
-
-FetchContent_Declare(
-        tree-sitter-c
-        GIT_REPOSITORY https://gh-proxy.ygxz.in/https://github.com/tree-sitter/tree-sitter-c
-        GIT_TAG v0.23.5
-)
-FetchContent_MakeAvailable(tree-sitter-c)
-
-# 手动创建tree-sitter-c库目标
-add_library(tree_sitter_c STATIC
-        ${tree-sitter-c_SOURCE_DIR}/src/parser.c
-)
-target_include_directories(tree_sitter_c PUBLIC
-        ${tree-sitter-c_SOURCE_DIR}/src
-)
-set_target_properties(tree_sitter_c PROPERTIES
-        OUTPUT_NAME tree_sitter_c
-        POSITION_INDEPENDENT_CODE ON
-)
-
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found Antlr4 include ${ANTLR4_INCLUDE_DIR}")
@@ -196,7 +175,6 @@ target_link_libraries(riddle riddle-module)
 target_link_libraries(riddle antlr4_shared)
 target_link_libraries(riddle argparse::argparse)
 target_link_libraries(riddle magic_enum::magic_enum)
-target_link_libraries(riddle unofficial::tree-sitter::tree-sitter tree_sitter_c)
 
 target_include_directories(riddle PRIVATE
         ${tree-sitter-c_SOURCE_DIR}/src
