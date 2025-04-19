@@ -242,15 +242,15 @@ export namespace Riddle {
             }
             const auto &name = node->name;
             static std::unordered_map<std::string, llvm::Type *> base_types = {
-                    {"bool", llvm::Type::getInt1Ty(*context.llvmContext)},
-                    {"int", llvm::Type::getInt32Ty(*context.llvmContext)},
-                    {"long", llvm::Type::getInt64Ty(*context.llvmContext)},
-                    {"short", llvm::Type::getInt16Ty(*context.llvmContext)},
-                    {"char", llvm::Type::getInt8Ty(*context.llvmContext)},
-                    {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
-                    {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
-                    {"void", llvm::Type::getVoidTy(*context.llvmContext)},
-                    {"char*", llvm::PointerType::get(llvm::Type::getInt8Ty(*context.llvmContext), 0)},
+                {"bool", llvm::Type::getInt1Ty(*context.llvmContext)},
+                {"int", llvm::Type::getInt32Ty(*context.llvmContext)},
+                {"long", llvm::Type::getInt64Ty(*context.llvmContext)},
+                {"short", llvm::Type::getInt16Ty(*context.llvmContext)},
+                {"char", llvm::Type::getInt8Ty(*context.llvmContext)},
+                {"float", llvm::Type::getDoubleTy(*context.llvmContext)},
+                {"double", llvm::Type::getDoubleTy(*context.llvmContext)},
+                {"void", llvm::Type::getVoidTy(*context.llvmContext)},
+                {"char*", llvm::PointerType::get(llvm::Type::getInt8Ty(*context.llvmContext), 0)},
             };
             // 尝试获取基本类型
             if (base_types.contains(name)) {
@@ -324,7 +324,12 @@ export namespace Riddle {
 
             context.push();
             context.builder->SetInsertPoint(bodyBlock);
+            context.breakBlock.emplace(exitBlock);
+            context.continueBlock.emplace(condBlock);
+            context.push();
             visit(node->body);
+            context.breakBlock.pop();
+            context.continueBlock.pop();
             context.builder->CreateBr(condBlock);
             context.pop();
 
@@ -349,9 +354,19 @@ export namespace Riddle {
             const auto cond = std::any_cast<llvm::Value *>(visit(node->condition));
             context.builder->CreateCondBr(cond, bodyBlock, exitBlock);
 
+            //预处理increment
+            if (node->body->getSemType() == SemNode::BlockNodeType) {
+                dynamic_cast<BlockNode*>(node->body)->body.emplace_back(node->increment);
+            }
+
             context.builder->SetInsertPoint(bodyBlock);
+            context.breakBlock.emplace(exitBlock);
+            context.continueBlock.emplace(condBlock);
+            context.push();
             visit(node->body);
-            visit(node->increment);
+            context.pop();
+            context.breakBlock.pop();
+            context.continueBlock.pop();
             context.builder->CreateBr(condBlock);
 
             context.pop();

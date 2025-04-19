@@ -30,12 +30,6 @@ Operator: 'operator';
 // 模板
 Template: 'template';
 TypeName: 'typename';
-Int_: 'int';
-Float_: 'float';
-Double_: 'double';
-Short_: 'short';
-Long_:'long';
-Char_:'char';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

@@ -48,6 +48,8 @@ export namespace Riddle {
 
             ClassDefineNodeType,
             BlendNodeType,
+            ContinueNodeType,
+            BreakNodeType,
         };
 
     protected:
@@ -550,6 +552,22 @@ export namespace Riddle {
 
         std::any accept(SemNodeVisitor &visitor) override;
     };
+
+    class ContinueNode final : public SemNode {
+    public:
+        ContinueNode(): SemNode(ContinueNodeType) {
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
+
+    class BreakNode final : public SemNode {
+    public:
+        BreakNode(): SemNode(BreakNodeType) {
+        }
+
+        std::any accept(SemNodeVisitor &visitor) override;
+    };
 #pragma endregion
 
 #pragma region SemNodeVisitor
@@ -693,6 +711,14 @@ export namespace Riddle {
             return {};
         }
 
+        virtual std::any visitBreak(BreakNode *node) {
+            return {};
+        }
+
+        virtual std::any visitContinue(ContinueNode *node) {
+            return {};
+        }
+
         virtual ~SemNodeVisitor() = default;
     };
 
@@ -796,6 +822,12 @@ export namespace Riddle {
 
     std::any BlendNode::accept(SemNodeVisitor &visitor) {
         return visitor.visitBlend(this);
+    }
+    std::any ContinueNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitContinue(this);
+    }
+    std::any BreakNode::accept(SemNodeVisitor &visitor) {
+        return visitor.visitBreak(this);
     }
 #pragma endregion
 } // namespace Riddle

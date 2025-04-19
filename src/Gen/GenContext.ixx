@@ -174,6 +174,8 @@ export namespace Riddle {
         std::unique_ptr<llvm::Module> llvmModule;
         llvm::IRBuilder<> *builder{};
         std::string name;
+        std::stack<llvm::BasicBlock *> continueBlock;
+        std::stack<llvm::BasicBlock *> breakBlock;
 
         std::shared_ptr<BuildTarget> buildTarget;
 

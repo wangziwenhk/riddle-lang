@@ -312,7 +312,6 @@ export namespace Riddle {
         std::string getOperator(const std::tuple<std::string, std::string, std::string> &opGroup) {
             const auto it = operators.find(opGroup);
             auto [lt,rt,op] = opGroup;
-            auto aaa = operators.contains(opGroup);
             if (it == operators.end()) {
                 throw std::runtime_error(std::format("Duplicate operator: '{}' '{}' '{}'", lt, op, rt));
             }

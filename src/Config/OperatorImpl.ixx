@@ -18,8 +18,8 @@ export namespace Riddle {
 
     void initOperatorImpl() {
         //赋值的通用实现
-        for (auto i: BasicType::list) {
-            operatorImpl.insert({opFunc("int", "int", "="){ return builder.CreateStore(lhs, rhs); }});
+        for (const auto& i: BasicType::list) {
+            operatorImpl.insert({opFunc(i, i, "="){ return builder.CreateStore(rhs, lhs); }});
         }
 
         operatorImpl.insert({opFunc("int", "int", "+"){ return builder.CreateAdd(lhs, rhs); }});

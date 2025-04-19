@@ -38,7 +38,7 @@ export namespace Riddle {
                 }
                 if (result.type() != typeid(SemNode *)) {
                     throw std::runtime_error(
-                            std::format("GramAnalysis: Result \'{}\' not SemNode", result.type().name()));
+                        std::format("GramAnalysis: Result \'{}\' not SemNode", result.type().name()));
                 }
                 const auto node = std::any_cast<SemNode *>(result);
                 program->body->push_back(node);
@@ -69,7 +69,7 @@ export namespace Riddle {
                     continue;
                 }
                 if (result.type() != typeid(SemNode *)) {
-                    throw std::runtime_error("GramAnalysis: Result not SemNode");
+                    throw std::runtime_error("GramAnalysis: Result not SemNode, or may be a subclass of SemNode");
                 }
                 block->push_back(std::any_cast<SemNode *>(result));
             }
@@ -150,39 +150,39 @@ export namespace Riddle {
     return node;
 
 
-        std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override{opDefFunc("+")}
+        std::any visitAddExpr(RiddleParser::AddExprContext *ctx) override { opDefFunc("+") }
 
-        std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override{opDefFunc("-")}
+        std::any visitSubExpr(RiddleParser::SubExprContext *ctx) override { opDefFunc("-") }
 
-        std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override{opDefFunc("*")}
+        std::any visitMulExpr(RiddleParser::MulExprContext *ctx) override { opDefFunc("*") }
 
-        std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override{opDefFunc("/")}
+        std::any visitDivExpr(RiddleParser::DivExprContext *ctx) override { opDefFunc("/") }
 
-        std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override{opDefFunc("^")}
+        std::any visitBitXorExpr(RiddleParser::BitXorExprContext *ctx) override { opDefFunc("^") }
 
-        std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override{opDefFunc("&")}
+        std::any visitBitAndExpr(RiddleParser::BitAndExprContext *ctx) override { opDefFunc("&") }
 
-        std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override{opDefFunc("|")}
+        std::any visitBitOrExpr(RiddleParser::BitOrExprContext *ctx) override { opDefFunc("|") }
 
-        std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override{opDefFunc("+=")}
+        std::any visitAddAssignExpr(RiddleParser::AddAssignExprContext *ctx) override { opDefFunc("+=") }
 
-        std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) override{opDefFunc("-=")}
+        std::any visitSubAssignExpr(RiddleParser::SubAssignExprContext *ctx) override { opDefFunc("-=") }
 
-        std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) override{opDefFunc("/=")}
+        std::any visitDivAssignExpr(RiddleParser::DivAssignExprContext *ctx) override { opDefFunc("/=") }
 
-        std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) override{opDefFunc("*=")}
+        std::any visitMulAssignExpr(RiddleParser::MulAssignExprContext *ctx) override { opDefFunc("*=") }
 
-        std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override{opDefFunc("<")}
+        std::any visitLessExpr(RiddleParser::LessExprContext *ctx) override { opDefFunc("<") }
 
-        std::any visitLessEqualExpr(RiddleParser::LessEqualExprContext *ctx) override{opDefFunc("<=")}
+        std::any visitLessEqualExpr(RiddleParser::LessEqualExprContext *ctx) override { opDefFunc("<=") }
 
-        std::any visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) override{opDefFunc(">")}
+        std::any visitGreaterExpr(RiddleParser::GreaterExprContext *ctx) override { opDefFunc(">") }
 
-        std::any visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) override{opDefFunc(">=")}
+        std::any visitGreaterEqualExpr(RiddleParser::GreaterEqualExprContext *ctx) override { opDefFunc(">=") }
 
-        std::any visitEqualExpr(RiddleParser::EqualExprContext *ctx) override{opDefFunc("==")}
+        std::any visitEqualExpr(RiddleParser::EqualExprContext *ctx) override { opDefFunc("==") }
 
-        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override{opDefFunc("=")}
+        std::any visitAssignExpr(RiddleParser::AssignExprContext *ctx) override { opDefFunc("=") }
 #pragma endregion
 
         std::any visitFuncDefine(RiddleParser::FuncDefineContext *ctx) override {
@@ -209,7 +209,7 @@ export namespace Riddle {
             std::vector<ArgNode *> args;
             bool varArg = false;
             if (ctx->args != nullptr) {
-                args = std::any_cast<std::vector<ArgNode *>>(visitDefineArgs(ctx->args));
+                args = std::any_cast<std::vector<ArgNode *> >(visitDefineArgs(ctx->args));
                 varArg = ctx->args->varArg;
             }
             SemNode *func = new FuncDefineNode(name, returnType, body, mod, args, varArg);
@@ -320,7 +320,7 @@ export namespace Riddle {
 
         std::any visitFuncExpr(RiddleParser::FuncExprContext *context) override {
             const auto name = context->funcName->getText();
-            const auto args = std::any_cast<std::vector<ExprNode *>>(visit(context->args));
+            const auto args = std::any_cast<std::vector<ExprNode *> >(visit(context->args));
             SemNode *node = new FuncCallNode(root, name, args);
             root->addSemNode(node);
             return node;
@@ -439,8 +439,8 @@ export namespace Riddle {
         std::any visitPropertyItem(RiddleParser::PropertyItemContext *ctx) override {
             const std::string name = ctx->getText();
             static std::unordered_map<std::string, Property::PropertyType> types = {
-                    {"packed", Property::Packaged},
-                    {"interrupt", Property::InterruptService},
+                {"packed", Property::Packaged},
+                {"interrupt", Property::InterruptService},
             };
             if (!types.contains(name)) {
                 throw std::runtime_error("UNKNOWN NAME");
@@ -450,6 +450,18 @@ export namespace Riddle {
 
         std::any visitBracketExpr(RiddleParser::BracketExprContext *ctx) override {
             return visit(ctx->expr);
+        }
+
+        std::any visitBreakStatement(RiddleParser::BreakStatementContext *context) override {
+            SemNode *node = new BreakNode();
+            root->addSemNode(node);
+            return node;
+        }
+
+        std::any visitContinueStatement(RiddleParser::ContinueStatementContext *context) override {
+            SemNode *node = new ContinueNode();
+            root->addSemNode(node);
+            return node;
         }
     };
 } // namespace Riddle
