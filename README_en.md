@@ -3,6 +3,7 @@
   <h1>Riddle Language</h1>
 </div>
 
+# The current warehouse has been abandoned, please go to https://github.com/wangziwenhk/riddle
 
 Simplified Chinese | [English](./README_en.md)
 
