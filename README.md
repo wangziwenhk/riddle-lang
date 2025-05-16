@@ -3,6 +3,7 @@
   <h1>Riddle Language</h1>
 </div>
 
+# 当前仓库已经被废弃，请转到https://github.com/wangziwenhk/riddle
 
 简体中文 | [English](./README_en.md)
 
